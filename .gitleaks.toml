@@ -1,0 +1,3 @@
+# Extiende las reglas por defecto de gitleaks.
+[extend]
+useDefault = true

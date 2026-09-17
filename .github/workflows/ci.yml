@@ -1,0 +1,31 @@
+# The same four gates that run locally, so main's health does not depend on
+# anyone remembering to run them. The release install gate stays local — it
+# needs the private scrub denylist.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  seguridad:
+    name: Seguridad
+    uses: gdberysan/.github/.github/workflows/security.yml@v1
+    permissions:
+      contents: read
+      # gitleaks-action lee los commits del PR en eventos pull_request
+      pull-requests: read

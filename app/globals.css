@@ -1,0 +1,892 @@
+@import "tailwindcss";
+
+@import "../styles/korven/colors.css";
+@import "../styles/korven/typography.css";
+@import "../styles/korven/spacing.css";
+@import "../styles/korven/effects.css";
+@import "../styles/korven/base.css";
+
+/* Point Korven's family tokens at the self-hosted next/font faces.
+   Everything else in the token files is left exactly as shipped. */
+:root {
+  --font-display: var(--font-display-loaded), "Inter", system-ui, sans-serif;
+  --font-text: var(--font-text-loaded), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-mono-loaded), ui-monospace, monospace;
+}
+
+/* Korven's stock focus ring is a 16%-alpha glow — atmosphere, not a locator:
+   ~1.3:1 against the canvas, which loses the keyboard position on every
+   control. A solid amber core carries the position (WCAG 2.4.7 / 1.4.11);
+   the brand glow stays around it. Token files stay as shipped; this
+   overrides the value they feed. */
+:root {
+  --ring-focus:
+    0 0 0 2px var(--amber-500),
+    0 0 0 5px var(--amber-glow);
+}
+
+/* Fluid type.
+   Korven's scale is fixed pixels, which is right for the site it was drawn
+   for and wrong on a phone: a 49px h1 fills a 360px screen with three words.
+   Only the display sizes are made fluid — body text stays 16px, because
+   shrinking running text is how interfaces become unreadable on small
+   screens rather than more readable. The token files themselves are left
+   exactly as shipped; these override the scale they feed. */
+:root {
+  --text-6xl: clamp(40px, 9vw, 76px);
+  --text-5xl: clamp(34px, 7.5vw, 61px);
+  --text-4xl: clamp(29px, 6vw, 49px);
+  --text-3xl: clamp(25px, 4.8vw, 39px);
+  --text-2xl: clamp(22px, 3.8vw, 31px);
+  --text-xl: clamp(19px, 2.8vw, 25px);
+}
+
+/* Expose Korven tokens to Tailwind v4 utilities. */
+@theme inline {
+  --color-surface-base: var(--surface-base);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-card: var(--surface-card);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-inset: var(--surface-inset);
+  --color-text-strong: var(--text-strong);
+  --color-text-body: var(--text-body);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-signal-ok: var(--signal-ok);
+  --color-signal-error: var(--signal-error);
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* A long unbroken token — a URL inside a pasted posting, a long company name,
+   an id — breaks rather than widening the page. Inherited, so it covers every
+   text surface without naming them. */
+body {
+  overflow-wrap: break-word;
+}
+
+/* ============================================================
+   SIGIL GRAMMAR
+   Korven's console voice, extended into a consistent vocabulary:
+     //  a section label
+     $   a command you issued
+     >   output from the system
+     _   where you type
+   These carry meaning, so they are never used decoratively.
+   ============================================================ */
+
+.eyebrow {
+  font: var(--type-mono-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.eyebrow::before {
+  content: "// ";
+  color: var(--text-faint);
+}
+
+/* ============================================================
+   TYPE DISCIPLINE
+   If it is a verifiable fact — an id, a metric, a count, a date —
+   it is mono. If it is writing, it is Inter. The split is what
+   makes the interface read as an instrument rather than a form.
+   ============================================================ */
+
+/* JetBrains Mono fuses `--` into a single long dash. That is a pleasant
+   effect in prose and a lie in a console: `--posting` is two characters, and
+   an interface that renders commands must render them literally. */
+.fact,
+.fact-label,
+.ident,
+.datum,
+.chip,
+.action,
+.action-quiet,
+.console,
+.field-mono,
+.field-line {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+.fact {
+  font: var(--type-mono);
+  letter-spacing: var(--tracking-mono);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* An uppercase label. Only ever used for words WE write, never for data.
+   Muted, not faint: at 11px this is small text, and the faint token sits
+   under the 4.5:1 floor on cards. Faint is reserved for true decoration. */
+.fact-label {
+  font: var(--type-mono-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* A literal identifier — an evidence id, a bullet id. Rendered exactly as
+   stored: never transformed, because a CV bullet cites this string and the
+   interface must not misrepresent it. */
+.ident {
+  font: var(--type-mono-label);
+  letter-spacing: var(--tracking-mono);
+  color: var(--text-muted);
+}
+
+/* ---- Console ----
+   Korven's site speaks in `$ korven build --from core`. The same voice carries
+   here, because these interactions genuinely are a dialogue with a machine. */
+
+.console {
+  background: var(--code-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  font: var(--type-mono);
+  box-shadow: var(--edge-top);
+}
+
+/* A terminal window takes focus as a whole. Ringing the bare textarea inside
+   it instead would draw a hard amber rectangle around 250px of empty space —
+   a focus cue louder than anything the page has to say. */
+.console:focus-within {
+  border-color: var(--border-default);
+  box-shadow:
+    var(--edge-top),
+    var(--ring-focus);
+}
+.console :focus-visible {
+  box-shadow: none;
+}
+.console .btn:focus-visible,
+.console a:focus-visible {
+  box-shadow: var(--ring-focus);
+}
+
+.console-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  /* A wrapped shell command is normal; a command torn into fragments is not.
+     The line may wrap between its parts, never inside one. */
+  flex-wrap: wrap;
+}
+
+/* Only the command itself is unbreakable. Applying this to every child of a
+   console line was a horizontal-scroll bug: the status line below the box
+   holds a real job title, and forbidding it to wrap made a phone scroll
+   sideways to twice its own width. */
+.cmd-token {
+  white-space: nowrap;
+}
+
+.console-sigil {
+  color: var(--accent);
+  user-select: none;
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.95em;
+  margin-left: 0.2em;
+  vertical-align: text-bottom;
+  background: var(--amber-500);
+  animation: cursor-blink 1.1s steps(1) infinite;
+}
+
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none;
+  }
+}
+
+/* ---- The current in the frame ----
+   The triage box is a circuit waiting for input. One amber trace runs the
+   perimeter at constant speed — an SVG rect with pathLength="100" and a
+   moving dash, so the corners take exactly as long as the straights and it
+   reads as a tracer on a board, not a spinning glow. Slow and faint while the
+   box waits; fast and bright while the machine works; gone once it answers.
+   Decoration only: aria-hidden, no pointer events, off under reduced motion. */
+.console-live {
+  position: relative;
+}
+
+.console-trace {
+  /* Centred on the 1px border: the padding box starts inside it, so the
+     overlay steps half a pixel out on every side. */
+  position: absolute;
+  inset: -0.5px;
+  width: calc(100% + 1px);
+  height: calc(100% + 1px);
+  overflow: visible;
+  pointer-events: none;
+  color: var(--amber-500);
+}
+
+.console-trace rect {
+  x: 0;
+  y: 0;
+  width: 100%;
+  height: 100%;
+  rx: var(--radius-lg);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-width: var(--trace-width, 1px);
+  animation-name: trace-run;
+  animation-duration: var(--trace-period, 6s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* The head leads; the tail is the same dash, longer, dimmer, shifted back so
+   it ends where the head ends and fades out behind it. */
+/* The head is hot — near-white amber with an amber halo — so it reads as a
+   charge travelling the rail whether the rail is the grey resting border or
+   the solid amber focus ring the box wears while you are typing in it. The
+   tail is the signal colour itself, fading behind. */
+.console-trace rect.console-trace-head {
+  stroke: var(--amber-100);
+  stroke-dasharray: 8 92;
+  opacity: var(--trace-head, 0.8);
+  filter: drop-shadow(0 0 var(--trace-glow, 2px) var(--amber-500));
+}
+.console-trace rect.console-trace-tail {
+  stroke-dasharray: 22 78;
+  opacity: var(--trace-tail, 0.28);
+  animation-name: trace-run-tail;
+}
+
+.console.is-idle {
+  --trace-width: 1.5px;
+}
+.console.is-running {
+  --trace-period: 1.8s;
+  --trace-width: 2.5px;
+  --trace-head: 1;
+  --trace-tail: 0.5;
+  --trace-glow: 5px;
+}
+
+@keyframes trace-run {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes trace-run-tail {
+  from {
+    stroke-dashoffset: 114;
+  }
+  to {
+    stroke-dashoffset: 14;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .console-trace {
+    display: none;
+  }
+}
+
+/* ============================================================
+   LAYOUT — mobile first
+   Every rule below starts at the smallest screen and is widened
+   by min-width queries, never narrowed by max-width ones. The
+   frame itself is fluid: gutters grow with the viewport rather
+   than the content stopping dead at a fixed container width.
+   ============================================================ */
+
+:root {
+  /* Grows continuously, so resizing the window always visibly does
+     something instead of nothing until a breakpoint is crossed. */
+  --gutter-page: clamp(16px, 4vw, 72px);
+  /* Wide enough that a laptop is filled edge to edge; capped only so a
+     28-inch monitor does not stretch a paste box across two feet of glass. */
+  --frame-max: 1800px;
+}
+
+.page {
+  width: 100%;
+  max-width: var(--frame-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--gutter-page) var(--space-9);
+}
+
+@media (min-width: 700px) {
+  .page {
+    padding-block: var(--space-8) var(--space-10);
+  }
+}
+
+/* A page whose every element sits on a prose measure (Ajustes, the import
+   and interview steps, Números): center the column instead of pinning it to
+   the left edge of a frame it will never fill. 48em clears the widest capped
+   block inside (stats' 760px). */
+.page-narrow {
+  max-width: 48em;
+}
+
+/* One column until there is genuinely room for two. On a phone the work comes
+   first and the rail follows it: opening your own evidence to a list of three
+   things wrong with you is a bad way to start, and the rail is navigation for
+   a long page — useless before you have seen the page. On a wide screen it
+   sits alongside, where it costs nothing to read first. */
+.work-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+.work-shell > .rail {
+  order: 1;
+  position: static;
+}
+.work-shell > .work {
+  order: 0;
+  min-width: 0;
+}
+
+@media (min-width: 1000px) {
+  .work-shell {
+    grid-template-columns: 264px minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+  .work-shell > .rail {
+    order: 0;
+    position: sticky;
+    top: calc(var(--space-8) + 32px);
+  }
+  .work-shell > .work {
+    order: 1;
+  }
+}
+
+/* Anchor targets land below the sticky nav, not underneath it. */
+.work-shell section[id] {
+  scroll-margin-top: 96px;
+}
+
+.railitem {
+  border-left: 2px solid transparent;
+  transition:
+    background 120ms var(--ease-out),
+    border-color 120ms var(--ease-out);
+}
+.railitem:hover {
+  background: var(--surface-inset);
+  border-left-color: var(--border-strong);
+}
+
+/* Evidence records: one column of cards until the screen is genuinely wide. */
+.rec-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+@media (min-width: 1440px) {
+  .rec-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Números: KPI strip and section-card grid. Explicit column counts — auto-fit
+   orphans a fixed card set at mid widths. */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+@media (min-width: 1080px) {
+  .kpi-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--edge-top);
+}
+
+/* Pipeline rows: one application per card. The three-column shape holds only
+   where the screen is wide enough for the coverage meter to sit beside the
+   title without crushing it. */
+.rowcard {
+  display: block;
+  position: relative;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--edge-top);
+  padding: var(--space-4) var(--space-5);
+  transition:
+    background 120ms var(--ease-out),
+    border-color 120ms var(--ease-out);
+}
+/* The title link stretched over the whole card: the hover promise the card
+   makes is a real click target again, as it was when the row was one <a>. */
+.row-stretch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.rowcard:hover {
+  background: var(--surface-raised);
+  border-color: var(--border-default);
+}
+.row-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+@media (min-width: 1000px) {
+  .row-main {
+    grid-template-columns: minmax(0, 1fr) 200px minmax(168px, auto);
+    gap: var(--space-5);
+    align-items: center;
+  }
+}
+
+/* A number the user actually recorded. Amber is reserved for verified data. */
+.datum {
+  font: var(--type-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+/* The measure for anything you read as sentences. Prose keeps its measure
+   while the frame around it grows: a paste box wants the width, a paragraph
+   does not. */
+.prose {
+  max-width: 34em;
+  line-height: var(--leading-relaxed);
+  color: var(--text-muted);
+}
+
+/* A headline sits on a measure — a 49px line running the full width of a wide
+   monitor is a banner, not a title. The evidence page is excluded: its h1 is a
+   person's name, and a name should break where it wants to, not at 18ch. */
+.page > h1 {
+  max-width: 22ch;
+}
+
+/* A vertical stack whose column is allowed to shrink.
+   A bare `display: grid` sizes its implicit column to max-content, so one long
+   line — a metric written out in full — silently pushes its card wider than
+   the screen. Every stacked group in the app uses this instead. */
+.stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  margin: 0;
+}
+
+/* ---- Controls ---- */
+
+.btn {
+  font: var(--type-label);
+  border-radius: var(--radius-md);
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--text-on-amber);
+}
+/* Not a faded accent — dimmed amber on graphite reads as muddy brown.
+   A disabled action should look inert, not damaged. */
+.btn-primary:disabled {
+  background: var(--surface-raised);
+  color: var(--text-faint);
+  border-color: var(--border-subtle);
+  opacity: 1;
+}
+.btn-primary:not(:disabled):hover {
+  background: var(--accent-hover);
+}
+.btn-primary:not(:disabled):active {
+  transform: translateY(0.5px) scale(0.995);
+}
+.btn-quiet {
+  background: var(--surface-card);
+  color: var(--text-body);
+  border-color: var(--border-default);
+}
+.btn-quiet:not(:disabled):hover {
+  background: var(--surface-raised);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border-subtle);
+}
+.btn-ghost:not(:disabled):hover {
+  color: var(--text-strong);
+  border-color: var(--border-strong);
+}
+
+/* A whole row that is one link. Without a hover state a card-shaped link
+   reads as static furniture, and the pipeline is meant to be clicked through. */
+.row-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  color: var(--text-body);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.row-link:hover {
+  background: var(--surface-raised);
+  border-color: var(--border-default);
+}
+
+/* A skill tag. Clicking removes it, so it has to look pressable without
+   competing with the record's own text — inset, not raised. */
+.chip {
+  font: var(--type-mono);
+  letter-spacing: var(--tracking-mono);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.chip:hover {
+  color: var(--text-strong);
+  border-color: var(--border-default);
+}
+
+/* An add or remove affordance. It is chrome, not content, so it rests quiet
+   and only takes the accent under the pointer — otherwise every record would
+   advertise its own scaffolding louder than the work it records. Muted, not
+   faint: these are interactive controls, and their words must clear the
+   4.5:1 floor at rest. The horizontal padding + negative margin pair widens
+   the touch target without moving the visible label. */
+.action-quiet {
+  font: var(--type-mono-label);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  padding: 8px 6px;
+  margin-inline: -6px;
+  /* A one-character label (the × on a metric) still gets a finger-sized box. */
+  min-width: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.action-quiet:hover {
+  color: var(--accent);
+}
+
+/* Inline mono action, used where a link sits inside a data row. Same
+   padding/margin pair as .action-quiet: a bigger finger target, same
+   visible alignment. display so the padding actually takes on links. */
+.action {
+  display: inline-block;
+  font: var(--type-mono-label);
+  letter-spacing: var(--tracking-wide);
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 8px 6px;
+  margin-inline: -6px;
+  cursor: pointer;
+}
+.action:hover {
+  color: var(--accent-hover);
+}
+
+/* ---- Fields ---- */
+
+.field {
+  width: 100%;
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  color: var(--text-body);
+  font: var(--type-body);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.field:hover {
+  border-color: var(--border-default);
+}
+.field-bare {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: vertical;
+  color: var(--text-body);
+  font: var(--type-body);
+  padding: 0;
+}
+.field-mono {
+  font: var(--type-mono);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  color: var(--text-body);
+}
+
+/* A console line you type on. The sigil beside it is its only chrome at rest:
+   a boxed input would outweigh the narrative it belongs to, and the recorded
+   figure is the thing that should carry weight. Hover reveals the line;
+   :focus-visible adds Korven's amber ring on top. */
+.field-line {
+  font: var(--type-mono);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  outline: none;
+  padding: 2px 0;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.field-line::placeholder {
+  color: var(--text-faint);
+}
+.field-line:hover {
+  border-bottom-color: var(--border-subtle);
+}
+.field-line:focus {
+  border-bottom-color: var(--border-default);
+}
+
+/* Rises from the gutter rather than appearing: the movement is what makes it
+   noticeable without needing colour or size to shout. */
+.undo-bar {
+  animation: undo-rise var(--dur-base) var(--ease-out) both;
+}
+@keyframes undo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .undo-bar {
+    animation: none;
+  }
+  .btn,
+  .field {
+    transition: none;
+  }
+  .btn-primary:not(:disabled):active {
+    transform: none;
+  }
+}
+
+/* A command-line flag you can change. It is a real <select>, but it reads as
+   part of the command rather than as a form control parked above the box. */
+.flag-select {
+  font: var(--type-mono);
+  letter-spacing: var(--tracking-mono);
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dotted var(--border-default);
+  border-radius: 0;
+  padding: 0 0 1px;
+  cursor: pointer;
+  appearance: none;
+}
+.flag-select:hover:not(:disabled) {
+  border-bottom-color: var(--accent);
+}
+.flag-select:disabled {
+  color: var(--text-muted);
+  cursor: default;
+  border-bottom-color: transparent;
+}
+
+/* The URL flag. Same dotted-underline idiom as .flag-select, but it grows with
+   what you paste instead of sizing to a fixed set of options, and collapses to
+   a short stub when empty so an unused flag does not dominate the line. */
+.flag-input {
+  font: var(--type-mono);
+  letter-spacing: var(--tracking-mono);
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dotted var(--border-default);
+  border-radius: 0;
+  padding: 0 0 1px;
+  width: 22ch;
+  max-width: 100%;
+}
+.flag-input::placeholder {
+  color: var(--text-faint);
+}
+.flag-input:hover:not(:disabled),
+.flag-input:focus-visible {
+  border-bottom-color: var(--accent);
+}
+.flag-input:disabled {
+  color: var(--text-muted);
+  border-bottom-color: transparent;
+}
+
+/* Touch targets, mobile first.
+   The controls above are sized for a fingertip by default and tightened only
+   where the screen is wide *and* the pointer is precise. Gating the roomy
+   version behind `pointer: coarse` was the wrong test: a narrow window on a
+   laptop reports a fine pointer and got 14px targets, which is exactly the
+   case this is meant to protect. */
+@media (min-width: 700px) and (pointer: fine) {
+  .action,
+  .action-quiet {
+    padding-block: 0;
+  }
+  .chip {
+    padding: 3px 8px;
+  }
+}
+
+/* The nav sits under a thumb before it sits under a cursor. */
+.nav-link {
+  display: inline-block;
+  padding-block: 6px 3px;
+}
+@media (min-width: 700px) and (pointer: fine) {
+  .nav-link {
+    padding-block: 0 3px;
+  }
+}
+
+/* ---- The front door ----
+   Intro and paste box side by side once there is room for both, so a wide
+   window is filled by the composition rather than by one narrow column of
+   text sitting above a very wide empty rectangle. Below that width they
+   stack, intro first. */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (min-width: 1080px) {
+  .hero {
+    grid-template-columns: minmax(300px, 5fr) minmax(0, 7fr);
+    gap: clamp(var(--space-6), 4vw, var(--space-8));
+  }
+  /* The box carries the page, so it sets the height and the intro sits with
+     it rather than floating at the top of a tall column. */
+  .hero > .hero-intro {
+    position: sticky;
+    top: calc(var(--space-8) + 32px);
+  }
+}
+
+/* iOS zooms the page when a focused input's font is under 16px. On touch
+   devices the small mono fields give up their compactness rather than have
+   every tap on a metric or the market flag lurch the viewport. Last in the
+   file on purpose: the field rules above set font via shorthand, and at
+   equal specificity this must come later to win. */
+@media (pointer: coarse) {
+  .field-line,
+  .field-mono,
+  .flag-select {
+    font-size: 16px;
+  }
+}
+
+/* ---- Studio ---- */
+/* Document left, evidence pane right; the pane drops below on narrow
+   screens rather than squeezing the page. */
+.studio-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+@media (min-width: 980px) {
+  .studio-grid {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+}
+
+/* ---- Quiet pager buttons ---- */
+/* Global on purpose: the studio's PDF pager once styled itself with rules
+   only another page loaded, so on the application page it rendered as bare
+   buttons. */
+.dc-navbtn {
+  flex: none;
+  white-space: nowrap;
+  font: var(--type-mono);
+  font-size: 12px;
+  letter-spacing: var(--tracking-wide);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.dc-navbtn:hover {
+  color: var(--text-strong);
+  border-color: var(--border-default);
+}
+.dc-navbtn--off {
+  border-color: transparent;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+

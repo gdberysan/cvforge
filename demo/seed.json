@@ -1,0 +1,2245 @@
+{
+  "builtAt": "2026-08-25T22:50:24.190Z",
+  "profile": {
+    "basics": {
+      "fullName": "Lucas Lara",
+      "headline": "Coordinador de Marketing Digital · performance, CRM y analítica",
+      "email": "lucas.lara@example.com",
+      "location": "Ciudad de México",
+      "timezone": "America/Mexico_City",
+      "links": [
+        {
+          "label": "LinkedIn",
+          "url": "linkedin.com/in/lucaslara-demo"
+        }
+      ]
+    },
+    "summary": "Siete años operando marketing digital para retail, fintech y agencia: campañas de performance en Meta y Google, CRM con HubSpot, analítica en GA4 y Looker Studio. Me gusta el trabajo donde el número de la semana siguiente depende de lo que cambié esta semana.",
+    "experience": [
+      {
+        "id": "role_demo_1",
+        "title": "Coordinador de Marketing Digital",
+        "company": "Farmacias del Valle",
+        "location": "Ciudad de México",
+        "period": {
+          "start": "2021-03",
+          "end": "2025-06"
+        },
+        "summary": "Cadena de 140 farmacias en el centro del país. Coordiné performance, CRM y analítica para la tienda en línea y el programa de lealtad."
+      },
+      {
+        "id": "role_demo_2",
+        "title": "Especialista de Growth",
+        "company": "Pagolibre",
+        "location": "Ciudad de México",
+        "period": {
+          "start": "2018-08",
+          "end": "2021-02"
+        },
+        "summary": "Fintech de pagos para pequeños comercios. Adquisición digital y activación de comercios nuevos."
+      },
+      {
+        "id": "role_demo_3",
+        "title": "Ejecutivo de Cuentas Digitales",
+        "company": "Agencia Brisa",
+        "location": "Ciudad de México",
+        "period": {
+          "start": "2016-06",
+          "end": "2018-07"
+        },
+        "summary": "Agencia digital boutique. Operación de campañas y reportes para cinco cuentas de consumo."
+      }
+    ],
+    "education": [
+      {
+        "id": "edu_demo_1",
+        "degree": "Licenciatura en Administración, concentración en Mercadotecnia",
+        "institution": "Universidad Autónoma Metropolitana",
+        "period": {
+          "start": "2011-08",
+          "end": "2016-01"
+        }
+      }
+    ],
+    "skills": [
+      {
+        "category": "Performance",
+        "items": [
+          "Meta Ads",
+          "Google Ads",
+          "TikTok Ads"
+        ]
+      },
+      {
+        "category": "CRM y automatización",
+        "items": [
+          "HubSpot",
+          "Salesforce Marketing Cloud (básico)",
+          "Klaviyo"
+        ]
+      },
+      {
+        "category": "Analítica",
+        "items": [
+          "GA4",
+          "Looker Studio",
+          "Excel avanzado",
+          "SQL básico"
+        ]
+      },
+      {
+        "category": "Producto",
+        "items": [
+          "Pruebas A/B",
+          "Figma (lectura de diseños)"
+        ]
+      }
+    ],
+    "languages": [
+      {
+        "language": "Español",
+        "level": "native"
+      },
+      {
+        "language": "Inglés",
+        "level": "C1"
+      }
+    ],
+    "certifications": [
+      {
+        "id": "cert_demo_1",
+        "name": "Google Ads Search Certification",
+        "issuer": "Google",
+        "date": "2024-02"
+      },
+      {
+        "id": "cert_demo_2",
+        "name": "HubSpot Marketing Software",
+        "issuer": "HubSpot Academy",
+        "date": "2022-09"
+      }
+    ],
+    "projects": [],
+    "workAuthorization": [
+      {
+        "country": "MX",
+        "status": "ciudadano"
+      }
+    ],
+    "preferences": {
+      "targetTitles": [
+        "Coordinador de Marketing Digital",
+        "Growth Lead",
+        "Performance Marketing Manager"
+      ],
+      "markets": [
+        "mx"
+      ]
+    },
+    "updatedAt": "2026-08-21T00:00:00.000Z"
+  },
+  "evidence": [
+    {
+      "id": "ev_demo_01",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_1"
+      },
+      "text": "Operé campañas de Meta Ads y Google Ads con un presupuesto mensual de $450 mil MXN para la tienda en línea de Farmacias del Valle; el ROAS combinado pasó de 2.1 a 3.4 en seis meses al reestructurar por categoría y pasar de pujas manuales a tCPA con conversiones de compra importadas desde GA4.",
+      "metrics": [
+        {
+          "raw": "presupuesto mensual de $450 mil MXN",
+          "value": 450000,
+          "unit": "MXN",
+          "currency": "MXN"
+        },
+        {
+          "raw": "ROAS de 2.1 a 3.4",
+          "value": 3.4,
+          "unit": "x",
+          "direction": "up"
+        }
+      ],
+      "tags": [
+        "meta ads",
+        "google ads",
+        "roas"
+      ],
+      "period": {
+        "start": "2021-03",
+        "end": "2025-06"
+      },
+      "strength": "core",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_02",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_1"
+      },
+      "text": "Diseñé en HubSpot los flujos de recompra del programa de lealtad (recordatorio de tratamiento crónico, carrito abandonado, reactivación a 90 días); la tasa de recompra a 60 días subió de 18% a 27% en el segmento de enfermedades crónicas.",
+      "metrics": [
+        {
+          "raw": "recompra a 60 días de 18% a 27%",
+          "value": 27,
+          "unit": "%",
+          "direction": "up"
+        }
+      ],
+      "tags": [
+        "hubspot",
+        "crm",
+        "recompra"
+      ],
+      "period": {
+        "start": "2021-03",
+        "end": "2025-06"
+      },
+      "strength": "core",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_03",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_1"
+      },
+      "text": "Construí el tablero semanal de marketing en Looker Studio sobre GA4 y datos de ventas (CAC, ROAS por canal, conversión por categoría); se volvió el reporte que dirección revisaba los lunes y con el que se decidía el presupuesto del mes.",
+      "metrics": [],
+      "tags": [
+        "ga4",
+        "looker studio",
+        "kpis"
+      ],
+      "period": {
+        "start": "2021-03",
+        "end": "2025-06"
+      },
+      "strength": "core",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_04",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_1"
+      },
+      "text": "Coordiné a la agencia creativa y a la agencia de medios: calendario mensual de piezas, revisión de copys con el área regulatoria (publicidad de medicamentos) y control del presupuesto contra el plan; cerramos 2024 a 2% por debajo del presupuesto anual aprobado.",
+      "metrics": [
+        {
+          "raw": "2% por debajo del presupuesto anual",
+          "value": 2,
+          "unit": "%",
+          "direction": "down"
+        }
+      ],
+      "tags": [
+        "agencias",
+        "presupuesto"
+      ],
+      "period": {
+        "start": "2021-03",
+        "end": "2025-06"
+      },
+      "strength": "supporting",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_05",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_1"
+      },
+      "text": "Propuse y corrí con el equipo de UX una serie de pruebas A/B en la landing de recetas electrónicas; la variante ganadora (formulario en dos pasos) subió la conversión del 3.1% al 4.2%.",
+      "metrics": [
+        {
+          "raw": "conversión del 3.1% al 4.2%",
+          "value": 4.2,
+          "unit": "%",
+          "direction": "up"
+        }
+      ],
+      "tags": [
+        "a/b",
+        "ux",
+        "landing"
+      ],
+      "period": {
+        "start": "2021-03",
+        "end": "2025-06"
+      },
+      "strength": "supporting",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_06",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_2"
+      },
+      "text": "En Pagolibre lideré la adquisición digital de comercios nuevos (Meta, Google, afiliados) como único responsable del canal; el CAC bajó de $1,450 a $890 MXN por comercio activado en un año, principalmente al cortar audiencias amplias y concentrar la inversión en búsqueda de marca y remarketing a registros incompletos.",
+      "metrics": [
+        {
+          "raw": "CAC de $1,450 a $890 MXN",
+          "value": 890,
+          "unit": "MXN",
+          "currency": "MXN",
+          "direction": "down"
+        }
+      ],
+      "tags": [
+        "fintech",
+        "adquisición",
+        "cac"
+      ],
+      "period": {
+        "start": "2018-08",
+        "end": "2021-02"
+      },
+      "strength": "core",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_07",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_2"
+      },
+      "text": "Monté la secuencia de onboarding por email y WhatsApp para comercios recién registrados; la activación (primer cobro en 14 días) pasó de 41% a 56%.",
+      "metrics": [
+        {
+          "raw": "activación de 41% a 56%",
+          "value": 56,
+          "unit": "%",
+          "direction": "up"
+        }
+      ],
+      "tags": [
+        "activación",
+        "email",
+        "onboarding"
+      ],
+      "period": {
+        "start": "2018-08",
+        "end": "2021-02"
+      },
+      "strength": "core",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_08",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_2"
+      },
+      "text": "Mi SQL es básico: escribía consultas sencillas (joins y agregados sobre las tablas de registros y transacciones) para armar cohortes de activación; los modelos más complejos los construía el equipo de datos, no yo.",
+      "metrics": [],
+      "tags": [
+        "sql",
+        "analítica"
+      ],
+      "period": {
+        "start": "2018-08",
+        "end": "2021-02"
+      },
+      "strength": "supporting",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_11",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_1"
+      },
+      "text": "Construí en Excel el modelo de presupuesto anual de marketing de Farmacias del Valle: tablas dinámicas sobre el histórico de inversión por canal, escenarios con Buscar objetivo, fórmulas de búsqueda y validación, y una macro que consolidaba cada mes los reportes de las dos agencias en una sola hoja de control; fue la herramienta con la que se negoció el presupuesto 2024.",
+      "metrics": [],
+      "tags": [
+        "excel",
+        "presupuesto",
+        "modelo"
+      ],
+      "period": {
+        "start": "2021-03",
+        "end": "2025-06"
+      },
+      "strength": "supporting",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_09",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_3"
+      },
+      "text": "En Agencia Brisa operé campañas y reportes mensuales para cinco cuentas de consumo (bebidas, cuidado personal); gestioné un presupuesto agregado de unos $1.2M MXN al mes y presenté resultados al cliente cada mes.",
+      "metrics": [
+        {
+          "raw": "presupuesto agregado de $1.2M MXN al mes",
+          "value": 1200000,
+          "unit": "MXN",
+          "currency": "MXN"
+        }
+      ],
+      "tags": [
+        "agencia",
+        "reportes",
+        "cuentas"
+      ],
+      "period": {
+        "start": "2016-06",
+        "end": "2018-07"
+      },
+      "strength": "supporting",
+      "origin": "manual"
+    },
+    {
+      "id": "ev_demo_10",
+      "kind": "achievement",
+      "sourceRef": {
+        "type": "experience",
+        "id": "role_demo_3"
+      },
+      "text": "Atendí en inglés, como único punto de contacto, a un cliente regional con sede en Miami durante dos años: llamadas semanales de estatus, presentaciones trimestrales de resultados al director regional y todos los reportes escritos en inglés.",
+      "metrics": [],
+      "tags": [
+        "inglés",
+        "clientes"
+      ],
+      "period": {
+        "start": "2016-06",
+        "end": "2018-07"
+      },
+      "strength": "supporting",
+      "origin": "manual"
+    }
+  ],
+  "applications": [
+    {
+      "id": "app_demo_1",
+      "source": "linkedin",
+      "company": "Grupo Andino Retail",
+      "jobTitle": "Coordinador(a) de Marketing Digital",
+      "market": "mx",
+      "documentLanguage": "es-MX",
+      "postingRaw": "Coordinador(a) de Marketing Digital — Grupo Andino Retail · Ciudad de México (híbrido)\n\nSobre el puesto\nBuscamos a una persona que coordine la operación de marketing digital de nuestras cinco marcas de retail en México: campañas de performance, CRM y analítica, en coordinación con agencias y con el equipo de ecommerce.\n\nResponsabilidades\n- Planear y operar campañas en Meta Ads y Google Ads con presupuestos mensuales de $300–600 mil MXN.\n- Gestionar el CRM (HubSpot o Salesforce Marketing Cloud): segmentación, automatizaciones y reportes de recompra.\n- Definir y dar seguimiento a KPIs (CAC, ROAS, tasa de conversión) en dashboards de Looker Studio o Power BI.\n- Coordinar agencias creativas y de medios; asegurar entregas a tiempo y dentro del presupuesto.\n- Proponer pruebas A/B en landing pages junto con el equipo de UX.\n\nRequisitos\n- 3+ años en marketing digital, de preferencia en retail o ecommerce.\n- Experiencia comprobable operando Meta Ads y Google Ads.\n- Manejo de un CRM empresarial y de herramientas de analítica (GA4 indispensable).\n- Excel avanzado; SQL básico deseable.\n- Inglés intermedio-avanzado.\n- Residir en CDMX o zona metropolitana (3 días por semana en oficina).\n\nOfrecemos\n- Sueldo competitivo, prestaciones superiores a la ley, seguro de gastos médicos mayores.\n",
+      "postingHash": "91443c49ce0c40486545f5f5113368c313715824bbca614d4cf6aa58cc5595b2",
+      "evidenceHash": "fdc154a0e62d58e7d44cf14eb19ca60bb90cc0534cc9e76d4974be4d9a1115bd",
+      "requirements": [
+        {
+          "id": "req_1",
+          "text": "3+ años de experiencia en marketing digital, de preferencia en retail o ecommerce",
+          "keyword": "3+ años en marketing digital",
+          "variants": [
+            "experiencia en marketing digital",
+            "3 años marketing digital"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_2",
+          "text": "Experiencia comprobable operando campañas en Meta Ads",
+          "keyword": "Meta Ads",
+          "variants": [
+            "Facebook Ads",
+            "Instagram Ads"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_3",
+          "text": "Experiencia comprobable operando campañas en Google Ads",
+          "keyword": "Google Ads",
+          "variants": [
+            "Google Adwords",
+            "SEM"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_4",
+          "text": "Manejo de un CRM empresarial (HubSpot o Salesforce Marketing Cloud): segmentación, automatizaciones y reportes",
+          "keyword": "CRM empresarial",
+          "variants": [
+            "HubSpot",
+            "Salesforce Marketing Cloud"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_5",
+          "text": "Manejo de herramientas de analítica, con GA4 indispensable",
+          "keyword": "GA4",
+          "variants": [
+            "Google Analytics 4",
+            "Google Analytics"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_6",
+          "text": "Definir y dar seguimiento a KPIs en dashboards de Looker Studio o Power BI",
+          "keyword": "Looker Studio",
+          "variants": [
+            "Data Studio",
+            "Power BI"
+          ],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 2
+        },
+        {
+          "id": "req_7",
+          "text": "Excel avanzado",
+          "keyword": "Excel avanzado",
+          "variants": [
+            "Microsoft Excel",
+            "hojas de cálculo"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_8",
+          "text": "SQL básico deseable",
+          "keyword": "SQL",
+          "variants": [
+            "SQL básico",
+            "consultas SQL"
+          ],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 1
+        },
+        {
+          "id": "req_9",
+          "text": "Inglés intermedio-avanzado",
+          "keyword": "Inglés",
+          "variants": [
+            "English",
+            "inglés intermedio-avanzado"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_10",
+          "text": "Residir en CDMX o zona metropolitana (3 días por semana en oficina, híbrido)",
+          "keyword": "CDMX",
+          "variants": [
+            "Ciudad de México",
+            "zona metropolitana",
+            "híbrido"
+          ],
+          "kind": "location",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_11",
+          "text": "Coordinar agencias creativas y de medios, asegurando entregas a tiempo y en presupuesto",
+          "keyword": "coordinación de agencias",
+          "variants": [
+            "gestión de agencias",
+            "manejo de proveedores"
+          ],
+          "kind": "soft",
+          "mandatory": false,
+          "weight": 2
+        },
+        {
+          "id": "req_12",
+          "text": "Gestión de presupuestos mensuales de campañas de $300–600 mil MXN",
+          "keyword": "gestión de presupuesto de medios",
+          "variants": [
+            "manejo de presupuesto",
+            "budget management"
+          ],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 2
+        },
+        {
+          "id": "req_13",
+          "text": "Proponer pruebas A/B en landing pages junto con el equipo de UX",
+          "keyword": "pruebas A/B",
+          "variants": [
+            "A/B testing",
+            "test A/B"
+          ],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 1
+        }
+      ],
+      "mappings": [
+        {
+          "requirementId": "req_1",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_06",
+            "ev_demo_09",
+            "ev_demo_02"
+          ],
+          "strength": "strong",
+          "rationale": "Acumulas cerca de nueve años en marketing digital (agencia, fintech y retail farmacéutico), con más de cuatro de ellos en el ecommerce de Farmacias del Valle."
+        },
+        {
+          "requirementId": "req_2",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_06"
+          ],
+          "strength": "strong",
+          "rationale": "Operaste Meta Ads con presupuesto propio tanto en el ecommerce de Farmacias del Valle como en la adquisición de comercios de Pagolibre."
+        },
+        {
+          "requirementId": "req_3",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_06",
+            "cert_demo_1"
+          ],
+          "strength": "strong",
+          "rationale": "Manejaste Google Ads con resultados medibles (ROAS y CAC) y cuentas con la certificación de Google Ads Search."
+        },
+        {
+          "requirementId": "req_4",
+          "evidenceIds": [
+            "ev_demo_02",
+            "cert_demo_2"
+          ],
+          "strength": "strong",
+          "rationale": "Diseñaste flujos de automatización y segmentación en HubSpot con impacto en recompra, respaldado por la certificación de HubSpot Marketing Software."
+        },
+        {
+          "requirementId": "req_5",
+          "evidenceIds": [
+            "ev_demo_03",
+            "ev_demo_01"
+          ],
+          "strength": "strong",
+          "rationale": "Usaste GA4 tanto para el tablero semanal de KPIs como para importar conversiones de compra hacia las campañas."
+        },
+        {
+          "requirementId": "req_6",
+          "evidenceIds": [
+            "ev_demo_03"
+          ],
+          "strength": "strong",
+          "rationale": "Construiste en Looker Studio el tablero de CAC, ROAS y conversión que dirección usaba para decidir presupuesto."
+        },
+        {
+          "requirementId": "req_7",
+          "evidenceIds": [
+            "ev_demo_11"
+          ],
+          "strength": "strong",
+          "rationale": "Tu modelo de presupuesto anual con tablas dinámicas, Buscar objetivo, fórmulas de búsqueda y una macro de consolidación demuestra Excel a nivel avanzado."
+        },
+        {
+          "requirementId": "req_8",
+          "evidenceIds": [
+            "ev_demo_08"
+          ],
+          "strength": "strong",
+          "rationale": "Escribías consultas con joins y agregados para armar cohortes, que es exactamente el nivel básico que pide la vacante."
+        },
+        {
+          "requirementId": "req_9",
+          "evidenceIds": [
+            "lang_ingles",
+            "ev_demo_10"
+          ],
+          "strength": "strong",
+          "rationale": "Tu inglés C1 está respaldado por dos años como único contacto de un cliente regional en Miami, con llamadas, presentaciones y reportes en inglés."
+        },
+        {
+          "requirementId": "req_10",
+          "evidenceIds": [],
+          "strength": "strong",
+          "rationale": "Resides en Ciudad de México, lo que cumple el esquema híbrido de tres días en oficina."
+        },
+        {
+          "requirementId": "req_11",
+          "evidenceIds": [
+            "ev_demo_04"
+          ],
+          "strength": "strong",
+          "rationale": "Coordinaste agencia creativa y de medios con calendario, revisión regulatoria y control de presupuesto, cerrando 2024 por debajo del plan."
+        },
+        {
+          "requirementId": "req_12",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_09",
+            "ev_demo_11"
+          ],
+          "strength": "strong",
+          "rationale": "Administraste $450 mil MXN mensuales en Farmacias del Valle —justo dentro del rango pedido— además de $1.2M MXN agregados en agencia."
+        },
+        {
+          "requirementId": "req_13",
+          "evidenceIds": [
+            "ev_demo_05"
+          ],
+          "strength": "strong",
+          "rationale": "Propusiste y corriste con el equipo de UX pruebas A/B en la landing de recetas que subieron la conversión de 3.1% a 4.2%."
+        }
+      ],
+      "coverage": {
+        "mandatoryTotal": 8,
+        "mandatoryStrong": 8,
+        "mandatoryPartial": 0,
+        "mandatoryMissing": 0,
+        "desirableTotal": 5,
+        "desirableStrong": 5,
+        "desirablePartial": 0,
+        "desirableMissing": 0,
+        "hardBlockers": [],
+        "verdict": "strong"
+      },
+      "documents": {
+        "cv": {
+          "header": {
+            "fullName": "Lucas Lara",
+            "title": "Coordinador de Marketing Digital",
+            "contactLines": [
+              "lucas.lara@example.com",
+              "Ciudad de México (disponible para esquema híbrido)",
+              "LinkedIn: linkedin.com/in/lucaslara-demo"
+            ]
+          },
+          "summary": "Coordinador de Marketing Digital con más de 8 años de experiencia en marketing digital, los últimos cuatro en retail farmacéutico y ecommerce. Operé Meta Ads y Google Ads con presupuestos mensuales de $450 mil MXN, con medición en GA4 y seguimiento de KPIs en Looker Studio. Coordiné agencias creativas y de medios, automaticé flujos de CRM en HubSpot y propuse pruebas A/B en landing pages junto con UX. Radico en Ciudad de México.",
+          "experience": [
+            {
+              "experienceId": "role_demo_1",
+              "title": "Coordinador de Marketing Digital",
+              "company": "Farmacias del Valle",
+              "location": "Ciudad de México",
+              "startDate": "2021-03",
+              "endDate": "2025-06",
+              "bullets": [
+                {
+                  "id": "b1",
+                  "text": "Operé campañas de Meta Ads y Google Ads para la tienda en línea con un presupuesto mensual de $450 mil MXN; el ROAS combinado pasó de 2.1 a 3.4 en seis meses al reestructurar por categoría y migrar de pujas manuales a tCPA con conversiones de compra importadas desde GA4.",
+                  "citedEvidenceIds": [
+                    "ev_demo_01"
+                  ],
+                  "keywordsUsed": [
+                    "Meta Ads",
+                    "Google Ads",
+                    "GA4",
+                    "gestión de presupuesto de medios"
+                  ]
+                },
+                {
+                  "id": "b2",
+                  "text": "Diseñé en HubSpot los flujos de recompra del programa de lealtad (recordatorio de tratamiento crónico, carrito abandonado y reactivación a 90 días), con lo que la tasa de recompra a 60 días subió de 18% a 27% en el segmento de enfermedades crónicas.",
+                  "citedEvidenceIds": [
+                    "ev_demo_02"
+                  ],
+                  "keywordsUsed": [
+                    "HubSpot",
+                    "CRM empresarial",
+                    "automatizaciones",
+                    "segmentación"
+                  ]
+                },
+                {
+                  "id": "b3",
+                  "text": "Construí el tablero semanal de marketing en Looker Studio sobre GA4 y datos de ventas (CAC, ROAS por canal, conversión por categoría), que dirección revisaba los lunes para decidir el presupuesto del mes, y el modelo de presupuesto anual en Excel avanzado (tablas dinámicas del histórico por canal, escenarios con Buscar objetivo, fórmulas de búsqueda y una macro que consolidaba los reportes de las dos agencias), herramienta con la que se negoció el presupuesto 2024.",
+                  "citedEvidenceIds": [
+                    "ev_demo_03",
+                    "ev_demo_11"
+                  ],
+                  "keywordsUsed": [
+                    "Looker Studio",
+                    "GA4",
+                    "KPIs",
+                    "Excel avanzado"
+                  ]
+                },
+                {
+                  "id": "b4",
+                  "text": "Coordiné a la agencia creativa y a la agencia de medios: calendario mensual de piezas, revisión de copys con el área regulatoria de publicidad de medicamentos y control del presupuesto contra el plan; cerramos 2024 a 2% por debajo del presupuesto anual aprobado.",
+                  "citedEvidenceIds": [
+                    "ev_demo_04"
+                  ],
+                  "keywordsUsed": [
+                    "coordinación de agencias",
+                    "gestión de presupuesto",
+                    "entregas a tiempo"
+                  ]
+                },
+                {
+                  "id": "b5",
+                  "text": "Propuse y corrí con el equipo de UX una serie de pruebas A/B en la landing de recetas electrónicas; la variante ganadora, con formulario en dos pasos, subió la conversión del 3.1% al 4.2%.",
+                  "citedEvidenceIds": [
+                    "ev_demo_05"
+                  ],
+                  "keywordsUsed": [
+                    "pruebas A/B",
+                    "landing pages",
+                    "UX"
+                  ]
+                }
+              ]
+            },
+            {
+              "experienceId": "role_demo_2",
+              "title": "Especialista de Growth",
+              "company": "Pagolibre",
+              "location": "Ciudad de México",
+              "startDate": "2018-08",
+              "endDate": "2021-02",
+              "bullets": [
+                {
+                  "id": "b6",
+                  "text": "Lideré como único responsable la adquisición digital de comercios nuevos (Meta, Google y afiliados); el CAC bajó de $1,450 a $890 MXN por comercio activado en un año al cortar audiencias amplias y concentrar la inversión en búsqueda de marca y remarketing a registros incompletos.",
+                  "citedEvidenceIds": [
+                    "ev_demo_06"
+                  ],
+                  "keywordsUsed": [
+                    "Meta Ads",
+                    "Google Ads",
+                    "SEM",
+                    "marketing digital"
+                  ]
+                },
+                {
+                  "id": "b7",
+                  "text": "Escribí consultas SQL sencillas (joins y agregados sobre tablas de registros y transacciones) para armar cohortes de activación; los modelos más complejos los desarrollaba el equipo de datos.",
+                  "citedEvidenceIds": [
+                    "ev_demo_08"
+                  ],
+                  "keywordsUsed": [
+                    "SQL básico",
+                    "consultas SQL"
+                  ]
+                }
+              ]
+            },
+            {
+              "experienceId": "role_demo_3",
+              "title": "Ejecutivo de Cuentas Digitales",
+              "company": "Agencia Brisa",
+              "location": "Ciudad de México",
+              "startDate": "2016-06",
+              "endDate": "2018-07",
+              "bullets": [
+                {
+                  "id": "b8",
+                  "text": "Operé campañas y reportes mensuales para cinco cuentas de consumo (bebidas y cuidado personal), con un presupuesto agregado de alrededor de $1.2M MXN al mes y presentación de resultados al cliente cada mes.",
+                  "citedEvidenceIds": [
+                    "ev_demo_09"
+                  ],
+                  "keywordsUsed": [
+                    "manejo de presupuesto",
+                    "marketing digital"
+                  ]
+                },
+                {
+                  "id": "b9",
+                  "text": "Atendí en inglés, como único punto de contacto durante dos años, a un cliente regional con sede en Miami: llamadas semanales de estatus, presentaciones trimestrales al director regional y todos los reportes escritos en inglés.",
+                  "citedEvidenceIds": [
+                    "ev_demo_10"
+                  ],
+                  "keywordsUsed": [
+                    "inglés"
+                  ]
+                }
+              ]
+            }
+          ],
+          "education": [],
+          "skills": [
+            {
+              "category": "Medios digitales",
+              "items": [
+                "Meta Ads",
+                "Google Ads (SEM)",
+                "remarketing",
+                "afiliados",
+                "gestión de presupuesto de medios ($450 mil MXN mensuales)"
+              ]
+            },
+            {
+              "category": "Analítica y reporteo",
+              "items": [
+                "GA4",
+                "Looker Studio",
+                "definición y seguimiento de KPIs (CAC, ROAS, conversión)",
+                "Excel avanzado (tablas dinámicas, Buscar objetivo, macros)",
+                "SQL básico"
+              ]
+            },
+            {
+              "category": "CRM y automatización",
+              "items": [
+                "HubSpot: flujos de recompra, carrito abandonado, reactivación y segmentación"
+              ]
+            },
+            {
+              "category": "Coordinación y optimización",
+              "items": [
+                "coordinación de agencias creativas y de medios",
+                "control presupuestal contra plan",
+                "pruebas A/B en landing pages con UX",
+                "revisión de copys con área regulatoria"
+              ]
+            }
+          ],
+          "extras": [
+            {
+              "heading": "Idiomas",
+              "lines": [
+                "Español: nativo",
+                "Inglés: manejo profesional; dos años como único punto de contacto de un cliente regional en Miami (llamadas, presentaciones y reportes en inglés)"
+              ]
+            },
+            {
+              "heading": "Ubicación",
+              "lines": [
+                "Ciudad de México; disponible para trabajar 3 días por semana en oficina (híbrido)"
+              ]
+            }
+          ]
+        },
+        "coverLetter": {
+          "document": {
+            "paragraphs": [
+              {
+                "id": "p1",
+                "text": "Me interesa la posición de Coordinador(a) de Marketing Digital en Grupo Andino Retail porque mi trabajo de los últimos años se movió justo en ese cruce: operación diaria de medios pagados en ecommerce, con la responsabilidad del presupuesto y del número final.",
+                "citedEvidenceIds": []
+              },
+              {
+                "id": "p2",
+                "text": "Durante poco más de cuatro años operé campañas de Meta Ads y Google Ads para la tienda en línea de Farmacias del Valle con un presupuesto mensual de $450 mil MXN; el ROAS combinado pasó de 2.1 a 3.4 en seis meses tras reestructurar por categoría y migrar de pujas manuales a tCPA con conversiones importadas desde GA4. En ese mismo puesto coordiné a la agencia creativa y a la de medios (calendario de piezas, revisión de copys con regulatorio y control contra el plan) y cerramos 2024 a 2% por debajo del presupuesto anual aprobado. Antes, en Pagolibre, fui el único responsable de la adquisición digital y bajé el CAC de $1,450 a $890 MXN por comercio activado en un año; en Agencia Brisa manejé un presupuesto agregado de unos $1.2M MXN al mes para cinco cuentas.",
+                "citedEvidenceIds": [
+                  "ev_demo_01",
+                  "ev_demo_04",
+                  "ev_demo_06",
+                  "ev_demo_09"
+                ]
+              },
+              {
+                "id": "p3",
+                "text": "Del lado de datos y CRM: armé en HubSpot los flujos de recompra del programa de lealtad y la recompra a 60 días subió de 18% a 27% en el segmento de crónicos; construí el tablero semanal en Looker Studio sobre GA4 y ventas (CAC, ROAS por canal, conversión por categoría), y en Excel el modelo de presupuesto anual con tablas dinámicas, escenarios y una macro que consolidaba los reportes de las dos agencias. Con UX corrí pruebas A/B en la landing de recetas electrónicas: la variante ganadora subió la conversión de 3.1% a 4.2%. Mi SQL es básico —joins y agregados para cohortes—. En inglés atendí dos años a un cliente regional con sede en Miami como único contacto.",
+                "citedEvidenceIds": [
+                  "ev_demo_02",
+                  "ev_demo_03",
+                  "ev_demo_11",
+                  "ev_demo_05",
+                  "ev_demo_08",
+                  "ev_demo_10"
+                ]
+              },
+              {
+                "id": "p4",
+                "text": "Sobre el requisito de residir en CDMX y los tres días en oficina, prefiero aclararlo directamente con ustedes antes de avanzar. Quedo disponible para una llamada cuando les acomode.",
+                "citedEvidenceIds": []
+              }
+            ]
+          },
+          "report": {
+            "uncitedBullets": [],
+            "invalidCitations": [],
+            "unverifiedNumbers": [],
+            "unknownEntities": [
+              {
+                "bulletId": "p1",
+                "entity": "Coordinador(a"
+              },
+              {
+                "bulletId": "p1",
+                "entity": "Marketing"
+              },
+              {
+                "bulletId": "p1",
+                "entity": "Digital"
+              },
+              {
+                "bulletId": "p1",
+                "entity": "Grupo"
+              },
+              {
+                "bulletId": "p1",
+                "entity": "Andino"
+              },
+              {
+                "bulletId": "p1",
+                "entity": "Retail"
+              },
+              {
+                "bulletId": "p2",
+                "entity": "Antes"
+              },
+              {
+                "bulletId": "p4",
+                "entity": "Quedo"
+              }
+            ],
+            "distortions": [],
+            "claimedGaps": [],
+            "passed": true
+          }
+        },
+        "screening": {
+          "document": {
+            "answers": [
+              {
+                "id": "q1",
+                "question": "¿Cuántos años de experiencia tienes en marketing digital y en qué industrias (retail o ecommerce)?",
+                "answer": "Acumulé más de nueve años en marketing digital: empecé en 2016 en Agencia Brisa operando campañas y reportes mensuales para cinco cuentas de consumo (bebidas y cuidado personal), luego en Pagolibre lideré la adquisición digital de comercios nuevos como único responsable del canal, y de 2021 a mediados de 2025 estuve del lado de ecommerce en la tienda en línea de Farmacias del Valle. Ahí operé Meta Ads y Google Ads con un presupuesto mensual de $450 mil MXN y el ROAS combinado pasó de 2.1 a 3.4 en seis meses.",
+                "citedEvidenceIds": [
+                  "ev_demo_09",
+                  "ev_demo_06",
+                  "ev_demo_01"
+                ]
+              },
+              {
+                "id": "q2",
+                "question": "Describe tu experiencia operando campañas en Meta Ads y Google Ads y el presupuesto de medios que has manejado.",
+                "answer": "En Farmacias del Valle operé directamente Meta Ads y Google Ads para la tienda en línea con un presupuesto mensual de $450 mil MXN; reestructuré las campañas por categoría y pasé de pujas manuales a tCPA con conversiones de compra importadas desde GA4, con lo que el ROAS combinado subió de 2.1 a 3.4 en seis meses. Antes, en Pagolibre, corrí Meta, Google y afiliados como único responsable del canal y bajé el CAC de $1,450 a $890 MXN por comercio activado en un año. En Agencia Brisa gestioné un presupuesto agregado de unos $1.2M MXN al mes entre cinco cuentas, así que el rango de inversión que pide la vacante lo tengo bien cubierto.",
+                "citedEvidenceIds": [
+                  "ev_demo_01",
+                  "ev_demo_06",
+                  "ev_demo_09"
+                ]
+              },
+              {
+                "id": "q3",
+                "question": "¿Qué CRM empresarial has manejado (HubSpot o Salesforce Marketing Cloud) y qué hiciste con él en segmentación, automatizaciones y reportes?",
+                "answer": "Trabajé con HubSpot en Farmacias del Valle, donde diseñé los flujos de recompra del programa de lealtad: recordatorio de tratamiento crónico, carrito abandonado y reactivación a 90 días. La segmentación por tipo de padecimiento fue clave: en el segmento de enfermedades crónicas la tasa de recompra a 60 días subió de 18% a 27%. Los resultados de esos flujos los reportaba junto con el resto de los canales en el tablero semanal de marketing.",
+                "citedEvidenceIds": [
+                  "ev_demo_02",
+                  "ev_demo_03"
+                ]
+              },
+              {
+                "id": "q4",
+                "question": "¿Cuál es tu nivel en GA4, Looker Studio, Excel avanzado y SQL?",
+                "answer": "GA4 lo usé todos los días: de ahí importaba las conversiones de compra hacia Google Ads y sobre esa misma base construí el tablero semanal en Looker Studio con CAC, ROAS por canal y conversión por categoría, que se volvió el reporte que dirección revisaba los lunes para decidir el presupuesto del mes. En Excel armé el modelo de presupuesto anual de marketing: tablas dinámicas sobre el histórico de inversión por canal, escenarios con Buscar objetivo, fórmulas de búsqueda y validación, y una macro que consolidaba cada mes los reportes de las dos agencias. Mi SQL es básico y así lo digo: escribía consultas sencillas con joins y agregados para armar cohortes de activación, los modelos más complejos los hacía el equipo de datos.",
+                "citedEvidenceIds": [
+                  "ev_demo_01",
+                  "ev_demo_03",
+                  "ev_demo_11",
+                  "ev_demo_08"
+                ]
+              },
+              {
+                "id": "q5",
+                "question": "¿Cuál es tu nivel de inglés y en qué contextos profesionales lo has usado?",
+                "answer": "Mi inglés es de trabajo, no de salón de clases. En Agencia Brisa fui durante dos años el único punto de contacto de un cliente regional con sede en Miami: llamadas semanales de estatus, presentaciones trimestrales de resultados al director regional y todos los reportes escritos en inglés.",
+                "citedEvidenceIds": [
+                  "ev_demo_10"
+                ]
+              },
+              {
+                "id": "q6",
+                "question": "Cuéntanos tu experiencia coordinando agencias creativas y de medios, y proponiendo pruebas A/B con equipos de UX.",
+                "answer": "En Farmacias del Valle coordiné a la agencia creativa y a la de medios: calendario mensual de piezas, revisión de copys con el área regulatoria por ser publicidad de medicamentos y control del presupuesto contra el plan; cerramos 2024 a 2% por debajo del presupuesto anual aprobado. Del lado de conversión, propuse y corrí con el equipo de UX una serie de pruebas A/B en la landing de recetas electrónicas, y la variante ganadora con formulario en dos pasos subió la conversión de 3.1% a 4.2%. También tenía una macro que consolidaba mensualmente los reportes de las dos agencias en una sola hoja de control para no perder de vista entregas ni gasto.",
+                "citedEvidenceIds": [
+                  "ev_demo_04",
+                  "ev_demo_05",
+                  "ev_demo_11"
+                ]
+              }
+            ]
+          },
+          "report": {
+            "uncitedBullets": [],
+            "invalidCitations": [],
+            "unverifiedNumbers": [],
+            "unknownEntities": [
+              {
+                "bulletId": "q1",
+                "entity": "Valle."
+              },
+              {
+                "bulletId": "q1",
+                "entity": "Ahí"
+              },
+              {
+                "bulletId": "q2",
+                "entity": "Antes"
+              },
+              {
+                "bulletId": "q3",
+                "entity": "Farmacias"
+              },
+              {
+                "bulletId": "q3",
+                "entity": "Valle"
+              },
+              {
+                "bulletId": "q5",
+                "entity": "Brisa"
+              },
+              {
+                "bulletId": "q6",
+                "entity": "También"
+              }
+            ],
+            "distortions": [
+              {
+                "bulletId": "q4",
+                "reason": "\"GA4 lo usé todos los días\" añade una frecuencia diaria que ninguna fuente respalda; solo se menciona el uso de GA4 para importar conversiones y construir el tablero semanal."
+              }
+            ],
+            "claimedGaps": [],
+            "passed": false
+          }
+        },
+        "recruiterMessage": {
+          "document": {
+            "text": "Hola Mariana, escribo por la vacante de Coordinador(a) de Marketing Digital. En Farmacias del Valle operé Meta Ads y Google Ads con $450 mil MXN mensuales y el ROAS combinado pasó de 2.1 a 3.4 en seis meses, con conversiones importadas desde GA4. También coordiné a las agencias creativa y de medios y cerramos 2024 a 2% por debajo del presupuesto anual aprobado, con seguimiento en un tablero de Looker Studio. Con gusto le comparto el detalle.",
+            "citedEvidenceIds": [
+              "ev_demo_01",
+              "ev_demo_03",
+              "ev_demo_04"
+            ]
+          },
+          "report": {
+            "uncitedBullets": [],
+            "invalidCitations": [],
+            "unverifiedNumbers": [],
+            "unknownEntities": [
+              {
+                "bulletId": "message",
+                "entity": "Mariana"
+              },
+              {
+                "bulletId": "message",
+                "entity": "Coordinador(a"
+              },
+              {
+                "bulletId": "message",
+                "entity": "Digital."
+              },
+              {
+                "bulletId": "message",
+                "entity": "También"
+              },
+              {
+                "bulletId": "message",
+                "entity": "Studio."
+              }
+            ],
+            "distortions": [],
+            "claimedGaps": [],
+            "passed": true
+          }
+        }
+      },
+      "groundingReport": {
+        "uncitedBullets": [],
+        "invalidCitations": [],
+        "unverifiedNumbers": [],
+        "unknownEntities": [
+          {
+            "bulletId": "b7",
+            "entity": "datos."
+          }
+        ],
+        "distortions": [],
+        "claimedGaps": [],
+        "passed": true
+      },
+      "outcomes": [
+        {
+          "at": "2026-08-11T15:00:00.000Z",
+          "type": "applied"
+        },
+        {
+          "at": "2026-08-18T16:30:00.000Z",
+          "type": "screen"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "id": "app_demo_2",
+      "source": "linkedin",
+      "company": "Nuvei Pagos",
+      "jobTitle": "Growth Lead",
+      "market": "mx",
+      "documentLanguage": "es-MX",
+      "postingRaw": "Growth Lead — Nuvei Pagos (fintech) · Remoto, México\n\nQuiénes somos\nPlataforma de cobros para comercios medianos en México. Equipo de growth de cuatro personas; reportas a la Directora de Marketing.\n\nQué harás\n- Definir y ejecutar la estrategia de adquisición de comercios: paid (Meta, Google, LinkedIn), afiliados y alianzas.\n- Diseñar experimentos de activación y retención con el equipo de producto; medir en Amplitude.\n- Construir modelos de cohortes y LTV/CAC en SQL; presentar a dirección cada mes.\n- Coordinar a un analista y a una agencia de performance.\n\nRequisitos\n- 5+ años en marketing digital o growth, al menos 2 en fintech o productos financieros.\n- Experiencia operando presupuestos de performance superiores a $500 mil MXN mensuales.\n- SQL avanzado (CTEs, window functions) — indispensable; Python deseable.\n- Experiencia con herramientas de analítica de producto (Amplitude o Mixpanel).\n- Inglés avanzado (equipo regional).\n- Residencia en México; trabajo remoto con reuniones en horario de CDMX.\n\nOfrecemos\n- Esquema 100% remoto, prestaciones superiores, bono anual por objetivos.\n",
+      "postingHash": "757a061cad6f124e1dac26f9a71a4347d0adac57da4c61c1f3befd965ac108ad",
+      "evidenceHash": "fdc154a0e62d58e7d44cf14eb19ca60bb90cc0534cc9e76d4974be4d9a1115bd",
+      "requirements": [
+        {
+          "id": "req_1",
+          "text": "5+ años en marketing digital o growth",
+          "keyword": "5+ años en growth/marketing digital",
+          "variants": [
+            "marketing digital",
+            "growth marketing"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_2",
+          "text": "Al menos 2 años en fintech o productos financieros",
+          "keyword": "2 años en fintech",
+          "variants": [
+            "productos financieros",
+            "servicios financieros"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_3",
+          "text": "Experiencia operando presupuestos de performance superiores a $500 mil MXN mensuales",
+          "keyword": "gestión de presupuestos de performance",
+          "variants": [
+            "paid media budget",
+            "presupuesto publicitario"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_4",
+          "text": "SQL avanzado (CTEs, window functions) — indispensable",
+          "keyword": "SQL avanzado",
+          "variants": [
+            "CTEs",
+            "window functions"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_5",
+          "text": "Python deseable",
+          "keyword": "Python",
+          "variants": [],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 1
+        },
+        {
+          "id": "req_6",
+          "text": "Experiencia con herramientas de analítica de producto (Amplitude o Mixpanel)",
+          "keyword": "Amplitude",
+          "variants": [
+            "Mixpanel",
+            "analítica de producto",
+            "product analytics"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_7",
+          "text": "Inglés avanzado (equipo regional)",
+          "keyword": "Inglés avanzado",
+          "variants": [
+            "advanced English",
+            "English"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_8",
+          "text": "Residencia en México",
+          "keyword": "México",
+          "variants": [
+            "residencia en México",
+            "Mexico-based"
+          ],
+          "kind": "location",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_9",
+          "text": "Trabajo remoto con reuniones en horario de CDMX",
+          "keyword": "horario CDMX",
+          "variants": [
+            "Ciudad de México timezone",
+            "CST México",
+            "hora del centro"
+          ],
+          "kind": "timezone",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_10",
+          "text": "Definir y ejecutar estrategia de adquisición con paid media (Meta, Google, LinkedIn)",
+          "keyword": "paid media",
+          "variants": [
+            "Meta Ads",
+            "Google Ads",
+            "LinkedIn Ads",
+            "publicidad pagada"
+          ],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 2
+        },
+        {
+          "id": "req_11",
+          "text": "Construir modelos de cohortes y LTV/CAC",
+          "keyword": "LTV/CAC",
+          "variants": [
+            "análisis de cohortes",
+            "cohortes",
+            "unit economics"
+          ],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 2
+        },
+        {
+          "id": "req_12",
+          "text": "Coordinar a un analista y a una agencia de performance",
+          "keyword": "liderazgo de equipo",
+          "variants": [
+            "gestión de agencias",
+            "coordinación de equipo"
+          ],
+          "kind": "soft",
+          "mandatory": false,
+          "weight": 2
+        },
+        {
+          "id": "req_13",
+          "text": "Diseñar experimentos de activación y retención con el equipo de producto",
+          "keyword": "experimentación",
+          "variants": [
+            "A/B testing",
+            "experimentos de growth"
+          ],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 2
+        }
+      ],
+      "mappings": [
+        {
+          "requirementId": "req_1",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_06",
+            "ev_demo_09",
+            "ev_demo_02"
+          ],
+          "strength": "strong",
+          "rationale": "Acumulas ~9 años continuos en marketing digital y growth (agencia 2016-2018, Pagolibre 2018-2021, Farmacias del Valle 2021-2025), muy por encima de los 5 años pedidos."
+        },
+        {
+          "requirementId": "req_2",
+          "evidenceIds": [
+            "ev_demo_06",
+            "ev_demo_07",
+            "ev_demo_08"
+          ],
+          "strength": "strong",
+          "rationale": "Tus 2.5 años en Pagolibre fueron de adquisición y activación de comercios en un producto de pagos, lo que cubre la experiencia fintech requerida."
+        },
+        {
+          "requirementId": "req_3",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_09",
+            "ev_demo_04",
+            "ev_demo_11"
+          ],
+          "strength": "strong",
+          "rationale": "Operaste $450 mil MXN mensuales en Farmacias del Valle y un presupuesto agregado de $1.2M MXN al mes en Agencia Brisa, además del control presupuestal anual, lo que supera el umbral de $500 mil mensuales."
+        },
+        {
+          "requirementId": "req_4",
+          "evidenceIds": [
+            "ev_demo_08"
+          ],
+          "strength": "partial",
+          "rationale": "Tu propia evidencia indica SQL básico (joins y agregados para cohortes) y que los modelos complejos los hacía el equipo de datos, así que no alcanzas el nivel avanzado con CTEs y window functions."
+        },
+        {
+          "requirementId": "req_5",
+          "evidenceIds": [],
+          "strength": "none",
+          "rationale": "No hay ninguna evidencia de uso de Python en tu historial."
+        },
+        {
+          "requirementId": "req_6",
+          "evidenceIds": [
+            "ev_demo_03"
+          ],
+          "strength": "partial",
+          "rationale": "Dominas GA4 y Looker Studio para tableros de KPIs, pero no hay experiencia con Amplitude ni Mixpanel específicamente."
+        },
+        {
+          "requirementId": "req_7",
+          "evidenceIds": [
+            "lang_ingles",
+            "ev_demo_10"
+          ],
+          "strength": "strong",
+          "rationale": "Tienes inglés C1 y llevaste durante dos años, como único contacto, a un cliente regional en Miami con llamadas y reportes en inglés."
+        },
+        {
+          "requirementId": "req_8",
+          "evidenceIds": [],
+          "strength": "strong",
+          "rationale": "Resides en Ciudad de México con ciudadanía mexicana, cumpliendo el requisito de residencia."
+        },
+        {
+          "requirementId": "req_9",
+          "evidenceIds": [],
+          "strength": "strong",
+          "rationale": "Tu zona horaria es America/Mexico_City, exactamente el horario de reuniones solicitado."
+        },
+        {
+          "requirementId": "req_10",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_06",
+            "ev_demo_09"
+          ],
+          "strength": "strong",
+          "rationale": "Definiste y ejecutaste adquisición pagada en Meta y Google con resultados medibles (ROAS 2.1→3.4, CAC $1,450→$890), aunque no aparece LinkedIn Ads."
+        },
+        {
+          "requirementId": "req_11",
+          "evidenceIds": [
+            "ev_demo_08",
+            "ev_demo_06",
+            "ev_demo_03"
+          ],
+          "strength": "partial",
+          "rationale": "Armaste cohortes de activación con SQL básico y monitoreaste CAC y ROAS por canal, pero no hay evidencia de modelos formales de LTV/CAC."
+        },
+        {
+          "requirementId": "req_12",
+          "evidenceIds": [
+            "ev_demo_04"
+          ],
+          "strength": "partial",
+          "rationale": "Coordinaste agencia creativa y de medios con calendario, revisión y control de presupuesto, pero no hay evidencia de haber liderado a un analista o personas a cargo."
+        },
+        {
+          "requirementId": "req_13",
+          "evidenceIds": [
+            "ev_demo_05",
+            "ev_demo_07",
+            "ev_demo_02"
+          ],
+          "strength": "strong",
+          "rationale": "Corriste pruebas A/B con el equipo de UX (conversión 3.1%→4.2%) y diseñaste flujos de activación y recompra con impacto medido, justo el tipo de experimentación pedida."
+        }
+      ],
+      "coverage": {
+        "mandatoryTotal": 8,
+        "mandatoryStrong": 6,
+        "mandatoryPartial": 2,
+        "mandatoryMissing": 0,
+        "desirableTotal": 5,
+        "desirableStrong": 2,
+        "desirablePartial": 2,
+        "desirableMissing": 1,
+        "hardBlockers": [],
+        "verdict": "worth-it"
+      },
+      "documents": {
+        "cv": {
+          "header": {
+            "fullName": "Lucas Lara",
+            "title": "Growth y Marketing Digital",
+            "contactLines": [
+              "lucas.lara@example.com",
+              "Ciudad de México",
+              "LinkedIn: linkedin.com/in/lucaslara-demo"
+            ]
+          },
+          "summary": "Especialista en growth marketing y marketing digital con más de 8 años operando adquisición con paid media (Meta Ads, Google Ads) y presupuestos de performance de hasta $450 mil MXN mensuales. Reduje el CAC de $1,450 a $890 MXN en adquisición de comercios y subí la activación de 41% a 56% con experimentos de onboarding y flujos de retención. Perfil orientado a métricas (CAC, ROAS, cohortes de activación), coordinación de agencias e inglés de uso profesional con clientes regionales. Radico en la Ciudad de México, con disponibilidad para trabajar en horario del centro.",
+          "experience": [
+            {
+              "experienceId": "role_demo_1",
+              "title": "Coordinador de Marketing Digital",
+              "company": "Farmacias del Valle",
+              "location": "",
+              "startDate": "2021-03",
+              "endDate": "2025-06",
+              "bullets": [
+                {
+                  "id": "b1",
+                  "text": "Operé campañas de Meta Ads y Google Ads con un presupuesto mensual de $450 mil MXN para la tienda en línea, y llevé el ROAS combinado de 2.1 a 3.4 en seis meses al reestructurar por categoría y migrar de pujas manuales a tCPA con conversiones de compra importadas desde GA4.",
+                  "citedEvidenceIds": [
+                    "ev_demo_01"
+                  ],
+                  "keywordsUsed": [
+                    "paid media",
+                    "Meta Ads",
+                    "Google Ads",
+                    "presupuesto publicitario",
+                    "gestión de presupuestos de performance",
+                    "marketing digital"
+                  ]
+                },
+                {
+                  "id": "b2",
+                  "text": "Diseñé en HubSpot los flujos de recompra del programa de lealtad (recordatorio de tratamiento crónico, carrito abandonado y reactivación a 90 días), con lo que la tasa de recompra a 60 días subió de 18% a 27% en el segmento de enfermedades crónicas.",
+                  "citedEvidenceIds": [
+                    "ev_demo_02"
+                  ],
+                  "keywordsUsed": [
+                    "retención",
+                    "growth marketing"
+                  ]
+                },
+                {
+                  "id": "b3",
+                  "text": "Propuse y corrí con el equipo de UX una serie de pruebas A/B en la landing de recetas electrónicas; la variante ganadora, con formulario en dos pasos, elevó la conversión de 3.1% a 4.2%.",
+                  "citedEvidenceIds": [
+                    "ev_demo_05"
+                  ],
+                  "keywordsUsed": [
+                    "experimentación",
+                    "A/B testing",
+                    "experimentos de growth"
+                  ]
+                },
+                {
+                  "id": "b4",
+                  "text": "Construí el tablero semanal de marketing en Looker Studio sobre GA4 y datos de ventas (CAC, ROAS por canal y conversión por categoría), que se convirtió en el reporte que dirección revisaba los lunes y con el que se definía el presupuesto del mes; en paralelo desarrollé en Excel el modelo de presupuesto anual (tablas dinámicas del histórico por canal, escenarios con Buscar objetivo y una macro que consolidaba los reportes de las dos agencias), herramienta con la que se negoció el presupuesto 2024.",
+                  "citedEvidenceIds": [
+                    "ev_demo_03",
+                    "ev_demo_11"
+                  ],
+                  "keywordsUsed": [
+                    "CAC",
+                    "presupuesto publicitario",
+                    "analítica"
+                  ]
+                },
+                {
+                  "id": "b5",
+                  "text": "Coordiné a la agencia creativa y a la agencia de medios: calendario mensual de piezas, revisión de copys con el área regulatoria de publicidad de medicamentos y control del presupuesto contra el plan; cerramos 2024 a 2% por debajo del presupuesto anual aprobado.",
+                  "citedEvidenceIds": [
+                    "ev_demo_04"
+                  ],
+                  "keywordsUsed": [
+                    "gestión de agencias",
+                    "coordinación de equipo"
+                  ]
+                }
+              ]
+            },
+            {
+              "experienceId": "role_demo_2",
+              "title": "Especialista de Growth",
+              "company": "Pagolibre",
+              "location": "",
+              "startDate": "2018-08",
+              "endDate": "2021-02",
+              "bullets": [
+                {
+                  "id": "b6",
+                  "text": "Lideré, como único responsable del canal, la adquisición digital de comercios nuevos (Meta, Google y afiliados) y bajé el CAC de $1,450 a $890 MXN por comercio activado en un año, al cortar audiencias amplias y concentrar la inversión en búsqueda de marca y remarketing a registros incompletos.",
+                  "citedEvidenceIds": [
+                    "ev_demo_06"
+                  ],
+                  "keywordsUsed": [
+                    "paid media",
+                    "CAC",
+                    "adquisición",
+                    "growth marketing"
+                  ]
+                },
+                {
+                  "id": "b7",
+                  "text": "Monté la secuencia de onboarding por email y WhatsApp para comercios recién registrados, con lo que la activación medida como primer cobro en 14 días pasó de 41% a 56%.",
+                  "citedEvidenceIds": [
+                    "ev_demo_07"
+                  ],
+                  "keywordsUsed": [
+                    "experimentos de activación",
+                    "retención"
+                  ]
+                },
+                {
+                  "id": "b8",
+                  "text": "Armé cohortes de activación con consultas SQL sencillas (joins y agregados sobre las tablas de registros y transacciones) para seguir el desempeño del canal; los modelos más complejos los desarrollaba el equipo de datos.",
+                  "citedEvidenceIds": [
+                    "ev_demo_08"
+                  ],
+                  "keywordsUsed": [
+                    "cohortes",
+                    "análisis de cohortes",
+                    "SQL"
+                  ]
+                }
+              ]
+            },
+            {
+              "experienceId": "role_demo_3",
+              "title": "Ejecutivo de Cuentas Digitales",
+              "company": "Agencia Brisa",
+              "location": "",
+              "startDate": "2016-06",
+              "endDate": "2018-07",
+              "bullets": [
+                {
+                  "id": "b9",
+                  "text": "Operé campañas y reportes mensuales para cinco cuentas de consumo (bebidas y cuidado personal), con un presupuesto agregado cercano a $1.2M MXN al mes y presentación de resultados al cliente cada mes.",
+                  "citedEvidenceIds": [
+                    "ev_demo_09"
+                  ],
+                  "keywordsUsed": [
+                    "paid media budget",
+                    "presupuesto publicitario"
+                  ]
+                },
+                {
+                  "id": "b10",
+                  "text": "Atendí en inglés, como único punto de contacto durante dos años, a un cliente regional con sede en Miami: llamadas semanales de estatus, presentaciones trimestrales de resultados al director regional y todos los reportes escritos en inglés.",
+                  "citedEvidenceIds": [
+                    "ev_demo_10"
+                  ],
+                  "keywordsUsed": [
+                    "Inglés avanzado",
+                    "English"
+                  ]
+                }
+              ]
+            }
+          ],
+          "education": [],
+          "skills": [
+            {
+              "category": "Paid media y adquisición",
+              "items": [
+                "Meta Ads",
+                "Google Ads",
+                "afiliados",
+                "remarketing",
+                "pujas tCPA",
+                "gestión de presupuesto publicitario",
+                "CAC",
+                "ROAS"
+              ]
+            },
+            {
+              "category": "Analítica y datos",
+              "items": [
+                "GA4",
+                "Looker Studio",
+                "Excel avanzado (tablas dinámicas, macros, escenarios)",
+                "SQL nivel básico (joins y agregados)",
+                "cohortes de activación"
+              ]
+            },
+            {
+              "category": "Experimentación y CRM",
+              "items": [
+                "pruebas A/B",
+                "optimización de landing pages",
+                "HubSpot",
+                "automatización de email y WhatsApp",
+                "flujos de recompra y onboarding"
+              ]
+            },
+            {
+              "category": "Gestión",
+              "items": [
+                "coordinación de agencias creativa y de medios",
+                "control presupuestal contra plan",
+                "reporteo a dirección",
+                "revisión regulatoria de copys"
+              ]
+            }
+          ],
+          "extras": [
+            {
+              "heading": "Idiomas",
+              "lines": [
+                "Español: nativo",
+                "Inglés: uso profesional (atención directa a cliente regional y presentaciones a dirección durante dos años)"
+              ]
+            },
+            {
+              "heading": "Ubicación y disponibilidad",
+              "lines": [
+                "Residencia en Ciudad de México; disponibilidad para reuniones en horario del centro (CDMX)"
+              ]
+            }
+          ]
+        },
+        "coverLetter": {
+          "document": {
+            "paragraphs": [
+              {
+                "id": "p1",
+                "text": "Me interesa la posición de Growth Lead en Nuvei Pagos porque mi trabajo ha estado justo en el cruce de adquisición pagada y activación de comercios en pagos: es el mismo problema que quiero seguir resolviendo, ahora con alcance regional.",
+                "citedEvidenceIds": []
+              },
+              {
+                "id": "p2",
+                "text": "Entre 2016 y 2025 operé presupuestos de performance de forma continua: en Agencia Brisa gestioné un presupuesto agregado de unos $1.2M MXN al mes para cinco cuentas de consumo, y en Farmacias del Valle corrí Meta Ads y Google Ads con $450 mil MXN mensuales, llevando el ROAS combinado de 2.1 a 3.4 en seis meses al reestructurar por categoría y migrar de pujas manuales a tCPA. También coordiné a la agencia creativa y a la de medios con control de presupuesto contra plan, cerrando 2024 a 2% por debajo del presupuesto anual aprobado, y construí en Excel el modelo con el que se negoció ese presupuesto.",
+                "citedEvidenceIds": [
+                  "ev_demo_09",
+                  "ev_demo_01",
+                  "ev_demo_04",
+                  "ev_demo_11"
+                ]
+              },
+              {
+                "id": "p3",
+                "text": "Mi experiencia en fintech viene de Pagolibre (2018–2021), donde lideré la adquisición digital de comercios nuevos en Meta, Google y afiliados como único responsable del canal: el CAC bajó de $1,450 a $890 MXN por comercio activado en un año. Ahí mismo monté el onboarding por email y WhatsApp y la activación a 14 días subió de 41% a 56%. Después, en retail, diseñé pruebas A/B con UX que movieron la conversión de 3.1% a 4.2%, flujos de recompra que llevaron la tasa a 60 días de 18% a 27%, y el tablero semanal de CAC y ROAS por canal en Looker Studio sobre GA4.",
+                "citedEvidenceIds": [
+                  "ev_demo_06",
+                  "ev_demo_07",
+                  "ev_demo_05",
+                  "ev_demo_02",
+                  "ev_demo_03"
+                ]
+              },
+              {
+                "id": "p4",
+                "text": "Con transparencia: mi SQL es básico —joins y agregados para armar cohortes de activación; los modelos complejos los hacía el equipo de datos— y no he trabajado con Amplitude ni Mixpanel, así que ambos serían mi prioridad de aprendizaje inmediata. El inglés lo manejo a nivel de trabajo: atendí dos años, como único contacto, a un cliente regional en Miami con llamadas semanales y presentaciones al director regional.",
+                "citedEvidenceIds": [
+                  "ev_demo_08",
+                  "ev_demo_10"
+                ]
+              },
+              {
+                "id": "p5",
+                "text": "Con gusto platicamos de cómo aplicaría esto a las metas de adquisición de Nuvei Pagos. Quedo a sus órdenes para agendar una llamada.",
+                "citedEvidenceIds": []
+              }
+            ]
+          },
+          "report": {
+            "uncitedBullets": [],
+            "invalidCitations": [],
+            "unverifiedNumbers": [],
+            "unknownEntities": [
+              {
+                "bulletId": "p1",
+                "entity": "Growth"
+              },
+              {
+                "bulletId": "p1",
+                "entity": "Lead"
+              },
+              {
+                "bulletId": "p1",
+                "entity": "Nuvei"
+              },
+              {
+                "bulletId": "p1",
+                "entity": "Pagos"
+              },
+              {
+                "bulletId": "p2",
+                "entity": "También"
+              },
+              {
+                "bulletId": "p3",
+                "entity": "Ahí"
+              },
+              {
+                "bulletId": "p3",
+                "entity": "Después"
+              },
+              {
+                "bulletId": "p3",
+                "entity": "GA4."
+              },
+              {
+                "bulletId": "p5",
+                "entity": "Nuvei"
+              },
+              {
+                "bulletId": "p5",
+                "entity": "Pagos."
+              },
+              {
+                "bulletId": "p5",
+                "entity": "Quedo"
+              }
+            ],
+            "distortions": [
+              {
+                "bulletId": "p4",
+                "reason": "The claim \"no he trabajado con Amplitude ni Mixpanel\" and the learning-priority statement have no basis in the sources, which mention only SQL and English."
+              }
+            ],
+            "claimedGaps": [],
+            "passed": false
+          }
+        }
+      },
+      "groundingReport": {
+        "uncitedBullets": [],
+        "invalidCitations": [],
+        "unverifiedNumbers": [],
+        "unknownEntities": [
+          {
+            "bulletId": "b8",
+            "entity": "datos."
+          }
+        ],
+        "distortions": [],
+        "claimedGaps": [],
+        "passed": true
+      },
+      "outcomes": [],
+      "archived": false
+    },
+    {
+      "id": "app_demo_3",
+      "source": "other",
+      "company": "Agencia Ruta Norte",
+      "jobTitle": "Performance Marketing Specialist",
+      "market": "mx",
+      "documentLanguage": "es-MX",
+      "postingRaw": "Performance Marketing Specialist — Agencia Ruta Norte · Monterrey, N.L. (presencial)\n\nSobre la agencia\nAgencia de performance con 30 personas en San Pedro Garza García. Atendemos marcas de retail, automotriz y educación del norte del país.\n\nResponsabilidades\n- Operar campañas de Meta Ads, Google Ads y TikTok Ads para 6–8 cuentas.\n- Montar reportes semanales en Looker Studio y presentarlos al cliente.\n- Proponer pruebas creativas y de audiencias; documentar aprendizajes.\n\nRequisitos\n- 3+ años operando campañas de performance, de preferencia en agencia.\n- Certificación vigente de Google Ads.\n- Residir en Monterrey o área metropolitana. El puesto es 100% presencial en nuestras oficinas de San Pedro; no se considera trabajo remoto ni reubicación pagada.\n- Disponibilidad para visitar clientes en la zona.\n- Inglés intermedio.\n\nOfrecemos\n- Sueldo base más bono trimestral por resultados, prestaciones de ley.\n",
+      "postingHash": "7d80ca5688fc9de09c6e1504f6997ab6de4efa6d4edefd953e4250a30b84e560",
+      "evidenceHash": "fdc154a0e62d58e7d44cf14eb19ca60bb90cc0534cc9e76d4974be4d9a1115bd",
+      "requirements": [
+        {
+          "id": "req_1",
+          "text": "Operar campañas de Meta Ads",
+          "keyword": "Meta Ads",
+          "variants": [
+            "Facebook Ads",
+            "Instagram Ads"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_2",
+          "text": "Operar campañas de Google Ads",
+          "keyword": "Google Ads",
+          "variants": [
+            "Google Adwords",
+            "SEM"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_3",
+          "text": "Operar campañas de TikTok Ads",
+          "keyword": "TikTok Ads",
+          "variants": [
+            "TikTok for Business"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_4",
+          "text": "Montar reportes semanales en Looker Studio y presentarlos al cliente",
+          "keyword": "Looker Studio",
+          "variants": [
+            "Google Data Studio",
+            "Data Studio"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_5",
+          "text": "Proponer pruebas creativas y de audiencias; documentar aprendizajes",
+          "keyword": "Testing creativo",
+          "variants": [
+            "A/B testing",
+            "pruebas de audiencias"
+          ],
+          "kind": "hard",
+          "mandatory": false,
+          "weight": 1
+        },
+        {
+          "id": "req_6",
+          "text": "3+ años operando campañas de performance, de preferencia en agencia",
+          "keyword": "3+ años en performance marketing",
+          "variants": [
+            "3 años de experiencia",
+            "experiencia en agencia"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_7",
+          "text": "Certificación vigente de Google Ads",
+          "keyword": "Certificación Google Ads",
+          "variants": [
+            "Google Ads certification",
+            "Skillshop"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 2
+        },
+        {
+          "id": "req_8",
+          "text": "Residir en Monterrey o área metropolitana; puesto 100% presencial en San Pedro Garza García",
+          "keyword": "Monterrey",
+          "variants": [
+            "San Pedro Garza García",
+            "área metropolitana de Monterrey",
+            "N.L."
+          ],
+          "kind": "location",
+          "mandatory": true,
+          "weight": 3
+        },
+        {
+          "id": "req_9",
+          "text": "Disponibilidad para visitar clientes en la zona",
+          "keyword": "Visitas a clientes",
+          "variants": [
+            "disponibilidad para viajar localmente"
+          ],
+          "kind": "soft",
+          "mandatory": true,
+          "weight": 1
+        },
+        {
+          "id": "req_10",
+          "text": "Inglés intermedio",
+          "keyword": "Inglés intermedio",
+          "variants": [
+            "intermediate English"
+          ],
+          "kind": "hard",
+          "mandatory": true,
+          "weight": 1
+        }
+      ],
+      "mappings": [
+        {
+          "requirementId": "req_1",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_06"
+          ],
+          "strength": "strong",
+          "rationale": "Operaste Meta Ads con $450 mil MXN mensuales en Farmacias del Valle y lideraste la adquisición en Meta para Pagolibre."
+        },
+        {
+          "requirementId": "req_2",
+          "evidenceIds": [
+            "ev_demo_01",
+            "ev_demo_06",
+            "cert_demo_1"
+          ],
+          "strength": "strong",
+          "rationale": "Manejaste Google Ads con presupuestos significativos y tienes la certificación de búsqueda que lo respalda."
+        },
+        {
+          "requirementId": "req_3",
+          "evidenceIds": [],
+          "strength": "none",
+          "rationale": "TikTok Ads aparece en tu lista de habilidades pero ningún logro documenta campañas operadas ahí."
+        },
+        {
+          "requirementId": "req_4",
+          "evidenceIds": [
+            "ev_demo_03",
+            "ev_demo_09"
+          ],
+          "strength": "strong",
+          "rationale": "Construiste el tablero semanal en Looker Studio sobre GA4 que dirección revisaba, y en agencia ya presentabas resultados mensuales a clientes."
+        },
+        {
+          "requirementId": "req_5",
+          "evidenceIds": [
+            "ev_demo_05",
+            "ev_demo_01",
+            "ev_demo_06"
+          ],
+          "strength": "strong",
+          "rationale": "Corriste pruebas A/B en landing con resultado medible y ajustaste audiencias (cortar audiencias amplias, remarketing) con impacto en CAC y ROAS."
+        },
+        {
+          "requirementId": "req_6",
+          "evidenceIds": [
+            "ev_demo_09",
+            "ev_demo_06",
+            "ev_demo_01"
+          ],
+          "strength": "strong",
+          "rationale": "Sumas casi nueve años operando performance, incluidos dos en agencia manejando $1.2M MXN mensuales en cinco cuentas."
+        },
+        {
+          "requirementId": "req_7",
+          "evidenceIds": [
+            "cert_demo_1"
+          ],
+          "strength": "strong",
+          "rationale": "Cuentas con la Google Ads Search Certification obtenida en 2024."
+        },
+        {
+          "requirementId": "req_8",
+          "evidenceIds": [],
+          "strength": "none",
+          "rationale": "Radicas en Ciudad de México y el puesto exige residencia en Monterrey con presencia 100% en oficina."
+        },
+        {
+          "requirementId": "req_9",
+          "evidenceIds": [
+            "ev_demo_10",
+            "ev_demo_04"
+          ],
+          "strength": "partial",
+          "rationale": "Tienes trato directo con clientes y agencias, pero las visitas serían en la zona de Monterrey donde no resides."
+        },
+        {
+          "requirementId": "req_10",
+          "evidenceIds": [
+            "lang_ingles",
+            "ev_demo_10"
+          ],
+          "strength": "strong",
+          "rationale": "Tu inglés C1 supera el nivel intermedio y ya atendiste dos años a un cliente en Miami íntegramente en inglés."
+        }
+      ],
+      "coverage": {
+        "mandatoryTotal": 9,
+        "mandatoryStrong": 6,
+        "mandatoryPartial": 1,
+        "mandatoryMissing": 2,
+        "desirableTotal": 1,
+        "desirableStrong": 1,
+        "desirablePartial": 0,
+        "desirableMissing": 0,
+        "hardBlockers": [
+          {
+            "id": "req_8",
+            "text": "Residir en Monterrey o área metropolitana; puesto 100% presencial en San Pedro Garza García",
+            "keyword": "Monterrey",
+            "variants": [
+              "San Pedro Garza García",
+              "área metropolitana de Monterrey",
+              "N.L."
+            ],
+            "kind": "location",
+            "mandatory": true,
+            "weight": 3
+          }
+        ],
+        "verdict": "skip"
+      },
+      "documents": null,
+      "groundingReport": null,
+      "outcomes": [],
+      "archived": true
+    }
+  ],
+  "answers": [
+    {
+      "question": "¿Cuántos años de experiencia tienes en marketing digital y en qué industrias (retail o ecommerce)?",
+      "answer": "Acumulé más de nueve años en marketing digital: empecé en 2016 en Agencia Brisa operando campañas y reportes mensuales para cinco cuentas de consumo (bebidas y cuidado personal), luego en Pagolibre lideré la adquisición digital de comercios nuevos como único responsable del canal, y de 2021 a mediados de 2025 estuve del lado de ecommerce en la tienda en línea de Farmacias del Valle. Ahí operé Meta Ads y Google Ads con un presupuesto mensual de $450 mil MXN y el ROAS combinado pasó de 2.1 a 3.4 en seis meses.",
+      "language": "es-MX"
+    },
+    {
+      "question": "Describe tu experiencia operando campañas en Meta Ads y Google Ads y el presupuesto de medios que has manejado.",
+      "answer": "En Farmacias del Valle operé directamente Meta Ads y Google Ads para la tienda en línea con un presupuesto mensual de $450 mil MXN; reestructuré las campañas por categoría y pasé de pujas manuales a tCPA con conversiones de compra importadas desde GA4, con lo que el ROAS combinado subió de 2.1 a 3.4 en seis meses. Antes, en Pagolibre, corrí Meta, Google y afiliados como único responsable del canal y bajé el CAC de $1,450 a $890 MXN por comercio activado en un año. En Agencia Brisa gestioné un presupuesto agregado de unos $1.2M MXN al mes entre cinco cuentas, así que el rango de inversión que pide la vacante lo tengo bien cubierto.",
+      "language": "es-MX"
+    },
+    {
+      "question": "¿Qué CRM empresarial has manejado (HubSpot o Salesforce Marketing Cloud) y qué hiciste con él en segmentación, automatizaciones y reportes?",
+      "answer": "Trabajé con HubSpot en Farmacias del Valle, donde diseñé los flujos de recompra del programa de lealtad: recordatorio de tratamiento crónico, carrito abandonado y reactivación a 90 días. La segmentación por tipo de padecimiento fue clave: en el segmento de enfermedades crónicas la tasa de recompra a 60 días subió de 18% a 27%. Los resultados de esos flujos los reportaba junto con el resto de los canales en el tablero semanal de marketing.",
+      "language": "es-MX"
+    },
+    {
+      "question": "¿Cuál es tu nivel en GA4, Looker Studio, Excel avanzado y SQL?",
+      "answer": "GA4 lo usé todos los días: de ahí importaba las conversiones de compra hacia Google Ads y sobre esa misma base construí el tablero semanal en Looker Studio con CAC, ROAS por canal y conversión por categoría, que se volvió el reporte que dirección revisaba los lunes para decidir el presupuesto del mes. En Excel armé el modelo de presupuesto anual de marketing: tablas dinámicas sobre el histórico de inversión por canal, escenarios con Buscar objetivo, fórmulas de búsqueda y validación, y una macro que consolidaba cada mes los reportes de las dos agencias. Mi SQL es básico y así lo digo: escribía consultas sencillas con joins y agregados para armar cohortes de activación, los modelos más complejos los hacía el equipo de datos.",
+      "language": "es-MX"
+    },
+    {
+      "question": "¿Cuál es tu nivel de inglés y en qué contextos profesionales lo has usado?",
+      "answer": "Mi inglés es de trabajo, no de salón de clases. En Agencia Brisa fui durante dos años el único punto de contacto de un cliente regional con sede en Miami: llamadas semanales de estatus, presentaciones trimestrales de resultados al director regional y todos los reportes escritos en inglés.",
+      "language": "es-MX"
+    },
+    {
+      "question": "Cuéntanos tu experiencia coordinando agencias creativas y de medios, y proponiendo pruebas A/B con equipos de UX.",
+      "answer": "En Farmacias del Valle coordiné a la agencia creativa y a la de medios: calendario mensual de piezas, revisión de copys con el área regulatoria por ser publicidad de medicamentos y control del presupuesto contra el plan; cerramos 2024 a 2% por debajo del presupuesto anual aprobado. Del lado de conversión, propuse y corrí con el equipo de UX una serie de pruebas A/B en la landing de recetas electrónicas, y la variante ganadora con formulario en dos pasos subió la conversión de 3.1% a 4.2%. También tenía una macro que consolidaba mensualmente los reportes de las dos agencias en una sola hoja de control para no perder de vista entregas ni gasto.",
+      "language": "es-MX"
+    }
+  ],
+  "interviewPlans": {
+    "role_demo_1": [
+      {
+        "id": "q1",
+        "targetStubId": null,
+        "question": "¿Qué otras cosas hiciste en Farmacias del Valle que nunca llegaron a tu CV?",
+        "why": "Suele aparecer aquí el trabajo más interesante que quedó fuera por falta de espacio.",
+        "probesFor": "scope"
+      },
+      {
+        "id": "q2",
+        "targetStubId": null,
+        "question": "¿Tenías gente a tu cargo o trabajabas solo con las agencias? Si había equipo, ¿cuántas personas y con qué roles?",
+        "why": "Aclara si el rol incluía liderazgo de personas, algo que hoy no se ve.",
+        "probesFor": "scope"
+      },
+      {
+        "id": "q3",
+        "targetStubId": null,
+        "question": "Además de la pauta pagada, ¿te tocó algo de canales orgánicos (SEO, contenido, redes, email masivo, WhatsApp)? ¿Qué hacías exactamente ahí?",
+        "why": "Cubre una parte del marketing digital que las notas actuales no mencionan.",
+        "probesFor": "action"
+      },
+      {
+        "id": "q4",
+        "targetStubId": null,
+        "question": "¿Cómo estaba el canal digital cuando entraste en 2021 y cómo lo dejaste en 2025?",
+        "why": "Da el punto de partida y el tamaño real del cambio durante tus cuatro años.",
+        "probesFor": "context"
+      },
+      {
+        "id": "q5",
+        "targetStubId": null,
+        "question": "¿Qué tan grande era la tienda en línea mientras estuviste ahí (ventas mensuales, número de órdenes o su peso frente al total de la farmacia)? Un número aproximado o un \"no me acuerdo\" está perfecto.",
+        "why": "Dimensiona el negocio que manejabas para quien lea tu CV.",
+        "probesFor": "metric"
+      },
+      {
+        "id": "q6",
+        "targetStubId": null,
+        "question": "¿Cuál fue el problema más difícil que te tocó resolver en ese puesto?",
+        "why": "Muestra cómo trabajas cuando las cosas no salen según el plan.",
+        "probesFor": "action"
+      }
+    ],
+    "role_demo_2": [
+      {
+        "id": "q1",
+        "targetStubId": null,
+        "question": "Además de la adquisición digital y el onboarding, ¿qué otras cosas hiciste en Pagolibre que nunca llegaron a tu CV?",
+        "why": "Suele ser donde aparece el trabajo más interesante que quedó fuera.",
+        "probesFor": "scope"
+      },
+      {
+        "id": "q2",
+        "targetStubId": null,
+        "question": "¿Cómo era el equipo alrededor tuyo? ¿Con quién trabajabas día a día y a quién le reportabas?",
+        "why": "Ayuda a ubicar tu nivel de responsabilidad real dentro de la empresa.",
+        "probesFor": "context"
+      },
+      {
+        "id": "q3",
+        "targetStubId": null,
+        "question": "¿Qué presupuesto de medios manejabas al mes? Un rango aproximado o \"no lo recuerdo\" está perfecto.",
+        "why": "El tamaño del presupuesto dimensiona el alcance de tu rol.",
+        "probesFor": "metric"
+      },
+      {
+        "id": "q4",
+        "targetStubId": null,
+        "question": "¿Cuántos comercios nuevos se activaban al mes cuando entraste, y cuántos cuando saliste?",
+        "why": "Da la magnitud del crecimiento en el que participaste.",
+        "probesFor": "outcome"
+      },
+      {
+        "id": "q5",
+        "targetStubId": null,
+        "question": "¿Hubo algún experimento o canal que probaste y que no funcionó? ¿Qué hiciste con esa información?",
+        "why": "Los intentos fallidos muestran cómo decides y aprendes.",
+        "probesFor": "action"
+      },
+      {
+        "id": "q6",
+        "targetStubId": null,
+        "question": "¿Qué herramientas o procesos dejaste montados que el equipo siguió usando después de que te fuiste?",
+        "why": "Muestra qué de tu trabajo tuvo permanencia.",
+        "probesFor": "outcome"
+      }
+    ],
+    "role_demo_3": [
+      {
+        "id": "q1",
+        "targetStubId": null,
+        "question": "De esas cinco cuentas, ¿hubo alguna campaña o proyecto específico que recuerdes con más detalle: qué tenía que lograr y qué hiciste tú puntualmente?",
+        "why": "Un caso concreto le da textura a un rol que hoy se lee muy general.",
+        "probesFor": "action"
+      },
+      {
+        "id": "q2",
+        "targetStubId": null,
+        "question": "¿Cambió algo en el desempeño de las campañas mientras las manejaste (por ejemplo costo por resultado, alcance o ventas)? Lo que recuerdes, aunque sea aproximado o 'no lo tengo', está bien.",
+        "why": "Sirve para mostrar impacto y no solo operación.",
+        "probesFor": "metric"
+      },
+      {
+        "id": "q3",
+        "targetStubId": null,
+        "question": "¿Cómo estaba organizado el equipo alrededor de ti: reportabas a alguien, coordinabas a diseñadores, redactores o compra de medios?",
+        "why": "Ubica tu nivel de responsabilidad real dentro de la agencia.",
+        "probesFor": "context"
+      },
+      {
+        "id": "q4",
+        "targetStubId": null,
+        "question": "¿Hubo algún proceso, plantilla o forma de reportar que tú propusiste o cambiaste en la agencia?",
+        "why": "Las mejoras de proceso suelen ser lo primero que se cae del CV.",
+        "probesFor": "action"
+      },
+      {
+        "id": "q5",
+        "targetStubId": null,
+        "question": "¿Alguna cuenta que llegara en riesgo, con conflicto o que estuviera por irse, y qué pasó con ella?",
+        "why": "Retener o rescatar una cuenta es un resultado muy valorado.",
+        "probesFor": "outcome"
+      },
+      {
+        "id": "q6",
+        "targetStubId": null,
+        "question": "¿Qué más hiciste en Agencia Brisa que nunca llegó a tu CV?",
+        "why": "Suele aparecer aquí el trabajo más interesante que diste por obvio.",
+        "probesFor": "scope"
+      }
+    ]
+  }
+}

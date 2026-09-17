@@ -1,0 +1,15 @@
+/docs/superpowers/ export-ignore
+/.github/ export-ignore
+/.gitignore export-ignore
+/tests/ export-ignore
+/vitest.config.ts export-ignore
+/biome.json export-ignore
+/docs/bindings.md export-ignore
+/docs/seguridad.md export-ignore
+/CLAUDE.md export-ignore
+/AGENTS.md export-ignore
+/.gitattributes export-ignore
+/.gitleaks.toml export-ignore
+/demo/ export-ignore
+/scripts/demo-build.ts export-ignore
+/tests/demo/seed-file.test.ts export-ignore

@@ -1,0 +1,40 @@
+#!/bin/bash
+# CVForge launcher (macOS). Double-click starts the bundled server with no
+# terminal window and opens the browser; if CVForge is already running it
+# just reopens the browser. Quitting lives in the app: the nav's "apagar".
+set -u
+
+# MacOS/ -> Contents/ -> CVForge.app -> the package root, where LEEME lives.
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+PORT="${PORT:-3000}"
+URL="http://localhost:$PORT"
+
+case "$(uname -m)" in
+  arm64) NODE="$ROOT/programa/node/mac-arm64/node" ;;
+  *) NODE="$ROOT/programa/node/mac-x64/node" ;;
+esac
+
+# Already running? The icon route carries the app's name — a cheap identity
+# check so we never open the browser onto some other server on the port.
+if curl -sf --max-time 2 "$URL/icon.svg" 2>/dev/null | grep -q CVForge; then
+  open "$URL"
+  exit 0
+fi
+
+mkdir -p "$ROOT/datos"
+cd "$ROOT/programa/servidor" || exit 1
+HOSTNAME=127.0.0.1 PORT="$PORT" CVFORGE_DB_PATH="$ROOT/datos/cvforge.db" \
+  nohup "$NODE" server.js > "$ROOT/datos/cvforge.log" 2>&1 &
+disown
+
+for _ in $(seq 1 60); do
+  if curl -sf --max-time 2 "$URL" > /dev/null 2>&1; then
+    open "$URL"
+    exit 0
+  fi
+  sleep 0.5
+done
+
+# The server never came up: surface the log instead of failing silently.
+open "$ROOT/datos/cvforge.log"
+exit 1

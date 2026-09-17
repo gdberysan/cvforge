@@ -1,0 +1,51 @@
+name: Report a bug · Reportar un fallo
+description: Something in the app doesn't do what it says · Algo no hace lo que dice
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Don't paste your real CV, postings with your name, or your API key.** Made-up data is enough to reproduce almost anything.
+        **No pegues tu CV real, vacantes con tu nombre ni tu clave de API.** Con datos inventados se reproduce casi todo.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version · Versión
+      description: Shown in Ajustes / Settings.
+      placeholder: v1.3.0
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: System and browser · Sistema y navegador
+      placeholder: macOS 15.3 arm64 · Chrome 140
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce · Cómo reproducirlo
+      placeholder: |
+        1. Open Evidence → Import
+        2. Paste a CV with …
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened · Qué esperabas y qué pasó
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log · Registro
+      description: "`datos/cvforge.log` from the install folder. Remove anything you don't want to share."
+      render: shell

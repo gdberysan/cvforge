@@ -1,0 +1,1 @@
+ALTER TABLE `evidence_items` ADD `origin` text DEFAULT 'manual' NOT NULL;

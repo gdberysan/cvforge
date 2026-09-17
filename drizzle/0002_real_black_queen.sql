@@ -1,0 +1,1 @@
+ALTER TABLE `applications` ADD `evidence_hash` text;

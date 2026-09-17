@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Environment — never commit secrets
+.env
+.env.local
+.env*.local
+
+# Local data — the SQLite database holds personal career data
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+backups/
+
+# Generated documents
+exports/
+
+# TypeScript incremental build state — churns on every typecheck
+*.tsbuildinfo
+
+# Test / coverage
+coverage/
+.vitest/
+
+# Playwright
+test-results/
+playwright-report/
+.playwright-mcp/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# The author's real postings, eval runs and scrub denylist — never shipped
+evals/private/
+
+# Release zips
+dist/
+
+# Vercel project link
+.vercel/
+
+# review assets dropped into the repo root (screenshots, design handoffs)
+/Screenshot*.png
+/*-handoff.zip
+
+# Design-tool handoff bundle (reference only, not product code)
+/layout-and-ux-improvement-discovery/
+
+# Local demo recordings — not product code
+/app-videos/

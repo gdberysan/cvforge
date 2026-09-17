@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Léeme — CVForge</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E131B'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23FF8A2B'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --grafito: #0E131B;
+    --carbon: #171E29;
+    --sunken: #0A0E15;
+    --raised: #1D2533;
+    --ambar: #FF8A2B;
+    --ambar-hover: #FFA255;
+    --ambar-glow: rgba(255, 138, 43, 0.16);
+    --hueso: #EFF3F8;
+    --body-text: #C3CCD7;
+    --acero: #97A3B2;
+    --faint: #6B788C;
+    --ok: #4FB286;
+    --line: rgba(151, 163, 178, 0.14);
+    --line-strong: rgba(151, 163, 178, 0.28);
+    --display: "Space Grotesk", "Inter", system-ui, sans-serif;
+    --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--grafito);
+    color: var(--body-text);
+    font: 400 16px/1.6 var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--ambar); color: var(--sunken); }
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ambar), 0 0 0 5px var(--ambar-glow);
+    border-radius: 4px;
+  }
+
+  /* Language switching: exactly one language tree visible.
+     !important so no component rule (e.g. the OS chip) can re-show the other language. */
+  body[data-lang="es"] [lang="en"] { display: none !important; }
+  body[data-lang="en"] [lang="es"] { display: none !important; }
+
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px 96px; }
+
+  /* ---- Header ---- */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 0; border-bottom: 1px solid var(--line);
+  }
+  .wordmark {
+    font: 500 13px var(--mono); letter-spacing: 0.18em; color: var(--hueso);
+    text-transform: uppercase;
+  }
+  .wordmark b { color: var(--ambar); font-weight: 500; }
+  .lang-toggle { display: flex; gap: 2px; border: 1px solid var(--line-strong); border-radius: 6px; padding: 2px; }
+  .lang-toggle button {
+    font: 500 12px var(--mono); letter-spacing: 0.04em;
+    background: none; border: 0; color: var(--acero);
+    padding: 4px 10px; border-radius: 4px; cursor: pointer;
+  }
+  .lang-toggle button[aria-pressed="true"] { background: var(--carbon); color: var(--hueso); }
+  .lang-toggle button:hover { color: var(--hueso); }
+
+  /* ---- Hero ---- */
+  .hero { padding: 56px 0 40px; }
+  .hero h1 {
+    font: 700 clamp(38px, 8vw, 56px)/1.05 var(--display);
+    letter-spacing: -0.02em; color: var(--hueso);
+  }
+  .hero h1 .spark { color: var(--ambar); }
+  .promise {
+    margin-top: 16px; font-size: 19px; line-height: 1.55; color: var(--body-text);
+    max-width: 56ch;
+  }
+  .promise strong { color: var(--hueso); font-weight: 600; }
+
+  /* ---- Signature: next-step card with the amber trace ---- */
+  .next-step {
+    position: relative; margin-top: 36px;
+    background: var(--carbon); border-radius: 12px; padding: 24px;
+  }
+  .next-step .trace {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; overflow: visible;
+  }
+  /* Unscaled SVG (no viewBox): the rect is sized in real pixels via CSS, so the
+     dash travels uniformly; pathLength=100 keeps the dash math size-independent. */
+  .next-step .trace rect {
+    x: 0.75px; y: 0.75px;
+    width: calc(100% - 1.5px); height: calc(100% - 1.5px);
+    rx: 11px;
+    fill: none; stroke: rgba(151, 163, 178, 0.25); stroke-width: 1.5;
+  }
+  .next-step .trace .head {
+    stroke: #FFE9D6; stroke-width: 1.5;
+    stroke-dasharray: 14 86; stroke-linecap: round;
+    filter: drop-shadow(0 0 3px var(--ambar));
+    animation: trace 5.5s linear infinite;
+  }
+  @keyframes trace { to { stroke-dashoffset: -100; } }
+  @media (prefers-reduced-motion: reduce) {
+    .next-step .trace .head { animation: none; stroke: var(--ambar); stroke-dasharray: none; filter: none; }
+    html { scroll-behavior: auto; }
+  }
+  .eyebrow {
+    font: 500 11px var(--mono); letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ambar);
+  }
+  .launchers { display: grid; gap: 10px; margin-top: 16px; }
+  .launcher {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px;
+    background: var(--grafito);
+  }
+  .launcher .os { font: 600 14px var(--display); color: var(--hueso); min-width: 76px; }
+  .launcher code { color: var(--body-text); }
+  .launcher .you {
+    margin-left: auto; font: 500 11px var(--mono); letter-spacing: 0.06em;
+    color: var(--ambar); border: 1px solid rgba(255, 138, 43, 0.4);
+    border-radius: 99px; padding: 2px 10px; display: none;
+  }
+  .launcher.mine { border-color: rgba(255, 138, 43, 0.55); }
+  .launcher.mine .you { display: inline-block; }
+  .next-note { margin-top: 14px; font-size: 14px; color: var(--acero); }
+
+  /* ---- Sections ---- */
+  section { padding: 40px 0 8px; }
+  section + section { border-top: 1px solid var(--line); margin-top: 32px; }
+  h2 {
+    font: 600 26px/1.2 var(--display); letter-spacing: -0.01em;
+    color: var(--hueso); margin: 10px 0 20px;
+  }
+  p { margin-bottom: 14px; max-width: 62ch; }
+  p strong { color: var(--hueso); font-weight: 600; }
+  a { color: var(--ambar); text-decoration: none; border-bottom: 1px solid rgba(255, 138, 43, 0.35); }
+  a:hover { color: var(--ambar-hover); border-bottom-color: var(--ambar-hover); }
+  code {
+    font: 400 0.88em/1 var(--mono); letter-spacing: 0.02em;
+    background: var(--sunken); border: 1px solid var(--line);
+    border-radius: 5px; padding: 2px 6px; color: #C3CCD7; white-space: nowrap;
+  }
+
+  /* Numbered install steps: order is the information */
+  .steps { list-style: none; counter-reset: step; display: grid; gap: 0; margin-top: 4px; }
+  .steps li {
+    counter-increment: step; position: relative;
+    padding: 0 0 22px 52px;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: -2px;
+    width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    font: 600 13px var(--mono);
+    color: var(--ambar); border: 1px solid rgba(255, 138, 43, 0.4);
+    background: var(--carbon);
+  }
+  .steps li:not(:last-child)::after {
+    content: ""; position: absolute; left: 15px; top: 32px; bottom: 2px;
+    width: 1px; background: var(--line-strong);
+  }
+  .steps li p { margin: 0; }
+  .steps .aside { display: block; margin-top: 4px; font-size: 14px; color: var(--acero); }
+
+  .callout {
+    border-left: 2px solid var(--ambar); background: var(--carbon);
+    border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 20px 0;
+    font-size: 14.5px; color: var(--body-text); max-width: none;
+  }
+
+  /* Needs: two cards */
+  .needs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  @media (max-width: 560px) { .needs { grid-template-columns: 1fr; } }
+  .need { background: var(--carbon); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+  .need h3 { font: 600 16px var(--display); color: var(--hueso); margin-bottom: 6px; }
+  .need p { font-size: 14.5px; margin: 0; color: var(--acero); }
+
+  /* Folder map */
+  .tree { display: grid; gap: 8px; margin-top: 4px; }
+  .tree .row {
+    display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap;
+    border: 1px solid var(--line); border-radius: 8px; padding: 11px 14px;
+    background: var(--carbon);
+  }
+  .tree .row .nm { font: 500 13.5px var(--mono); color: var(--hueso); white-space: nowrap; }
+  .tree .row p { margin: 0; font-size: 14px; color: var(--acero); }
+  .tree .row.datos { border-color: rgba(255, 138, 43, 0.45); }
+  .tree .row.datos .nm { color: var(--ambar); }
+
+  /* What-it-does flow */
+  .flow { display: grid; gap: 14px; }
+  .flow-item { display: grid; gap: 2px; }
+  .flow-item h3 { font: 600 16px var(--display); color: var(--hueso); }
+  .flow-item p { font-size: 15px; color: var(--acero); margin: 0; }
+
+  /* Cost figures — the only place numbers get display treatment */
+  .figures { display: flex; gap: 28px; flex-wrap: wrap; margin: 18px 0 6px; }
+  .figure .amount { font: 600 24px var(--display); color: var(--hueso); }
+  .figure .amount em { font-style: normal; color: var(--ambar); }
+  .figure .label { font-size: 13px; color: var(--faint); margin-top: 2px; }
+
+  ul.plain { list-style: none; display: grid; gap: 10px; }
+  ul.plain li { padding-left: 18px; position: relative; max-width: 62ch; }
+  ul.plain li::before { content: "—"; position: absolute; left: 0; color: var(--ambar); }
+
+  /* FAQ */
+  details {
+    border-bottom: 1px solid var(--line);
+  }
+  details summary {
+    cursor: pointer; list-style: none; padding: 14px 0;
+    font-weight: 600; color: var(--hueso); position: relative; padding-right: 30px;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after {
+    content: "+"; position: absolute; right: 4px; top: 12px;
+    font: 400 18px var(--mono); color: var(--ambar);
+  }
+  details[open] summary::after { content: "–"; }
+  details .a { padding: 0 0 16px; font-size: 15px; color: var(--body-text); max-width: 62ch; }
+
+  /* Commands table */
+  .cmds { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  .cmds td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .cmds td:last-child { color: var(--acero); }
+  .cmds code { line-height: 1.9; }
+
+  footer {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: 13.5px; color: var(--faint);
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+</style>
+</head>
+<body data-lang="es">
+<script>
+  // Before paint: restore language; mark the reader's OS on the hero card.
+  (() => {
+    try {
+      const l = localStorage.getItem('cvforge_leeme_lang');
+      if (l === 'en' || l === 'es') document.body.setAttribute('data-lang', l);
+    } catch {}
+    const p = `${navigator.platform || ''} ${navigator.userAgent || ''}`;
+    const os = /Mac/i.test(p) ? 'mac' : /Win/i.test(p) ? 'win' : /Linux|X11/i.test(p) ? 'linux' : null;
+    if (os) document.documentElement.setAttribute('data-os', os);
+  })();
+</script>
+<div class="wrap">
+
+<header>
+  <div class="wordmark">CV<b>Forge</b></div>
+  <div class="lang-toggle">
+    <button type="button" data-set-lang="es" aria-pressed="true">ES</button>
+    <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>CVForge<span class="spark">.</span></h1>
+  <p class="promise" lang="es">Un asistente de búsqueda de empleo que corre <strong>en tu computadora</strong>, con tu propia clave de IA, y que <strong>no inventa nada sobre ti</strong>.</p>
+  <p class="promise" lang="en">A job-search assistant that runs <strong>on your machine</strong>, with your own AI key, and <strong>never invents anything about you</strong>.</p>
+
+  <div class="next-step">
+    <svg class="trace" aria-hidden="true">
+      <rect pathLength="100"></rect>
+      <rect class="head" pathLength="100"></rect>
+    </svg>
+    <p class="eyebrow" lang="es">Tu siguiente paso</p>
+    <p class="eyebrow" lang="en">Your next step</p>
+    <div class="launchers">
+      <div class="launcher" data-os="mac">
+        <span class="os">macOS</span>
+        <span lang="es">doble clic en <code>CVForge</code></span>
+        <span lang="en">double-click <code>CVForge</code></span>
+        <span class="you" lang="es">tu sistema</span><span class="you" lang="en">your system</span>
+      </div>
+      <div class="launcher" data-os="win">
+        <span class="os">Windows</span>
+        <span lang="es">doble clic en <code>CVForge (Windows)</code></span>
+        <span lang="en">double-click <code>CVForge (Windows)</code></span>
+        <span class="you" lang="es">tu sistema</span><span class="you" lang="en">your system</span>
+      </div>
+      <div class="launcher" data-os="linux">
+        <span class="os">Linux</span>
+        <span lang="es">en una terminal: <code>./programa/start.sh</code></span>
+        <span lang="en">in a terminal: <code>./programa/start.sh</code></span>
+        <span class="you" lang="es">tu sistema</span><span class="you" lang="en">your system</span>
+      </div>
+    </div>
+    <p class="next-note" lang="es">Se abre en tu navegador en unos segundos. No instala nada en tu sistema — todo viene incluido.</p>
+    <p class="next-note" lang="en">It opens in your browser in a few seconds. Nothing gets installed on your system — everything is included.</p>
+  </div>
+</div>
+
+<section>
+  <p class="eyebrow" lang="es">Antes de empezar</p>
+  <p class="eyebrow" lang="en">Before you start</p>
+  <h2 lang="es">Una sola cosa que necesitas</h2>
+  <h2 lang="en">One thing you need</h2>
+  <div class="needs">
+    <div class="need">
+      <h3 lang="es">Clave de API de Anthropic</h3>
+      <h3 lang="en">Anthropic API key</h3>
+      <p lang="es">Se crea en <a href="https://console.anthropic.com">console.anthropic.com</a> (agrega unos $5 USD de crédito). La app te guía paso a paso la primera vez. Todo lo demás ya viene en la carpeta.</p>
+      <p lang="en">Created at <a href="https://console.anthropic.com">console.anthropic.com</a> (add about $5 USD of credit). The app walks you through it the first time. Everything else ships in the folder.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">Instalar y arrancar</p>
+  <p class="eyebrow" lang="en">Install and start</p>
+  <h2 lang="es">Cuatro pasos, una sola vez</h2>
+  <h2 lang="en">Four steps, once</h2>
+  <ol class="steps">
+    <li>
+      <p lang="es">Descomprime el archivo que descargaste.</p>
+      <p lang="en">Unzip the file you downloaded.</p>
+    </li>
+    <li>
+      <p lang="es">Doble clic en <code>CVForge</code> (macOS) o <code>CVForge (Windows)</code>. En Linux: <code>./programa/start.sh</code>. En unos segundos se abre en tu navegador.</p>
+      <p lang="en">Double-click <code>CVForge</code> (macOS) or <code>CVForge (Windows)</code>. On Linux: <code>./programa/start.sh</code>. It opens in your browser in a few seconds.</p>
+    </li>
+    <li>
+      <p lang="es">La app te pide tu clave de Anthropic y te muestra cómo obtenerla. Pégala y verás <strong style="color:var(--ok)">✓ conectado</strong>.</p>
+      <p lang="en">The app asks for your Anthropic key and shows how to get one. Paste it and you'll see <strong style="color:var(--ok)">✓ connected</strong>.</p>
+    </li>
+    <li>
+      <p lang="es">Arrastra tu CV en PDF. <span class="aside">En LinkedIn: <em>Más → Guardar como PDF</em>.</span></p>
+      <p lang="en">Drop your CV as a PDF. <span class="aside">On LinkedIn: <em>More → Save to PDF</em>.</span></p>
+    </li>
+  </ol>
+  <div class="callout" lang="es">Si macOS dice que <code>CVForge</code> no se puede abrir (es una app descargada de internet): en macOS 15 o más nuevo, cierra el aviso, abre Ajustes del Sistema → Privacidad y seguridad, baja hasta el mensaje sobre CVForge y pulsa «Abrir de todos modos» (en macOS 14 o anterior basta con clic derecho sobre <code>CVForge</code> → Abrir → Abrir). Solo la primera vez.</div>
+  <div class="callout" lang="en">If macOS says <code>CVForge</code> can't be opened (it's an app downloaded from the internet): on macOS 15 or newer, dismiss the notice, open System Settings → Privacy & Security, scroll to the message about CVForge and click "Open Anyway" (on macOS 14 or earlier, right-click <code>CVForge</code> → Open → Open is enough). First time only.</div>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">La carpeta</p>
+  <p class="eyebrow" lang="en">The folder</p>
+  <h2 lang="es">Qué hay dentro</h2>
+  <h2 lang="en">What's inside</h2>
+  <div class="tree">
+    <div class="row">
+      <span class="nm">LEEME.html</span>
+      <p lang="es">Esta guía. Todo lo que necesitas saber está aquí.</p>
+      <p lang="en">This guide. Everything you need to know is here.</p>
+    </div>
+    <div class="row">
+      <span class="nm">CVForge · CVForge (Windows)</span>
+      <p lang="es">Doble clic en el tuyo para abrir CVForge — hoy y cada día.</p>
+      <p lang="en">Double-click yours to open CVForge — today and every day.</p>
+    </div>
+    <div class="row">
+      <span class="nm">programa/</span>
+      <p lang="es">El motor de CVForge. No necesitas abrir esta carpeta nunca.</p>
+      <p lang="en">The CVForge engine. You never need to open this folder.</p>
+    </div>
+    <div class="row datos">
+      <span class="nm">datos/</span>
+      <p lang="es">Aparece con el primer uso. Tu CV, tu evidencia y tu clave viven aquí — es la única carpeta que importa respaldar.</p>
+      <p lang="en">Appears on first use. Your CV, your evidence and your key live here — the only folder worth backing up.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">Uso diario</p>
+  <p class="eyebrow" lang="en">Daily use</p>
+  <h2 lang="es">Abrir, usar, apagar</h2>
+  <h2 lang="en">Open, use, quit</h2>
+  <div class="flow">
+    <div class="flow-item">
+      <h3 lang="es">Para abrir CVForge</h3>
+      <h3 lang="en">To open CVForge</h3>
+      <p lang="es">Doble clic en <code>CVForge</code>. En unos segundos aparece en tu navegador (<code>http://localhost:3000</code>). No hay ventanas extra: corre en segundo plano, en tu máquina.</p>
+      <p lang="en">Double-click <code>CVForge</code>. In a few seconds it appears in your browser (<code>http://localhost:3000</code>). No extra windows: it runs in the background, on your machine.</p>
+    </div>
+    <div class="flow-item">
+      <h3 lang="es">Mientras lo usas</h3>
+      <h3 lang="en">While you use it</h3>
+      <p lang="es">Trabajas en el navegador. Si cierras la pestaña por accidente, no pasa nada — vuelve a <code>http://localhost:3000</code> o doble clic en <code>CVForge</code> otra vez.</p>
+      <p lang="en">You work in the browser. Closing the tab by accident is harmless — go back to <code>http://localhost:3000</code> or double-click <code>CVForge</code> again.</p>
+    </div>
+    <div class="flow-item">
+      <h3 lang="es">Para apagarlo</h3>
+      <h3 lang="en">To quit</h3>
+      <p lang="es">Botón <code>apagar</code>, arriba a la derecha dentro de la app. Tu información ya está guardada — se guarda sola a cada paso, apagar siempre es seguro.</p>
+      <p lang="en">The <code>quit</code> button, top right inside the app. Your work is already saved — it saves itself at every step, so quitting is always safe.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">Mientras se instala</p>
+  <p class="eyebrow" lang="en">While it installs</p>
+  <h2 lang="es">Esto es lo que vas a poder hacer</h2>
+  <h2 lang="en">Here's what you'll be able to do</h2>
+  <div class="flow">
+    <div class="flow-item">
+      <h3 lang="es">Cargas tu carrera una vez</h3>
+      <h3 lang="en">Load your career once</h3>
+      <p lang="es">CVForge lee puestos, fechas y logros de tu CV, y luego te entrevista brevemente por cada puesto para recuperar lo que el CV dejó fuera.</p>
+      <p lang="en">CVForge reads roles, dates and achievements from your CV, then briefly interviews you per role to recover what the CV left out.</p>
+    </div>
+    <div class="flow-item">
+      <h3 lang="es">Pegas una vacante</h3>
+      <h3 lang="en">Paste a posting</h3>
+      <p lang="es">En veinte segundos te dice si vale la pena: qué tienes, qué no, y qué requisito sería una suposición.</p>
+      <p lang="en">In twenty seconds it tells you whether it's worth it: what you have, what you don't, and which requirement would be a guess.</p>
+    </div>
+    <div class="flow-item">
+      <h3 lang="es">Rellenas los huecos que sí son tuyos</h3>
+      <h3 lang="en">Fill the gaps that are actually yours</h3>
+      <p lang="es">Cuando una vacante pide algo que sí tienes pero nunca registraste, lo escribes en unas frases, dices en qué empleo pasó, y se vuelve evidencia permanente. La vacante se evalúa de nuevo — y esa misma respuesta cuenta en todas las postulaciones que sigan. Lo que dejes en blanco se queda en blanco: esa es la respuesta honesta y no cuesta nada.</p>
+      <p lang="en">When a posting asks for something you do have but never recorded, you write a few sentences, say which job it happened at, and it becomes permanent evidence. The posting is scored again — and that same answer counts on every application after it. Whatever you leave blank stays blank: that's the honest answer and it costs nothing.</p>
+    </div>
+    <div class="flow-item">
+      <h3 lang="es">Generas el kit</h3>
+      <h3 lang="en">Generate the kit</h3>
+      <p lang="es">CV, carta, respuestas de filtro y mensaje al reclutador — en español de México o en inglés. Cada afirmación cita la evidencia de la que salió; cada número se verifica contra tus registros. Lo que no se puede verificar se marca, no se esconde.</p>
+      <p lang="en">CV, cover letter, screening answers and recruiter message — in Mexican Spanish or English. Every claim cites the evidence it came from; every number is verified against your records. What can't be verified is flagged, never hidden.</p>
+    </div>
+    <div class="flow-item">
+      <h3 lang="es">Registras lo que pasa</h3>
+      <h3 lang="en">Log what happens</h3>
+      <p lang="es">Un clic por resultado. Con el tiempo, la página de números te dice qué tipo de vacante sí te responde.</p>
+      <p lang="en">One click per outcome. Over time the numbers page tells you which kinds of postings actually respond to you.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">Cuánto cuesta usarlo</p>
+  <p class="eyebrow" lang="en">What it costs to run</p>
+  <h2 lang="es">La app es tuya; la IA la pagas directo a Anthropic</h2>
+  <h2 lang="en">The app is yours; you pay for the AI directly</h2>
+  <div class="figures">
+    <div class="figure">
+      <div class="amount"><em>≈ $0.13</em> USD</div>
+      <div class="label" lang="es">por análisis de vacante</div>
+      <div class="label" lang="en">per posting analysis</div>
+    </div>
+    <div class="figure">
+      <div class="amount"><em>≈ $0.50</em> USD</div>
+      <div class="label" lang="es">por kit completo</div>
+      <div class="label" lang="en">per full kit</div>
+    </div>
+    <div class="figure">
+      <div class="amount"><em>$5–10</em> USD</div>
+      <div class="label" lang="es">una búsqueda completa</div>
+      <div class="label" lang="en">a whole job search</div>
+    </div>
+  </div>
+  <p lang="es">Medido en uso real, con tu propia clave. El contador en la barra superior de la app muestra tu gasto acumulado.</p>
+  <p lang="en">Measured in real use, with your own key. The counter in the app's top bar shows your running spend.</p>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">Privacidad</p>
+  <p class="eyebrow" lang="en">Privacy</p>
+  <h2 lang="es">Nadie más ve nada</h2>
+  <h2 lang="en">Nobody else sees anything</h2>
+  <ul class="plain">
+    <li lang="es">Tus datos viven en un archivo SQLite en tu máquina (<code>datos/cvforge.db</code>).</li>
+    <li lang="en">Your data lives in one SQLite file on your machine (<code>datos/cvforge.db</code>).</li>
+    <li lang="es">La única conexión de red es a <code>api.anthropic.com</code>, con tu clave. No hay cuentas, analítica ni telemetría.</li>
+    <li lang="en">The only network connection is to <code>api.anthropic.com</code>, with your key. No accounts, analytics or telemetry.</li>
+    <li lang="es">Tu clave se guarda en <code>datos/config.json</code> (solo legible por tu usuario) — trátalo como una contraseña. También puedes usar la variable de entorno <code>ANTHROPIC_API_KEY</code>, que tiene prioridad.</li>
+    <li lang="en">Your key is stored in <code>datos/config.json</code> (readable only by your user) — treat it like a password. You can also set the <code>ANTHROPIC_API_KEY</code> environment variable, which takes precedence.</li>
+    <li lang="es">Para borrar todo, elimina la carpeta <code>datos</code>. No queda nada en ningún otro lugar.</li>
+    <li lang="en">To erase everything, delete the <code>datos</code> folder. Nothing is kept anywhere else.</li>
+    <li lang="es">Una excepción, apagada por defecto: si en Ajustes activas «avisarme de versiones nuevas», una vez al día se lee <code>cvforge.korven.dev/version.json</code> — un archivo estático. La consulta no lleva nada tuyo.</li>
+    <li lang="en">One exception, off by default: if you enable "tell me about new versions" in Settings, once a day the app reads <code>cvforge.korven.dev/version.json</code> — a static file. The request carries nothing of yours.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">Respaldo y actualizaciones</p>
+  <p class="eyebrow" lang="en">Backup and updates</p>
+  <h2 lang="es">Una sola carpeta que cuidar</h2>
+  <h2 lang="en">One folder to look after</h2>
+  <p lang="es"><strong>Respaldar:</strong> con CVForge cerrado, copia la carpeta <code>datos</code> a un USB o a tu nube. Eso es todo — esa carpeta es el 100&nbsp;% de tu información.</p>
+  <p lang="en"><strong>Back up:</strong> with CVForge closed, copy the <code>datos</code> folder to a USB drive or your cloud. That's it — that folder is 100% of your information.</p>
+  <p lang="es"><strong>Actualizar a una versión nueva:</strong> descomprime la versión nueva (crea su propia carpeta), copia la carpeta <code>datos</code> de la carpeta vieja junto al nuevo <code>LEEME.html</code>, y usa <code>Empezar</code> desde la carpeta nueva. Cuando confirmes que todo está, puedes borrar la carpeta vieja.</p>
+  <p lang="en"><strong>Update to a new version:</strong> unzip the new version (it makes its own folder), copy the <code>datos</code> folder from the old folder next to the new <code>LEEME.html</code>, and use <code>Empezar</code> from the new folder. Once you confirm everything is there, delete the old folder.</p>
+  <p class="next-note" lang="es">¿Vienes de la versión 1.0.3 o anterior? Ahí la carpeta se llamaba <code>data</code> y estaba entre los archivos del programa. Cópiala a la carpeta nueva, junto a <code>LEEME.html</code>, y renómbrala a <code>datos</code>.</p>
+  <p class="next-note" lang="en">Coming from version 1.0.3 or earlier? The folder was called <code>data</code> and sat among the program files. Copy it into the new folder, next to <code>LEEME.html</code>, and rename it to <code>datos</code>.</p>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">Preguntas frecuentes</p>
+  <p class="eyebrow" lang="en">FAQ</p>
+  <h2 lang="es">Si algo no sale</h2>
+  <h2 lang="en">If something doesn't work</h2>
+
+  <div lang="es">
+    <details>
+      <summary>macOS dice que no se puede abrir.</summary>
+      <div class="a">En macOS 15 o más nuevo: Ajustes del Sistema → Privacidad y seguridad → «Abrir de todos modos». En macOS 14 o anterior: clic derecho sobre <code>CVForge</code> → Abrir → Abrir. macOS lo pide una sola vez con las apps descargadas de internet.</div>
+    </details>
+    <details>
+      <summary>La clave fue rechazada.</summary>
+      <div class="a">Verifica que la copiaste completa (empieza con <code>sk-ant-</code>) y que tu cuenta tiene crédito.</div>
+    </details>
+    <details>
+      <summary>"Sin crédito" / billing.</summary>
+      <div class="a">Agrega crédito en console.anthropic.com → Plans &amp; Billing. Tu texto no se pierde; reintenta.</div>
+    </details>
+    <details>
+      <summary>No puedo exportar PDF.</summary>
+      <div class="a">«Exportar PDF» usa tu Chrome o Edge automáticamente. Si no tienes ninguno, se abre el diálogo de imprimir del navegador (elige «Guardar como PDF»), y Ajustes te ofrece instalar un motor dedicado (~150&nbsp;MB).</div>
+    </details>
+    <details>
+      <summary>¿Cómo lo apago y lo vuelvo a abrir?</summary>
+      <div class="a">Botón <code>apagar</code>, arriba a la derecha dentro de la app. Para volver, doble clic en <code>CVForge</code> otra vez — abre en segundos.</div>
+    </details>
+    <details>
+      <summary>El puerto 3000 está ocupado.</summary>
+      <div class="a"><code>PORT=3001 ./programa/start.sh</code></div>
+    </details>
+    <details>
+      <summary>Cambié mi evidencia y un veredicto viejo quedó desactualizado.</summary>
+      <div class="a">La app lo detecta y ofrece "Reanalizar" con un clic.</div>
+    </details>
+  </div>
+
+  <div lang="en">
+    <details>
+      <summary>macOS says it can't be opened.</summary>
+      <div class="a">Right-click <code>CVForge</code> → Open → Open. macOS asks once for apps downloaded from the internet.</div>
+    </details>
+    <details>
+      <summary>The key was rejected.</summary>
+      <div class="a">Check you copied all of it (it starts with <code>sk-ant-</code>) and that the account has credit.</div>
+    </details>
+    <details>
+      <summary>"Out of credits" / billing.</summary>
+      <div class="a">Add credit at console.anthropic.com → Plans &amp; Billing. Your text is kept; retry.</div>
+    </details>
+    <details>
+      <summary>PDF export doesn't work.</summary>
+      <div class="a">"Export PDF" drives your Chrome or Edge automatically. With neither present, the browser's print dialog opens (choose "Save as PDF"), and Settings offers a dedicated engine install (~150&nbsp;MB).</div>
+    </details>
+    <details>
+      <summary>How do I quit, and open it again tomorrow?</summary>
+      <div class="a">The <code>quit</code> button, top right inside the app. To come back, double-click <code>CVForge</code> again — it opens in seconds.</div>
+    </details>
+    <details>
+      <summary>Port 3000 is busy.</summary>
+      <div class="a"><code>PORT=3001 ./programa/start.sh</code></div>
+    </details>
+    <details>
+      <summary>I changed my evidence and an old verdict went stale.</summary>
+      <div class="a">The app detects it and offers one-click "Re-analyse".</div>
+    </details>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow" lang="es">Comandos</p>
+  <p class="eyebrow" lang="en">Commands</p>
+  <h2 lang="es">Para cuando los necesites</h2>
+  <h2 lang="en">For when you need them</h2>
+  <table class="cmds">
+    <tbody>
+      <tr>
+        <td><code>CVForge</code> / <code>CVForge (Windows)</code> / <code>./programa/start.sh</code></td>
+        <td lang="es">Abre CVForge en tu navegador en segundos</td>
+        <td lang="en">Opens CVForge in your browser in seconds</td>
+      </tr>
+      <tr>
+        <td><span lang="es">copiar la carpeta <code>datos</code></span><span lang="en">copy the <code>datos</code> folder</span></td>
+        <td lang="es">Ese es el respaldo completo — hazlo con CVForge cerrado</td>
+        <td lang="en">That's the full backup — do it with CVForge closed</td>
+      </tr>
+      <tr>
+        <td><code>PORT=3001 ./programa/start.sh</code></td>
+        <td lang="es">Arranca en otro puerto si el 3000 está ocupado</td>
+        <td lang="en">Start on another port if 3000 is busy</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <span lang="es">Código abierto con licencia MIT — ver <code>programa/LICENSE</code> y el código en <a href="https://github.com/gdberysan/cvforge">github.com/gdberysan/cvforge</a>. Fallos e ideas en GitHub Issues.</span>
+  <span lang="en">Open source under the MIT license — see <code>programa/LICENSE</code> and the code at <a href="https://github.com/gdberysan/cvforge">github.com/gdberysan/cvforge</a>. Bugs and ideas in GitHub Issues.</span>
+  <span>cvforge.korven.dev</span>
+</footer>
+
+</div>
+<script>
+  (() => {
+    // OS highlight: copy the <html data-os> mark onto the matching launcher row.
+    const os = document.documentElement.getAttribute('data-os');
+    const row = os && document.querySelector(`.launcher[data-os="${os}"]`);
+    if (row) row.classList.add('mine');
+    // Language toggle
+    const buttons = document.querySelectorAll('[data-set-lang]');
+    const setLang = (l) => {
+      document.body.setAttribute('data-lang', l);
+      document.documentElement.setAttribute('lang', l);
+      for (const b of buttons) b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === l));
+      try { localStorage.setItem('cvforge_leeme_lang', l); } catch {}
+    };
+    for (const b of buttons) b.addEventListener('click', () => setLang(b.getAttribute('data-set-lang')));
+    setLang(document.body.getAttribute('data-lang'));
+  })();
+</script>
+</body>
+</html>

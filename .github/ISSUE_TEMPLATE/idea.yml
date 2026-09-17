@@ -1,0 +1,28 @@
+name: Suggest something · Proponer algo
+description: An idea for the app · Una idea para la app
+labels: ["idea"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [what this project won't take](https://github.com/gdberysan/cvforge/blob/main/CONTRIBUTING.md) first: anything that lets the model claim what the evidence doesn't support, softer verdicts, accounts or telemetry, job-board scraping or auto-applying. They're design decisions, not stubbornness.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem it solves · Qué problema resuelve
+      description: The problem, not the solution. What you were trying to do and what got in the way.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you have in mind · Qué tienes en mente
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What else you considered · Qué más consideraste
