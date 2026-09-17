@@ -1,6 +1,6 @@
 {
   "name": "cv-forge",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Evidence-grounded job application system: triage postings, build materials from real evidence, learn from outcomes",
   "scripts": {
     "dev": "next dev",
@@ -27,7 +27,7 @@
     "better-sqlite3": "^13.0.3",
     "docx": "^9.7.1",
     "drizzle-orm": "^0.45.2",
-    "next": "^16.3.0",
+    "next": "^16.3.5",
     "pdfjs-dist": "^4.10.38",
     "playwright": "^1.62.1",
     "react": "^19.2.8",

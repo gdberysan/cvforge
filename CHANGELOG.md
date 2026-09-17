@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] - 2026-09-17
+
+### Security
+
+- Next.js 16.3.0 → 16.3.5, fixing two critical remote-code-execution advisories
+  (one in the image optimizer with AVIF files, one affecting servers running on
+  Windows, which the Windows launcher is).
+- sharp 0.35.3 → 0.35.4, fixing the libheif vulnerabilities it bundles.
+
 ## [1.3.0] - 2026-09-17
 
 First public release. CVForge was developed privately through 1.2.x and is
