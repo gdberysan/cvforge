@@ -6,20 +6,43 @@ set -u
 
 # MacOS/ -> Contents/ -> CVForge.app -> the package root, where LEEME lives.
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-PORT="${PORT:-3000}"
-URL="http://localhost:$PORT"
+# A ladder, not one port: another program on 3000 used to leave a buyer with
+# no remedy short of a terminal. PORT pins a single rung.
+PORTS="${PORT:-3000 3001 3002 3003 3004 3005 3006 3007 3008 3009}"
 
 case "$(uname -m)" in
   arm64) NODE="$ROOT/programa/node/mac-arm64/node" ;;
   *) NODE="$ROOT/programa/node/mac-x64/node" ;;
 esac
 
-# Already running? The icon route carries the app's name — a cheap identity
-# check so we never open the browser onto some other server on the port.
-if curl -sf --max-time 2 "$URL/icon.svg" 2>/dev/null | grep -q CVForge; then
-  open "$URL"
-  exit 0
+# The icon route carries the app's name — a cheap identity check so we never
+# open the browser onto some other server on the port.
+is_cvforge() { curl -sf --max-time 2 "http://localhost:$1/icon.svg" 2>/dev/null | grep -q CVForge; }
+# Connection refused (curl exit 7) is the only proof a port is free; a
+# timeout or a non-HTTP answer means something else holds it.
+is_free() {
+  curl -s -o /dev/null --max-time 1 "http://127.0.0.1:$1/" 2>/dev/null
+  [ $? -eq 7 ]
+}
+
+# Already running on any rung? Reopen it rather than start a second copy
+# over the same database.
+for p in $PORTS; do
+  if is_cvforge "$p"; then
+    open "http://localhost:$p"
+    exit 0
+  fi
+done
+
+PORT=""
+for p in $PORTS; do
+  if is_free "$p"; then PORT="$p"; break; fi
+done
+if [ -z "$PORT" ]; then
+  osascript -e 'display alert "CVForge" message "No hay un puerto libre entre 3000 y 3009. Cierra otro programa local y vuelve a intentarlo.\n\nNo free port between 3000 and 3009. Quit another local program and try again."' >/dev/null 2>&1
+  exit 1
 fi
+URL="http://localhost:$PORT"
 
 mkdir -p "$ROOT/datos"
 cd "$ROOT/programa/servidor" || exit 1
@@ -28,7 +51,7 @@ HOSTNAME=127.0.0.1 PORT="$PORT" CVFORGE_DB_PATH="$ROOT/datos/cvforge.db" \
 disown
 
 for _ in $(seq 1 60); do
-  if curl -sf --max-time 2 "$URL" > /dev/null 2>&1; then
+  if is_cvforge "$PORT"; then
     open "$URL"
     exit 0
   fi

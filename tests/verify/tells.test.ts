@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findTells } from '@/lib/verify/tells'
+import { findTells, warrantsRewrite } from '@/lib/verify/tells'
 
 describe('findTells — English', () => {
   it('catches the phrases that mark a letter as machine-written', () => {
@@ -81,5 +81,17 @@ describe('findTells — Mexican Spanish', () => {
     // "sin" is an ordinary Spanish word; an English banlist entry must never
     // fire inside it, and vice versa.
     expect(findTells('Cerré el trimestre sin exceder el presupuesto.', 'es-MX')).toEqual([])
+  })
+})
+
+describe('warrantsRewrite', () => {
+  it('lets one single-word tell pass, rewrites on two or on anything stronger', () => {
+    expect(warrantsRewrite([])).toBe(false)
+    expect(warrantsRewrite(['harness'])).toBe(false)
+    expect(warrantsRewrite(['harness', 'robust'])).toBe(true)
+    expect(warrantsRewrite(['passionate about'])).toBe(true)
+    expect(warrantsRewrite(['—'])).toBe(true)
+    expect(warrantsRewrite(['not only … but also'])).toBe(true)
+    expect(warrantsRewrite(['cutting-edge'])).toBe(false)
   })
 })

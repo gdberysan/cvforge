@@ -285,6 +285,30 @@ describe('attentionApplications', () => {
   })
 })
 
+describe('attentionApplications — interviews and decisions', () => {
+  const now = '2026-08-21T00:00:00.000Z'
+
+  it('puts interviews first and fresh undecided worth-it postings before unsent drafts', () => {
+    const apps = [
+      app({ id: 'draft', status: 'drafting', createdAt: '2026-08-02T00:00:00.000Z' }),
+      app({ id: 'fresh-worth', createdAt: '2026-08-18T00:00:00.000Z' }),
+      app({ id: 'fresh-stretch', verdict: 'stretch', createdAt: '2026-08-18T00:00:00.000Z' }),
+      app({ id: 'old-worth', createdAt: '2026-07-01T00:00:00.000Z' }),
+      app({ id: 'skipped', archived: true, createdAt: '2026-08-19T00:00:00.000Z' }),
+      app({
+        id: 'interview',
+        status: 'interviewing',
+        outcomes: [applied('2026-08-01T00:00:00.000Z'), screen('2026-08-05T00:00:00.000Z')],
+      }),
+    ]
+    expect(attentionApplications(apps, now)).toEqual([
+      { id: 'interview', reason: 'interviewing' },
+      { id: 'fresh-worth', reason: 'decide' },
+      { id: 'draft', reason: 'unsent' },
+    ])
+  })
+})
+
 describe('waitingCount', () => {
   it('counts sent applications still waiting on a human — no response, not settled', () => {
     const apps = [

@@ -117,6 +117,7 @@ function cvWith(text: string): CVContent {
         bullets: [{ id: 'b1', text, citedEvidenceIds: ['ev_docker'], keywordsUsed: [] }],
       },
     ],
+    projects: [],
     education: [],
     skills: [],
     extras: [],
@@ -130,7 +131,6 @@ const composeArgs = {
   evidence,
   language: 'en' as const,
   market: 'us-remote' as const,
-  companyTone: '',
   company: 'Acme',
   jobTitle: 'Platform Engineer',
   // The posting's own vocabulary — the excuse that must NOT cover a known gap.

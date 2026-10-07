@@ -91,13 +91,13 @@ describe('EvidenceEditor orphaned records', () => {
       sourceRef: { type: 'experience', id: 'exp_gone' },
     }
     render(<EvidenceEditor profile={profile} evidence={[item, orphan]} />)
-    expect(screen.getByText('Records without a role')).toBeTruthy()
+    expect(screen.getByText('Records without a role or project')).toBeTruthy()
     expect(screen.getByDisplayValue('Recorded under a role that no longer exists')).toBeTruthy()
   })
 
   it('stays hidden when every record has its role', () => {
     render(<EvidenceEditor profile={profile} evidence={[item]} />)
-    expect(screen.queryByText('Records without a role')).toBeNull()
+    expect(screen.queryByText('Records without a role or project')).toBeNull()
   })
 })
 

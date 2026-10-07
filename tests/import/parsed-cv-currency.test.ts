@@ -44,3 +44,44 @@ describe('toParsedCV', () => {
     expect(parsed.evidence[0].metrics[0].currency).toBe('MXN')
   })
 })
+
+describe('toParsedCV projects', () => {
+  const projectItem = (id: string, projectId: string) => ({
+    id,
+    kind: 'project-highlight' as const,
+    sourceRef: { type: 'project' as const, id: projectId },
+    text: 'Built a reporting tool',
+    metrics: [],
+    tags: [],
+    strength: 'core' as const,
+  })
+
+  it('reads a project period and lets its undated achievements inherit it', () => {
+    const { parsed } = toParsedCV({
+      ...skeleton,
+      projects: [
+        {
+          id: 'proj_1',
+          name: 'Shelf Tracker',
+          description: '',
+          stack: [],
+          period: { start: '2024' },
+        },
+      ],
+      evidence: [projectItem('ev_p', 'proj_1')],
+    })
+    expect(parsed.profile.projects[0].period).toEqual({ start: '2024-01' })
+    expect(parsed.evidence[0].period).toEqual({ start: '2024-01' })
+  })
+
+  it('keeps an undated project undated and reports its achievement instead of inventing a month', () => {
+    const { parsed, problems } = toParsedCV({
+      ...skeleton,
+      projects: [{ id: 'proj_1', name: 'Side tool', description: '', stack: [] }],
+      evidence: [projectItem('ev_p', 'proj_1')],
+    })
+    expect(parsed.profile.projects[0].period).toBeUndefined()
+    expect(parsed.evidence).toEqual([])
+    expect(problems).toHaveLength(1)
+  })
+})

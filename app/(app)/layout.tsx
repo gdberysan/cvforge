@@ -1,10 +1,12 @@
 import { DemoBanner } from '@/components/demo/DemoBanner'
 import { LocaleProvider } from '@/components/i18n/LocaleProvider'
 import { Nav } from '@/components/ui/Nav'
+import { ToastHost } from '@/components/ui/ToastHost'
 import { db } from '@/lib/db/client'
 import { getProfile } from '@/lib/db/queries/profile'
 import { spendSummary } from '@/lib/db/queries/spend'
 import { isDemo } from '@/lib/demo/mode'
+import { makeTranslate } from '@/lib/i18n'
 import { getLocale } from '@/lib/i18n/server'
 import { updateAvailable } from '@/lib/update'
 
@@ -18,6 +20,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <LocaleProvider locale={locale}>
+      {/* First tab stop: past the nav, straight to the page. */}
+      <a href="#main" className="skip-link">
+        {makeTranslate(locale)('nav.skip')}
+      </a>
       <Nav
         started={started}
         spendUsd={spendSummary(db).totalUsd}
@@ -26,6 +32,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       />
       {isDemo() && <DemoBanner />}
       {children}
+      <ToastHost />
     </LocaleProvider>
   )
 }

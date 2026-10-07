@@ -30,7 +30,7 @@ const profile: MasterProfile = {
   ],
   education: [],
   skills: [],
-  languages: [],
+  languages: [{ language: 'Inglés', level: 'C1' }],
   certifications: [],
   projects: [],
   workAuthorization: [],
@@ -267,5 +267,46 @@ describe('composeAndVerifyCompanion', () => {
     const { report } = await composeAndVerifyCompanion('screening', baseArgs)
     expect(report.distortions.map((d) => d.bulletId)).toEqual(['q2'])
     expect(report.passed).toBe(false)
+  })
+
+  it('a mapped credential is shown, citable, and checked against its own line', async () => {
+    // Backlog #1: the mapper matched "English C1" to lang_ingles, but the
+    // companion never saw credentials, so the repair loop stripped the
+    // strongest match from every letter.
+    const args = {
+      ...baseArgs,
+      mappings: [
+        ...baseArgs.mappings,
+        {
+          requirementId: 'req_2',
+          evidenceIds: ['lang_ingles'],
+          strength: 'strong' as const,
+          rationale: '',
+        },
+      ],
+    }
+    callStructuredMock
+      .mockResolvedValueOnce({
+        paragraphs: [
+          { id: 'p1', text: 'Trabajo en inglés a nivel C1.', citedEvidenceIds: ['lang_ingles'] },
+        ],
+      })
+      .mockResolvedValue({ verdicts: [{ bulletId: 'p1', supported: true, reason: '' }] })
+
+    const { report } = await composeAndVerifyCompanion('coverLetter', args)
+
+    expect(JSON.stringify(callStructuredMock.mock.calls[0])).toContain(
+      'lang_ingles | language | Inglés — C1',
+    )
+    // compose, then the distortion pass — no repair round
+    expect(callStructuredMock).toHaveBeenCalledTimes(2)
+    expect(JSON.stringify(callStructuredMock.mock.calls[1])).toContain('[credential] lang_ingles')
+    expect(report.passed).toBe(true)
+  })
+
+  it('an unmapped credential never reaches the companion', async () => {
+    callStructuredMock.mockResolvedValue({ paragraphs: [] })
+    await composeCoverLetter(baseArgs)
+    expect(JSON.stringify(callStructuredMock.mock.calls[0])).not.toContain('lang_ingles')
   })
 })

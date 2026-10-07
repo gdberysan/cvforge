@@ -4,6 +4,8 @@ import { VERDICT_COLOR } from '@/lib/coverage'
 import { db } from '@/lib/db/client'
 import { listFullApplications } from '@/lib/db/queries/applications'
 import { listEvidence } from '@/lib/db/queries/evidence'
+import { getProfile } from '@/lib/db/queries/profile'
+import { sourceLabels } from '@/lib/evidence-label'
 import { plural } from '@/lib/i18n'
 import { getTranslate } from '@/lib/i18n/server'
 import type { Coverage } from '@/lib/schemas'
@@ -65,7 +67,10 @@ export default async function StatsPage() {
   const responded = Object.values(bands).reduce((sum, b) => sum + b.responded, 0)
   const gaps = gapRecurrence(apps).slice(0, 8)
   const sources = sourcePerformance(apps)
-  const evidenceById = new Map(listEvidence(db).map((e) => [e.id, e.text]))
+  const allEvidence = listEvidence(db)
+  const profile = getProfile(db)
+  const evidenceById = new Map(allEvidence.map((e) => [e.id, e.text]))
+  const labelById = sourceLabels(allEvidence, profile)
   const leaders = evidenceLeaderboard(apps, new Set(evidenceById.keys())).slice(0, 8)
   const pace = velocity(apps, now)
   const waiting = waitingCount(active)
@@ -73,7 +78,7 @@ export default async function StatsPage() {
 
   if (applied === 0) {
     return (
-      <main className="page page-narrow">
+      <main id="main" tabIndex={-1} className="page page-narrow">
         <p className="eyebrow">{t('stats.eyebrow')}</p>
         <h1 style={{ font: 'var(--type-h1)', marginTop: 'var(--space-4)' }}>
           {t('stats.empty.title')}
@@ -129,7 +134,7 @@ export default async function StatsPage() {
   ]
 
   return (
-    <main className="page">
+    <main id="main" tabIndex={-1} className="page">
       <header
         style={{ paddingBottom: 'var(--space-6)', borderBottom: '1px solid var(--border-subtle)' }}
       >
@@ -276,7 +281,7 @@ export default async function StatsPage() {
                   }}
                 >
                   <span className="fact" style={{ color: 'var(--text-strong)' }}>
-                    {row.source}
+                    {t(`source.${row.source}`)}
                   </span>
                   <span
                     className="fact"
@@ -390,7 +395,7 @@ export default async function StatsPage() {
                     className="ident"
                     style={{ color: row.responded > 0 ? 'var(--accent)' : 'var(--text-faint)' }}
                   >
-                    {row.evidenceId}
+                    {labelById[row.evidenceId] || row.evidenceId}
                   </span>
                   <div style={{ minWidth: 0, display: 'grid', gap: 'var(--space-1)' }}>
                     <span

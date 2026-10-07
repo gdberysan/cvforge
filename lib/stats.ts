@@ -208,37 +208,67 @@ export function velocity(
   return { appliedThisWeek, appliedPrevWeek, medianResponseDays, timedResponses: gaps.length }
 }
 
-export type AttentionItem = { id: string; reason: 'stale' | 'unsent'; daysSinceApplied?: number }
+export type AttentionReason = 'interviewing' | 'stale' | 'decide' | 'unsent'
+export type AttentionItem = { id: string; reason: AttentionReason; daysSinceApplied?: number }
+
+/** A worth-it posting left undecided this long has probably closed. */
+const DECIDE_WINDOW_DAYS = 14
 
 /**
- * What needs the user's move, computed — never a reminder they set. Stale
- * silence first (oldest on top, it decays fastest), then kits drafted but
- * never marked sent (oldest first). One definition for every panel that
- * claims to show it: two hand-rolled copies drifted within a day of each
- * other once already.
+ * What needs the user's move, computed — never a reminder they set. In order
+ * of what is at stake: interviews in progress, then stale silence (oldest on
+ * top, it decays fastest), then fresh worth-it postings still undecided, then
+ * kits drafted but never marked sent (oldest first). One definition for every
+ * panel that claims to show it: two hand-rolled copies drifted within a day
+ * of each other once already. Each application appears once.
  */
 export function attentionApplications(apps: StatApp[], now: string): AttentionItem[] {
-  const stale = staleApplications(apps, now)
-  const staleIds = new Set(stale.map((s) => s.id))
-  const unsent = apps
-    .filter((a) => a.status === 'drafting' && !staleIds.has(a.id))
+  const open = apps.filter((a) => !a.archived)
+  const interviewing = open
+    .filter((a) => a.status === 'interviewing')
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  const stale = staleApplications(open, now)
+  const decide = open
+    .filter(
+      (a) =>
+        a.status === 'triaged' &&
+        (a.verdict === 'strong' || a.verdict === 'worth-it') &&
+        Date.parse(now) - Date.parse(a.createdAt) <= DECIDE_WINDOW_DAYS * DAY,
+    )
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  const unsent = open
+    .filter((a) => a.status === 'drafting')
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+
+  const seen = new Set<string>()
+  const once = (item: AttentionItem): AttentionItem[] => {
+    if (seen.has(item.id)) return []
+    seen.add(item.id)
+    return [item]
+  }
   return [
-    ...stale.map((s) => ({
-      id: s.id,
-      reason: 'stale' as const,
-      daysSinceApplied: s.daysSinceApplied,
-    })),
-    ...unsent.map((a) => ({ id: a.id, reason: 'unsent' as const })),
+    ...interviewing.flatMap((a) => once({ id: a.id, reason: 'interviewing' })),
+    ...stale.flatMap((s) =>
+      once({ id: s.id, reason: 'stale', daysSinceApplied: s.daysSinceApplied }),
+    ),
+    ...decide.flatMap((a) => once({ id: a.id, reason: 'decide' })),
+    ...unsent.flatMap((a) => once({ id: a.id, reason: 'unsent' })),
   ]
 }
 
 /** Sent, silent, and unsettled: the applications still waiting on a human. */
 export function waitingCount(apps: StatApp[]): number {
-  return apps.filter(
-    (app) =>
-      appliedAt(app) && !respondedAt(app) && !app.outcomes.some((o) => SETTLED_TYPES.has(o.type)),
-  ).length
+  return waitingApplications(apps).length
+}
+
+/** The same applications as waitingCount, oldest first — the list behind the number. */
+export function waitingApplications(apps: StatApp[]): StatApp[] {
+  return apps
+    .filter(
+      (app) =>
+        appliedAt(app) && !respondedAt(app) && !app.outcomes.some((o) => SETTLED_TYPES.has(o.type)),
+    )
+    .sort((a, b) => (appliedAt(a) ?? '').localeCompare(appliedAt(b) ?? ''))
 }
 
 /** Fallback until a personal median exists; then 1.5× the median, floor 7. */

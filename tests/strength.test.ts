@@ -120,6 +120,21 @@ describe('computeProfileStrength', () => {
     expect(s?.params?.company).toBe('Northwind')
   })
 
+  it('does not credit a role holding only import stubs — the editor calls it empty', () => {
+    // Backlog #8: the meter awarded "every role has evidence" for a role the
+    // editor flagged amber as unable to carry a CV.
+    const stubOnly = computeProfileStrength(baseProfile, [ev('ev_1', { origin: 'import' })])
+    expect(stubOnly.categories.find((c) => c.id === 'evidencePerRole')?.earned).toBe(false)
+    const s = stubOnly.suggestions.find((x) => x.id === 'role-only-stubs')
+    expect(s?.targetId).toBe('exp_1')
+
+    const expanded = computeProfileStrength(baseProfile, [
+      ev('ev_1', { origin: 'import' }),
+      ev('ev_2', { origin: 'interview' }),
+    ])
+    expect(expanded.categories.find((c) => c.id === 'evidencePerRole')?.earned).toBe(true)
+  })
+
   it('scores a complete, quantified profile at 100 with no suggestions', () => {
     const complete = computeProfileStrength(baseProfile, [
       ev('ev_1', {

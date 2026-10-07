@@ -61,7 +61,7 @@ export const CvSkeletonSchema = z.object({
     )
     .default([]),
   certifications: z.array(CertificationSchema).default([]),
-  projects: z.array(ProjectSchema).default([]),
+  projects: z.array(ProjectSchema.extend({ period: SkeletonPeriodSchema.optional() })).default([]),
   evidence: z
     .array(
       EvidenceItemSchema.omit({ origin: true }).extend({ period: SkeletonPeriodSchema.optional() }),
@@ -126,11 +126,25 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
     return { ...entry, period }
   })
 
+  // Read exactly like a degree's: a project the CV gives no dates for stays
+  // undated, and its achievements are reported rather than given a month.
+  const projects = skeleton.projects.map((entry) => {
+    const { start, end, unreadableEnd } = readPeriod(entry.period)
+    const period: { start?: string; end?: string } | undefined =
+      start || end ? { ...(start ? { start } : {}), ...(end ? { end } : {}) } : undefined
+    if (unreadableEnd) problems.push(`Could not read the end date of project "${entry.id}".`)
+    return { ...entry, period }
+  })
+
   const inherited = new Map<string, Period>()
   for (const role of experience) inherited.set(`experience:${role.id}`, role.period)
-  for (const entry of education) {
-    if (entry.period?.start) {
-      inherited.set(`education:${entry.id}`, {
+  for (const [type, entries] of [
+    ['education', education],
+    ['project', projects],
+  ] as const) {
+    for (const entry of entries) {
+      if (!entry.period?.start) continue
+      inherited.set(`${type}:${entry.id}`, {
         start: entry.period.start,
         ...(entry.period.end ? { end: entry.period.end } : {}),
       })
@@ -173,7 +187,7 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
         skills: skeleton.skills,
         languages: skeleton.languages,
         certifications: skeleton.certifications,
-        projects: skeleton.projects,
+        projects,
         workAuthorization: [],
         preferences: { targetTitles: [], markets: [] },
         // Placeholder — acceptImportAction stamps the real time on save.

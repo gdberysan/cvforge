@@ -12,7 +12,7 @@ afterEach(cleanup)
  * canvas. A single-page CV is the case that matters — both pager buttons are
  * disabled, so nothing can trigger a repaint after mount.
  */
-const paint = vi.fn(() => ({ promise: Promise.resolve() }))
+const paint = vi.fn(() => ({ promise: Promise.resolve(), cancel: vi.fn() }))
 
 vi.mock('pdfjs-dist', () => ({
   GlobalWorkerOptions: {},

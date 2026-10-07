@@ -187,7 +187,7 @@ it; back that up first if you want to keep it.
 
 | Variable | Default | What it's for |
 |---|---|---|
-| `PORT` | `3000` | Server port. |
+| `PORT` | first free of `3000`–`3009` | Pins the server port; the launchers pick a free one otherwise. |
 | `CVFORGE_DB_PATH` | `./data/cvforge.db` (app: `datos/cvforge.db`) | SQLite database; `config.json` lives beside it. |
 | `CVFORGE_CONFIG_PATH` | beside the database | Explicit location of `config.json`. |
 | `ANTHROPIC_API_KEY` | — | Key from the environment; takes precedence over Settings. |

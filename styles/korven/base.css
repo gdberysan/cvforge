@@ -45,8 +45,8 @@ code, pre, kbd {
 }
 
 ::selection {
-  background: var(--amber-500);
-  color: var(--graphite-900);
+  background: var(--accent);
+  color: var(--text-on-amber);
 }
 
 :focus-visible {
@@ -60,6 +60,6 @@ code, pre, kbd {
   width: 0.5em;
   height: 0.5em;
   border-radius: var(--radius-pill);
-  background: var(--amber-500);
+  background: var(--accent);
   box-shadow: var(--glow-amber-sm);
 }

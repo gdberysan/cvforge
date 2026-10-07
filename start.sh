@@ -21,7 +21,19 @@ if [ "$MAJOR" -lt 20 ]; then
   exit 1
 fi
 
-PORT="${PORT:-3000}"
+# The first free port from 3000 up, unless PORT pins one. Connection refused
+# (curl exit 7) is the only proof a port is free.
+if [ -z "${PORT:-}" ]; then
+  for p in 3000 3001 3002 3003 3004 3005 3006 3007 3008 3009; do
+    rc=0
+    curl -s -o /dev/null --max-time 1 "http://127.0.0.1:$p/" 2>/dev/null || rc=$?
+    if [ "$rc" -eq 7 ]; then PORT="$p"; break; fi
+  done
+  if [ -z "${PORT:-}" ]; then
+    echo "No hay un puerto libre entre 3000 y 3009 / No free port between 3000 and 3009."
+    exit 1
+  fi
+fi
 
 if [ -d servidor ]; then
   # Packaged layout: programa/servidor beside this script, user data one

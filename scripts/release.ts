@@ -36,6 +36,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { scanTreeForDenied } from '@/lib/release/scrub'
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }
 const refArg = process.argv.indexOf('--ref')
@@ -392,6 +393,19 @@ async function bootGate(): Promise<void> {
     }
     if (sensitive.length > 0) {
       throw new Error(`zip leaked sensitive files: ${sensitive.join(', ')}`)
+    }
+    // The source gate scans `git archive`, but the zip is compiled from the
+    // working tree — compiled demo and discover output never passed through
+    // it. Same denylist, over every text file a buyer actually receives.
+    const denied = scanTreeForDenied(
+      extracted,
+      readFileSync(path.join('evals', 'private', 'denylist.txt'), 'utf8').split('\n'),
+      { skipDirs: ['node_modules'] },
+    )
+    if (denied.hits.length > 0) {
+      throw new Error(
+        `zip carries personal context: ${denied.hits.map((h) => `${h.file} ← "${h.term}"`).join(', ')}`,
+      )
     }
     for (const f of [
       'CVForge.app/Contents/MacOS/CVForge',

@@ -23,6 +23,21 @@ export function formatDate(value: string, language: RenderLanguage): string {
   return name ? `${name} ${match[1]}` : value
 }
 
+/** "Shelf Tracker — github.com/x/y": the link prints, since paper cannot be clicked. */
+export function projectTitle(project: CVContent['projects'][number]): string {
+  return [project.name, project.url].filter(Boolean).join(' — ')
+}
+
+/** "Mar 2024 – Present", or '' for an undated project — never an invented span. */
+export function projectDates(
+  project: CVContent['projects'][number],
+  language: RenderLanguage,
+  present: string,
+): string {
+  if (!project.startDate) return ''
+  return `${formatDate(project.startDate, language)} – ${project.endDate ? formatDate(project.endDate, language) : present}`
+}
+
 /** "Degree — Institution", or whichever half exists; never a dangling dash. */
 export function educationLine(ed: CVContent['education'][number]): string {
   return [ed.degree, ed.institution].filter(Boolean).join(' — ')

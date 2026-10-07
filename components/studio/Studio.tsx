@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { ComposeProgress } from '@/components/studio/ComposeProgress'
+import type { ComposeStage } from '@/lib/ai/compose'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText } from '@/lib/i18n'
 import { renderPlaintext } from '@/lib/render/plaintext'
 import type { CVContent, EvidenceItem, GroundingReport } from '@/lib/schemas'
+import { readEventStream } from '@/lib/sse-client'
 import { GroundingFlags } from './GroundingFlags'
 import { PdfPager } from './PdfPager'
 
@@ -22,6 +25,7 @@ export function Studio({
   company,
   documentLanguage,
   evidence,
+  sourceLabels,
   initialCv,
   initialReport,
 }: {
@@ -29,6 +33,7 @@ export function Studio({
   company: string
   documentLanguage: 'en' | 'es-MX'
   evidence: EvidenceItem[]
+  sourceLabels: Record<string, string>
   initialCv: CVContent | null
   initialReport: GroundingReport | null
 }) {
@@ -36,8 +41,12 @@ export function Studio({
   const [cv, setCv] = useState(initialCv)
   const [report, setReport] = useState(initialReport)
   const [running, setRunning] = useState(false)
+  const [stage, setStage] = useState<ComposeStage | null>(null)
+  const [seen, setSeen] = useState<ComposeStage[]>([])
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  // The print dialog opens over this page, so its two settings are taught here.
+  const [printHint, setPrintHint] = useState(false)
   // Bumped after a successful generate() so PdfPager knows to re-fetch the
   // freshly regenerated PDF rather than showing the previous one.
   const [refreshKey, setRefreshKey] = useState(0)
@@ -46,8 +55,8 @@ export function Studio({
 
   const bulletsByEvidence = useMemo(() => {
     const map = new Map<string, string[]>()
-    for (const role of cv?.experience ?? []) {
-      for (const bullet of role.bullets) {
+    for (const section of [...(cv?.experience ?? []), ...(cv?.projects ?? [])]) {
+      for (const bullet of section.bullets) {
         for (const id of bullet.citedEvidenceIds) {
           map.set(id, [...(map.get(id) ?? []), bullet.id])
         }
@@ -59,17 +68,33 @@ export function Studio({
   async function generate() {
     setRunning(true)
     setError(null)
+    setStage(null)
+    setSeen([])
     try {
       const res = await fetch('/api/ai/compose', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ applicationId }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new ApiFailure(data.error, data.code)
-      setCv(data.cv)
-      setReport(data.report)
-      setRefreshKey((k) => k + 1)
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new ApiFailure(data.error ?? t('studio.failed'), data.code)
+      }
+      let finished = false
+      await readEventStream(res.body, (event) => {
+        if (typeof event.stage === 'string') {
+          const next = event.stage as ComposeStage
+          setStage(next)
+          setSeen((prev) => (prev.includes(next) ? prev : [...prev, next]))
+        }
+        if (event.done) {
+          finished = true
+          setCv(event.cv as CVContent)
+          setReport(event.report as GroundingReport)
+          setRefreshKey((k) => k + 1)
+        }
+      })
+      if (!finished) throw new ApiFailure(t('studio.failed'), 'unexpected')
     } catch (e) {
       setError(
         e instanceof ApiFailure
@@ -83,58 +108,60 @@ export function Studio({
     }
   }
 
-  async function downloadPdf() {
-    const res = await fetch(`/api/export/pdf?applicationId=${applicationId}`)
-    if (res.status === 503) {
-      // No engine on this machine: print the identical template via the
-      // browser dialog. A blob URL, not document.write — same document,
-      // safer plumbing. The hint bar teaches the two dialog settings that
-      // make the output clean; the browser remembers them afterwards.
-      const { html } = await res.json()
-      const hint =
-        `<style>@media print{.__hint{display:none}}</style>` +
-        `<div class="__hint" style="position:sticky;top:0;background:#0E131B;color:#EFF3F8;` +
-        `font:14px/1.5 system-ui,sans-serif;padding:10px 16px;text-align:center">` +
-        `${t('studio.printHint')}</div>`
-      const doc = html.replace(/<body([^>]*)>/, `<body$1>${hint}`)
-      const url = URL.createObjectURL(new Blob([doc], { type: 'text/html' }))
-      const w = window.open(url, '_blank')
-      w?.addEventListener('load', () => {
-        w.print()
-        URL.revokeObjectURL(url)
-      })
-      return
-    }
-    if (!res.ok) {
-      const data = await res.json().catch(() => null)
-      setError(data?.error ?? t('studio.failed'))
-      return
-    }
-    const blob = await res.blob()
-    const url = URL.createObjectURL(blob)
+  /** Saves a response as a file. Revoked later: Safari cancels a download whose URL dies at once. */
+  async function saveResponse(res: Response, fallbackName: string) {
+    const url = URL.createObjectURL(await res.blob())
     const a = document.createElement('a')
     a.href = url
     a.download =
-      res.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] ?? `CV-${company}.pdf`
+      res.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] ?? fallbackName
     a.click()
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 10_000)
   }
 
-  async function downloadDocx() {
-    const res = await fetch(`/api/export/docx?applicationId=${applicationId}`)
-    if (!res.ok) {
-      const data = await res.json().catch(() => null)
-      setError(data?.error ?? t('studio.failed'))
-      return
+  /**
+   * No engine on this machine: print the identical template via the browser
+   * dialog. A hidden iframe, not a popup: window.open returns null when
+   * popups are blocked (so nothing happened), and its `load` could fire for
+   * the initial about:blank before the CV arrived — printing a blank page.
+   * The iframe prints only after its own document has loaded.
+   */
+  function printFallback(html: string) {
+    const frame = document.createElement('iframe')
+    frame.setAttribute('aria-hidden', 'true')
+    frame.style.cssText = 'position:fixed;width:0;height:0;border:0;right:0;bottom:0'
+    frame.onload = () => {
+      const w = frame.contentWindow
+      if (!w) return
+      w.addEventListener('afterprint', () => frame.remove())
+      w.focus()
+      w.print()
     }
-    const blob = await res.blob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download =
-      res.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] ?? `CV-${company}.docx`
-    a.click()
-    URL.revokeObjectURL(url)
+    setPrintHint(true)
+    frame.srcdoc = html
+    document.body.appendChild(frame)
+  }
+
+  async function download(kind: 'pdf' | 'docx') {
+    setError(null)
+    try {
+      const res = await fetch(`/api/export/${kind}?applicationId=${applicationId}`)
+      if (kind === 'pdf' && res.status === 503) {
+        const { html } = await res.json()
+        printFallback(html)
+        return
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        setError(data?.error ?? t('studio.downloadFailed'))
+        return
+      }
+      await saveResponse(res, `CV-${company}.${kind}`)
+    } catch {
+      // The local server went away mid-request (quit, sleep): say so rather
+      // than leave a button that silently did nothing.
+      setError(t('studio.downloadFailed'))
+    }
   }
 
   /** Half of application forms are a textarea; this feeds them directly. */
@@ -147,12 +174,31 @@ export function Studio({
 
   const isEvidenceActive = (id: string) => activeEvidenceId === id
 
+  const bulletText = useMemo(
+    () =>
+      Object.fromEntries(
+        [...(cv?.experience ?? []), ...(cv?.projects ?? [])].flatMap((s) =>
+          s.bullets.map((b) => [b.id, b.text]),
+        ),
+      ),
+    [cv],
+  )
+
+  // The evidence behind this CV, grouped by where it came from: a reference
+  // to scan, not a second document to read. Each record is two lines until
+  // opened.
+  const used = evidence.filter((item) => bulletsByEvidence.has(item.id))
+  const groups = [...new Set(used.map((i) => sourceLabels[i.id] || i.id))].map((label) => ({
+    label,
+    items: used.filter((i) => (sourceLabels[i.id] || i.id) === label),
+  }))
+
   return (
     <div className="studio-grid">
       <div>
         {report && (
           <div style={{ marginBottom: 'var(--space-4)' }}>
-            <GroundingFlags report={report} />
+            <GroundingFlags report={report} textOf={bulletText} />
           </div>
         )}
         {error && (
@@ -160,20 +206,25 @@ export function Studio({
             {error}
           </p>
         )}
+        {printHint && (
+          <p
+            className="fact"
+            style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }}
+          >
+            {t('studio.printHint')}
+          </p>
+        )}
 
         {!cv ? (
-          <p aria-live="polite">
-            {running ? (
-              <span className="fact">
-                {t('studio.generating')}
-                <span className="cursor" aria-hidden style={{ marginLeft: 'var(--space-2)' }} />
-              </span>
-            ) : (
+          running ? (
+            <ComposeProgress stage={stage} seen={seen} />
+          ) : (
+            <p>
               <button type="button" onClick={generate} className="btn btn-primary">
                 {t('studio.generate')}
               </button>
-            )}
-          </p>
+            </p>
+          )
         ) : (
           <>
             <div
@@ -186,10 +237,10 @@ export function Studio({
                 flexWrap: 'wrap',
               }}
             >
-              <button type="button" onClick={downloadPdf} className="btn btn-primary">
+              <button type="button" onClick={() => download('pdf')} className="btn btn-primary">
                 {t('studio.downloadPdf')}
               </button>
-              <button type="button" onClick={downloadDocx} className="btn btn-quiet">
+              <button type="button" onClick={() => download('docx')} className="btn btn-quiet">
                 {t('studio.downloadDocx')}
               </button>
               <button type="button" onClick={copyPlaintext} className="btn btn-quiet">
@@ -200,6 +251,7 @@ export function Studio({
               </button>
               {running && <span className="cursor" aria-hidden />}
             </div>
+            {running && <ComposeProgress stage={stage} seen={seen} />}
 
             {/* The real, paginated PDF — not a hand-written HTML mirror with
                 no page concept. Shows the literal file /api/export/pdf
@@ -213,43 +265,39 @@ export function Studio({
         )}
       </div>
 
-      <aside style={{ position: 'sticky', top: 88, height: 'fit-content' }}>
-        <p className="eyebrow">{t('studio.evidenceUsed')}</p>
-        <ul
-          style={{
-            listStyle: 'none',
-            padding: 0,
-            margin: 'var(--space-3) 0 0',
-            display: 'grid',
-            gap: 'var(--space-2)',
-          }}
-        >
-          {evidence
-            .filter((item) => bulletsByEvidence.has(item.id))
-            .map((item) => {
-              const active = isEvidenceActive(item.id)
-              return (
-                <li
-                  key={item.id}
-                  onMouseEnter={() => setActiveEvidenceId(item.id)}
-                  onMouseLeave={() => setActiveEvidenceId(null)}
-                  style={{
-                    background: active ? 'var(--surface-raised)' : 'var(--surface-card)',
-                    border: `1px solid ${active ? 'var(--accent)' : 'var(--border-subtle)'}`,
-                    borderRadius: 'var(--radius-sm)',
-                    padding: 'var(--space-3)',
-                    font: 'var(--type-body-sm)',
-                    color: 'var(--text-body)',
-                    transition: 'border-color 120ms cubic-bezier(.16,1,.3,1)',
-                  }}
-                >
-                  <span className="ident">{item.id}</span>
-                  <p style={{ margin: 'var(--space-2) 0 0' }}>{item.text}</p>
-                </li>
-              )
-            })}
-        </ul>
-      </aside>
+      {/* Only once there is a CV: before that it was an empty column. */}
+      {cv && used.length > 0 && (
+        <aside className="evidence-ref" aria-label={t('studio.evidenceUsed')}>
+          <p className="eyebrow">
+            {t('studio.evidenceUsed')}{' '}
+            <span className="chip-count" style={{ letterSpacing: 0 }}>
+              {used.length}
+            </span>
+          </p>
+          {groups.map((g) => (
+            <section key={g.label} className="evidence-group">
+              <h3 className="evidence-group-title">
+                {g.label}
+                <span className="chip-count">{g.items.length}</span>
+              </h3>
+              <ul>
+                {g.items.map((item) => (
+                  <li
+                    key={item.id}
+                    className={isEvidenceActive(item.id) ? 'is-active' : undefined}
+                    onMouseEnter={() => setActiveEvidenceId(item.id)}
+                    onMouseLeave={() => setActiveEvidenceId(null)}
+                  >
+                    <details>
+                      <summary>{item.text}</summary>
+                    </details>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </aside>
+      )}
     </div>
   )
 }
