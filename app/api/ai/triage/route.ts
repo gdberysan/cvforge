@@ -14,6 +14,7 @@ import { getProfile } from '@/lib/db/queries/profile'
 import { isDemo } from '@/lib/demo/mode'
 import { demoTriageEvents } from '@/lib/demo/triage-events'
 import { hashEvidenceProjection, hashPosting } from '@/lib/hash'
+import { getLocale } from '@/lib/i18n/server'
 import { MarketSchema, SourceSchema } from '@/lib/schemas'
 
 const MAX_POSTING = 50_000
@@ -70,6 +71,8 @@ export async function POST(request: Request) {
   // A posting already triaged against the CURRENT evidence base costs nothing.
   // If the evidence changed since, the requirements still stand (the posting
   // has not changed) but the verdict is stale — stage ② re-runs below.
+  // Explanations are read on this screen, in the language it is set to.
+  const rationaleLanguage = await getLocale()
   const hash = hashPosting(body.data.text)
   const existing = findByPostingHash(db, hash)
 
@@ -106,8 +109,10 @@ export async function POST(request: Request) {
   // (market, source, url) follow THIS request — a re-paste with a different
   // market selected used to be silently ignored, and compose then applied
   // the wrong market's rules. Fields the request left out keep their stored
-  // value.
-  if (existing) {
+  // value. An archived row is the record of a decision already made (a
+  // skip, from here or from the job agent): a re-paste reads it, it does not
+  // rewrite where it came from.
+  if (existing && !existing.archived) {
     updateIntake(db, existing.id, {
       market: body.data.market,
       source: body.data.source,
@@ -151,6 +156,7 @@ export async function POST(request: Request) {
             profile,
             evidence,
             onProgress: (stage, detail) => send({ stage, detail }),
+            rationaleLanguage,
           })
 
           send({ stage: 'saving' })
@@ -174,6 +180,7 @@ export async function POST(request: Request) {
           profile,
           evidence,
           onProgress: (stage, detail) => send({ stage, detail }),
+          rationaleLanguage,
         })
 
         send({ stage: 'saving' })

@@ -71,6 +71,7 @@ function cvWith(text: string): CVContent {
         bullets: [{ id: 'b1', text, citedEvidenceIds: ['ev_1'], keywordsUsed: [] }],
       },
     ],
+    projects: [],
     education: [],
     skills: [],
     extras: [],
@@ -86,7 +87,6 @@ const baseArgs = {
   evidence,
   language: 'en' as const,
   market: 'us-remote' as const,
-  companyTone: '',
   company: 'Acme',
   jobTitle: 'Engineer',
   postingVocabulary: new Set<string>(),
@@ -105,6 +105,15 @@ describe('checkDistortions', () => {
     ])
     expect(callStructuredMock).toHaveBeenCalledTimes(1)
     expect(callStructuredMock.mock.calls[0][0].effort).toBe('low')
+  })
+
+  it("asks for reasons in the reader's language, Spanish when unsaid", async () => {
+    callStructuredMock.mockResolvedValue({ verdicts: [] })
+    const bullet = [{ id: 'b1', text: 'x', sources: ['y'] }]
+    await checkDistortions(bullet)
+    await checkDistortions(bullet, 'en')
+    expect(callStructuredMock.mock.calls[0][0].user).toContain('Mexican Spanish')
+    expect(callStructuredMock.mock.calls[1][0].user).toContain('in English')
   })
 
   it('returns an empty array without calling the model when there are no bullets', async () => {
@@ -128,6 +137,24 @@ describe('composeAndVerify', () => {
     const { report } = await composeAndVerify(baseArgs)
     expect(report.passed).toBe(true)
     expect(composeCvMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('reports its real stages in order — "repairing" only when a repair ran', async () => {
+    callStructuredMock.mockResolvedValue({
+      verdicts: [{ bulletId: 'b1', supported: true, reason: '' }],
+    })
+
+    composeCvMock.mockResolvedValue(cvWith('Migrated the checkout flow'))
+    const clean: string[] = []
+    await composeAndVerify({ ...baseArgs, onProgress: (s) => clean.push(s) })
+    expect(clean).toEqual(['writing', 'checking', 'verifying'])
+
+    composeCvMock
+      .mockResolvedValueOnce(cvWith('Cut abandonment 40%'))
+      .mockResolvedValueOnce(cvWith('Migrated the checkout flow'))
+    const repaired: string[] = []
+    await composeAndVerify({ ...baseArgs, onProgress: (s) => repaired.push(s) })
+    expect(repaired).toEqual(['writing', 'checking', 'repairing', 'verifying'])
   })
 
   it('regenerates once when the deterministic checks fail, naming the problem', async () => {
@@ -182,5 +209,84 @@ describe('composeAndVerify', () => {
     const { report } = await composeAndVerify(baseArgs)
     expect(report.distortions[0].reason).toContain('helped the team')
     expect(report.passed).toBe(false)
+  })
+
+  it('shows a project record its project line, so a stated stack is not judged unsupported', async () => {
+    // A live run flagged "built it in TypeScript with the Claude API" as
+    // unsupported: the stack lived on the project, not in the record.
+    const projectRecord: EvidenceItem = {
+      ...evidence[0],
+      id: 'ev_p',
+      sourceRef: { type: 'project', id: 'proj_1' },
+      text: 'Built a shelf tracker',
+      metrics: [],
+    }
+    const withProject = {
+      ...baseArgs,
+      profile: {
+        ...profile,
+        projects: [
+          {
+            id: 'proj_1',
+            name: 'Shelf Tracker',
+            description: '',
+            stack: ['TypeScript'],
+            period: { start: '2024-03' },
+          },
+        ],
+      },
+      evidence: [...evidence, projectRecord],
+      mappings: [
+        { requirementId: 'r1', evidenceIds: ['ev_p'], strength: 'strong' as const, rationale: '' },
+      ],
+    }
+    composeCvMock.mockResolvedValue({
+      ...cvWith('x'),
+      experience: [],
+      projects: [
+        {
+          projectId: 'proj_1',
+          name: 'Shelf Tracker',
+          bullets: [
+            {
+              id: 'b1',
+              text: 'Built it in TypeScript',
+              citedEvidenceIds: ['ev_p'],
+              keywordsUsed: [],
+            },
+          ],
+        },
+      ],
+    })
+    callStructuredMock.mockResolvedValue({
+      verdicts: [{ bulletId: 'b1', supported: true, reason: '' }],
+    })
+
+    const { report } = await composeAndVerify(withProject)
+    const call = JSON.stringify(callStructuredMock.mock.calls[0])
+    expect(call).toContain('Built a shelf tracker')
+    expect(call).toContain(
+      '[project] proj_1 | Shelf Tracker (own project, not an employer) | stack: TypeScript',
+    )
+    expect(report.passed).toBe(true)
+  })
+
+  it('shows the checker the recorded metrics, not just the text', async () => {
+    // A live run flagged "8x ROAS" as unsupported: the figure was stored only
+    // as a metric, which the code checks accepted and the model never saw.
+    composeCvMock.mockResolvedValue(cvWith('Migrated the checkout flow'))
+    callStructuredMock.mockResolvedValue({
+      verdicts: [{ bulletId: 'b1', supported: true, reason: '' }],
+    })
+
+    await composeAndVerify({
+      ...baseArgs,
+      evidence: [
+        { ...evidence[0], metrics: [{ raw: 'ROAS de 8x en seasonalities', value: 8, unit: 'x' }] },
+      ],
+    })
+    expect(JSON.stringify(callStructuredMock.mock.calls[0])).toContain(
+      '(recorded metrics: ROAS de 8x en seasonalities)',
+    )
   })
 })

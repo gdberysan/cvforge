@@ -76,8 +76,19 @@ export function runDeterministicChecks(args: {
     ([keyword, requirementText]) => [keyword, requirementText, wholeWord(keyword)] as const,
   )
 
-  for (const role of args.cv.experience) {
-    for (const bullet of role.bullets) {
+  // Every bullet with the section it sits in. Roles and projects are checked
+  // by one loop so the two can never drift apart.
+  const sections = [
+    ...args.cv.experience.map((role) => ({ kind: 'experience' as const, bullets: role.bullets })),
+    ...(args.cv.projects ?? []).map((project) => ({
+      kind: 'project' as const,
+      id: project.projectId,
+      bullets: project.bullets,
+    })),
+  ]
+
+  for (const section of sections) {
+    for (const bullet of section.bullets) {
       // 0. A known gap asserted as an achievement. Checked before anything
       // else because it is independent of citations — a bullet can cite real
       // evidence and still smuggle in the one skill the analysis said is missing.
@@ -97,6 +108,10 @@ export function runDeterministicChecks(args: {
       for (const id of bullet.citedEvidenceIds) {
         const item = evidenceById.get(id)
         if (!item || !args.selectedEvidenceIds.has(id)) {
+          report.invalidCitations.push({ bulletId: bullet.id, evidenceId: id })
+        } else if (misattributed(item, section)) {
+          // Self-built work printed under an employer is the invented-employer
+          // lie by another route; role work under a project is its mirror.
           report.invalidCitations.push({ bulletId: bullet.id, evidenceId: id })
         } else {
           citedItems.push(item)
@@ -134,6 +149,21 @@ export function runDeterministicChecks(args: {
     report.claimedGaps.length === 0
 
   return report
+}
+
+/**
+ * A citation that is real and selected but sits in the wrong kind of section:
+ * project evidence under a role, or anything but that project's own evidence
+ * under a project. Role-to-role placement is left alone on purpose — the
+ * mapper and composer have always been free to group a role's work, and a new
+ * failure there would be a behaviour change no posting asked for.
+ */
+export function misattributed(
+  item: EvidenceItem,
+  section: { kind: 'experience' } | { kind: 'project'; id: string },
+): boolean {
+  if (section.kind === 'experience') return item.sourceRef.type === 'project'
+  return item.sourceRef.type !== 'project' || item.sourceRef.id !== section.id
 }
 
 /** Every normalised quantity a set of cited items can support. */

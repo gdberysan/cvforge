@@ -11,7 +11,7 @@ import type { Coverage } from '@/lib/schemas'
  */
 const SEGMENT_COLOR = {
   strong: 'var(--accent)',
-  partial: 'var(--text-muted)',
+  partial: 'var(--bar-partial)',
   missing: 'var(--signal-error)',
 } as const
 
@@ -41,7 +41,11 @@ export function CoverageBar({ coverage }: { coverage: Coverage }) {
           <span
             // biome-ignore lint/suspicious/noArrayIndexKey: segments are positional by nature
             key={i}
+            className="cov-seg"
             style={{
+              // Left to right, one segment after the next: the bar is read in
+              // that order, so it is drawn in that order.
+              animationDelay: `${Math.min(i * 22, 400)}ms`,
               flex: 1,
               height: 8,
               borderRadius: 'var(--radius-xs)',

@@ -28,6 +28,7 @@ export function Workspace({
   company,
   documentLanguage,
   evidence,
+  sourceLabels,
   initialCv,
   initialCvReport,
   initialCoverLetter,
@@ -38,6 +39,8 @@ export function Workspace({
   company: string
   documentLanguage: 'en' | 'es-MX'
   evidence: EvidenceItem[]
+  /** Evidence id → where it came from, for labels instead of ids. */
+  sourceLabels: Record<string, string>
   initialCv: CVContent | null
   initialCvReport: GroundingReport | null
   initialCoverLetter: CompanionState<CoverLetter>
@@ -74,8 +77,9 @@ export function Workspace({
             role="tab"
             aria-selected={tab === id}
             onClick={() => setTab(id)}
-            className="fact"
             style={{
+              // Tabs are words, not facts: Inter, like every other control.
+              font: 'var(--type-label)',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
@@ -98,6 +102,7 @@ export function Workspace({
           company={company}
           documentLanguage={documentLanguage}
           evidence={evidence}
+          sourceLabels={sourceLabels}
           initialCv={initialCv}
           initialReport={initialCvReport}
         />

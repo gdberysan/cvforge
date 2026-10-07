@@ -27,6 +27,7 @@ const content: CVContent = {
       ],
     },
   ],
+  projects: [],
   education: [{ degree: 'BA International Business', institution: 'UNAM', period: '2010 – 2014' }],
   skills: [{ category: 'Languages', items: ['TypeScript', 'Python'] }],
   extras: [],

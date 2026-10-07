@@ -18,7 +18,7 @@ export default async function InterviewPage({ params }: { params: Promise<{ role
   const { stubs, existing } = splitEvidenceForInterview(listEvidence(db), role.id)
 
   return (
-    <main className="page page-narrow">
+    <main id="main" tabIndex={-1} className="page page-narrow">
       <p className="eyebrow">{t('interview.eyebrow')}</p>
       <h1 style={{ font: 'var(--type-h2)', marginTop: 'var(--space-3)' }}>
         {role.title}

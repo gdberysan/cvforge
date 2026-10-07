@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/lib/db/client'
-import { appendOutcome, getApplication } from '@/lib/db/queries/applications'
+import { appendOutcome, getApplication, removeOutcome } from '@/lib/db/queries/applications'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
 
 const OutcomeType = z.enum([
@@ -18,13 +18,14 @@ const OutcomeType = z.enum([
 ])
 
 type Result = { ok: true } | { ok: false; error: string; code: string }
+type LogResult = { ok: true; outcomeId: string } | { ok: false; error: string; code: string }
 
 /**
  * One click, one outcome event. The whole outcomes layer is worthless if
  * logging decays, so this is the cheapest write in the product: no form, no
  * dialog, the timestamp is now.
  */
-export async function logOutcomeAction(applicationId: string, type: string): Promise<Result> {
+export async function logOutcomeAction(applicationId: string, type: string): Promise<LogResult> {
   if (isDemo()) return demoBlock()
   const parsed = OutcomeType.safeParse(type)
   if (!parsed.success) {
@@ -34,7 +35,20 @@ export async function logOutcomeAction(applicationId: string, type: string): Pro
     return { ok: false, error: 'Not found.', code: 'role-not-found' }
   }
 
-  appendOutcome(db, applicationId, { at: new Date().toISOString(), type: parsed.data })
+  const outcomeId = appendOutcome(db, applicationId, {
+    at: new Date().toISOString(),
+    type: parsed.data,
+  })
+  revalidatePath('/pipeline')
+  revalidatePath('/')
+  revalidatePath(`/application/${applicationId}`)
+  return { ok: true, outcomeId }
+}
+
+/** The undo for a one-click log: removes exactly the event that click wrote. */
+export async function undoOutcomeAction(applicationId: string, outcomeId: string): Promise<Result> {
+  if (isDemo()) return demoBlock()
+  removeOutcome(db, applicationId, outcomeId)
   revalidatePath('/pipeline')
   revalidatePath('/')
   revalidatePath(`/application/${applicationId}`)

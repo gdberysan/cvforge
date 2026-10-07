@@ -99,7 +99,6 @@ try {
     const { cv, report } = await composeAndVerify({
       ...base,
       market: app.market,
-      companyTone: '',
       postingVocabulary: vocab(app.requirements),
     })
     saveDocuments(db, id, { cv }, report)

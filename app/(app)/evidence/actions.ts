@@ -7,6 +7,7 @@ import { deleteEvidence, listEvidence, upsertEvidence } from '@/lib/db/queries/e
 import { deleteInterviewSessions } from '@/lib/db/queries/interview-sessions'
 import { getProfile, saveProfile } from '@/lib/db/queries/profile'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
+import { addProject, removeProject, updateProject } from '@/lib/projects'
 import { addRole, removeRole, updateRole } from '@/lib/roles'
 import { type EvidenceItem, EvidenceItemSchema } from '@/lib/schemas'
 
@@ -93,6 +94,78 @@ export async function deleteRoleAction(roleId: string): Promise<RoleResult> {
       }
     }
     deleteInterviewSessions(tx, roleId)
+  })
+  revalidatePath('/evidence')
+  return { ok: true }
+}
+
+const MONTH = /^\d{4}-\d{2}$/
+
+const NewProjectSchema = z.object({
+  name: z.string().trim().min(1),
+  description: z.string().trim().default(''),
+  url: z.string().trim().optional(),
+  stack: z.array(z.string().trim().min(1)).default([]),
+  start: z.string().regex(MONTH),
+  end: z.string().regex(MONTH).optional(),
+})
+
+/**
+ * Self-built work gets its own record instead of an invented employer.
+ * Returns the id so the client can scroll to the new project's section.
+ */
+export async function addProjectAction(
+  input: unknown,
+): Promise<{ ok: true; projectId: string } | { ok: false; error: string; code: string }> {
+  if (isDemo()) return demoBlock()
+  const parsed = NewProjectSchema.safeParse(input)
+  if (!parsed.success) {
+    return { ok: false, error: 'Check the project fields.', code: 'invalid-project' }
+  }
+  const profile = getProfile(db)
+  if (!profile) {
+    return { ok: false, error: 'Build your evidence base first.', code: 'no-profile' }
+  }
+
+  const { profile: next, projectId } = addProject(profile, parsed.data)
+  saveProfile(db, { ...next, updatedAt: new Date().toISOString() })
+  revalidatePath('/evidence')
+  return { ok: true, projectId }
+}
+
+export async function updateProjectAction(projectId: string, input: unknown): Promise<RoleResult> {
+  if (isDemo()) return demoBlock()
+  const parsed = NewProjectSchema.safeParse(input)
+  if (!parsed.success) {
+    return { ok: false, error: 'Check the project fields.', code: 'invalid-project' }
+  }
+  const profile = getProfile(db)
+  const next = profile && updateProject(profile, projectId, parsed.data)
+  if (!next) {
+    return { ok: false, error: 'That project no longer exists.', code: 'project-not-found' }
+  }
+
+  saveProfile(db, { ...next, updatedAt: new Date().toISOString() })
+  revalidatePath('/evidence')
+  return { ok: true }
+}
+
+/** Deletes a project AND its evidence, in one transaction — same rule as a role. */
+export async function deleteProjectAction(projectId: string): Promise<RoleResult> {
+  if (isDemo()) return demoBlock()
+  const profile = getProfile(db)
+  const next = profile && removeProject(profile, projectId)
+  if (!next) {
+    return { ok: false, error: 'That project no longer exists.', code: 'project-not-found' }
+  }
+
+  db.transaction((tx) => {
+    saveProfile(tx, { ...next, updatedAt: new Date().toISOString() })
+    for (const item of listEvidence(tx)) {
+      if (item.sourceRef.type === 'project' && item.sourceRef.id === projectId) {
+        deleteEvidence(tx, item.id)
+      }
+    }
   })
   revalidatePath('/evidence')
   return { ok: true }

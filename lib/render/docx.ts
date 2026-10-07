@@ -10,7 +10,7 @@ import {
 } from 'docx'
 import type { CVContent } from '@/lib/schemas'
 import { HEADINGS } from './cv-html'
-import { educationLine, formatDate } from './format'
+import { educationLine, formatDate, projectDates, projectTitle } from './format'
 
 type DocxOpts = { language: 'en' | 'es-MX' }
 
@@ -113,6 +113,18 @@ export async function renderDocx(content: CVContent, opts: DocxOpts): Promise<Bu
         ),
       )
       for (const bullet of role.bullets) {
+        children.push(body(bullet.text, { bullet: true }))
+      }
+    }
+  }
+
+  if (content.projects.length > 0) {
+    children.push(heading(h.projects))
+    for (const project of content.projects) {
+      children.push(
+        roleLine(projectTitle(project), projectDates(project, opts.language, h.present)),
+      )
+      for (const bullet of project.bullets) {
         children.push(body(bullet.text, { bullet: true }))
       }
     }

@@ -85,6 +85,7 @@ export function Nav({
 
   return (
     <nav
+      className="topnav"
       style={{
         position: 'sticky',
         top: 0,
@@ -127,7 +128,7 @@ export function Nav({
             width: '0.72em',
             height: '0.82em',
             margin: '0 0.04em',
-            background: 'var(--graphite-200)',
+            background: 'var(--tone-partial)',
             clipPath: 'polygon(50% 0, 100% 27%, 100% 73%, 50% 100%, 0 73%, 0 27%)',
           }}
         >
@@ -136,7 +137,7 @@ export function Nav({
               width: 5,
               height: 5,
               borderRadius: 'var(--radius-pill)',
-              background: 'var(--amber-500)',
+              background: 'var(--accent)',
               boxShadow: 'var(--glow-amber-sm)',
             }}
           />
@@ -145,6 +146,7 @@ export function Nav({
       </Link>
 
       <div
+        className="topnav-links"
         style={{
           display: 'flex',
           alignItems: 'center',

@@ -17,7 +17,8 @@ export function UndoBar({
   onDismiss,
 }: {
   label: string
-  onUndo: () => void
+  /** Absent for a plain confirmation: then there is nothing to take back. */
+  onUndo?: () => void
   onDismiss: () => void
 }) {
   const t = useT()
@@ -47,9 +48,11 @@ export function UndoBar({
         </span>
         {label}
       </span>
-      <button type="button" className="action" onClick={onUndo}>
-        {t('undo.undo')}
-      </button>
+      {onUndo && (
+        <button type="button" className="action" onClick={onUndo}>
+          {t('undo.undo')}
+        </button>
+      )}
       <button
         type="button"
         className="action-quiet"

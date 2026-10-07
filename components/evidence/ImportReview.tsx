@@ -134,7 +134,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
             const dropped = e.dataTransfer.files?.[0]
             if (dropped) chooseFile(dropped)
           }}
-          style={dragOver ? { borderColor: 'var(--amber-500)' } : undefined}
+          style={dragOver ? { borderColor: 'var(--accent)' } : undefined}
         >
           <p className="console-line">
             <span className="console-sigil">$</span>
@@ -154,7 +154,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
                   gap: 'var(--space-4)',
                   minHeight: '16rem',
                   margin: 'var(--space-4) 0',
-                  border: `1px dashed ${dragOver ? 'var(--amber-500)' : 'var(--border-default)'}`,
+                  border: `1px dashed ${dragOver ? 'var(--accent)' : 'var(--border-default)'}`,
                   borderRadius: 'var(--radius-md)',
                 }}
               >

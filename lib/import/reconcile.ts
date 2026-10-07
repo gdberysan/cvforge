@@ -16,19 +16,29 @@ export function reconcileImport(existing: Experience[], parsed: ParsedCV): Parse
   const consumed = new Set<string>()
   const idMap = new Map<string, string>()
 
+  // Two passes, not one greedy one. Two stints at one company are two roles,
+  // and the stint with the identical start IS the original: in a single pass
+  // a later, merely overlapping stint that came first in the new CV took the
+  // original's id, and every record under it moved to the wrong job.
+  const sameCompany = (r: Experience, incoming: Experience) =>
+    !consumed.has(r.id) && normalizeCompany(r.company) === normalizeCompany(incoming.company)
+  const pair = (incoming: Experience, match: Experience | undefined) => {
+    if (!match) return
+    consumed.add(match.id)
+    idMap.set(incoming.id, match.id)
+  }
   for (const incoming of parsed.profile.experience) {
-    const candidates = existing.filter(
-      (r) =>
-        !consumed.has(r.id) &&
-        normalizeCompany(r.company) === normalizeCompany(incoming.company) &&
-        overlaps(r, incoming),
+    pair(
+      incoming,
+      existing.find((r) => sameCompany(r, incoming) && r.period.start === incoming.period.start),
     )
-    // Two stints at one company are two roles: prefer the identical start.
-    const match = candidates.find((r) => r.period.start === incoming.period.start) ?? candidates[0]
-    if (match) {
-      consumed.add(match.id)
-      idMap.set(incoming.id, match.id)
-    }
+  }
+  for (const incoming of parsed.profile.experience) {
+    if (idMap.has(incoming.id)) continue
+    pair(
+      incoming,
+      existing.find((r) => sameCompany(r, incoming) && overlaps(r, incoming)),
+    )
   }
 
   // An unmatched incoming role keeps its parsed id unless an existing role
@@ -53,7 +63,31 @@ export function reconcileImport(existing: Experience[], parsed: ParsedCV): Parse
   }
 }
 
-const normalizeCompany = (name: string) => name.trim().toLowerCase().replace(/\s+/g, ' ')
+/**
+ * Trailing legal forms, matched after dots and commas are gone: "S.A. de
+ * C.V." reads "sa de cv", "S. de R.L." reads "s de rl". A CV and a LinkedIn
+ * export rarely agree on whether to print them.
+ */
+const LEGAL_FORM =
+  / (sa de cv|sapi de cv|sab de cv|s de rl de cv|s de rl|sa|sapi|sas|sl|srl|inc|llc|ltd|limited|gmbh|ag|bv|plc|corp|corporation|co)$/
+
+function normalizeCompany(name: string): string {
+  let n = name
+    .normalize('NFD')
+    // Combining marks — MUST stay as a unicode escape; literals get mangled.
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[.,]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  // Strip repeatedly ("Acme Holdings Inc LLC"), but never down to nothing:
+  // "Inc." alone is a name, not a suffix.
+  while (true) {
+    const stripped = n.replace(LEGAL_FORM, '')
+    if (stripped === n || stripped.length === 0) return n
+    n = stripped
+  }
+}
 
 /** YYYY-MM strings order lexicographically; an open end means "still there". */
 function overlaps(a: Experience, b: Experience): boolean {

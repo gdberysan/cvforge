@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const callStructuredMock = vi.fn()
 vi.mock('@/lib/ai/client', () => ({ callStructured: callStructuredMock }))
 
-const { composeCv, selectEvidenceForComposition } = await import('@/lib/ai/stages/compose-cv')
+const { composeCv, resolveProjects, selectEvidenceForComposition } = await import(
+  '@/lib/ai/stages/compose-cv'
+)
 
 import type { EvidenceItem, EvidenceMapping, MasterProfile, Requirement } from '@/lib/schemas'
 
@@ -66,6 +68,7 @@ const emptyContent = {
   header: { fullName: 'Alex', title: 'Engineer', contactLines: [] },
   summary: 's',
   experience: [],
+  projects: [],
   education: [],
   skills: [],
   extras: [],
@@ -106,7 +109,6 @@ describe('composeCv', () => {
       evidence: [ev('ev_1'), ev('ev_SECRET')],
       language: 'en',
       market: 'us-remote',
-      companyTone: 'direct',
       company: 'Acme',
       jobTitle: 'Engineer',
     })
@@ -125,7 +127,6 @@ describe('composeCv', () => {
       evidence: [],
       language: 'en',
       market: 'us-remote',
-      companyTone: '',
       company: 'Acme',
       jobTitle: 'Engineer',
     })
@@ -141,7 +142,6 @@ describe('composeCv', () => {
       evidence: [],
       language: 'es-MX',
       market: 'mx',
-      companyTone: '',
       company: 'Acme',
       jobTitle: 'Ingeniero',
     })
@@ -159,7 +159,6 @@ describe('composeCv', () => {
       evidence: [],
       language: 'en',
       market: 'us-remote',
-      companyTone: '',
       company: 'Acme',
       jobTitle: 'Engineer',
     })
@@ -178,7 +177,6 @@ describe('composeCv', () => {
       evidence: [],
       language: 'en',
       market: 'us-remote',
-      companyTone: '',
       company: 'Acme',
       jobTitle: 'Engineer',
     })
@@ -213,7 +211,6 @@ describe('composeCv', () => {
       evidence: [],
       language: 'en',
       market: 'us-remote',
-      companyTone: '',
       company: 'Acme',
       jobTitle: 'Engineer',
     })
@@ -232,7 +229,6 @@ describe('composeCv', () => {
       evidence: [],
       language: 'en',
       market: 'us-remote',
-      companyTone: '',
       company: 'Acme',
       jobTitle: 'Engineer',
     })
@@ -250,10 +246,75 @@ describe('composeCv', () => {
       evidence: [],
       language: 'en',
       market: 'us-remote',
-      companyTone: '',
       company: 'Acme',
       jobTitle: 'Engineer',
     })
     expect(callStructuredMock.mock.calls[0][0].stage).toBe('compose-cv')
+  })
+})
+
+describe('projects on the CV', () => {
+  beforeEach(() => callStructuredMock.mockReset())
+
+  const withProject: MasterProfile = {
+    ...profile,
+    projects: [
+      {
+        id: 'proj_1',
+        name: 'Shelf Tracker',
+        description: 'Reporting for paid media teams',
+        url: 'github.com/example/shelf',
+        stack: ['TypeScript'],
+        period: { start: '2024-03' },
+      },
+    ],
+  }
+  const bullet = { id: 'b1', text: 'Built it', citedEvidenceIds: ['ev_p'], keywordsUsed: [] }
+
+  it('shows the composer the projects block and the never-an-employer rule', async () => {
+    callStructuredMock.mockResolvedValue(emptyContent)
+    await composeCv({
+      profile: withProject,
+      requirements,
+      mappings: [],
+      evidence: [],
+      language: 'en',
+      market: 'us-remote',
+      company: 'Acme',
+      jobTitle: 'Engineer',
+    })
+    const call = JSON.stringify(callStructuredMock.mock.calls[0])
+    expect(call).toContain('proj_1 | Shelf Tracker (own project, not an employer)')
+    expect(call).toMatch(/never under a role/)
+  })
+
+  it('fills name, link and dates from the record — the model only picks the id', () => {
+    const cv = resolveProjects(
+      { ...emptyContent, projects: [{ projectId: 'proj_1', bullets: [bullet] }] },
+      withProject,
+    )
+    expect(cv.projects).toEqual([
+      {
+        projectId: 'proj_1',
+        name: 'Shelf Tracker',
+        url: 'github.com/example/shelf',
+        startDate: '2024-03',
+        bullets: [bullet],
+      },
+    ])
+  })
+
+  it('drops a project id the profile does not hold, and an empty section', () => {
+    const cv = resolveProjects(
+      {
+        ...emptyContent,
+        projects: [
+          { projectId: 'proj_invented', bullets: [bullet] },
+          { projectId: 'proj_1', bullets: [] },
+        ],
+      },
+      withProject,
+    )
+    expect(cv.projects).toEqual([])
   })
 })

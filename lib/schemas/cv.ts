@@ -36,6 +36,22 @@ export const CVRoleSchema = z.object({
 })
 export type CVRole = z.infer<typeof CVRoleSchema>
 
+/**
+ * A project section as stored and rendered. Name, link and dates are filled
+ * in code from the profile after the model call (see CVDraftSchema) — the
+ * model only chooses which project and writes the bullets, so it can never
+ * misspell a project name or invent a URL.
+ */
+export const CVProjectSchema = z.object({
+  projectId: z.string().min(1),
+  name: z.string().min(1),
+  url: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  bullets: z.array(GeneratedBulletSchema),
+})
+export type CVProject = z.infer<typeof CVProjectSchema>
+
 export const CVContentSchema = z.object({
   header: z.object({
     fullName: z.string().min(1),
@@ -44,8 +60,21 @@ export const CVContentSchema = z.object({
   }),
   summary: z.string(),
   experience: z.array(CVRoleSchema),
+  /** Defaulted so every CV stored before projects existed still parses. */
+  projects: z.array(CVProjectSchema).default([]),
   education: z.array(z.object({ degree: z.string(), institution: z.string(), period: z.string() })),
   skills: z.array(z.object({ category: z.string(), items: z.array(z.string()) })),
   extras: z.array(z.object({ heading: z.string(), lines: z.array(z.string()) })),
 })
 export type CVContent = z.infer<typeof CVContentSchema>
+
+/**
+ * The model-facing CV. Identical except for projects, where the model returns
+ * only the project id and its bullets; everything else about a project is a
+ * fact the code already holds. Required (not defaulted) so the grammar always
+ * asks for the array — an empty one is a valid answer every time.
+ */
+export const CVDraftSchema = CVContentSchema.omit({ projects: true }).extend({
+  projects: z.array(z.object({ projectId: z.string(), bullets: z.array(GeneratedBulletSchema) })),
+})
+export type CVDraft = z.infer<typeof CVDraftSchema>

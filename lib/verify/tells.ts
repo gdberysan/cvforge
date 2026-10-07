@@ -202,3 +202,16 @@ function isExempt(phrase: string, haystack: string, exempt: Set<string>): boolea
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}])${escapeLiteral(phrase)}(?![\\p{L}\\p{N}])`, 'u')
   return !pattern.test(remaining)
 }
+
+/**
+ * Whether the tells found are worth a paid rewrite. A lone single word is
+ * weak evidence — "test harness", "robust error handling" and "unlock" are
+ * plain technical English — and each rewrite is a full model call. So one
+ * single-word tell alone passes; two distinct ones, any multi-word phrase,
+ * a split construction or the em dash still trigger it.
+ */
+export function warrantsRewrite(tells: string[]): boolean {
+  const distinct = new Set(tells)
+  const weak = [...distinct].filter((t) => /^[\p{L}-]+$/u.test(t))
+  return distinct.size > weak.length || weak.length >= 2
+}

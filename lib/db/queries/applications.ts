@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { desc, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import {
   type ApplicationStatus,
   ApplicationStatusSchema,
@@ -186,11 +186,12 @@ export function findByPostingHash(db: Db, hash: string): ApplicationRecord | nul
 }
 
 /** Appends to the log, then recomputes the denormalised status column. */
-export function appendOutcome(db: Db, applicationId: string, event: OutcomeEvent): void {
+export function appendOutcome(db: Db, applicationId: string, event: OutcomeEvent): string {
+  const id = `out_${randomUUID()}`
   db.transaction((tx) => {
     tx.insert(outcomeEvents)
       .values({
-        id: `out_${randomUUID()}`,
+        id,
         applicationId,
         at: event.at,
         type: event.type,
@@ -211,6 +212,32 @@ export function appendOutcome(db: Db, applicationId: string, event: OutcomeEvent
       archived: row?.archived ?? false,
     })
 
+    tx.update(applications).set({ status }).where(eq(applications.id, applicationId)).run()
+  })
+  return id
+}
+
+/**
+ * Takes back one logged outcome — the undo of a one-click log — and re-derives
+ * the status from what remains, exactly as appending does. Scoped to the
+ * application so a stray id can never touch another one's history.
+ */
+export function removeOutcome(db: Db, applicationId: string, outcomeId: string): void {
+  db.transaction((tx) => {
+    tx.delete(outcomeEvents)
+      .where(and(eq(outcomeEvents.id, outcomeId), eq(outcomeEvents.applicationId, applicationId)))
+      .run()
+    const row = tx.select().from(applications).where(eq(applications.id, applicationId)).get()
+    const outs = tx
+      .select()
+      .from(outcomeEvents)
+      .where(eq(outcomeEvents.applicationId, applicationId))
+      .all()
+    const status = deriveStatus({
+      outcomes: outs.map((o) => ({ at: o.at, type: o.type })),
+      hasDocuments: row?.documents != null,
+      archived: row?.archived ?? false,
+    })
     tx.update(applications).set({ status }).where(eq(applications.id, applicationId)).run()
   })
 }

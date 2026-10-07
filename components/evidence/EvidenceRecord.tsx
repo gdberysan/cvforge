@@ -9,9 +9,12 @@ import { TagRow } from './TagRow'
 
 /**
  * One evidence record. The left rule encodes strength at a glance down a long
- * list; the mono id is shown because it is the handle a generated CV bullet
- * will cite, and hiding it would hide the product's whole premise.
+ * list. The header names what KIND of record this is, and lets you change it:
+ * the strength score asks every achievement for a number, so a record that is
+ * really a skill or a description must be reclassifiable, not padded with an
+ * invented figure. The id a CV bullet cites stays one hover away (title).
  */
+const KINDS = ['achievement', 'project-highlight', 'skill-claim', 'credential'] as const
 export function EvidenceRecord({
   item,
   onChange,
@@ -30,7 +33,7 @@ export function EvidenceRecord({
       style={{
         background: 'var(--surface-card)',
         border: '1px solid var(--border-subtle)',
-        borderLeft: `2px solid ${isCore ? 'var(--accent)' : 'var(--graphite-500)'}`,
+        borderLeft: `2px solid ${isCore ? 'var(--accent)' : 'var(--tone-quiet)'}`,
         borderRadius: 'var(--radius-md)',
         padding: 'var(--space-4)',
         boxShadow: 'var(--edge-top)',
@@ -46,7 +49,19 @@ export function EvidenceRecord({
           marginBottom: 'var(--space-3)',
         }}
       >
-        <span className="ident">{item.id}</span>
+        <select
+          value={item.kind}
+          onChange={(e) => onChange({ ...item, kind: e.target.value as EvidenceItem['kind'] })}
+          aria-label={t('record.kindLabel')}
+          title={item.id}
+          className="ident record-kind"
+        >
+          {KINDS.map((k) => (
+            <option key={k} value={k}>
+              {t(`record.kind.${k}`)}
+            </option>
+          ))}
+        </select>
 
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
           {/* The left rule already encodes strength; the word is the control,

@@ -28,6 +28,15 @@ const PAGE: React.CSSProperties = {
   boxShadow: 'var(--shadow-lg)',
 }
 
+/** Paragraph or answer id → its text, for flags that quote what they flag. */
+function textsOf(kind: CompanionKind, document: AnyDocument): Record<string, string> {
+  if (kind === 'coverLetter')
+    return Object.fromEntries((document as CoverLetter).paragraphs.map((p) => [p.id, p.text]))
+  if (kind === 'screening')
+    return Object.fromEntries((document as ScreeningSet).answers.map((a) => [a.id, a.answer]))
+  return { message: (document as RecruiterMessage).text }
+}
+
 function plaintextOf(kind: CompanionKind, document: AnyDocument): string {
   if (kind === 'coverLetter') {
     return (document as CoverLetter).paragraphs.map((p) => p.text).join('\n\n')
@@ -174,7 +183,7 @@ export function CompanionPanel({
     <div style={{ maxWidth: 760 }}>
       {report && (
         <div style={{ marginBottom: 'var(--space-4)' }}>
-          <GroundingFlags report={report} />
+          <GroundingFlags report={report} textOf={document ? textsOf(kind, document) : {}} />
         </div>
       )}
       {error && (

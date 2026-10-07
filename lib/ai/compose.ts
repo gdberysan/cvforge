@@ -1,7 +1,17 @@
-import type { CVContent, EvidenceMapping, GroundingReport, Requirement } from '@/lib/schemas'
+import type {
+  CVContent,
+  EvidenceItem,
+  EvidenceMapping,
+  GroundingReport,
+  Requirement,
+} from '@/lib/schemas'
 import { runDeterministicChecks } from '@/lib/verify/checks'
 import { verifyDistortions } from './distortions'
+import { projectSourcesOf } from './projection'
 import { type ComposeArgs, composeCv, selectEvidenceForComposition } from './stages/compose-cv'
+
+/** The stages a CV goes through, in order; 'repairing' only when the code checks failed. */
+export type ComposeStage = 'writing' | 'checking' | 'repairing' | 'verifying'
 
 /**
  * Compose, verify in code, repair once, then ask the narrow model question.
@@ -9,7 +19,12 @@ import { type ComposeArgs, composeCv, selectEvidenceForComposition } from './sta
  * repair attempt is surfaced on the report, flagged in the UI, never hidden.
  */
 export async function composeAndVerify(
-  args: ComposeArgs & { postingVocabulary: Set<string> },
+  args: ComposeArgs & {
+    postingVocabulary: Set<string>
+    reasonLanguage?: 'en' | 'es'
+    /** The real stages as they happen — never a timer pretending to be one. */
+    onProgress?: (stage: ComposeStage) => void
+  },
 ): Promise<{ cv: CVContent; report: GroundingReport }> {
   const selected = selectEvidenceForComposition(args.mappings, args.evidence)
   const selectedIds = new Set(selected.map((e) => e.id))
@@ -21,12 +36,18 @@ export async function composeAndVerify(
     knownGaps: knownGaps(args.requirements, args.mappings),
   }
 
+  args.onProgress?.('writing')
   let cv = await composeCv(args)
+  args.onProgress?.('checking')
   let report = runDeterministicChecks({ cv, ...checkArgs })
 
   // Exactly one repair attempt. Beyond that, surface the problems rather than looping.
   if (!report.passed) {
-    cv = await composeCv({ ...args, repairInstruction: buildRepairInstruction(report) })
+    args.onProgress?.('repairing')
+    cv = await composeCv({
+      ...args,
+      repairInstruction: buildRepairInstruction(report, selectedIds, args.evidence),
+    })
     report = runDeterministicChecks({ cv, ...checkArgs })
   }
 
@@ -39,7 +60,13 @@ export async function composeAndVerify(
   ])
 
   const candidates = allBullets(cv).filter((b) => !failedIds.has(b.id))
-  report.distortions = await verifyDistortions(candidates, args.evidence)
+  args.onProgress?.('verifying')
+  report.distortions = await verifyDistortions(
+    candidates,
+    args.evidence,
+    projectSourcesOf(args.profile, args.evidence),
+    args.reasonLanguage,
+  )
 
   report.passed = report.passed && report.distortions.length === 0
 
@@ -47,7 +74,7 @@ export async function composeAndVerify(
 }
 
 function allBullets(cv: CVContent) {
-  return cv.experience.flatMap((role) => role.bullets)
+  return [...cv.experience, ...cv.projects].flatMap((section) => section.bullets)
 }
 
 /**
@@ -68,7 +95,12 @@ function knownGaps(requirements: Requirement[], mappings: EvidenceMapping[]): Ma
   return map
 }
 
-function buildRepairInstruction(report: GroundingReport): string {
+function buildRepairInstruction(
+  report: GroundingReport,
+  selectedIds: Set<string>,
+  evidence: EvidenceItem[],
+): string {
+  const sourceOf = new Map(evidence.map((e) => [e.id, e.sourceRef]))
   const problems: string[] = []
 
   for (const g of report.claimedGaps) {
@@ -82,8 +114,11 @@ function buildRepairInstruction(report: GroundingReport): string {
     )
   }
   for (const c of report.invalidCitations) {
+    const source = sourceOf.get(c.evidenceId)
     problems.push(
-      `Bullet ${c.bulletId} cited "${c.evidenceId}", which is not in <selected-evidence>. Cite only ids listed there.`,
+      selectedIds.has(c.evidenceId) && source
+        ? `Bullet ${c.bulletId} cited "${c.evidenceId}" in the wrong section: that evidence comes from ${source.type} ${source.id}. ${source.type === 'project' ? `Move the bullet under project ${source.id} in "projects" — never under a role.` : 'Keep it under its role in "experience", not under a project.'}`
+        : `Bullet ${c.bulletId} cited "${c.evidenceId}", which is not in <selected-evidence>. Cite only ids listed there.`,
     )
   }
   for (const n of report.unverifiedNumbers) {

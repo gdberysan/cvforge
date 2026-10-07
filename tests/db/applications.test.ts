@@ -11,6 +11,7 @@ import {
   getApplication,
   listApplications,
   mergeDocuments,
+  removeOutcome,
   saveDocuments,
   setArchived,
   updateAnalysis,
@@ -106,6 +107,23 @@ describe('application queries', () => {
 
       appendOutcome(db, id, { at: '2026-08-14T00:00:00.000Z', type: 'interview' })
       expect(getApplication(db, id)?.status).toBe('interviewing')
+    })
+  })
+
+  it('undoes exactly one logged outcome and re-derives the status', () => {
+    withDb((db) => {
+      const id = createApplication(db, input)
+      const other = createApplication(db, input)
+      appendOutcome(db, id, { at: '2026-08-10T00:00:00.000Z', type: 'applied' })
+      const interview = appendOutcome(db, id, { at: '2026-08-14T00:00:00.000Z', type: 'interview' })
+
+      // An id from another application is never touched.
+      removeOutcome(db, other, interview)
+      expect(getApplication(db, id)?.status).toBe('interviewing')
+
+      removeOutcome(db, id, interview)
+      expect(getApplication(db, id)?.status).toBe('applied')
+      expect(getApplication(db, id)?.outcomes.map((o) => o.type)).toEqual(['applied'])
     })
   })
 

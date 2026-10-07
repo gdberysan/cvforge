@@ -20,19 +20,31 @@ export type DistortionCandidate = { id: string; text: string; citedEvidenceIds: 
 export async function verifyDistortions(
   candidates: DistortionCandidate[],
   evidence: EvidenceItem[],
+  /**
+   * Cited id → a further recorded fact that source stands on. A credential
+   * (cited by companions) has no evidence row, so its line is the whole
+   * source; a project record adds its project's line, because a project's
+   * stack is the person's own statement and "built it in TypeScript" must
+   * not be judged unsupported for living there rather than in the record.
+   */
+  extraSources: Map<string, string> = new Map(),
+  reasonLanguage?: 'en' | 'es',
 ): Promise<GroundingReport['distortions']> {
   const evidenceById = new Map(evidence.map((e) => [e.id, e]))
   const verdicts = await checkDistortions(
     candidates.map((c) => ({
       id: c.id,
       text: c.text,
-      sources: c.citedEvidenceIds
-        .map((id) => {
-          const item = evidenceById.get(id)
-          return item && `[${item.period.start}–${item.period.end ?? 'present'}] ${item.text}`
-        })
-        .filter((t): t is string => Boolean(t)),
+      sources: c.citedEvidenceIds.flatMap((id) => {
+        const item = evidenceById.get(id)
+        const extra = extraSources.get(id)
+        return [
+          item ? sourceLine(item) : '',
+          extra === undefined ? '' : item ? `[project] ${extra}` : `[credential] ${extra}`,
+        ].filter(Boolean)
+      }),
     })),
+    reasonLanguage,
   )
 
   const verdictById = new Map(verdicts.map((v) => [v.bulletId, v]))
@@ -42,6 +54,18 @@ export async function verifyDistortions(
       return [{ bulletId: c.id, reason: 'distortion check returned no verdict for this text' }]
     return v.supported ? [] : [{ bulletId: c.id, reason: v.reason }]
   })
+}
+
+/**
+ * A record as the checker sees it: period, text, and its recorded metrics.
+ * The metrics used to be left out, so a bullet quoting a recorded figure
+ * ("8x ROAS", stored only as a metric) was judged unsupported — the code
+ * checks had already proven the figure was recorded, and the model was never
+ * shown it.
+ */
+function sourceLine(item: EvidenceItem): string {
+  const metrics = item.metrics.map((m) => m.raw).join(' ; ')
+  return `[${item.period.start}–${item.period.end ?? 'present'}] ${item.text}${metrics ? ` (recorded metrics: ${metrics})` : ''}`
 }
 
 /** Every keyword the posting itself introduced — an entity a bullet may name uncited. */
