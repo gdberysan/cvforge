@@ -380,14 +380,14 @@
     <div class="flow-item">
       <h3 lang="es">Para abrir CVForge</h3>
       <h3 lang="en">To open CVForge</h3>
-      <p lang="es">Doble clic en <code>CVForge</code>. En unos segundos aparece en tu navegador (<code>http://localhost:3000</code>). No hay ventanas extra: corre en segundo plano, en tu máquina.</p>
-      <p lang="en">Double-click <code>CVForge</code>. In a few seconds it appears in your browser (<code>http://localhost:3000</code>). No extra windows: it runs in the background, on your machine.</p>
+      <p lang="es">Doble clic en <code>CVForge</code>. En unos segundos aparece en tu navegador (normalmente <code>http://localhost:3000</code>). No hay ventanas extra: corre en segundo plano, en tu máquina.</p>
+      <p lang="en">Double-click <code>CVForge</code>. In a few seconds it appears in your browser (usually <code>http://localhost:3000</code>). No extra windows: it runs in the background, on your machine.</p>
     </div>
     <div class="flow-item">
       <h3 lang="es">Mientras lo usas</h3>
       <h3 lang="en">While you use it</h3>
-      <p lang="es">Trabajas en el navegador. Si cierras la pestaña por accidente, no pasa nada — vuelve a <code>http://localhost:3000</code> o doble clic en <code>CVForge</code> otra vez.</p>
-      <p lang="en">You work in the browser. Closing the tab by accident is harmless — go back to <code>http://localhost:3000</code> or double-click <code>CVForge</code> again.</p>
+      <p lang="es">Trabajas en el navegador. Si cierras la pestaña por accidente, no pasa nada — doble clic en <code>CVForge</code> otra vez y vuelve a abrirlo donde estaba.</p>
+      <p lang="en">You work in the browser. Closing the tab by accident is harmless — double-click <code>CVForge</code> again and it reopens where it was.</p>
     </div>
     <div class="flow-item">
       <h3 lang="es">Para apagarlo</h3>
@@ -409,6 +409,8 @@
       <h3 lang="en">Load your career once</h3>
       <p lang="es">CVForge lee puestos, fechas y logros de tu CV, y luego te entrevista brevemente por cada puesto para recuperar lo que el CV dejó fuera.</p>
       <p lang="en">CVForge reads roles, dates and achievements from your CV, then briefly interviews you per role to recover what the CV left out.</p>
+      <p lang="es">¿Construiste algo por tu cuenta (una herramienta, freelance, open source)? Agrégalo en <code>Experiencia</code> como proyecto: sale en "Proyectos" de tu CV, nunca bajo una empresa.</p>
+      <p lang="en">Built something on your own (a tool, freelance, open source)? Add it under <code>Experiencia</code> as a project: it prints under "Projects" on your CV, never under an employer.</p>
     </div>
     <div class="flow-item">
       <h3 lang="es">Pegas una vacante</h3>
@@ -523,8 +525,8 @@
       <div class="a">Botón <code>apagar</code>, arriba a la derecha dentro de la app. Para volver, doble clic en <code>CVForge</code> otra vez — abre en segundos.</div>
     </details>
     <details>
-      <summary>El puerto 3000 está ocupado.</summary>
-      <div class="a"><code>PORT=3001 ./programa/start.sh</code></div>
+      <summary>Otro programa usa el puerto 3000.</summary>
+      <div class="a">No tienes que hacer nada: CVForge usa el siguiente puerto libre (3001–3009) y la barra de direcciones muestra cuál. Si los diez están ocupados, te lo dice.</div>
     </details>
     <details>
       <summary>Cambié mi evidencia y un veredicto viejo quedó desactualizado.</summary>
@@ -554,8 +556,8 @@
       <div class="a">The <code>quit</code> button, top right inside the app. To come back, double-click <code>CVForge</code> again — it opens in seconds.</div>
     </details>
     <details>
-      <summary>Port 3000 is busy.</summary>
-      <div class="a"><code>PORT=3001 ./programa/start.sh</code></div>
+      <summary>Another program uses port 3000.</summary>
+      <div class="a">Nothing to do: CVForge takes the next free port (3001–3009) and the address bar shows which. If all ten are taken, it tells you.</div>
     </details>
     <details>
       <summary>I changed my evidence and an old verdict went stale.</summary>
@@ -583,8 +585,8 @@
       </tr>
       <tr>
         <td><code>PORT=3001 ./programa/start.sh</code></td>
-        <td lang="es">Arranca en otro puerto si el 3000 está ocupado</td>
-        <td lang="en">Start on another port if 3000 is busy</td>
+        <td lang="es">Fuerza un puerto concreto (CVForge ya elige uno libre solo)</td>
+        <td lang="en">Force a specific port (CVForge already picks a free one itself)</td>
       </tr>
     </tbody>
   </table>

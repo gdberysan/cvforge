@@ -319,7 +319,7 @@ export function InterviewPanel({
                 style={{
                   background: 'var(--surface-card)',
                   border: '1px solid var(--border-subtle)',
-                  borderLeft: `2px solid ${item.strength === 'core' ? 'var(--accent)' : 'var(--graphite-500)'}`,
+                  borderLeft: `2px solid ${item.strength === 'core' ? 'var(--accent)' : 'var(--tone-quiet)'}`,
                   borderRadius: 'var(--radius-md)',
                   padding: 'var(--space-4)',
                 }}

@@ -6,7 +6,6 @@ export type AiErrorKind =
   | 'timeout'
   | 'invalid-output'
   | 'network'
-  | 'demo-miss'
   | 'unknown'
 
 export class AiError extends Error {

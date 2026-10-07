@@ -1,9 +1,12 @@
 import Link from 'next/link'
 import { ImportReview } from '@/components/evidence/ImportReview'
+import { say } from '@/components/evidence/Rail'
 import { OutcomeButtons } from '@/components/pipeline/OutcomeButtons'
 import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
 import { KeyGuide } from '@/components/settings/KeyGuide'
 import { TriageConsole } from '@/components/triage/TriageConsole'
+import { ScoreChange } from '@/components/ui/ScoreChange'
+import { ATTENTION_STEP, attentionWhy } from '@/lib/attention-copy'
 import { db } from '@/lib/db/client'
 import { listFullApplications } from '@/lib/db/queries/applications'
 import { listEvidence } from '@/lib/db/queries/evidence'
@@ -14,8 +17,8 @@ import { plural, type Translate } from '@/lib/i18n'
 import { getTranslate } from '@/lib/i18n/server'
 import { SAMPLE_POSTING, SAMPLE_POSTING_MARKET } from '@/lib/onboarding/sample-posting'
 import { hasCredentials } from '@/lib/settings'
-import { attentionApplications, toStatApp } from '@/lib/stats'
-import { roleHealth } from '@/lib/strength'
+import { appliedAt, attentionApplications, toStatApp, waitingApplications } from '@/lib/stats'
+import { computeProfileStrength } from '@/lib/strength'
 
 /**
  * Read from SQLite on every request. Prerendering this at build time would
@@ -38,7 +41,7 @@ export default async function HomePage({
 }: {
   searchParams: Promise<{ sample?: string }>
 }) {
-  const { t } = await getTranslate()
+  const { t, locale } = await getTranslate()
   const profile = getProfile(db)
   if (!profile) return <FirstRun t={t} needsKey={!hasCredentials()} />
   const { sample } = await searchParams
@@ -46,125 +49,226 @@ export default async function HomePage({
 
   const evidence = listEvidence(db)
 
-  // The Today panel: what needs you, computed — never a reminder you set.
-  // Same definition as the pipeline's attention section (lib/stats); the home
-  // page just shows the top of the list.
   const fullApps = listFullApplications(db)
-  const attention = attentionApplications(fullApps.map(toStatApp), new Date().toISOString())
-    .map((item) => ({ ...item, app: fullApps.find((a) => a.id === item.id) }))
-    .filter((item) => item.app)
-    .slice(0, 5)
 
-  const rolesOnlyStubs = profile.experience.filter(
-    (role) => roleHealth(evidence, role.id).needsExpanding,
-  ).length
+  const now = new Date().toISOString()
+  const statApps = fullApps.map(toStatApp)
+  const allNeeds = attentionApplications(statApps, now)
+  const needsIds = new Set(allNeeds.map((i) => i.id))
+  // Waiting, but not yet long enough to need a nudge: nothing to do, so it
+  // is listed quietly below what does need you.
+  const waiting = waitingApplications(statApps)
+    .filter((a) => !needsIds.has(a.id))
+    .map((a) => ({ stat: a, app: fullApps.find((f) => f.id === a.id) }))
+  const interviewingCount = statApps.filter((a) => a.status === 'interviewing').length
+  const strength = computeProfileStrength(profile, evidence)
+  const topFix = strength.suggestions[0]
+  const today = new Intl.DateTimeFormat(locale === 'es' ? 'es-MX' : 'en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date())
+  const daysSince = (iso: string | null) =>
+    iso ? Math.max(0, Math.floor((Date.parse(now) - Date.parse(iso)) / 86_400_000)) : 0
+
+  const intake = (
+    <>
+      {useSample && (
+        <p className="fact" style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-3)' }}>
+          {t('home.sampleLoaded')}
+        </p>
+      )}
+      <TriageConsole
+        // Search-param-only navigations keep page state, so "/?sample=1"
+        // from "/" would otherwise leave the box exactly as it was.
+        key={useSample ? 'sample' : 'blank'}
+        // Beside "Hoy" it is one tool among several; alone, it is the page.
+        compact={fullApps.length > 0}
+        defaultMarket={useSample ? SAMPLE_POSTING_MARKET : (profile.preferences.markets[0] ?? 'mx')}
+        initialText={useSample ? SAMPLE_POSTING : ''}
+        demoPostings={isDemo() ? demoPostings(db) : undefined}
+      />
+      {!useSample && !isDemo() && (
+        <p style={{ marginTop: 'var(--space-3)' }}>
+          <Link href="/?sample=1" className="action-quiet">
+            {t('home.sample')}
+          </Link>
+        </p>
+      )}
+    </>
+  )
+
+  // Nobody to follow up on yet: the first useful move is pasting a posting,
+  // so the box is the whole screen, as it always was.
+  if (fullApps.length === 0) {
+    return (
+      <main id="main" tabIndex={-1} className="page">
+        <div className="hero">
+          <div className="hero-intro">
+            <p className="eyebrow">{t('home.eyebrow')}</p>
+            <h1 style={{ font: 'var(--type-h1)', marginTop: 'var(--space-4)' }}>
+              {t('home.title')}
+            </h1>
+            <p className="prose" style={{ marginTop: 'var(--space-4)' }}>
+              {t('home.lede')}
+            </p>
+          </div>
+          <div>{intake}</div>
+        </div>
+      </main>
+    )
+  }
 
   return (
-    <main className="page">
-      <div className="hero">
-        <div className="hero-intro">
-          <p className="eyebrow">{t('home.eyebrow')}</p>
-          <h1 style={{ font: 'var(--type-h1)', marginTop: 'var(--space-4)' }}>{t('home.title')}</h1>
-          <p className="prose" style={{ marginTop: 'var(--space-4)' }}>
-            {t('home.lede')}
-          </p>
+    <main id="main" tabIndex={-1} className="page">
+      <p className="eyebrow">
+        {t('today.eyebrow')} · {today}
+      </p>
+      <h1 style={{ font: 'var(--type-h1)', marginTop: 'var(--space-4)' }}>
+        {allNeeds.length > 0
+          ? plural(t, allNeeds.length, 'today.needsTitle')
+          : t('today.calmTitle')}
+      </h1>
+      <p className="lede-sm" style={{ marginTop: 'var(--space-3)' }}>
+        {plural(
+          t,
+          waiting.length + allNeeds.filter((i) => i.reason === 'stale').length,
+          'today.waitingCount',
+        )}
+        {interviewingCount > 0 && (
+          <>
+            {'  ·  '}
+            {plural(t, interviewingCount, 'today.interviewingCount')}
+          </>
+        )}
+        {'  ·  '}
+        <Link href="/pipeline" className="action">
+          {t('today.allApplications')}
+        </Link>
+      </p>
 
-          {/* The one thing that would make every answer better, stated once and
-              quietly. It is a footnote to the box, not a screen in front of it. */}
-          {rolesOnlyStubs > 0 && (
+      <div className="today-grid">
+        <div style={{ display: 'grid', gap: 'var(--space-8)', alignContent: 'start' }}>
+          <section>
+            <p className="eyebrow">{t('today.needsYou')}</p>
+            {allNeeds.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', marginTop: 'var(--space-3)' }}>
+                {t('today.nothingNeeded')}
+              </p>
+            ) : (
+              <ul className="today-list">
+                {allNeeds.map((item) => {
+                  const app = fullApps.find((a) => a.id === item.id)
+                  if (!app) return null
+                  return (
+                    <li key={item.id} className={`today-card reason-${item.reason}`}>
+                      <Link
+                        href={`/application/${app.id}?step=${ATTENTION_STEP[item.reason]}`}
+                        className="today-card-title row-stretch"
+                      >
+                        {app.jobTitle}
+                        {app.company.trim() && (
+                          <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>
+                            {' · '}
+                            {app.company}
+                          </span>
+                        )}
+                      </Link>
+                      <p className="why">{attentionWhy(t, item)}</p>
+                      <div className="today-card-actions">
+                        <Link
+                          href={`/application/${app.id}?step=${ATTENTION_STEP[item.reason]}`}
+                          className="action"
+                        >
+                          {t('today.go', { step: t(`steps.${ATTENTION_STEP[item.reason]}`) })}
+                        </Link>
+                        {(item.reason === 'stale' ||
+                          item.reason === 'interviewing' ||
+                          item.reason === 'unsent') && (
+                          <OutcomeButtons
+                            applicationId={app.id}
+                            status={app.status}
+                            extra={item.reason === 'stale' ? ['ghosted'] : []}
+                          />
+                        )}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </section>
+
+          {waiting.length > 0 && (
+            <section>
+              <p className="eyebrow">{t('today.waiting')}</p>
+              <ul className="today-quiet">
+                {waiting.map(({ stat, app }) =>
+                  app ? (
+                    <li key={app.id}>
+                      <Link href={`/application/${app.id}?step=track`} className="action-quiet">
+                        {app.jobTitle}
+                        {app.company.trim() && ` · ${app.company}`}
+                      </Link>
+                      <span className="fact" style={{ color: 'var(--text-faint)' }}>
+                        {daysSince(appliedAt(stat)) === 0
+                          ? t('today.sentToday')
+                          : t('today.sentAgo', { n: daysSince(appliedAt(stat)) })}
+                      </span>
+                    </li>
+                  ) : null,
+                )}
+              </ul>
+            </section>
+          )}
+
+          <section>
+            <p className="eyebrow">{t('today.profile')}</p>
             <p
               style={{
-                marginTop: 'var(--space-5)',
-                borderLeft: '2px solid var(--accent)',
-                paddingLeft: 'var(--space-3)',
-                color: 'var(--text-muted)',
-                font: 'var(--type-body-sm)',
+                marginTop: 'var(--space-3)',
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 'var(--space-2)',
               }}
             >
-              {plural(t, rolesOnlyStubs, 'home.nudge')}{' '}
-              <Link href="/evidence" className="action">
-                {t('evidence.expand')}
-              </Link>
+              <span className="datum" style={{ fontSize: 28, fontWeight: 500 }}>
+                <ScoreChange value={strength.score} />
+              </span>
+              <span className="fact" style={{ color: 'var(--text-faint)' }}>
+                /100
+              </span>
             </p>
-          )}
+            {topFix ? (
+              <p
+                style={{
+                  color: 'var(--text-muted)',
+                  font: 'var(--type-body-sm)',
+                  marginTop: 'var(--space-2)',
+                  maxWidth: '42em',
+                }}
+              >
+                {say(t, topFix)}{' '}
+                <Link
+                  href={topFix.targetId ? `/evidence/interview/${topFix.targetId}` : '/evidence'}
+                  className="action"
+                >
+                  {t(topFix.targetId ? 'evidence.expand' : 'today.fixIt')}
+                </Link>
+              </p>
+            ) : (
+              <p style={{ color: 'var(--text-muted)', marginTop: 'var(--space-2)' }}>
+                {t('strength.nothing')}
+              </p>
+            )}
+          </section>
         </div>
 
-        {useSample && (
-          <p
-            className="fact"
-            style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-3)' }}
-          >
-            {t('home.sampleLoaded')}
-          </p>
-        )}
-        <TriageConsole
-          // Search-param-only navigations keep page state, so "/?sample=1"
-          // from "/" would otherwise leave the box exactly as it was.
-          key={useSample ? 'sample' : 'blank'}
-          defaultMarket={
-            useSample ? SAMPLE_POSTING_MARKET : (profile.preferences.markets[0] ?? 'mx')
-          }
-          initialText={useSample ? SAMPLE_POSTING : ''}
-          demoPostings={isDemo() ? demoPostings(db) : undefined}
-        />
-        {!useSample && !isDemo() && (
-          <p style={{ marginTop: 'var(--space-3)' }}>
-            <Link href="/?sample=1" className="action-quiet">
-              {t('home.sample')}
-            </Link>
-          </p>
-        )}
+        <aside>
+          <p className="eyebrow">{t('today.analyse')}</p>
+          <div style={{ marginTop: 'var(--space-3)' }}>{intake}</div>
+        </aside>
       </div>
-
-      {attention.length > 0 && (
-        <section style={{ marginTop: 'var(--space-9)', maxWidth: 720 }}>
-          <p className="eyebrow">{t('today.eyebrow')}</p>
-          <ul
-            className="stack"
-            style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 'var(--space-4) 0 0',
-              gap: 'var(--space-4)',
-            }}
-          >
-            {attention.map(({ app, reason, daysSinceApplied }) =>
-              app ? (
-                <li
-                  key={app.id}
-                  style={{
-                    borderLeft: `2px solid ${
-                      reason === 'stale' ? 'var(--graphite-200)' : 'var(--accent)'
-                    }`,
-                    paddingLeft: 'var(--space-3)',
-                  }}
-                >
-                  <Link
-                    href={`/application/${app.id}`}
-                    className="action"
-                    style={{ margin: 0, padding: 0 }}
-                  >
-                    {app.jobTitle} · {app.company}
-                  </Link>
-                  <p
-                    className="fact"
-                    style={{ color: 'var(--text-muted)', margin: 'var(--space-1) 0 0' }}
-                  >
-                    {reason === 'stale'
-                      ? t('today.staleDays', { n: daysSinceApplied ?? 0 })
-                      : t('today.unsent')}{' '}
-                    <OutcomeButtons
-                      applicationId={app.id}
-                      status={app.status}
-                      extra={reason === 'stale' ? ['ghosted'] : []}
-                    />
-                  </p>
-                </li>
-              ) : null,
-            )}
-          </ul>
-        </section>
-      )}
     </main>
   )
 }
@@ -177,7 +281,7 @@ export default async function HomePage({
 function FirstRun({ t, needsKey }: { t: Translate; needsKey: boolean }) {
   if (needsKey) {
     return (
-      <main className="page">
+      <main id="main" tabIndex={-1} className="page">
         <div className="hero">
           <div className="hero-intro">
             <p className="eyebrow">{t('start.keyEyebrow')}</p>
@@ -197,7 +301,7 @@ function FirstRun({ t, needsKey }: { t: Translate; needsKey: boolean }) {
     )
   }
   return (
-    <main className="page">
+    <main id="main" tabIndex={-1} className="page">
       <div className="hero">
         <div className="hero-intro">
           <p className="eyebrow">{t('start.importEyebrow')}</p>

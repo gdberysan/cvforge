@@ -6,14 +6,15 @@ import type {
   ScreeningSet,
 } from '@/lib/schemas'
 import { runCompanionChecks } from '@/lib/verify/companion'
-import { findTells } from '@/lib/verify/tells'
+import { findTells, warrantsRewrite } from '@/lib/verify/tells'
 import { postingVocabularyOf, verifyDistortions } from './distortions'
-import { buildEntityIndex } from './projection'
+import { buildEntityIndex, projectSourcesOf } from './projection'
 import {
   type CompanionArgs,
   composeCoverLetter,
   composeRecruiterMessage,
   composeScreening,
+  selectCredentialsForComposition,
 } from './stages/compose-companion'
 import { selectEvidenceForComposition } from './stages/compose-cv'
 
@@ -42,11 +43,15 @@ function paragraphsOf(kind: CompanionKind, document: CompanionDocument): Paragra
  */
 export async function composeAndVerifyCompanion(
   kind: CompanionKind,
-  args: CompanionArgs & { bank?: { question: string; answer: string }[] },
+  args: CompanionArgs & {
+    bank?: { question: string; answer: string }[]
+    reasonLanguage?: 'en' | 'es'
+  },
 ): Promise<{ document: CompanionDocument; report: GroundingReport }> {
   const selectedIds = new Set(
     selectEvidenceForComposition(args.mappings, args.evidence).map((e) => e.id),
   )
+  const selectedCredentials = selectCredentialsForComposition(args.mappings, args.profile)
   const postingVocabulary = postingVocabularyOf(args.requirements)
 
   const compose = (repairInstruction?: string) => {
@@ -62,6 +67,7 @@ export async function composeAndVerifyCompanion(
       evidence: args.evidence,
       profile: args.profile,
       selectedEvidenceIds: selectedIds,
+      selectedCredentials,
       postingVocabulary,
     })
 
@@ -73,7 +79,7 @@ export async function composeAndVerifyCompanion(
     const problems = [
       ...report.invalidCitations.map(
         (c) =>
-          `Paragraph ${c.bulletId} cited "${c.evidenceId}", which is not in <selected-evidence>.`,
+          `Paragraph ${c.bulletId} cited "${c.evidenceId}", which is not in <selected-evidence> or <selected-credentials>.`,
       ),
       ...report.unverifiedNumbers.map(
         (n) =>
@@ -95,7 +101,7 @@ export async function composeAndVerifyCompanion(
     findTells(p.text, args.language, exempt).map((phrase) => ({ id: p.id, phrase })),
   )
 
-  if (tells.length > 0 && report.passed) {
+  if (warrantsRewrite(tells.map((t) => t.phrase)) && report.passed) {
     const listed = [...new Set(tells.map((t) => t.phrase))]
     const styled = await compose(
       `Your previous draft reads as machine-written. Remove these, which appeared in it: ${listed
@@ -121,7 +127,12 @@ export async function composeAndVerifyCompanion(
     ...report.unverifiedNumbers.map((n) => n.bulletId),
   ])
   const candidates = paragraphsOf(kind, document).filter((p) => !failedIds.has(p.id))
-  report.distortions = await verifyDistortions(candidates, args.evidence)
+  report.distortions = await verifyDistortions(
+    candidates,
+    args.evidence,
+    new Map([...selectedCredentials, ...projectSourcesOf(args.profile, args.evidence)]),
+    args.reasonLanguage,
+  )
   report.passed = report.passed && report.distortions.length === 0
 
   return { document, report }

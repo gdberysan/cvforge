@@ -46,9 +46,18 @@ const evidence: EvidenceItem[] = [
 ]
 
 const selected = new Set(['ev_1'])
+const credentials = new Map([
+  ['cert_1', 'cert_1 | certification | Google Ads Search — Google | 2023-04'],
+])
 
 function check(paragraphs: { id: string; text: string; citedEvidenceIds: string[] }[]) {
-  return runCompanionChecks({ paragraphs, evidence, profile, selectedEvidenceIds: selected })
+  return runCompanionChecks({
+    paragraphs,
+    evidence,
+    profile,
+    selectedEvidenceIds: selected,
+    selectedCredentials: credentials,
+  })
 }
 
 describe('runCompanionChecks', () => {
@@ -95,5 +104,36 @@ describe('runCompanionChecks', () => {
     ])
     expect(report.passed).toBe(false)
     expect(report.unverifiedNumbers[0]).toMatchObject({ bulletId: 'p1', token: '45%' })
+  })
+
+  it('accepts a citation of a mapped credential — a letter may name the degree it was matched on', () => {
+    const report = check([
+      {
+        id: 'p1',
+        text: 'Tengo la certificación Google Ads Search desde 2023.',
+        citedEvidenceIds: ['cert_1'],
+      },
+    ])
+    expect(report.invalidCitations).toEqual([])
+    expect(report.unknownEntities).toEqual([])
+    expect(report.passed).toBe(true)
+  })
+
+  it('still rejects a credential the mapper did not select', () => {
+    const report = check([{ id: 'p1', text: 'Tengo una maestría.', citedEvidenceIds: ['edu_9'] }])
+    expect(report.invalidCitations).toEqual([{ bulletId: 'p1', evidenceId: 'edu_9' }])
+    expect(report.passed).toBe(false)
+  })
+
+  it('a cited credential licenses no figure it does not print', () => {
+    const report = check([
+      {
+        id: 'p1',
+        text: 'Certificado en Google Ads, con 30% más ROAS.',
+        citedEvidenceIds: ['cert_1'],
+      },
+    ])
+    expect(report.unverifiedNumbers[0]).toMatchObject({ bulletId: 'p1', token: '30%' })
+    expect(report.passed).toBe(false)
   })
 })

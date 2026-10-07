@@ -1,5 +1,5 @@
 import type { CVContent } from '@/lib/schemas'
-import { educationLine, formatDate } from './format'
+import { educationLine, formatDate, projectDates, projectTitle } from './format'
 
 type RenderOpts = {
   language: 'en' | 'es-MX'
@@ -11,6 +11,7 @@ export const HEADINGS = {
   en: {
     summary: 'Summary',
     experience: 'Experience',
+    projects: 'Projects',
     education: 'Education',
     skills: 'Skills',
     present: 'Present',
@@ -18,6 +19,7 @@ export const HEADINGS = {
   'es-MX': {
     summary: 'Resumen',
     experience: 'Experiencia',
+    projects: 'Proyectos',
     education: 'Educación',
     skills: 'Habilidades',
     present: 'actualidad',
@@ -97,6 +99,20 @@ export function renderCvHtml(content: CVContent, opts: RenderOpts): string {
     })
     .join('')
 
+  const projects = content.projects
+    .map((project) => {
+      const dates = projectDates(project, opts.language, h.present)
+      return `
+        <div class="role" style="page-break-inside: avoid;">
+          <div class="role-head">
+            <span class="role-title">${e(projectTitle(project))}</span>
+            ${dates ? `<span class="role-dates">${e(dates)}</span>` : ''}
+          </div>
+          <ul>${project.bullets.map((b) => `<li>${e(b.text)}</li>`).join('')}</ul>
+        </div>`
+    })
+    .join('')
+
   const education = content.education
     .map(
       (ed) =>
@@ -126,6 +142,7 @@ export function renderCvHtml(content: CVContent, opts: RenderOpts): string {
 
     ${content.summary ? `<h2>${h.summary}</h2><p>${e(content.summary)}</p>` : ''}
     ${experience ? `<h2>${h.experience}</h2>${experience}` : ''}
+    ${projects ? `<h2>${h.projects}</h2>${projects}` : ''}
     ${education ? `<h2>${h.education}</h2>${education}` : ''}
     ${skills ? `<h2>${h.skills}</h2>${skills}` : ''}
     ${extras}

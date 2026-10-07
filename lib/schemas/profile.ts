@@ -30,12 +30,20 @@ export const EducationSchema = z.object({
 })
 export type Education = z.infer<typeof EducationSchema>
 
+/**
+ * Work the person did on their own account — a tool they built, freelance,
+ * open source. Never an employer: its evidence prints under "Projects" on the
+ * CV, and the composer's checks refuse to place it under a role, because
+ * self-built work attributed to a company is exactly the lie this app exists
+ * not to tell. Dates are optional for the same reason as Education's.
+ */
 export const ProjectSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   description: z.string().default(''),
   url: z.string().optional(),
   stack: z.array(z.string()).default([]),
+  period: z.object({ start: MonthSchema.optional(), end: MonthSchema.optional() }).optional(),
 })
 export type Project = z.infer<typeof ProjectSchema>
 

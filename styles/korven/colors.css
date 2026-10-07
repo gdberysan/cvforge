@@ -59,7 +59,9 @@
   --text-strong:       var(--graphite-050); /* headings (bone)        */
   --text-body:         var(--graphite-100); /* paragraph              */
   --text-muted:        var(--graphite-200); /* steel — secondary      */
-  --text-faint:        var(--graphite-300); /* meta / disabled        */
+  /* #808DA0, not graphite-300: 4.5:1 on base, card AND raised surfaces. At
+     #6B788C every date, count and "/100" read 3.4–4.2:1 — below WCAG AA. */
+  --text-faint:        #808DA0; /* meta / disabled        */
   --text-on-amber:     var(--graphite-900); /* text over amber fill   */
   --text-on-light:     var(--graphite-850); /* text on bone surfaces  */
   --text-accent:       var(--amber-500);
@@ -76,9 +78,126 @@
   --accent-press:      var(--amber-600);
   --focus-ring:        var(--amber-glow);
 
+  /* Tones that used to be raw ramp values in components: a partial match,
+     a quiet rule, a hatched "not enough data" texture. Named, so each theme
+     can say what they are. */
+  --tone-partial:      var(--graphite-200);
+  --tone-quiet:        var(--graphite-500);
+  --hatch:             var(--graphite-600);
+  /* A partial match drawn as a bar, not text: lighter than text-muted in
+     light mode, where a slate bar outweighed the amber beside it. */
+  --bar-partial:       var(--graphite-200);
+
+  color-scheme: dark;
+
   /* Code / terminal */
   --code-bg:           var(--graphite-900);
   --code-text:         var(--graphite-100);
   --code-comment:      var(--graphite-300);
   --code-accent:       var(--amber-400);
+}
+
+
+/* ============================================================
+   LIGHT THEME
+   Same semantic names, light values. Follows the system setting unless
+   the person chose a theme in Ajustes (data-theme on <html>). The amber
+   deepens to #A8500F: the brand's #FF8A2B is 2.3:1 on white, unreadable
+   as text, so in light the accent is the burnt end of the same ramp —
+   every token here clears 4.5:1 on base, card and raised surfaces.
+   ============================================================ */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --surface-base:    #F5F7FA;
+    --surface-sunken:  #ECEFF4;
+    --surface-card:    #FFFFFF;
+    --surface-raised:  #EEF1F6;
+    --surface-inset:   #E9EDF2;
+    --surface-inverse: #0E131B;
+    --text-strong:     #0E131B;
+    --text-body:       #283142;
+    --text-muted:      #4B5668;
+    --text-faint:      #5F6B7D;
+    --text-on-amber:   #FFFFFF;
+    --text-on-light:   #0E131B;
+    --text-accent:     #A8500F;
+    --border-subtle:   rgba(14, 19, 27, 0.10);
+    --border-default:  rgba(14, 19, 27, 0.16);
+    --border-strong:   rgba(14, 19, 27, 0.28);
+    --border-amber:    #A8500F;
+    --accent:          #A8500F;
+    --accent-hover:    #8F430C;
+    --accent-press:    #7A390A;
+    --amber-glow:      rgba(168, 80, 15, 0.16);
+    --focus-ring:      rgba(168, 80, 15, 0.16);
+    --signal-ok:       #1E7A52;
+    --signal-warn:     #A8500F;
+    --signal-error:    #C2412E;
+    --signal-info:     #2F6FAE;
+    --tone-partial:    #5F6B7D;
+    --tone-quiet:      #B9C1CC;
+    --hatch:           #CBD2DB;
+  --bar-partial:     #A9B2BF;
+    --bar-partial:     #A9B2BF;
+    --code-bg:         #ECEFF4;
+    --code-text:       #283142;
+    --code-comment:    #5F6B7D;
+    --code-accent:     #A8500F;
+    --shadow-xs:       0 1px 2px rgba(14, 19, 27, 0.06);
+    --shadow-sm:       0 2px 8px rgba(14, 19, 27, 0.08);
+    --shadow-md:       0 8px 24px rgba(14, 19, 27, 0.10);
+    --shadow-lg:       0 18px 48px rgba(14, 19, 27, 0.12);
+    --shadow-inset:    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    --edge-top:        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    --glow-amber-sm:   0 0 0 1px rgba(168, 80, 15, 0.35), 0 0 10px rgba(168, 80, 15, 0.15);
+    --glow-amber-md:   0 0 20px rgba(168, 80, 15, 0.18);
+    --backdrop:        rgba(245, 247, 250, 0.72);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --surface-base:    #F5F7FA;
+  --surface-sunken:  #ECEFF4;
+  --surface-card:    #FFFFFF;
+  --surface-raised:  #EEF1F6;
+  --surface-inset:   #E9EDF2;
+  --surface-inverse: #0E131B;
+  --text-strong:     #0E131B;
+  --text-body:       #283142;
+  --text-muted:      #4B5668;
+  --text-faint:      #5F6B7D;
+  --text-on-amber:   #FFFFFF;
+  --text-on-light:   #0E131B;
+  --text-accent:     #A8500F;
+  --border-subtle:   rgba(14, 19, 27, 0.10);
+  --border-default:  rgba(14, 19, 27, 0.16);
+  --border-strong:   rgba(14, 19, 27, 0.28);
+  --border-amber:    #A8500F;
+  --accent:          #A8500F;
+  --accent-hover:    #8F430C;
+  --accent-press:    #7A390A;
+  --amber-glow:      rgba(168, 80, 15, 0.16);
+  --focus-ring:      rgba(168, 80, 15, 0.16);
+  --signal-ok:       #1E7A52;
+  --signal-warn:     #A8500F;
+  --signal-error:    #C2412E;
+  --signal-info:     #2F6FAE;
+  --tone-partial:    #5F6B7D;
+  --tone-quiet:      #B9C1CC;
+  --hatch:           #CBD2DB;
+  --bar-partial:     #A9B2BF;
+  --code-bg:         #ECEFF4;
+  --code-text:       #283142;
+  --code-comment:    #5F6B7D;
+  --code-accent:     #A8500F;
+  --shadow-xs:       0 1px 2px rgba(14, 19, 27, 0.06);
+  --shadow-sm:       0 2px 8px rgba(14, 19, 27, 0.08);
+  --shadow-md:       0 8px 24px rgba(14, 19, 27, 0.10);
+  --shadow-lg:       0 18px 48px rgba(14, 19, 27, 0.12);
+  --shadow-inset:    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --edge-top:        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --glow-amber-sm:   0 0 0 1px rgba(168, 80, 15, 0.35), 0 0 10px rgba(168, 80, 15, 0.15);
+  --glow-amber-md:   0 0 20px rgba(168, 80, 15, 0.18);
+  --backdrop:        rgba(245, 247, 250, 0.72);
+  color-scheme: light;
 }

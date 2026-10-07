@@ -8,6 +8,7 @@ import { getApplication, mergeDocuments } from '@/lib/db/queries/applications'
 import { listEvidence } from '@/lib/db/queries/evidence'
 import { getProfile } from '@/lib/db/queries/profile'
 import { isDemo } from '@/lib/demo/mode'
+import { getLocale } from '@/lib/i18n/server'
 import type { ScreeningSet } from '@/lib/schemas'
 
 const Body = z.object({
@@ -56,6 +57,8 @@ export async function POST(request: Request) {
 
   try {
     const { document, report } = await composeAndVerifyCompanion(body.data.kind, {
+      // Reasons for any flag are read on this screen, in its language.
+      reasonLanguage: await getLocale(),
       profile,
       requirements: application.requirements,
       mappings: application.mappings,

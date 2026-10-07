@@ -160,6 +160,10 @@ export const answerBank = sqliteTable(
     language: text('language', { enum: ['en', 'es-MX'] }).notNull(),
     updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
   },
+  // Deliberately not UNIQUE. upsertAnswer is the only writer, in this process,
+  // and its select-then-write runs in one synchronous better-sqlite3
+  // transaction — two writes cannot interleave. A UNIQUE index would need a
+  // migration that dedupes buyers' rows, for no change in behaviour.
   (t) => [index('answer_bank_key_idx').on(t.questionKey, t.language)],
 )
 

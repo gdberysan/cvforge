@@ -21,13 +21,14 @@ export function Meter({
       }}
     >
       <div
+        className="meter-fill"
         style={{
           height: '100%',
           // A genuine 0% stays an empty track — a colored sliver would be an
           // implied claim. The floor only keeps small nonzero values visible.
           width: muted ? '100%' : pct === 0 ? 0 : `${Math.max(pct, 1.5)}%`,
           background: muted
-            ? 'repeating-linear-gradient(135deg, var(--graphite-600) 0 4px, transparent 4px 8px)'
+            ? 'repeating-linear-gradient(135deg, var(--hatch) 0 4px, transparent 4px 8px)'
             : color,
           borderRadius: 'var(--radius-pill)',
         }}

@@ -8,6 +8,7 @@ vi.mock('@/lib/ai/stages/compose-companion', () => ({
   composeCoverLetter: composeCoverLetterMock,
   composeScreening: vi.fn(),
   composeRecruiterMessage: vi.fn(),
+  selectCredentialsForComposition: () => new Map(),
 }))
 vi.mock('@/lib/ai/stages/verify-distortion', () => ({ checkDistortions: checkDistortionsMock }))
 
@@ -94,6 +95,15 @@ describe('the anti-tell pass', () => {
     expect((document as CoverLetter).paragraphs[0].text).toBe(
       'I ran paid acquisition for two years.',
     )
+  })
+
+  it('does not pay for a rewrite over one plain technical word', async () => {
+    // Backlog #14: "test harness" alone triggered a full paid rewrite.
+    composeCoverLetterMock.mockResolvedValue(letter('I built a test harness for the ad pipeline.'))
+
+    await composeAndVerifyCompanion('coverLetter', args)
+
+    expect(composeCoverLetterMock).toHaveBeenCalledTimes(1)
   })
 
   it('costs nothing when the draft is already plain', async () => {

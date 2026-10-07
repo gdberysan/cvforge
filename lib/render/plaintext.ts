@@ -1,6 +1,6 @@
 import type { CVContent } from '@/lib/schemas'
 import { HEADINGS } from './cv-html'
-import { educationLine, formatDate } from './format'
+import { educationLine, formatDate, projectDates, projectTitle } from './format'
 
 /**
  * Half of application forms are a textarea. Same content, same order, no
@@ -30,6 +30,16 @@ export function renderPlaintext(content: CVContent, opts: { language: 'en' | 'es
         `${role.title} — ${role.company}  (${formatDate(role.startDate, opts.language)} – ${role.endDate ? formatDate(role.endDate, opts.language) : h.present})`,
       )
       for (const bullet of role.bullets) lines.push(`- ${bullet.text}`)
+      lines.push('')
+    }
+  }
+
+  if (content.projects.length > 0) {
+    section(h.projects)
+    for (const project of content.projects) {
+      const dates = projectDates(project, opts.language, h.present)
+      lines.push(dates ? `${projectTitle(project)}  (${dates})` : projectTitle(project))
+      for (const bullet of project.bullets) lines.push(`- ${bullet.text}`)
       lines.push('')
     }
   }

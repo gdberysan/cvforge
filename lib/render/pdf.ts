@@ -22,9 +22,19 @@ const ENGINE_LADDER: (string | undefined)[] = ['chrome', 'msedge', undefined]
  * others — the user installs Chromium, the card hides, and the export
  * keeps answering 503 until a restart.
  */
+type Browser = Awaited<ReturnType<typeof import('playwright')['chromium']['launch']>>
+
 const globalForPdf = globalThis as unknown as {
   __cvforgePdfEngine?: Promise<string | undefined | null> | null
+  /** One warm browser shared by every export, closed after IDLE_CLOSE_MS. */
+  __cvforgePdfBrowser?: Promise<Browser> | null
+  __cvforgePdfIdle?: ReturnType<typeof setTimeout>
+  /** Tail of the render queue: exports run one at a time. */
+  __cvforgePdfQueue?: Promise<unknown>
 }
+
+/** A browser idle this long is closed; the next export launches a new one. */
+const IDLE_CLOSE_MS = 60_000
 
 /** Never longer than this for one document: a hung browser must not pin the request. */
 const PDF_TIMEOUT_MS = 60_000
@@ -62,26 +72,58 @@ export function resetEngineProbe(): void {
  * falls back to the browser's own print dialog against that identical
  * template — different button, same document.
  */
-export async function renderPdf(html: string): Promise<Buffer> {
+export function renderPdf(html: string): Promise<Buffer> {
+  // One at a time. Every export used to launch its own browser with no cap,
+  // so the Studio preview plus a download — or a few quick clicks — ran
+  // several full browsers at once on the buyer's laptop.
+  const run = (globalForPdf.__cvforgePdfQueue ?? Promise.resolve()).then(() => renderOne(html))
+  globalForPdf.__cvforgePdfQueue = run.catch(() => undefined)
+  return run
+}
+
+async function warmBrowser(): Promise<Browser> {
+  const existing = globalForPdf.__cvforgePdfBrowser
+  if (existing) {
+    const browser = await existing.catch(() => null)
+    if (browser?.isConnected()) return browser
+  }
   const channel = await resolvedEngine()
   if (channel === null) throw new Error('no PDF engine available')
   const { chromium } = await import('playwright')
-  let browser: Awaited<ReturnType<typeof chromium.launch>>
+  const launching = chromium.launch(channel ? { channel } : {})
+  globalForPdf.__cvforgePdfBrowser = launching
   try {
-    browser = await chromium.launch(channel ? { channel } : {})
+    return await launching
   } catch (error) {
     // The engine that once answered the probe is gone (an update in
     // progress, an uninstall). Forget it, so the next request re-probes and
     // the route can fall back to the print dialog instead of a 500.
+    globalForPdf.__cvforgePdfBrowser = null
     resetEngineProbe()
     throw error
   }
+}
+
+async function closeBrowser(): Promise<void> {
+  const pending = globalForPdf.__cvforgePdfBrowser
+  globalForPdf.__cvforgePdfBrowser = null
+  const browser = await pending?.catch(() => null)
+  await browser?.close().catch(() => undefined)
+}
+
+async function renderOne(html: string): Promise<Buffer> {
+  clearTimeout(globalForPdf.__cvforgePdfIdle)
+  const browser = await warmBrowser()
   let timer: ReturnType<typeof setTimeout> | undefined
+  let wedged = false
+  const page = await browser.newPage()
   try {
-    const page = await browser.newPage()
     await page.setContent(html, { waitUntil: 'load' })
     const timeout = new Promise<never>((_, reject) => {
-      timer = setTimeout(() => reject(new Error('PDF render timed out')), PDF_TIMEOUT_MS)
+      timer = setTimeout(() => {
+        wedged = true
+        reject(new Error('PDF render timed out'))
+      }, PDF_TIMEOUT_MS)
     })
     return await Promise.race([
       page.pdf({
@@ -93,7 +135,16 @@ export async function renderPdf(html: string): Promise<Buffer> {
     ])
   } finally {
     clearTimeout(timer)
-    await browser.close()
+    if (wedged) {
+      // A browser that hung once is not trusted with the next document, and
+      // a polite page.close() on it could hang too: close it outright.
+      await closeBrowser()
+    } else {
+      await page.close().catch(() => undefined)
+      globalForPdf.__cvforgePdfIdle = setTimeout(() => void closeBrowser(), IDLE_CLOSE_MS)
+      // Never what keeps the process alive: quitting CVForge must not wait a minute.
+      globalForPdf.__cvforgePdfIdle.unref?.()
+    }
   }
 }
 

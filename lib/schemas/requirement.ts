@@ -25,7 +25,6 @@ export const ExtractedRequirementsSchema = z.object({
   company: z.string(),
   jobTitle: z.string(),
   language: z.enum(['en', 'es-MX']),
-  companyTone: z.string(),
   requirements: z.array(RequirementSchema),
 })
 export type ExtractedRequirements = z.infer<typeof ExtractedRequirementsSchema>

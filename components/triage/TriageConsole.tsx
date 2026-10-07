@@ -300,7 +300,9 @@ export function TriageConsole({
           <span>
             {running && stageCopy(stage?.name)}
             {running && stage?.detail && `  ·  ${stage.detail}`}
-            {!running && result && `${result.jobTitle} @ ${result.company}`}
+            {!running &&
+              result &&
+              (result.company.trim() ? `${result.jobTitle} @ ${result.company}` : result.jobTitle)}
             {!running && !result && canRun && t('triage.ready')}
             {!running && !result && !canRun && t('triage.waiting')}
           </span>

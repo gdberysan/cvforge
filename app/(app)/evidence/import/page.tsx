@@ -14,7 +14,7 @@ export default async function ImportPage() {
   // The same shape as the first-run import screen: intro beside the working
   // column instead of a single narrow stack.
   return (
-    <main className="page">
+    <main id="main" tabIndex={-1} className="page">
       <div className="hero">
         <div className="hero-intro">
           <p className="eyebrow">{t('import.eyebrow')}</p>

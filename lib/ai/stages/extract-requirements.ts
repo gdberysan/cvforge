@@ -18,8 +18,7 @@ Extraction rules:
 4. "keyword" is the shortest canonical term (e.g. "Kubernetes", "CET overlap"). "variants" lists other spellings the posting or a CV might use (e.g. ["K8s"], ["Central European Time"]). Do not repeat the keyword inside variants.
 5. "weight": 3 = repeated or emphasised, 2 = stated normally, 1 = mentioned in passing.
 6. "language" is the language of the POSTING. Use "es-MX" for any Spanish posting.
-7. "companyTone" is a brief neutral description of the writing voice, for later tone-matching.
-8. Assign ids "req_1", "req_2", … in the order requirements appear.`
+7. Assign ids "req_1", "req_2", … in the order requirements appear.`
 
 /**
  * Stage ①. The ONLY stage that ever sees raw posting text.

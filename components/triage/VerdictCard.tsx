@@ -115,7 +115,7 @@ export function VerdictCard({
                   style={{
                     font: 'var(--type-body-sm)',
                     color: 'var(--text-body)',
-                    borderLeft: `2px solid ${partial ? 'var(--graphite-200)' : 'var(--signal-error)'}`,
+                    borderLeft: `2px solid ${partial ? 'var(--tone-partial)' : 'var(--signal-error)'}`,
                     paddingLeft: 'var(--space-3)',
                   }}
                 >

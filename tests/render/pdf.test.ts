@@ -28,6 +28,7 @@ const content: CVContent = {
       ],
     },
   ],
+  projects: [],
   education: [],
   skills: [],
   extras: [],

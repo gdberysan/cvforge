@@ -8,9 +8,24 @@ import type { EvidenceItem, MasterProfile } from '@/lib/schemas'
 import { roleHealth } from '@/lib/strength'
 import { EvidenceRecord } from './EvidenceRecord'
 import { InterviewHistory, type InterviewSessionView } from './InterviewHistory'
+import { AddProject, ProjectHeader } from './ProjectCard'
 import { RoleHeader } from './RoleHeader'
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
+
+/**
+ * The page as a work queue: each filter is one kind of unfinished record.
+ * "Solo líneas del CV" is the import's own wording, still waiting for the
+ * interview that turns it into evidence.
+ */
+type Filter = 'all' | 'unquantified' | 'stubs' | 'untagged'
+const FILTERS: Record<Filter, (item: EvidenceItem) => boolean> = {
+  all: () => true,
+  unquantified: (i) => i.kind === 'achievement' && i.metrics.length === 0,
+  stubs: (i) => i.origin === 'import',
+  untagged: (i) => i.tags.length === 0,
+}
+const FILTER_ORDER: Filter[] = ['all', 'unquantified', 'stubs', 'untagged']
 
 export function EvidenceEditor({
   profile,
@@ -48,6 +63,45 @@ export function EvidenceEditor({
     }
   }
   const [saveState, setSaveState] = useState<SaveState>('idle')
+  const [filter, setFilter] = useState<Filter>('all')
+  // Roles that need work start open; finished ones start as one summary
+  // line, so a long career reads as a list of what is left to do.
+  const [open, setOpen] = useState<Set<string>>(
+    () =>
+      new Set(
+        profile.experience
+          .filter(
+            (r) =>
+              roleHealth(evidence, r.id).needsExpanding ||
+              evidence.some(
+                (e) =>
+                  e.sourceRef.type === 'experience' &&
+                  e.sourceRef.id === r.id &&
+                  FILTERS.unquantified(e),
+              ),
+          )
+          .map((r) => r.id),
+      ),
+  )
+  const toggle = useCallback((id: string) => {
+    setOpen((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  // The rail's role links are #role-… anchors: following one opens the role.
+  useEffect(() => {
+    const openFromHash = () => {
+      const id = window.location.hash.match(/^#role-(.+)$/)?.[1]
+      if (id) setOpen((prev) => (prev.has(id) ? prev : new Set(prev).add(id)))
+    }
+    openFromHash()
+    window.addEventListener('hashchange', openFromHash)
+    return () => window.removeEventListener('hashchange', openFromHash)
+  }, [])
   const [undoable, setUndoable] = useState<{
     item: EvidenceItem
     index: number
@@ -83,20 +137,28 @@ export function EvidenceEditor({
   // actually types into it via handleChange's own debounce. No AI round
   // trip: for a one-line role you already remember, the interview's
   // multi-question flow is more ceremony than the fact deserves.
-  const addManual = useCallback((role: MasterProfile['experience'][number]) => {
-    const draft: EvidenceItem = {
-      id: `ev_${crypto.randomUUID().slice(0, 8)}`,
-      kind: 'achievement',
-      sourceRef: { type: 'experience', id: role.id },
-      text: '',
-      metrics: [],
-      tags: [],
-      period: role.period,
-      strength: 'core',
-      origin: 'manual',
-    }
-    setItems((prev) => [...prev, draft])
-  }, [])
+  // The record takes its source's period — a role's, or a dated project's.
+  const addManual = useCallback(
+    (sourceRef: EvidenceItem['sourceRef'], period: EvidenceItem['period']) => {
+      const draft: EvidenceItem = {
+        id: `ev_${crypto.randomUUID().slice(0, 8)}`,
+        kind: 'achievement',
+        sourceRef,
+        text: '',
+        metrics: [],
+        tags: [],
+        period,
+        strength: 'core',
+        origin: 'manual',
+      }
+      setItems((prev) => [...prev, draft])
+      // A blank record matches no filter but "all", and must not land in a
+      // collapsed role: show the role it was added to.
+      setFilter('all')
+      setOpen((prev) => new Set(prev).add(sourceRef.id))
+    },
+    [],
+  )
 
   const handleChange = useCallback((updated: EvidenceItem) => {
     setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))
@@ -199,72 +261,198 @@ export function EvidenceEditor({
           {'  ·  '}
           {t('evidence.quantified', { n: items.filter((i) => i.metrics.length > 0).length })}
         </p>
+        {/* biome-ignore lint/a11y/useSemanticElements: a labelled group of toggle buttons, as in LocaleSwitch; a fieldset is for form inputs and would need its chrome reset */}
+        <div role="group" aria-label={t('evidence.filter.aria')} className="queue-filters">
+          {FILTER_ORDER.map((f) => {
+            const count = items.filter(FILTERS[f]).length
+            if (f !== 'all' && count === 0) return null
+            return (
+              <button
+                key={f}
+                type="button"
+                className="chip-toggle"
+                aria-pressed={filter === f}
+                onClick={() => setFilter(f)}
+              >
+                {t(`evidence.filter.${f}`)}
+                <span className="chip-count">{count}</span>
+              </button>
+            )
+          })}
+        </div>
       </header>
 
       {profile.experience.map((role) => {
         const roleEvidence = items.filter(
           (i) => i.sourceRef.type === 'experience' && i.sourceRef.id === role.id,
         )
+        const shown = roleEvidence.filter(FILTERS[filter])
+        // A filter hides the roles with nothing to show for it.
+        if (filter !== 'all' && shown.length === 0) return null
         // Empty and stub-only are the same situation to the reader — a role
         // that cannot yet carry a CV — so they get the same amber prompt and
         // the same live "expand" link. One shared reading (lib/strength)
         // keeps this prompt and the rail's dot from ever disagreeing.
         const { quantified, needsExpanding } = roleHealth(items, role.id)
         const onlyStubs = needsExpanding && roleEvidence.length > 0
+        // Filtering is looking for something: every matching role is open.
+        const isOpen = filter !== 'all' || open.has(role.id)
+        const bodyId = `role-body-${role.id}`
 
         return (
           // The id anchors the rail's role index.
           <section key={role.id} id={`role-${role.id}`} style={{ marginTop: 'var(--space-8)' }}>
             <hr className="rule" />
 
-            <RoleHeader
-              role={role}
-              recordCount={roleEvidence.length}
-              quantified={quantified}
-              needsExpanding={needsExpanding}
-            />
-
-            {needsExpanding && (
-              <p
-                style={{
-                  marginTop: 'var(--space-3)',
-                  color: 'var(--text-muted)',
-                  font: 'var(--type-body-sm)',
-                  borderLeft: '2px solid var(--accent)',
-                  paddingLeft: 'var(--space-3)',
-                  maxWidth: '38em',
-                }}
+            <div className="role-row">
+              <button
+                type="button"
+                className="role-toggle"
+                aria-expanded={isOpen}
+                aria-controls={bodyId}
+                aria-label={t(isOpen ? 'evidence.collapse' : 'evidence.expandRole', {
+                  company: role.company,
+                })}
+                onClick={() => toggle(role.id)}
+                disabled={filter !== 'all'}
               >
-                {t(onlyStubs ? 'evidence.nudge.stub' : 'evidence.nudge.empty')}
-              </p>
-            )}
-
-            {roleEvidence.length > 0 && (
-              <div className="rec-grid" style={{ marginTop: 'var(--space-4)' }}>
-                {roleEvidence.map((item) => (
-                  <EvidenceRecord
-                    key={item.id}
-                    item={item}
-                    onChange={handleChange}
-                    onDelete={handleDelete}
-                  />
-                ))}
+                <span aria-hidden>›</span>
+              </button>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <RoleHeader
+                  role={role}
+                  recordCount={roleEvidence.length}
+                  quantified={quantified}
+                  needsExpanding={needsExpanding}
+                />
               </div>
-            )}
+            </div>
 
-            <button
-              type="button"
-              className="action"
-              onClick={() => addManual(role)}
-              style={{ marginTop: 'var(--space-3)' }}
-            >
-              {t('evidence.addManual')}
-            </button>
+            <div id={bodyId} hidden={!isOpen}>
+              {needsExpanding && (
+                <p
+                  style={{
+                    marginTop: 'var(--space-3)',
+                    color: 'var(--text-muted)',
+                    font: 'var(--type-body-sm)',
+                    borderLeft: '2px solid var(--accent)',
+                    paddingLeft: 'var(--space-3)',
+                    maxWidth: '38em',
+                  }}
+                >
+                  {t(onlyStubs ? 'evidence.nudge.stub' : 'evidence.nudge.empty')}
+                </p>
+              )}
 
-            <InterviewHistory sessions={interviewSessions.filter((s) => s.roleId === role.id)} />
+              {shown.length > 0 && (
+                <div className="rec-grid" style={{ marginTop: 'var(--space-4)' }}>
+                  {shown.map((item) => (
+                    <EvidenceRecord
+                      key={item.id}
+                      item={item}
+                      onChange={handleChange}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                className="action"
+                onClick={() => addManual({ type: 'experience', id: role.id }, role.period)}
+                style={{ marginTop: 'var(--space-3)' }}
+              >
+                {t('evidence.addManual')}
+              </button>
+
+              <InterviewHistory sessions={interviewSessions.filter((s) => s.roleId === role.id)} />
+            </div>
           </section>
         )
       })}
+
+      <section id="projects" style={{ marginTop: 'var(--space-10)' }}>
+        <hr className="rule" />
+        <p className="eyebrow" style={{ marginTop: 'var(--space-4)' }}>
+          {t('evidence.projects.eyebrow')}
+        </p>
+        <p
+          style={{
+            marginTop: 'var(--space-3)',
+            color: 'var(--text-muted)',
+            font: 'var(--type-body-sm)',
+            maxWidth: '38em',
+          }}
+        >
+          {t('evidence.projects.lede')}
+        </p>
+
+        {profile.projects.map((project) => {
+          const allProjectEvidence = items.filter(
+            (i) => i.sourceRef.type === 'project' && i.sourceRef.id === project.id,
+          )
+          const projectEvidence = allProjectEvidence.filter(FILTERS[filter])
+          if (filter !== 'all' && projectEvidence.length === 0) return null
+          const start = project.period?.start
+          return (
+            <section
+              key={project.id}
+              id={`project-${project.id}`}
+              style={{ marginTop: 'var(--space-6)' }}
+            >
+              <ProjectHeader
+                project={project}
+                recordCount={allProjectEvidence.length}
+                quantified={allProjectEvidence.filter((i) => i.metrics.length > 0).length}
+              />
+
+              {projectEvidence.length > 0 && (
+                <div className="rec-grid" style={{ marginTop: 'var(--space-4)' }}>
+                  {projectEvidence.map((item) => (
+                    <EvidenceRecord
+                      key={item.id}
+                      item={item}
+                      onChange={handleChange}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {start ? (
+                <button
+                  type="button"
+                  className="action"
+                  onClick={() =>
+                    addManual(
+                      { type: 'project', id: project.id },
+                      { start, ...(project.period?.end ? { end: project.period.end } : {}) },
+                    )
+                  }
+                  style={{ marginTop: 'var(--space-3)' }}
+                >
+                  {t('evidence.addManual')}
+                </button>
+              ) : (
+                // A record needs a period, and inventing one is the one thing
+                // this app does not do — so the dates come first.
+                <p
+                  style={{
+                    marginTop: 'var(--space-3)',
+                    color: 'var(--text-muted)',
+                    font: 'var(--type-body-sm)',
+                  }}
+                >
+                  {t('evidence.project.undated')}
+                </p>
+              )}
+            </section>
+          )
+        })}
+
+        <AddProject />
+      </section>
 
       {(() => {
         // A re-imported CV can drop a role; records recorded under it survive
@@ -272,8 +460,10 @@ export function EvidenceEditor({
         // show them so they can be kept, edited, or deleted.
         const orphans = items.filter(
           (i) =>
-            i.sourceRef.type === 'experience' &&
-            !profile.experience.some((r) => r.id === i.sourceRef.id),
+            (i.sourceRef.type === 'experience' &&
+              !profile.experience.some((r) => r.id === i.sourceRef.id)) ||
+            (i.sourceRef.type === 'project' &&
+              !profile.projects.some((p) => p.id === i.sourceRef.id)),
         )
         if (orphans.length === 0) return null
         return (
@@ -310,7 +500,7 @@ export function EvidenceEditor({
 
       {undoable && (
         <UndoBar
-          label={t('undo.deleted', { id: undoable.item.id })}
+          label={t('undo.deleted')}
           onUndo={handleUndo}
           onDismiss={() => setUndoable(null)}
         />

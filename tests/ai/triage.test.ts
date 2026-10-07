@@ -42,7 +42,6 @@ describe('runTriage', () => {
       company: 'Acme',
       jobTitle: 'Engineer',
       language: 'en',
-      companyTone: '',
       requirements: [
         {
           id: 'req_1',
@@ -71,7 +70,6 @@ describe('runTriage', () => {
       company: 'Acme',
       jobTitle: 'Engineer',
       language: 'en',
-      companyTone: '',
       requirements: [
         {
           id: 'req_1',
@@ -140,7 +138,6 @@ describe('runTriage', () => {
       company: 'A',
       jobTitle: 'B',
       language: 'en',
-      companyTone: '',
       requirements: [],
     })
     mapMock.mockResolvedValue([])

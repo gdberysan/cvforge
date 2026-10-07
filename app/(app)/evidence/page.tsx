@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { AddRole } from '@/components/evidence/AddRole'
 import { EvidenceEditor } from '@/components/evidence/EvidenceEditor'
-import { Rail, type RoleIndexItem } from '@/components/evidence/Rail'
+import { type ProjectIndexItem, Rail, type RoleIndexItem } from '@/components/evidence/Rail'
 import { db } from '@/lib/db/client'
 import { listEvidence } from '@/lib/db/queries/evidence'
 import { listInterviewSessions } from '@/lib/db/queries/interview-sessions'
@@ -38,8 +38,16 @@ export default async function EvidencePage() {
     ...roleHealth(evidence, role.id),
   }))
 
+  const projects: ProjectIndexItem[] = profile.projects.map((project) => ({
+    id: project.id,
+    name: project.name,
+    recordCount: evidence.filter(
+      (e) => e.sourceRef.type === 'project' && e.sourceRef.id === project.id,
+    ).length,
+  }))
+
   return (
-    <main className="page">
+    <main id="main" tabIndex={-1} className="page">
       <div
         style={{
           display: 'flex',
@@ -56,7 +64,7 @@ export default async function EvidencePage() {
         </Link>
       </div>
       <div className="work-shell" style={{ marginTop: 'var(--space-4)' }}>
-        <Rail strength={strength} roles={roles} t={t} />
+        <Rail strength={strength} roles={roles} projects={projects} t={t} />
         <div className="work">
           <EvidenceEditor
             profile={profile}
