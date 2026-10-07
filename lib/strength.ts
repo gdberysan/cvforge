@@ -43,6 +43,7 @@ export type SuggestionId =
   | 'summary-empty'
   | 'no-experience'
   | 'role-without-evidence'
+  | 'role-only-stubs'
   | 'metrics-missing'
   | 'tags-missing'
   | 'skills-empty'
@@ -105,9 +106,13 @@ export function computeProfileStrength(
   // Each conditional slice is awarded only when its antecedent set is
   // non-empty. "Every role has evidence" is vacuously true of zero roles,
   // and a gauge that starts over half full with no data is a vanity meter.
+  //
+  // "Has evidence" means what roleHealth means by it: a role holding only
+  // the CV's own lines (import stubs) is the role the editor flags amber as
+  // unable to carry a CV, so the meter must not credit it either. The two
+  // used to disagree, and the gauge read full over a role it called empty.
   const rolesWithoutEvidence = profile.experience.filter(
-    (role) =>
-      !evidence.some((e) => e.sourceRef.type === 'experience' && e.sourceRef.id === role.id),
+    (role) => roleHealth(evidence, role.id).needsExpanding,
   )
   if (profile.experience.length > 0 && rolesWithoutEvidence.length === 0) {
     earned.evidencePerRole = true
@@ -115,7 +120,10 @@ export function computeProfileStrength(
   } else {
     for (const role of rolesWithoutEvidence) {
       suggestions.push({
-        id: 'role-without-evidence',
+        id:
+          roleHealth(evidence, role.id).recordCount === 0
+            ? 'role-without-evidence'
+            : 'role-only-stubs',
         severity: 'high',
         targetId: role.id,
         params: { company: role.company },

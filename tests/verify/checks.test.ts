@@ -60,6 +60,7 @@ function cv(bullets: CVContent['experience'][number]['bullets']): CVContent {
         bullets,
       },
     ],
+    projects: [],
     education: [],
     skills: [],
     extras: [],
@@ -455,5 +456,78 @@ describe('uncited bullets reach the report', () => {
     })
     expect(report.uncitedBullets).toEqual(['b1'])
     expect(report.passed).toBe(false)
+  })
+})
+
+describe('project attribution', () => {
+  const projectEvidence: EvidenceItem = {
+    id: 'ev_p1',
+    kind: 'project-highlight',
+    sourceRef: { type: 'project', id: 'proj_1' },
+    text: 'Built Shelf Tracker, a stock reporting tool for small shops',
+    metrics: [],
+    tags: [],
+    period: { start: '2024-03' },
+    strength: 'core',
+    origin: 'manual',
+  }
+  const all = [...evidence, projectEvidence]
+  const selectedBoth = new Set(['ev_1', 'ev_p1'])
+  const bullet = (citedEvidenceIds: string[]) => ({
+    id: 'b1',
+    text: 'Built a reporting tool for paid media teams',
+    citedEvidenceIds,
+    keywordsUsed: [],
+  })
+
+  it('refuses self-built work printed under an employer', () => {
+    // The invented-employer lie by another route: the project is real, the
+    // company it would appear to have been done at is not where it happened.
+    const report = runDeterministicChecks({
+      cv: cv([bullet(['ev_p1'])]),
+      evidence: all,
+      profile,
+      selectedEvidenceIds: selectedBoth,
+    })
+    expect(report.invalidCitations).toEqual([{ bulletId: 'b1', evidenceId: 'ev_p1' }])
+    expect(report.passed).toBe(false)
+  })
+
+  it('accepts project evidence under its own project', () => {
+    const report = runDeterministicChecks({
+      cv: {
+        ...cv([]),
+        projects: [{ projectId: 'proj_1', name: 'Shelf Tracker', bullets: [bullet(['ev_p1'])] }],
+      },
+      evidence: all,
+      profile,
+      selectedEvidenceIds: selectedBoth,
+    })
+    expect(report.passed).toBe(true)
+  })
+
+  it('refuses role evidence under a project, and runs every rule on project bullets', () => {
+    const report = runDeterministicChecks({
+      cv: {
+        ...cv([]),
+        projects: [
+          {
+            projectId: 'proj_1',
+            name: 'Shelf Tracker',
+            bullets: [
+              { ...bullet(['ev_1']), id: 'b1' },
+              { ...bullet(['ev_p1']), id: 'b2', text: 'Raised ROAS 40% with it' },
+              { ...bullet([]), id: 'b3' },
+            ],
+          },
+        ],
+      },
+      evidence: all,
+      profile,
+      selectedEvidenceIds: selectedBoth,
+    })
+    expect(report.invalidCitations).toEqual([{ bulletId: 'b1', evidenceId: 'ev_1' }])
+    expect(report.unverifiedNumbers[0]).toMatchObject({ bulletId: 'b2', token: '40%' })
+    expect(report.uncitedBullets).toEqual(['b3'])
   })
 })

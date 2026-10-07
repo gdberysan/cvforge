@@ -9,6 +9,7 @@ import { loadSeed, SeedSchema } from '@/lib/demo/seed'
 import { recordApiCall } from './queries/spend'
 import { swapDatabaseFile } from './restore'
 import * as schema from './schema'
+import { DatabaseTooNewError, isNewerThanThisBuild } from './schema-version'
 
 export type Db = BetterSQLite3Database<typeof schema>
 
@@ -60,7 +61,14 @@ function connect(): Db {
     loadSeed(handle, seed)
     return handle
   }
-  const { db: handle } = openDb(DB_PATH)
+  const { db: handle, close } = openDb(DB_PATH)
+  // An older build opened on a newer install's datos/ (a downgrade, or a
+  // copied folder) would run with migrations it has never seen: refuse
+  // with a sentence instead of failing later on the first unreadable row.
+  if (isNewerThanThisBuild(handle.$client)) {
+    close()
+    throw new DatabaseTooNewError()
+  }
   runMigrations(handle)
   return handle
 }

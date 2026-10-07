@@ -1,9 +1,13 @@
 import Link from 'next/link'
 import { Meter } from '@/components/ui/Meter'
+import { ScoreChange } from '@/components/ui/ScoreChange'
 import type { MessageKey, Translate } from '@/lib/i18n'
 import type { ProfileStrength, Suggestion } from '@/lib/strength'
 
 /**
+ * In-page jumps are plain anchors, not <Link>: Link navigates with
+ * pushState, which fires no hashchange, so a collapsed role never opened.
+ *
  * The evidence page's left rail: the strength score, an index of roles with
  * their health at a glance, and the specific fixes that would raise the
  * score. Navigation plus diagnosis — the records themselves stay in the work
@@ -24,12 +28,12 @@ export type RoleIndexItem = {
 // warning tier (§10.3). Mid-severity is steel; low is quiet but still there.
 const SEVERITY_COLOR = {
   high: 'var(--signal-error)',
-  medium: 'var(--graphite-200)',
+  medium: 'var(--tone-partial)',
   low: 'var(--text-faint)',
 } as const
 
 /** The scorer names the reason; the dictionary supplies the sentence. */
-function say(t: Translate, s: Suggestion): string {
+export function say(t: Translate, s: Suggestion): string {
   const base = `strength.${s.id}`
   if (!s.countable) return t(base as MessageKey, s.params)
   const n = Number(s.params?.n ?? 0)
@@ -47,13 +51,17 @@ const card = {
   borderRadius: 'var(--radius-lg)',
 } as const
 
+export type ProjectIndexItem = { id: string; name: string; recordCount: number }
+
 export function Rail({
   strength,
   roles,
+  projects = [],
   t,
 }: {
   strength: ProfileStrength
   roles: RoleIndexItem[]
+  projects?: ProjectIndexItem[]
   t: Translate
 }) {
   return (
@@ -65,7 +73,7 @@ export function Rail({
         <p className="eyebrow">{t('strength.eyebrow')}</p>
         <p style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)', margin: 0 }}>
           <span className="datum" style={{ fontSize: 39, lineHeight: 1, fontWeight: 500 }}>
-            {strength.score}
+            <ScoreChange value={strength.score} />
           </span>
           <span className="fact" style={{ color: 'var(--text-faint)' }}>
             /100
@@ -110,7 +118,7 @@ export function Rail({
           {t('evidence.rail.roles')}
         </p>
         {roles.map((r) => (
-          <Link
+          <a
             key={r.id}
             href={`#role-${r.id}`}
             className="railitem"
@@ -153,8 +161,50 @@ export function Rail({
             >
               {r.recordCount === 0 ? t('evidence.rail.empty') : r.recordCount}
             </span>
-          </Link>
+          </a>
         ))}
+        <p className="eyebrow" style={{ padding: 'var(--space-3) var(--space-4) var(--space-2)' }}>
+          {t('evidence.rail.projects')}
+        </p>
+        {projects.map((p) => (
+          <a
+            key={p.id}
+            href={`#project-${p.id}`}
+            className="railitem"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1fr) auto',
+              gap: 'var(--space-3)',
+              alignItems: 'baseline',
+              padding: 'var(--space-2) var(--space-3) var(--space-2) var(--space-4)',
+              color: 'inherit',
+            }}
+          >
+            <span
+              style={{
+                font: 'var(--type-body-sm)',
+                color: 'var(--text-strong)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {p.name}
+            </span>
+            <span className="fact" style={{ fontSize: 12, color: 'var(--text-faint)' }}>
+              {p.recordCount === 0 ? t('evidence.rail.empty') : p.recordCount}
+            </span>
+          </a>
+        ))}
+        {/* Always reachable from the rail, so self-built work is never
+            filed under an employer for want of a place to put it. */}
+        <a
+          href="#projects"
+          className="action"
+          style={{ display: 'block', padding: 'var(--space-2) var(--space-4) 0', fontSize: 13 }}
+        >
+          {t('evidence.addProject')}
+        </a>
       </nav>
 
       <div style={{ ...card, padding: 'var(--space-5)', display: 'grid', gap: 'var(--space-3)' }}>

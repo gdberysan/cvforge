@@ -17,7 +17,6 @@ export type TriageResult = {
   company: string
   jobTitle: string
   language: 'en' | 'es-MX'
-  companyTone: string
   requirements: Requirement[]
   mappings: EvidenceMapping[]
   coverage: Coverage
@@ -33,6 +32,8 @@ export async function runRemap(args: {
   profile: MasterProfile
   evidence: EvidenceItem[]
   onProgress?: (stage: TriageStage, detail?: string) => void
+  /** Language of the rationales; Spanish, the product's first language, when unsaid. */
+  rationaleLanguage?: 'en' | 'es'
 }): Promise<{ mappings: EvidenceMapping[]; coverage: Coverage }> {
   args.onProgress?.(
     'mapping',
@@ -45,6 +46,7 @@ export async function runRemap(args: {
     // languages) — a posting that requires a certification the person holds
     // must be able to map to it.
     validEvidenceIds: citableIds(args.profile, args.evidence),
+    rationaleLanguage: args.rationaleLanguage ?? 'es',
   })
 
   // Computed here, never taken from the model.
@@ -60,6 +62,7 @@ export async function runTriage(args: {
   profile: MasterProfile
   evidence: EvidenceItem[]
   onProgress?: (stage: TriageStage, detail?: string) => void
+  rationaleLanguage?: 'en' | 'es'
 }): Promise<TriageResult> {
   args.onProgress?.('extracting')
   const extracted = await extractRequirements(args.postingText)
@@ -69,13 +72,13 @@ export async function runTriage(args: {
     profile: args.profile,
     evidence: args.evidence,
     onProgress: args.onProgress,
+    rationaleLanguage: args.rationaleLanguage,
   })
 
   return {
     company: extracted.company,
     jobTitle: extracted.jobTitle,
     language: extracted.language,
-    companyTone: extracted.companyTone,
     requirements: extracted.requirements,
     mappings,
     coverage,

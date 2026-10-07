@@ -109,4 +109,42 @@ describe('reconcileImport', () => {
     const out = reconcileImport([], parsed)
     expect(out).toEqual(parsed)
   })
+
+  it('gives the original id to the stint with the identical start, whatever the import order', () => {
+    // Backlog #7: one greedy pass let a later, merely overlapping stint take
+    // the original role's id because it came first in the new CV.
+    const existing = [role('exp_1', 'Tiendamax', '2016-01', '2019-06')]
+    const parsed = parsedWith(
+      [
+        role('exp_1', 'Tiendamax', '2018-01', '2019-06'),
+        role('exp_2', 'Tiendamax', '2016-01', '2017-12'),
+      ],
+      [stub('ev_later', 'exp_1'), stub('ev_original', 'exp_2')],
+    )
+    const out = reconcileImport(existing, parsed)
+    const original = out.profile.experience.find((r) => r.period.start === '2016-01')
+    const later = out.profile.experience.find((r) => r.period.start === '2018-01')
+    expect(original?.id).toBe('exp_1')
+    expect(later?.id).not.toBe('exp_1')
+    expect(out.evidence.find((e) => e.id === 'ev_original')?.sourceRef.id).toBe('exp_1')
+    expect(out.evidence.find((e) => e.id === 'ev_later')?.sourceRef.id).toBe(later?.id)
+  })
+
+  it.each([
+    ['Tiendamax S.A. de C.V.', 'Tiendamax'],
+    ['Tiendamax, S.A.P.I. de C.V.', 'TIENDAMAX'],
+    ['Tiendamax S. de R.L. de C.V.', 'Tiendamax S.A.'],
+    ['Tiendamax Inc.', 'Tiendamax, LLC'],
+    ['Tiendamáx GmbH', 'Tiendamax'],
+  ])('treats "%s" and "%s" as one company', (a, b) => {
+    const existing = [role('exp_1', a, '2016-01', '2018-06')]
+    const out = reconcileImport(existing, parsedWith([role('exp_9', b, '2016-01')], []))
+    expect(out.profile.experience[0].id).toBe('exp_1')
+  })
+
+  it('never strips a name down to nothing — "Inc." alone is still a company', () => {
+    const existing = [role('exp_1', 'Inc.', '2016-01', '2018-06')]
+    const out = reconcileImport(existing, parsedWith([role('exp_9', 'Acme Inc.', '2016-01')], []))
+    expect(out.profile.experience[0].id).not.toBe('exp_1')
+  })
 })

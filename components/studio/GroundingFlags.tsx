@@ -16,7 +16,22 @@ import type { GroundingReport } from '@/lib/schemas'
  * view, only struck through, because a claim you dismissed and then forgot
  * about is worse than one you keep seeing.
  */
-export function GroundingFlags({ report }: { report: GroundingReport }) {
+/** The opening words of a flagged line, so you know which one to look at. */
+function snippet(text: string | undefined): string | null {
+  if (!text) return null
+  const clean = text.replace(/\s+/g, ' ').trim()
+  return clean.length > 72 ? `“${clean.slice(0, 70).trimEnd()}…”` : `“${clean}”`
+}
+
+export function GroundingFlags({
+  report,
+  textOf = {},
+}: {
+  report: GroundingReport
+  /** Bullet or paragraph id → its text. A flag names the line it is about,
+   *  not an internal id like "b5" that the reader cannot see anywhere. */
+  textOf?: Record<string, string>
+}) {
   const t = useT()
   const [reviewed, setReviewed] = useState<Set<string>>(new Set())
 
@@ -103,10 +118,11 @@ export function GroundingFlags({ report }: { report: GroundingReport }) {
           return (
             <li key={f.key} style={{ marginBottom: 'var(--space-1)' }}>
               <span
-                className="ident"
+                className={snippet(textOf[f.id]) ? 'flag-quote' : 'ident'}
+                title={f.id}
                 style={{ textDecoration: isReviewed ? 'line-through' : 'none' }}
               >
-                {f.id}
+                {snippet(textOf[f.id]) ?? f.id}
               </span>{' '}
               <span style={{ textDecoration: isReviewed ? 'line-through' : 'none' }}>{f.text}</span>{' '}
               <button

@@ -15,6 +15,8 @@ export function runCompanionChecks(args: {
   evidence: EvidenceItem[]
   profile: MasterProfile
   selectedEvidenceIds: Set<string>
+  /** Mapped credential id → its line; a valid citation, though not an evidence record. */
+  selectedCredentials: Map<string, string>
   postingVocabulary?: Set<string>
 }): GroundingReport {
   const report: GroundingReport = {
@@ -35,7 +37,13 @@ export function runCompanionChecks(args: {
 
   for (const paragraph of args.paragraphs) {
     const citedItems: EvidenceItem[] = []
+    const citedCredentials: string[] = []
     for (const id of paragraph.citedEvidenceIds) {
+      const credential = args.selectedCredentials.get(id)
+      if (credential !== undefined) {
+        citedCredentials.push(credential)
+        continue
+      }
       const item = evidenceById.get(id)
       if (!item || !args.selectedEvidenceIds.has(id)) {
         report.invalidCitations.push({ bulletId: paragraph.id, evidenceId: id })
@@ -48,6 +56,11 @@ export function runCompanionChecks(args: {
     // invented $80k pass against a recorded $180k. One shared definition
     // with the CV checker so the two can never drift apart again.
     const allowed = allowedQuantityForms(citedItems)
+    // A credential line has no metrics, but a figure printed on it is still
+    // its own fact ("TOEFL 110" is not, "Score 95%" would be).
+    for (const line of citedCredentials) {
+      for (const token of extractQuantities(line)) allowed.add(normaliseQuantity(token))
+    }
     for (const token of extractQuantities(paragraph.text)) {
       if (!allowed.has(normaliseQuantity(token))) {
         report.unverifiedNumbers.push({ bulletId: paragraph.id, token })
@@ -60,6 +73,7 @@ export function runCompanionChecks(args: {
       const lower = entity.toLowerCase()
       if (entityIndex.has(lower) || posting.has(lower)) continue
       if (citedItems.some((item) => item.text.toLowerCase().includes(lower))) continue
+      if (citedCredentials.some((line) => line.toLowerCase().includes(lower))) continue
       report.unknownEntities.push({ bulletId: paragraph.id, entity })
     }
   }

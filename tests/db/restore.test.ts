@@ -7,6 +7,7 @@ import { createBackup, validateBackup } from '@/lib/db/backup'
 import { openDb, runMigrations } from '@/lib/db/client'
 import { saveProfile } from '@/lib/db/queries/profile'
 import { DatabaseInUseError, swapDatabaseFile } from '@/lib/db/restore'
+import { isNewerThanThisBuild, newestKnownMigration } from '@/lib/db/schema-version'
 
 const profile = {
   basics: {
@@ -112,5 +113,53 @@ describe('swapDatabaseFile', () => {
     expect(existsSync(`${target}-wal`)).toBe(false)
     expect(existsSync(`${target}-shm`)).toBe(false)
     rmSync(dir, { recursive: true, force: true })
+  })
+})
+
+describe('backup version', () => {
+  async function stampedBackup(extraMigrationAt: number): Promise<Buffer> {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cvforge-'))
+    const { db, close } = openDb(path.join(dir, 'test.db'))
+    try {
+      runMigrations(db)
+      saveProfile(db, profile)
+      // What a future build's migration leaves behind.
+      db.$client
+        .prepare('insert into __drizzle_migrations (hash, created_at) values (?, ?)')
+        .run('future', extraMigrationAt)
+      return await createBackup(db)
+    } finally {
+      close()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  }
+
+  it('refuses a backup made by a newer CVForge — this build would misread its rows', async () => {
+    const future = newestKnownMigration() + 1
+    expect(validateBackup(await stampedBackup(future))).toEqual({
+      ok: false,
+      error: 'backup-too-new',
+    })
+  })
+
+  it('accepts a backup at or below this build — older ones migrate forward', async () => {
+    expect(validateBackup(await stampedBackup(1))).toEqual({ ok: true })
+  })
+
+  it('an older build refuses to open a newer database instead of misreading it', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cvforge-'))
+    const file = path.join(dir, 'test.db')
+    try {
+      const { db, close } = openDb(file)
+      runMigrations(db)
+      expect(isNewerThanThisBuild(db.$client)).toBe(false)
+      db.$client
+        .prepare('insert into __drizzle_migrations (hash, created_at) values (?, ?)')
+        .run('future', newestKnownMigration() + 1)
+      expect(isNewerThanThisBuild(db.$client)).toBe(true)
+      close()
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

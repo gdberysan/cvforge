@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { OutcomeButtons } from '@/components/pipeline/OutcomeButtons'
 import { TriageConsole } from '@/components/triage/TriageConsole'
 import { Meter } from '@/components/ui/Meter'
+import { attentionWhy } from '@/lib/attention-copy'
 import { VERDICT_COLOR } from '@/lib/coverage'
 import { db } from '@/lib/db/client'
 import {
@@ -14,13 +15,7 @@ import { isDemo } from '@/lib/demo/mode'
 import { demoPostings } from '@/lib/demo/postings'
 import { plural, type Translate } from '@/lib/i18n'
 import { getTranslate } from '@/lib/i18n/server'
-import {
-  attentionApplications,
-  bandPerformance,
-  daysBetween,
-  toStatApp,
-  velocity,
-} from '@/lib/stats'
+import { attentionApplications, daysBetween, toStatApp } from '@/lib/stats'
 
 /**
  * Read from SQLite on every request. Prerendering this at build time would
@@ -60,15 +55,16 @@ export default async function PipelinePage({
 
   // The stats strip: arithmetic over the user's own outcomes, n always shown.
   const statApps = listFullApplications(db).map(toStatApp)
-  const pace = velocity(statApps, now)
-  const bands = Object.values(bandPerformance(statApps))
-  const applied = bands.reduce((sum, b) => sum + b.applied, 0)
-  const responded = bands.reduce((sum, b) => sum + b.responded, 0)
   const skippedCount = showingSkipped
     ? applications.length
     : listApplications(db, { archived: true }).length
+  // Still open only: a closed application is not something to pursue, and
+  // counting them headlined "15 worth pursuing" over 20 closed rows.
   const worthPursuing = applications.filter(
-    (a) => a.verdict === 'strong' || a.verdict === 'worth-it',
+    (a) =>
+      (a.verdict === 'strong' || a.verdict === 'worth-it') &&
+      a.status !== 'closed' &&
+      a.status !== 'archived',
   ).length
 
   // "Piden algo de ti": one shared definition (lib/stats) with the home
@@ -76,9 +72,7 @@ export default async function PipelinePage({
   // deliberate visit to the rest of the list.
   const filtering = Boolean(needle || status)
   const attentionItems = showingSkipped || filtering ? [] : attentionApplications(statApps, now)
-  const staleDays = new Map(
-    attentionItems.filter((i) => i.reason === 'stale').map((i) => [i.id, i.daysSinceApplied ?? 0]),
-  )
+  const itemOf = new Map(attentionItems.map((i) => [i.id, i]))
   const attention = attentionItems
     .map((i) => all.find((a) => a.id === i.id))
     .filter((a): a is ApplicationSummary => Boolean(a))
@@ -103,6 +97,8 @@ export default async function PipelinePage({
     // The intro and paste box keep a working measure; the row cards below use
     // the full frame, where the coverage meter earns its column.
     <main
+      id="main"
+      tabIndex={-1}
       style={{
         padding: 'var(--space-8) clamp(20px, 5vw, 64px) var(--space-10)',
         maxWidth: 'var(--container-xl)',
@@ -157,23 +153,17 @@ export default async function PipelinePage({
       ) : (
         <>
           <div style={{ maxWidth: 900 }}>
-            <p className="fact" style={{ marginTop: 'var(--space-4)', color: 'var(--text-muted)' }}>
-              {plural(t, pace.appliedThisWeek, 'stats.appliedWeek')}
-              {'  ·  '}
-              {pace.medianResponseDays !== null
-                ? t('stats.median', { n: pace.medianResponseDays })
-                : t('stats.noMedian')}
-              {'  ·  '}
-              {applied >= 5
-                ? t('stats.responseRate', { r: responded, a: applied })
-                : t('stats.notEnough', { n: applied })}
+            {/* The paste box lives on Hoy, and the pace figures on Números: this
+                page is the list. One line points to each instead of repeating them. */}
+            <p className="lede-sm" style={{ marginTop: 'var(--space-4)' }}>
+              <Link href="/" className="action">
+                {t('pipeline.analyseLink')}
+              </Link>
               {'  ·  '}
               <Link href="/stats" className="action">
                 {t('pipeline.statsLink')}
               </Link>
             </p>
-
-            {intake}
 
             <form
               method="get"
@@ -214,19 +204,15 @@ export default async function PipelinePage({
               borderBottom: '1px solid var(--border-subtle)',
             }}
           >
-            <span
-              className="fact"
-              style={{ color: 'var(--text-faint)', marginRight: 'var(--space-2)' }}
-            >
-              {t('pipeline.statusFilter').toLowerCase()}
-            </span>
             <StatusTab
               label={t('pipeline.allTab')}
               count={all.length}
               active={!status}
               href={tabHref(undefined, q)}
             />
-            {STATUS_TABS.map((v) => (
+            {/* A filter with nothing behind it is noise ("oferta 0"); it appears
+                once something reaches that status, or while it is selected. */}
+            {STATUS_TABS.filter((v) => v === status || all.some((a) => a.status === v)).map((v) => (
               <StatusTab
                 key={v}
                 label={t(`status.${v}`)}
@@ -263,7 +249,7 @@ export default async function PipelinePage({
                 }}
               >
                 {attention.map((a) => {
-                  const days = staleDays.get(a.id)
+                  const item = itemOf.get(a.id)
                   return (
                     <RowCard
                       key={a.id}
@@ -271,10 +257,8 @@ export default async function PipelinePage({
                       t={t}
                       now={now}
                       accent
-                      why={
-                        days !== undefined ? t('today.staleDays', { n: days }) : t('today.unsent')
-                      }
-                      extraActions={days !== undefined ? ['ghosted'] : []}
+                      why={item ? attentionWhy(t, item) : undefined}
+                      extraActions={item?.reason === 'stale' ? ['ghosted'] : []}
                     />
                   )
                 })}
@@ -407,33 +391,43 @@ function RowCard({
             >
               {a.jobTitle}
             </Link>
-            <span style={{ color: 'var(--text-muted)' }}> · {a.company}</span>
+            {/* A posting from an agency often names no employer: no dangling separator. */}
+            {a.company.trim() && <span style={{ color: 'var(--text-muted)' }}> · {a.company}</span>}
           </p>
           {why ? (
-            <p className="fact" style={{ color: 'var(--accent)', margin: 0 }}>
+            <p className="why" style={{ color: 'var(--accent)', margin: 0 }}>
               {why}
             </p>
           ) : (
             <p className="fact" style={{ fontSize: 12, color: 'var(--text-faint)', margin: 0 }}>
               {days === 0 ? t('pipeline.agoToday') : t('pipeline.ago', { n: days })}
               {'  ·  '}
-              {a.source}
+              {t(`source.${a.source}`)}
             </p>
           )}
         </div>
         <div style={{ display: 'grid', gap: 'var(--space-2)', minWidth: 0 }}>
+          {/* Each label stays whole: when the pair does not fit side by side
+              they stack, rather than breaking "Vale la / pena" mid-phrase. */}
           <div
             style={{
               display: 'flex',
+              flexWrap: 'wrap',
               alignItems: 'baseline',
               justifyContent: 'space-between',
-              gap: 'var(--space-3)',
+              columnGap: 'var(--space-3)',
             }}
           >
-            <span className="fact" style={{ fontSize: 12, color: VERDICT_COLOR[a.verdict] }}>
+            <span
+              className="fact"
+              style={{ fontSize: 12, color: VERDICT_COLOR[a.verdict], whiteSpace: 'nowrap' }}
+            >
               {t(`verdict.${a.verdict}.label`)}
             </span>
-            <span className="fact" style={{ fontSize: 12, color: 'var(--text-faint)' }}>
+            <span
+              className="fact"
+              style={{ fontSize: 12, color: 'var(--text-faint)', whiteSpace: 'nowrap' }}
+            >
               {t('pipeline.evidenced', { strong: a.mandatoryStrong, total: a.mandatoryTotal })}
             </span>
           </div>

@@ -23,7 +23,17 @@ export async function mapEvidence(args: {
   requirements: Requirement[]
   projection: string
   validEvidenceIds: Set<string>
+  /** The reader's language. Rationales followed the posting's, so a Spanish
+   *  screen showed English explanations under every English posting. */
+  rationaleLanguage?: 'en' | 'es'
 }): Promise<EvidenceMapping[]> {
+  // In the user turn, not the system prompt: the system blocks are cached
+  // byte for byte across every application.
+  const languageLine =
+    args.rationaleLanguage === 'en'
+      ? '\n\nWrite every "rationale" in English.'
+      : '\n\nWrite every "rationale" in Mexican Spanish (es-MX), whatever the language of the requirements; keep tool and skill names as written.'
+
   const requirementBlock = args.requirements
     .map((r) => `${r.id} | ${r.kind} | mandatory=${r.mandatory} | ${r.keyword} — ${r.text}`)
     .join('\n')
@@ -36,7 +46,7 @@ export async function mapEvidence(args: {
         // Cached: byte-identical across every application and every call.
         { text: args.projection, cache: true },
       ],
-      user: `<requirements>\n${requirementBlock}\n</requirements>${extra}`,
+      user: `<requirements>\n${requirementBlock}\n</requirements>${languageLine}${extra}`,
       effort: 'high',
       stage: 'map-evidence',
     })

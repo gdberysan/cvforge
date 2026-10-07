@@ -3,11 +3,13 @@ import { BackupCard } from '@/components/settings/BackupCard'
 import { KeyGuide } from '@/components/settings/KeyGuide'
 import { PdfEngineSetup } from '@/components/settings/PdfEngineSetup'
 import { RestoreCard } from '@/components/settings/RestoreCard'
+import { ThemeSwitch } from '@/components/settings/ThemeSwitch'
 import { UpdateToggle } from '@/components/settings/UpdateToggle'
 import { isDemo } from '@/lib/demo/mode'
 import { getTranslate } from '@/lib/i18n/server'
 import { isPdfEngineAvailable } from '@/lib/render/pdf'
 import { readSettings } from '@/lib/settings'
+import { getTheme } from '@/lib/theme-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +27,7 @@ export default async function SettingsPage() {
   // column, so a wide window is used instead of stacking everything into
   // one narrow strip.
   return (
-    <main className="page">
+    <main id="main" tabIndex={-1} className="page">
       <div className="hero">
         <div className="hero-intro">
           <p className="eyebrow">{t('settings.eyebrow')}</p>
@@ -40,6 +42,7 @@ export default async function SettingsPage() {
           <ApiKeyForm hasSavedKey={hasSavedKey} envManaged={envManaged} />
           <KeyGuide />
           {!pdfReady && <PdfEngineSetup />}
+          <ThemeSwitch current={await getTheme()} />
           <UpdateToggle enabled={readSettings().updateCheck ?? false} />
           <BackupCard />
           <RestoreCard />

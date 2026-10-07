@@ -13,7 +13,7 @@ const VerdictsSchema = z.object({
 
 const SYSTEM = `You check whether a CV bullet overstates its source material.
 
-For each bullet you are given its text and the full text of the evidence it cites. Answer one question: does the bullet assert anything its sources do not support?
+For each bullet you are given its text and the full text of the evidence it cites, including each record's recorded metrics and, for a project record, the project's own line (name, stack, dates) — all of these are the person's recorded facts. Answer one question: does the bullet assert anything its sources do not support?
 
 Mark supported=false when the bullet:
 - inflates scope or ownership ("led" where the source says "contributed to"; "single-handedly" where the source says "with the team")
@@ -36,6 +36,8 @@ export type DistortionVerdict = { bulletId: string; supported: boolean; reason: 
  */
 export async function checkDistortions(
   bullets: { id: string; text: string; sources: string[] }[],
+  /** The reasons are shown to the person under the flagged text, in their language. */
+  reasonLanguage: 'en' | 'es' = 'es',
 ): Promise<DistortionVerdict[]> {
   if (bullets.length === 0) return []
 
@@ -49,7 +51,11 @@ export async function checkDistortions(
   const result = await callStructured({
     schema: VerdictsSchema,
     system: [{ text: SYSTEM, cache: true }],
-    user: `<bullets>\n${payload}\n</bullets>`,
+    user: `<bullets>\n${payload}\n</bullets>\n\n${
+      reasonLanguage === 'en'
+        ? 'Write every "reason" in English.'
+        : 'Write every "reason" in Mexican Spanish (es-MX); quote source wording exactly as written.'
+    }`,
     effort: 'low',
     stage: 'verify-distortion',
   })

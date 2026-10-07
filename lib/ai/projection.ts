@@ -1,5 +1,5 @@
 import { formatSpan } from '@/lib/import/dates'
-import type { EvidenceItem, MasterProfile } from '@/lib/schemas'
+import type { EvidenceItem, MasterProfile, Project } from '@/lib/schemas'
 
 /**
  * A compact, deterministic view of the career for stage ② (map-evidence).
@@ -37,6 +37,7 @@ export function buildEvidenceProjection(profile: MasterProfile, evidence: Eviden
   // a posting that requires a certification, a degree, or a language must be
   // able to map to them. Each carries an id the model can return.
   const credentials = buildCredentialLines(profile)
+  const projects = buildProjectLines(profile)
 
   return [
     '<career>',
@@ -53,6 +54,8 @@ export function buildEvidenceProjection(profile: MasterProfile, evidence: Eviden
     '<roles>',
     ...roles,
     '</roles>',
+    // Omitted when empty, for the same hash-stability reason as credentials.
+    ...(projects.length > 0 ? ['', '<projects>', ...projects, '</projects>'] : []),
     '',
     '<skills>',
     ...skills,
@@ -70,17 +73,64 @@ export function buildEvidenceProjection(profile: MasterProfile, evidence: Eviden
 }
 
 /**
+ * One line per self-built project — the source a project-sourced evidence
+ * record points at, shared by the mapper's projection and the CV composer.
+ */
+export function buildProjectLines(profile: MasterProfile): string[] {
+  return [...profile.projects].sort((a, b) => a.id.localeCompare(b.id)).map(projectLine)
+}
+
+export function projectLine(p: Project): string {
+  return [
+    `${p.id} | ${p.name} (own project, not an employer)`,
+    p.stack.length > 0 ? `stack: ${[...p.stack].sort().join(', ')}` : '',
+    p.period?.start ? formatSpan(p.period, 'present') : '',
+  ]
+    .filter(Boolean)
+    .join(' | ')
+}
+
+/**
+ * Each project record's id → its project's line. A letter must know the
+ * stack the person recorded on the project, or it argues the person out of
+ * a skill they stated ("not a TypeScript codebase" about a TypeScript tool).
+ */
+export function projectSourcesOf(
+  profile: MasterProfile,
+  evidence: EvidenceItem[],
+): Map<string, string> {
+  const lineOf = new Map(profile.projects.map((p) => [p.id, projectLine(p)]))
+  return new Map(
+    evidence.flatMap((e) => {
+      const line = e.sourceRef.type === 'project' ? lineOf.get(e.sourceRef.id) : undefined
+      return line ? [[e.id, line] as [string, string]] : []
+    }),
+  )
+}
+
+/**
  * Certification, education, and language lines citable by id — shared
  * between the evidence-mapping projection and the CV composer, so both
  * ground identically and a fix to one can't silently drift from the other.
  */
 export function buildCredentialLines(profile: MasterProfile): string[] {
-  return [
-    ...profile.certifications.map(
-      (c) =>
-        `${c.id} | certification | ${c.name}${c.issuer ? ` — ${c.issuer}` : ''}${c.date ? ` | ${c.date}` : ''}`,
-    ),
-    ...profile.education.map((e) =>
+  return [...credentialSources(profile).values()].sort()
+}
+
+/**
+ * The same credential lines keyed by their id — the citable text of a source
+ * that is not an evidence record. Companions show and verify a credential
+ * through this, so a letter citing a degree is checked against exactly the
+ * line the mapper saw.
+ */
+export function credentialSources(profile: MasterProfile): Map<string, string> {
+  return new Map([
+    ...profile.certifications.map((c): [string, string] => [
+      c.id,
+      `${c.id} | certification | ${c.name}${c.issuer ? ` — ${c.issuer}` : ''}${c.date ? ` | ${c.date}` : ''}`,
+    ]),
+    ...profile.education.map((e): [string, string] => [
+      e.id,
       // An undated degree drops the date column rather than printing an
       // empty one the composer might fill in.
       [
@@ -89,12 +139,12 @@ export function buildCredentialLines(profile: MasterProfile): string[] {
       ]
         .filter(Boolean)
         .join(' | '),
-    ),
-    ...languageIds(profile.languages).map(
-      (id, i) =>
-        `${id} | language | ${profile.languages[i].language} — ${profile.languages[i].level}`,
-    ),
-  ].sort()
+    ]),
+    ...languageIds(profile.languages).map((id, i): [string, string] => [
+      id,
+      `${id} | language | ${profile.languages[i].language} — ${profile.languages[i].level}`,
+    ]),
+  ])
 }
 
 /** Stable id for a language line: "Inglés" → "lang_ingles". */

@@ -21,14 +21,15 @@ export default async function GapsPage({ params }: { params: Promise<{ id: strin
   }
 
   return (
-    <main className="page page-narrow">
+    <main id="main" tabIndex={-1} className="page page-narrow">
       <p className="eyebrow">{t('gaps.eyebrow')}</p>
       <h1 style={{ font: 'var(--type-h2)', marginTop: 'var(--space-3)' }}>
         {t('gaps.title')}
         {/* Its own line rather than a trailing interpunct: when the heading
             wraps, a leading " · " reads as a stray bullet. */}
         <span style={{ display: 'block', color: 'var(--text-muted)', fontWeight: 400 }}>
-          {application.jobTitle} — {application.company}
+          {application.jobTitle}
+          {application.company.trim() && ` — ${application.company}`}
         </span>
       </h1>
       <p style={{ color: 'var(--text-body)', marginTop: 'var(--space-4)', maxWidth: '38em' }}>

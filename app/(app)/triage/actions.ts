@@ -16,5 +16,17 @@ export async function skipApplicationAction(
   if (isDemo()) return demoBlock()
   setArchived(db, applicationId, true)
   revalidatePath('/pipeline')
+  revalidatePath(`/application/${applicationId}`)
+  return { ok: true as const }
+}
+
+/** The way back from a skip: the row returns with its real derived status. */
+export async function restoreApplicationAction(
+  applicationId: string,
+): Promise<{ ok: true } | { ok: false; error: string; code: string }> {
+  if (isDemo()) return demoBlock()
+  setArchived(db, applicationId, false)
+  revalidatePath('/pipeline')
+  revalidatePath(`/application/${applicationId}`)
   return { ok: true as const }
 }

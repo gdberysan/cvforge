@@ -1,10 +1,12 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
-import { logOutcomeAction } from '@/app/(app)/pipeline/actions'
+import { logOutcomeAction, undoOutcomeAction } from '@/app/(app)/pipeline/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { errorText, type MessageKey } from '@/lib/i18n'
 import type { ApplicationStatus } from '@/lib/schemas'
+import { showToast } from '@/lib/ui/toast'
 
 /**
  * One click, one outcome. The actions offered are the two or three things
@@ -29,6 +31,7 @@ export function OutcomeButtons({
   extra?: string[]
 }) {
   const t = useT()
+  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -39,13 +42,27 @@ export function OutcomeButtons({
     setError(null)
     startTransition(async () => {
       const result = await logOutcomeAction(applicationId, type)
-      if (!result.ok) setError(errorText(t, result.code, result.error))
+      if (!result.ok) {
+        setError(errorText(t, result.code, result.error))
+        return
+      }
+      // Said back, with a way out: a one-click log is also a one-click mistake.
+      showToast(t('outcome.logged', { outcome: t(`outcome.${type}` as MessageKey) }), async () => {
+        await undoOutcomeAction(applicationId, result.outcomeId)
+        router.refresh()
+      })
     })
   }
 
   return (
     <span
-      style={{ display: 'inline-flex', gap: 'var(--space-3)', alignItems: 'baseline' }}
+      // Wraps: four outcomes in one row overflowed a 320px phone.
+      style={{
+        display: 'inline-flex',
+        flexWrap: 'wrap',
+        gap: 'var(--space-3)',
+        alignItems: 'baseline',
+      }}
       aria-live="polite"
     >
       {actions.map((type) => (

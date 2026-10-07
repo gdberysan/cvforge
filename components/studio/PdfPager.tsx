@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import type { PDFDocumentProxy } from 'pdfjs-dist'
+import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 import { useEffect, useRef, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 
@@ -42,26 +42,32 @@ export function PdfPager({
     setDoc(null)
     setPage(1)
     ;(async () => {
-      const pdfjs = await import('pdfjs-dist')
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-        'pdfjs-dist/build/pdf.worker.min.mjs',
-        import.meta.url,
-      ).toString()
-      const res = await fetch(`/api/export/pdf?applicationId=${applicationId}`)
-      if (!res.ok) {
-        // 503 means no PDF engine was found on this machine (checked at
-        // /api/export/pdf) — Download still works because it falls back to
-        // the browser's own print dialog against the same HTML. The preview
-        // has no such fallback: pdf.js needs real PDF bytes, and print-ready
-        // HTML isn't that, so point at the one-click install instead of
-        // showing a bare, unexplained failure.
-        if (!cancelled) setError(res.status === 503 ? 'no-engine' : 'other')
-        return
+      try {
+        const pdfjs = await import('pdfjs-dist')
+        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+          'pdfjs-dist/build/pdf.worker.min.mjs',
+          import.meta.url,
+        ).toString()
+        const res = await fetch(`/api/export/pdf?applicationId=${applicationId}`)
+        if (!res.ok) {
+          // 503 means no PDF engine was found on this machine (checked at
+          // /api/export/pdf) — Download still works because it falls back to
+          // the browser's own print dialog against the same HTML. The preview
+          // has no such fallback: pdf.js needs real PDF bytes, and print-ready
+          // HTML isn't that, so point at the one-click install instead of
+          // showing a bare, unexplained failure.
+          if (!cancelled) setError(res.status === 503 ? 'no-engine' : 'other')
+          return
+        }
+        const bytes = await res.arrayBuffer()
+        const loaded = await pdfjs.getDocument({ data: bytes }).promise
+        if (cancelled) return
+        setDoc(loaded)
+      } catch {
+        // The local server went away, or the bytes were not a PDF: an
+        // unhandled rejection here left the pane on "generating…" forever.
+        if (!cancelled) setError('other')
       }
-      const bytes = await res.arrayBuffer()
-      const loaded = await pdfjs.getDocument({ data: bytes }).promise
-      if (cancelled) return
-      setDoc(loaded)
     })()
     return () => {
       cancelled = true
@@ -71,6 +77,10 @@ export function PdfPager({
   useEffect(() => {
     if (!doc || !canvasRef.current) return
     let cancelled = false
+    // Flipping pages faster than a page paints started a second render on
+    // the same canvas while the first ran — pdf.js refuses that, and the
+    // pane could stay on the stale page. The superseded render is cancelled.
+    let task: RenderTask | null = null
     ;(async () => {
       const pdfPage = await doc.getPage(page)
       if (!pdfPage || cancelled) return
@@ -81,10 +91,14 @@ export function PdfPager({
       canvas.height = viewport.height
       const ctx = canvas.getContext('2d')
       if (!ctx) return
-      await pdfPage.render({ canvasContext: ctx, viewport }).promise
+      task = pdfPage.render({ canvasContext: ctx, viewport })
+      await task.promise.catch((e: unknown) => {
+        if ((e as { name?: string })?.name !== 'RenderingCancelledException') throw e
+      })
     })()
     return () => {
       cancelled = true
+      task?.cancel()
     }
   }, [doc, page])
 

@@ -1,5 +1,8 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { findDenied } from '@/lib/release/scrub'
+import { findDenied, scanTreeForDenied } from '@/lib/release/scrub'
 
 describe('findDenied', () => {
   const files = [
@@ -24,5 +27,30 @@ describe('findDenied', () => {
 
   it('ignores blank lines and very short terms from a sloppy denylist', () => {
     expect(findDenied(files, ['', '  ', 'on'])).toEqual([])
+  })
+})
+
+describe('scanTreeForDenied', () => {
+  it('finds a term in compiled output, skips binaries and the named dirs', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'cvforge-scan-'))
+    try {
+      mkdirSync(path.join(root, '.next', 'server', 'chunks'), { recursive: true })
+      mkdirSync(path.join(root, 'node_modules', 'pkg'), { recursive: true })
+      // The case the source gate could not see: a term that exists only in a
+      // compiled chunk built from the working tree.
+      writeFileSync(
+        path.join(root, '.next', 'server', 'chunks', 'demo.js'),
+        'var n="Zyxwq Persona"',
+      )
+      writeFileSync(path.join(root, 'node_modules', 'pkg', 'index.js'), 'zyxwq')
+      writeFileSync(path.join(root, 'icon.png'), 'zyxwq')
+      const { files, hits } = scanTreeForDenied(root, ['zyxwq'], { skipDirs: ['node_modules'] })
+      expect(files).toBe(1)
+      expect(hits).toEqual([
+        { file: path.join('.next', 'server', 'chunks', 'demo.js'), term: 'zyxwq' },
+      ])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
   })
 })

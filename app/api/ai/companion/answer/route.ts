@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { postingVocabularyOf, verifyDistortions } from '@/lib/ai/distortions'
 import { AiError } from '@/lib/ai/errors'
-import { composeScreeningAnswer } from '@/lib/ai/stages/compose-companion'
+import { projectSourcesOf } from '@/lib/ai/projection'
+import {
+  composeScreeningAnswer,
+  selectCredentialsForComposition,
+} from '@/lib/ai/stages/compose-companion'
 import { selectEvidenceForComposition } from '@/lib/ai/stages/compose-cv'
 import { db } from '@/lib/db/client'
 import { listAnswers, upsertAnswer } from '@/lib/db/queries/answers'
@@ -10,6 +14,7 @@ import { getApplication, mergeDocuments } from '@/lib/db/queries/applications'
 import { listEvidence } from '@/lib/db/queries/evidence'
 import { getProfile } from '@/lib/db/queries/profile'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
+import { getLocale } from '@/lib/i18n/server'
 import { type ScreeningSet, ScreeningSetSchema } from '@/lib/schemas'
 import { runCompanionChecks } from '@/lib/verify/companion'
 
@@ -69,6 +74,7 @@ export async function POST(request: Request) {
     const selectedIds = new Set(
       selectEvidenceForComposition(application.mappings, evidence).map((e) => e.id),
     )
+    const selectedCredentials = selectCredentialsForComposition(application.mappings, profile)
     const postingVocabulary = postingVocabularyOf(application.requirements)
     const report = runCompanionChecks({
       paragraphs: [
@@ -77,6 +83,7 @@ export async function POST(request: Request) {
       evidence,
       profile,
       selectedEvidenceIds: selectedIds,
+      selectedCredentials,
       postingVocabulary,
     })
 
@@ -85,6 +92,8 @@ export async function POST(request: Request) {
     report.distortions = await verifyDistortions(
       [{ id: composed.id, text: composed.answer, citedEvidenceIds: composed.citedEvidenceIds }],
       evidence,
+      new Map([...selectedCredentials, ...projectSourcesOf(profile, evidence)]),
+      await getLocale(),
     )
     report.passed = report.passed && report.distortions.length === 0
 

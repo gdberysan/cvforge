@@ -26,6 +26,7 @@ const content: CVContent = {
       ],
     },
   ],
+  projects: [],
   education: [{ degree: 'BA International Business', institution: 'UNAM', period: '2010 – 2014' }],
   skills: [{ category: 'Languages', items: ['TypeScript', 'Python'] }],
   extras: [],
@@ -56,5 +57,41 @@ describe('renderPlaintext', () => {
     const text = renderPlaintext(content, { language: 'en' })
     expect(text).toContain('Jan 2016 – Jun 2018')
     expect(text).not.toContain('2016-01')
+  })
+})
+
+describe('projects section', () => {
+  const bullet = {
+    id: 'b9',
+    text: 'Built a reporting tool',
+    citedEvidenceIds: ['ev_p'],
+    keywordsUsed: [],
+  }
+
+  it('prints projects after experience, with the link and no invented dates', () => {
+    const text = renderPlaintext(
+      {
+        ...content,
+        projects: [
+          {
+            projectId: 'proj_1',
+            name: 'Shelf Tracker',
+            url: 'github.com/example/shelf',
+            startDate: '2024-03',
+            bullets: [bullet],
+          },
+          { projectId: 'proj_2', name: 'Undated tool', bullets: [bullet] },
+        ],
+      },
+      { language: 'es-MX' },
+    )
+    expect(text).toContain('PROYECTOS')
+    expect(text.indexOf('PROYECTOS')).toBeGreaterThan(text.indexOf('EXPERIENCIA'))
+    expect(text).toContain('Shelf Tracker — github.com/example/shelf  (mar 2024 – actualidad)')
+    expect(text).toMatch(/^Undated tool$/m)
+  })
+
+  it('prints no projects heading when there are none', () => {
+    expect(renderPlaintext(content, { language: 'en' })).not.toContain('PROJECTS')
   })
 })

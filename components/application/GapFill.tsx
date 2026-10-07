@@ -116,7 +116,7 @@ export function GapFill({
       // The pre-remap snapshot rides back to the application page, which
       // renders the delta against freshly loaded data.
       const before = encodeURIComponent(JSON.stringify(result.before))
-      router.push(`/application/${applicationId}?gapdelta=${before}`)
+      router.push(`/application/${applicationId}?step=gaps&gapdelta=${before}`)
     })
   }
 

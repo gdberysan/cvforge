@@ -20,6 +20,7 @@ export function GapEntry({
   requirements,
   mappings,
   gapdelta,
+  showLink = true,
 }: {
   t: Translate
   applicationId: string
@@ -28,13 +29,15 @@ export function GapEntry({
   mappings: EvidenceMapping[]
   /** The pre-remap snapshot, URL-encoded by GapFill. Untrusted. */
   gapdelta?: string
+  /** Off on the gaps step itself, where the form is already on screen. */
+  showLink?: boolean
 }) {
   const selection = selectGaps(requirements, mappings)
   const delta = parseSnapshot(gapdelta)
 
   return (
     <>
-      {(selection.primary.length > 0 || selection.secondary.length > 0) && (
+      {showLink && (selection.primary.length > 0 || selection.secondary.length > 0) && (
         <p className="fact" style={{ marginTop: 'var(--space-5)', maxWidth: '38em' }}>
           {/* Counting only the unmet mandatory requirements would announce
               "0 required things have nothing behind them" above a link to five

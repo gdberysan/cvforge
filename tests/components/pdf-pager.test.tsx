@@ -10,6 +10,13 @@ beforeEach(() => {
   HTMLCanvasElement.prototype.getContext = vi.fn(() => ({})) as never
 })
 
+// The first paint never settles on its own: a page flip must cancel it.
+const cancelFirst = vi.fn()
+const renderPage = vi
+  .fn()
+  .mockImplementationOnce(() => ({ promise: new Promise(() => {}), cancel: cancelFirst }))
+  .mockImplementation(() => ({ promise: Promise.resolve(), cancel: vi.fn() }))
+
 vi.mock('pdfjs-dist', () => ({
   GlobalWorkerOptions: {},
   getDocument: () => ({
@@ -18,7 +25,7 @@ vi.mock('pdfjs-dist', () => ({
       getPage: () =>
         Promise.resolve({
           getViewport: () => ({ width: 100, height: 100 }),
-          render: () => ({ promise: Promise.resolve() }),
+          render: renderPage,
         }),
     }),
   }),
@@ -32,8 +39,12 @@ describe('PdfPager', () => {
   it('shows page 1 of 2 for a two-page document and can advance to page 2', async () => {
     render(<PdfPager applicationId="app_1" refreshKey={0} />)
     await waitFor(() => expect(screen.getByText(/1.*2/)).toBeTruthy())
+    await waitFor(() => expect(renderPage).toHaveBeenCalledTimes(1))
     fireEvent.click(screen.getByRole('button', { name: /next|→/i }))
     await waitFor(() => expect(screen.getByText(/2.*2/)).toBeTruthy())
+    // Backlog #9: the page-1 render still in flight is cancelled, not left
+    // racing page 2 on the same canvas.
+    expect(cancelFirst).toHaveBeenCalled()
   })
 
   it('explains a missing PDF engine and points to Settings, instead of a flat error', async () => {
