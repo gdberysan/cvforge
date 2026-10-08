@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.4.0] - 2026-10-07
 
 ### Added
 
@@ -38,6 +38,8 @@ All notable changes to this project are documented here. The format follows
 - A backup from a newer CVForge is refused instead of being misread.
 - PDF exports share one browser, one at a time.
 - The release zip itself is scanned for personal data.
+- The release zip scan reads text files only, so the bundled runtime and
+  minified code no longer produce false matches.
 
 ## [1.3.1] - 2026-09-17
 
