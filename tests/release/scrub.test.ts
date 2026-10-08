@@ -53,4 +53,21 @@ describe('scanTreeForDenied', () => {
       rmSync(root, { recursive: true, force: true })
     }
   })
+
+  it('skips binary files by content, not only by extension', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'cvforge-scan-'))
+    try {
+      // An extensionless executable, like the bundled Node runtime.
+      writeFileSync(
+        path.join(root, 'node'),
+        Buffer.concat([Buffer.from([0x7f, 0x45, 0x4c, 0x46, 0]), Buffer.from('zyxwq')]),
+      )
+      writeFileSync(path.join(root, 'start.sh'), 'echo zyxwq')
+      const { files, hits } = scanTreeForDenied(root, ['zyxwq'])
+      expect(files).toBe(1)
+      expect(hits).toEqual([{ file: 'start.sh', term: 'zyxwq' }])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
 })

@@ -42,9 +42,12 @@ export function scanTreeForDenied(
       if (statSync(full).isDirectory()) return skip.has(name) ? [] : walk(full)
       return BINARY.test(name) ? [] : [full]
     })
-  const files = walk(root).map((f) => ({
-    path: path.relative(root, f),
-    content: readFileSync(f, 'utf8'),
-  }))
+  // Binary by content, not by name: the extensionless Node runtime slipped
+  // past the extension list and its machine code "matched" short terms.
+  const files = walk(root).flatMap((f) => {
+    const bytes = readFileSync(f)
+    if (bytes.subarray(0, 8000).includes(0)) return []
+    return [{ path: path.relative(root, f), content: bytes.toString('utf8') }]
+  })
   return { files: files.length, hits: findDenied(files, terms) }
 }
