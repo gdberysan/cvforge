@@ -2,7 +2,8 @@
  * The side panel is the CVForge site itself, framed: the same data as its
  * tab (an extension page with host permission for the site is not storage-
  * partitioned — tested), the same screens. A posting from the page arrives
- * as Analizar's ?text=&url=, exactly what a share would send.
+ * as Analizar's ?text=&url=, exactly what a share would send, plus
+ * &location= so the market starts on the job's country.
  */
 import { type PagePosting, postingText } from './extract'
 
@@ -16,6 +17,8 @@ function load(posting: PagePosting | null): void {
     const text = postingText(posting)
     if (text.length >= 80) url.searchParams.set('text', text)
     if (posting.url) url.searchParams.set('url', posting.url)
+    // Where the job is, so Analizar starts on that country, not yours.
+    if (posting.location) url.searchParams.set('location', posting.location)
   }
   frame.src = url.toString()
 }

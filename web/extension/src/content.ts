@@ -34,11 +34,15 @@ function mount(): void {
   root.innerHTML = `<style>
     button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:8px 0;
       padding:6px 14px;border-radius:999px;font:600 14px/1.2 system-ui,sans-serif;
-      background:#A8500F;color:#fff}
-    button:focus-visible{outline:2px solid #A8500F;outline-offset:2px}
-  </style><button type="button"></button>`
+      background:#17171A;color:#fff}
+    button:hover{background:#2B2B30}
+    button:focus-visible{outline:2px solid #17171A;outline-offset:2px}
+    svg{flex:none}
+  </style><button type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#F0A35E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span></span></button>`
   const button = root.querySelector('button') as HTMLButtonElement
-  button.textContent = label()
+  // The app's own colours: ink, and the amber check of its icon.
+  const text = button.querySelector('span') as HTMLSpanElement
+  text.textContent = label()
   button.addEventListener('click', () => {
     const posting = extractPosting(document, location.href, String(window.getSelection() ?? ''))
     void chrome.runtime.sendMessage({ type: 'cvforge:analyse', posting })

@@ -52,6 +52,7 @@ const en = {
   'triage.waiting': 'waiting for a posting',
   'triage.cached': '· saved earlier, no cost',
   'triage.more': 'For {market} · add the link',
+  'triage.moreLinked': 'For {market} · link added',
   'triage.cardTitle': 'A new posting',
   'triage.shots': 'Upload screenshots',
   'triage.skipFailed': "Couldn't skip it. It's still in your pipeline.",
@@ -1315,6 +1316,8 @@ const en = {
   'share.title': 'Analyse a posting',
   'share.lede':
     'Paste a posting. In under a minute you will know whether it is worth it, what you meet and what you lack.',
+  'share.ledeReady':
+    'It is all here. Press Analyse and in under a minute you will know whether it is worth it, what you meet and what you lack.',
   'share.titleShared': 'Analyse this posting',
   'share.noReader': "This version can't read LinkedIn links. Paste the posting text below.",
   'share.fetchFailed':
@@ -1722,6 +1725,7 @@ const es: Record<MessageKey, string> = {
   'triage.waiting': 'esperando una vacante',
   'triage.cached': '· ya estaba guardada, sin costo',
   'triage.more': 'Para {market} · agregar la liga',
+  'triage.moreLinked': 'Para {market} · con su liga',
   'triage.cardTitle': 'Una vacante nueva',
   'triage.shots': 'Subir capturas',
   'triage.skipFailed': 'No se pudo descartar. Sigue en tus postulaciones.',
@@ -2991,6 +2995,8 @@ const es: Record<MessageKey, string> = {
   'share.title': 'Analiza una vacante',
   'share.lede':
     'Pega el texto de una vacante. En menos de un minuto sabrás si vale la pena, qué cumples y qué te falta.',
+  'share.ledeReady':
+    'Ya está todo aquí. Pulsa Analizar y en menos de un minuto sabrás si vale la pena, qué cumples y qué te falta.',
   'share.titleShared': 'Analiza esta vacante',
   'share.noReader': 'Esta versión no lee enlaces de LinkedIn. Pega abajo el texto de la vacante.',
   'share.fetchFailed':

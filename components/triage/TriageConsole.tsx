@@ -254,7 +254,11 @@ export function TriageConsole({
 
         {!result && (
           <details className="intake-more">
-            <summary>{t('triage.more', { market: marketLabel(market, locale) })}</summary>
+            <summary>
+              {t(url.trim() ? 'triage.moreLinked' : 'triage.more', {
+                market: marketLabel(market, locale),
+              })}
+            </summary>
             <div className="intake-more-body">
               <label className="intake-field">
                 <span>{t('triage.market.label')}</span>

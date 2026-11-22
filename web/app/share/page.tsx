@@ -11,6 +11,7 @@ import { TriageConsole } from '@/components/triage/TriageConsole'
  * the posting arrives as text (or, on the phone, as screenshots).
  */
 import { BackLink } from '@/components/ui/BackLink'
+import { marketFromLocation } from '@/lib/discover/annotate'
 import { defaultMarket } from '@/lib/markets'
 import { resolveShared } from '@/lib/share/resolve'
 import { ScreenshotIntake, ShotsPicker } from '@/web/lib/screenshot-intake'
@@ -42,12 +43,15 @@ function Share() {
   }
   const shared = resolveShared(raw)
   const fromShare = Boolean(raw.text || raw.url || raw.title || entry)
+  // With the posting already in the box, the page asks for the press, not a paste.
+  const ready = Boolean(read?.text) || shared.kind === 'text'
+  const location = params.get('location')
   return (
     <main id="main" tabIndex={-1} className="page share-page">
       <BackLink href="/" label={t('nav.today')} />
       <h1 className="share-title">{t(fromShare ? 'share.titleShared' : 'share.title')}</h1>
       {/* What you get, before the box asks for anything. */}
-      <p className="exp-lede share-lede">{t('share.lede')}</p>
+      <p className="exp-lede share-lede">{t(ready ? 'share.ledeReady' : 'share.lede')}</p>
       <ScreenshotIntake
         initial={[]}
         files={shots ?? entry?.files ?? []}
@@ -58,7 +62,7 @@ function Share() {
       <TriageConsole
         // A new transcript is a new posting: the console starts over with it.
         key={read ? `shots-${read.n}` : 'blank'}
-        defaultMarket={defaultMarket(markets)}
+        defaultMarket={location ? marketFromLocation(location, markets) : defaultMarket(markets)}
         ownMarkets={markets}
         initialText={read?.text ?? (shared.kind === 'text' ? shared.text : '')}
         initialSourceUrl={shared.url}
