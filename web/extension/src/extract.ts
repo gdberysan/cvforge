@@ -41,6 +41,78 @@ export function linkedInJobUrl(href: string): string | null {
   return id && /^\d+$/.test(id) ? `https://www.linkedin.com/jobs/view/${id}/` : null
 }
 
+/**
+ * Signed-in LinkedIn (2026-11): no <h1>, and class names are hashes that
+ * change between releases. What holds: the tab title ("Title | Company |
+ * LinkedIn"), the "About the job" heading, and the description's
+ * data-testid. The title element is looked for in the same column as that
+ * heading, so a card in the job list beside it is never taken for it.
+ */
+const ABOUT = /^(About the job|Acerca del empleo|Acerca del trabajo)$/i
+const MORE = /\n?\s*…?\s*(más|more|see more|ver más|mostrar más|show more)\s*$/i
+
+export function signedInJob(doc: Document): {
+  titleEl: HTMLElement | null
+  title: string
+  company: string
+  location: string
+  description: string
+} | null {
+  const heading = [...doc.querySelectorAll<HTMLElement>('h2, h3')].find((h) =>
+    ABOUT.test(clean(h.textContent)),
+  )
+  if (!heading) return null
+  let section: HTMLElement | null = heading
+  for (let i = 0; section && i < 10; i++) {
+    if (section.querySelector('[data-testid="expandable-text-box"]')) break
+    section = section.parentElement
+  }
+  const box = section?.querySelector<HTMLElement>('[data-testid="expandable-text-box"]')
+  if (!box) return null
+  const parts = doc.title
+    .replace(/^\(\d+\)\s*/, '')
+    .replace(/\s*\|\s*LinkedIn\s*$/i, '')
+    .split(' | ')
+  const company = parts.length > 1 ? (parts.pop() ?? '') : ''
+  const title = parts.join(' | ').trim()
+  // Climb from the description until the title shows up: that is this
+  // posting's own column.
+  let titleEl: HTMLElement | null = null
+  for (
+    let up: HTMLElement | null = section ?? null;
+    up && !titleEl && title;
+    up = up.parentElement
+  ) {
+    titleEl =
+      [...up.querySelectorAll<HTMLElement>('*')].find(
+        (e) => e.children.length === 0 && clean(e.textContent) === title,
+      ) ?? null
+  }
+  let location = ''
+  for (
+    let up = titleEl?.parentElement ?? null, i = 0;
+    up && i < 6 && !location;
+    up = up.parentElement, i++
+  ) {
+    const lines = clean(up.innerText ?? up.textContent)
+      .split('\n')
+      .map((l) => l.trim())
+    const after = lines.slice(lines.indexOf(title) + 1)
+    location =
+      after
+        .find((l) => l.includes('·'))
+        ?.split('·')[0]
+        ?.trim() ?? ''
+  }
+  return {
+    titleEl,
+    title,
+    company,
+    location,
+    description: textOf(box).replace(MORE, '').trim(),
+  }
+}
+
 function fromLinkedIn(doc: Document, href: string): PagePosting | null {
   const url = linkedInJobUrl(href)
   if (!url) return null
@@ -52,7 +124,12 @@ function fromLinkedIn(doc: Document, href: string): PagePosting | null {
     '.show-more-less-html__markup',
     '.description__text',
   ])
-  if (!description) return null
+  if (!description) {
+    const job = signedInJob(doc)
+    if (!job?.description) return null
+    const { title, company, location, description: text } = job
+    return { title, company, location, text, url, source: 'linkedin' }
+  }
   const title = textOf(
     first(doc, [
       '.job-details-jobs-unified-top-card__job-title',

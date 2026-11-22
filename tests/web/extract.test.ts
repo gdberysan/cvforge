@@ -1,6 +1,11 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { extractPosting, linkedInJobUrl, postingText } from '@/web/extension/src/extract'
+import {
+  extractPosting,
+  linkedInJobUrl,
+  postingText,
+  signedInJob,
+} from '@/web/extension/src/extract'
 
 const DESCRIPTION = `Acerca del empleo
 Buscamos a una persona que lleve nuestras campañas pagadas en Google Ads y Meta Ads.
@@ -86,5 +91,45 @@ describe('reading a posting from the page', () => {
         source: 'linkedin',
       }),
     ).toBe('T\nC · L\n\nBody')
+  })
+
+  // Signed-in LinkedIn (seen 2026-11-22): hashed classes, no <h1>, the title
+  // only in the tab title and a link, the description behind a data-testid.
+  const signedIn = () => {
+    const doc = document.implementation.createHTMLDocument(
+      'Especialista en Performance | Casa Tolteca | LinkedIn',
+    )
+    doc.body.innerHTML = `<main>
+      <ul class="cfs1"><li><a class="cfs2">Otro empleo</a></li><li><a class="cfs2">Especialista en Performance</a></li></ul>
+      <div class="cfs3"><div data-display-contents="true"><p class="cfs4"><a class="cfs5">Especialista en Performance</a></p></div>
+        <div class="cfs6">
+Monterrey, Nuevo León, México · hace 3 días · 40 solicitudes
+</div>
+        <div class="cfs7"><h2 class="cfs8">Acerca del empleo</h2>
+          <div data-testid="expandable-text-box">${DESCRIPTION}
+… más</div></div></div></main>`
+    return doc
+  }
+
+  it('reads a signed-in job page by its tab title, heading and description box', () => {
+    const doc = signedIn()
+    const p = extractPosting(
+      doc,
+      'https://www.linkedin.com/jobs/search-results/?currentJobId=4012345678',
+    )
+    expect(p).toMatchObject({
+      source: 'linkedin',
+      title: 'Especialista en Performance',
+      company: 'Casa Tolteca',
+      location: 'Monterrey, Nuevo León, México',
+      url: 'https://www.linkedin.com/jobs/view/4012345678/',
+    })
+    expect(p.text).toBe(DESCRIPTION)
+  })
+
+  it('puts the button by the open posting, never by a card in the job list', () => {
+    const at = signedInJob(signedIn())?.titleEl
+    expect(at?.textContent).toBe('Especialista en Performance')
+    expect(at?.closest('li')).toBeNull()
   })
 })
