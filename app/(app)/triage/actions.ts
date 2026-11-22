@@ -2,8 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db/client'
-import { setArchived } from '@/lib/db/queries/applications'
+import { getApplication, setArchived } from '@/lib/db/queries/applications'
+import { dismissJob } from '@/lib/db/queries/discover'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
+import { linkedInJobId } from '@/lib/discover/annotate'
 
 /**
  * Skip from the verdict card = archive. The row and its coverage stay for the
@@ -15,6 +17,10 @@ export async function skipApplicationAction(
 ): Promise<{ ok: true } | { ok: false; error: string; code: string }> {
   if (isDemo()) return demoBlock()
   setArchived(db, applicationId, true)
+  // A LinkedIn posting skipped here is also skipped for the job agent: it
+  // dedupes by this id, so the morning digest never offers it again.
+  const jobId = linkedInJobId(getApplication(db, applicationId)?.sourceUrl ?? null)
+  if (jobId) dismissJob(db, jobId)
   revalidatePath('/pipeline')
   revalidatePath(`/application/${applicationId}`)
   return { ok: true as const }

@@ -21,8 +21,8 @@ export function DemoBanner() {
       }}
     >
       <span>{t('demo.banner')}</span>
-      <a className="action" href={DEMO_LINKS.get}>
-        {t('demo.get')} →
+      <a className="action" href={DEMO_LINKS.buy}>
+        {t('demo.buy')} →
       </a>
       <a className="action-quiet" href={DEMO_LINKS.how}>
         {t('demo.how')} →

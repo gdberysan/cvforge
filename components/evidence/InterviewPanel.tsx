@@ -124,28 +124,18 @@ export function InterviewPanel({
           ? t('interview.status.answering', { answered, total: questions.length })
           : stage === 'review'
             ? plural(t, evidence.length, 'interview.status.built')
-            : plural(t, stubs.length, 'interview.status.onFile')
+            : // Every entry this role has: the imported lines still to expand
+              // and the ones already expanded or written by hand.
+              plural(t, stubs.length + existingCount, 'interview.status.onFile')
 
   return (
     <div>
-      {/* One console across every stage, so the interview reads as a single
-          session rather than four screens that happen to share a header. */}
-      <div className="console">
-        <p className="console-line">
-          <span className="console-sigil">$</span>
-          <span className="cmd-token">cvforge interview --role {role.id}</span>
-          {busy && <span className="cursor" aria-hidden />}
-        </p>
-        {/* Muted, not faint: live feedback has to clear the contrast floor. */}
-        <p
-          className="console-line"
-          aria-live="polite"
-          style={{ color: 'var(--text-muted)', marginTop: 'var(--space-3)' }}
-        >
-          <span aria-hidden>&gt;</span>
-          <span>{status}</span>
-        </p>
-      </div>
+      {/* One status line across every stage, so the interview reads as a
+          single conversation. Muted, not faint: it is live feedback. */}
+      <p className="intake-status interview-status" aria-live="polite">
+        {busy && <span className="intake-spinner" aria-hidden />}
+        <span>{status}</span>
+      </p>
 
       {error && (
         // role="alert" so a failed run is announced, not silently rendered.

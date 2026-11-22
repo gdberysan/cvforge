@@ -33,9 +33,9 @@ const profile: MasterProfile = {
   experience: [
     {
       id: 'exp_1',
-      title: 'Marketing Coordinator',
-      company: 'Northwind Gaming',
-      period: { start: '2024-03', end: '2025-10' },
+      title: 'PPC Coordinator',
+      company: 'Apuesta Online',
+      period: { start: '2026-01', end: '2026-08' },
       summary: '',
     },
   ],

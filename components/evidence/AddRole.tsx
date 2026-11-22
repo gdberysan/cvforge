@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { addRoleAction } from '@/app/(app)/evidence/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { IconPlus } from '@/components/ui/icons'
+import { MonthField } from '@/components/ui/MonthField'
 import { errorText } from '@/lib/i18n'
 
 const PERIOD = /^\d{4}-\d{2}$/
@@ -22,6 +24,7 @@ export function AddRole() {
   const [company, setCompany] = useState('')
   const [start, setStart] = useState('')
   const [end, setEnd] = useState('')
+  const [ongoing, setOngoing] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSaving, startSave] = useTransition()
 
@@ -29,10 +32,15 @@ export function AddRole() {
     title.trim().length > 0 &&
     company.trim().length > 0 &&
     PERIOD.test(start) &&
-    (end === '' || PERIOD.test(end))
+    (ongoing || (PERIOD.test(end) && end >= start))
 
   async function save(): Promise<{ roleId: string } | null> {
-    const result = await addRoleAction({ title, company, start, ...(end ? { end } : {}) })
+    const result = await addRoleAction({
+      title,
+      company,
+      start,
+      ...(!ongoing && end ? { end } : {}),
+    })
     if (!result.ok) {
       setError(errorText(t, result.code, result.error))
       return null
@@ -42,11 +50,10 @@ export function AddRole() {
 
   if (!open) {
     return (
-      <p style={{ marginTop: 'var(--space-8)' }}>
-        <button type="button" className="action" onClick={() => setOpen(true)}>
-          {t('evidence.addRole')}
-        </button>
-      </p>
+      <button type="button" className="add-tile" onClick={() => setOpen(true)}>
+        <IconPlus />
+        {t('evidence.addRole')}
+      </button>
     )
   }
 
@@ -87,10 +94,14 @@ export function AddRole() {
           setCompany,
           t('addRole.companyPlaceholder'),
         )}
-        <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
-          {field('role-start', t('addRole.start'), start, setStart, '2024-01')}
-          {field('role-end', t('addRole.end'), end, setEnd, t('addRole.endPlaceholder'))}
-        </div>
+        <MonthField id="role-start" label={t('addRole.start')} value={start} onChange={setStart} />
+        <MonthField
+          id="role-end"
+          label={t('addRole.end')}
+          value={end}
+          onChange={setEnd}
+          current={{ label: t('addRole.current'), on: ongoing, onToggle: setOngoing }}
+        />
       </div>
 
       {error && (
@@ -131,6 +142,7 @@ export function AddRole() {
               setCompany('')
               setStart('')
               setEnd('')
+              setOngoing(true)
               router.refresh()
             })
           }

@@ -37,7 +37,7 @@ global.fetch = vi.fn(() =>
 
 describe('PdfPager', () => {
   it('shows page 1 of 2 for a two-page document and can advance to page 2', async () => {
-    render(<PdfPager applicationId="app_1" refreshKey={0} />)
+    render(<PdfPager query="applicationId=app_1" refreshKey={0} />)
     await waitFor(() => expect(screen.getByText(/1.*2/)).toBeTruthy())
     await waitFor(() => expect(renderPage).toHaveBeenCalledTimes(1))
     fireEvent.click(screen.getByRole('button', { name: /next|→/i }))
@@ -45,6 +45,26 @@ describe('PdfPager', () => {
     // Backlog #9: the page-1 render still in flight is cancelled, not left
     // racing page 2 on the same canvas.
     expect(cancelFirst).toHaveBeenCalled()
+  })
+
+  it('in the browser edition (printOnly), previews the print-ready HTML instead', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 503,
+        json: () =>
+          Promise.resolve({
+            error: 'chromium-unavailable',
+            html: '<p>Ana CV</p>',
+            printOnly: true,
+          }),
+      }),
+    ) as unknown as typeof fetch
+
+    const { container } = render(<PdfPager query="applicationId=app_1" refreshKey={0} />)
+    await waitFor(() => expect(container.querySelector('iframe')).toBeTruthy())
+    expect(container.querySelector('iframe')?.getAttribute('srcdoc')).toBe('<p>Ana CV</p>')
+    expect(screen.queryByText(/no pdf engine/i)).toBeNull()
   })
 
   it('explains a missing PDF engine and points to Settings, instead of a flat error', async () => {
@@ -56,7 +76,7 @@ describe('PdfPager', () => {
       }),
     ) as unknown as typeof fetch
 
-    render(<PdfPager applicationId="app_1" refreshKey={0} />)
+    render(<PdfPager query="applicationId=app_1" refreshKey={0} />)
     await waitFor(() => expect(screen.getByText(/no pdf engine/i)).toBeTruthy())
     expect(screen.getByRole('link', { name: /settings/i })).toBeTruthy()
   })
@@ -70,8 +90,22 @@ describe('PdfPager', () => {
       }),
     ) as unknown as typeof fetch
 
-    render(<PdfPager applicationId="app_1" refreshKey={0} />)
-    await waitFor(() => expect(screen.getByText(/preview unavailable/i)).toBeTruthy())
+    render(<PdfPager query="applicationId=app_1" refreshKey={0} />)
+    await waitFor(() => expect(screen.getByText(/preview isn't available/i)).toBeTruthy())
     expect(screen.queryByRole('link', { name: /settings/i })).toBeNull()
+  })
+
+  it('a failed preview offers the download, through the same path as the button', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 500,
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      }),
+    ) as unknown as typeof fetch
+    const onDownload = vi.fn()
+    render(<PdfPager query="applicationId=app_1" refreshKey={0} onDownload={onDownload} />)
+    fireEvent.click(await screen.findByRole('button', { name: /download pdf/i }))
+    expect(onDownload).toHaveBeenCalledOnce()
   })
 })

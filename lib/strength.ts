@@ -21,7 +21,14 @@ export type CategoryId = keyof typeof RULES
 /** One row of the score breakdown — the same seven slices RULES defines,
  *  always in that order, so the UI can render a fixed checklist rather than
  *  reconstructing one from whatever suggestions happened to fire. */
-export type CategoryResult = { id: CategoryId; points: number; earned: boolean }
+export type CategoryResult = {
+  id: CategoryId
+  points: number
+  /** True only when the whole slice is earned. */
+  earned: boolean
+  /** Points this slice actually adds: all or none, except metrics, which is by share. */
+  got: number
+}
 
 /**
  * A suggestion carries the reason it fired, not a sentence. Scoring is the same
@@ -87,6 +94,8 @@ export function computeProfileStrength(
   // whichever suggestions happened to fire (role-without-evidence pushes
   // zero-or-many, unlike every other rule).
   const earned = {} as Record<CategoryId, boolean>
+  // Points a slice earned in part; a slice absent here is all or nothing.
+  const partial: Partial<Record<CategoryId, number>> = {}
   let score = 0
 
   if (profile.summary.trim().length >= 40) {
@@ -133,16 +142,21 @@ export function computeProfileStrength(
 
   const achievements = evidence.filter((e) => e.kind === 'achievement')
   const unquantified = achievements.filter((e) => e.metrics.length === 0)
-  if (achievements.length > 0 && unquantified.length === 0) {
-    earned.metrics = true
-    score += RULES.metrics
-  } else if (achievements.length > 0) {
-    suggestions.push({
-      id: 'metrics-missing',
-      severity: 'medium',
-      countable: true,
-      params: { n: unquantified.length },
-    })
+  if (achievements.length > 0) {
+    // By share, not all or nothing: one achievement without a number used to
+    // cost the whole slice, which made reclassifying a record look like the
+    // fix (spec 2026-10-15 redesign phase 3, "record types").
+    const share = (achievements.length - unquantified.length) / achievements.length
+    partial.metrics = Math.round(RULES.metrics * share)
+    score += partial.metrics
+    if (unquantified.length === 0) earned.metrics = true
+    else
+      suggestions.push({
+        id: 'metrics-missing',
+        severity: 'medium',
+        countable: true,
+        params: { n: unquantified.length },
+      })
   }
 
   const untagged = evidence.filter((e) => e.tags.length === 0)
@@ -176,6 +190,7 @@ export function computeProfileStrength(
     id,
     points: RULES[id],
     earned: earned[id] === true,
+    got: partial[id] ?? (earned[id] === true ? RULES[id] : 0),
   }))
 
   return { score: Math.max(0, Math.min(100, score)), suggestions, categories }

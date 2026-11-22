@@ -8,6 +8,13 @@ export const MODEL = 'claude-opus-5' as const
  */
 export const MAX_TOKENS = 16_000
 
+/**
+ * The most a non-streaming call may ask for: the SDK refuses one whose
+ * max_tokens implies more than ten minutes (≈21,333 tokens). A stage that
+ * needs more than MAX_TOKENS (the interview prep) asks up to this.
+ */
+export const MAX_TOKENS_CEILING = 21_000
+
 export type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 
 /**
@@ -20,7 +27,7 @@ export type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 export function modelFor(stage?: string): string {
   if (!stage) return MODEL
   const key = `CVFORGE_MODEL_${stage.toUpperCase().replace(/-/g, '_')}`
-  return process.env[key] || MODEL
+  return (typeof process === 'undefined' ? undefined : process.env[key]) || MODEL
 }
 
 /**

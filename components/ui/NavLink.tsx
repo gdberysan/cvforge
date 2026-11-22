@@ -9,16 +9,7 @@ export function NavLink({ href, label }: { href: string; label: string }) {
   const active = pathname === href || pathname.startsWith(`${href}/`)
 
   return (
-    <Link
-      href={href}
-      aria-current={active ? 'page' : undefined}
-      className="nav-link fact"
-      style={{
-        letterSpacing: '0.06em',
-        color: active ? 'var(--text-strong)' : 'var(--text-muted)',
-        borderBottom: `1px solid ${active ? 'var(--accent)' : 'transparent'}`,
-      }}
-    >
+    <Link href={href} aria-current={active ? 'page' : undefined} className="nav-link">
       {label}
     </Link>
   )

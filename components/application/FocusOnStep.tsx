@@ -3,17 +3,22 @@
 import { useEffect, useRef } from 'react'
 
 /**
- * Moves keyboard focus to the step's content when the step changes — not on
- * first load. Without it a keyboard or screen-reader user clicked "Huecos"
- * and stayed on the tab, with nothing announcing that the page below had
- * changed underneath them.
+ * The application is one page (friendly redesign 2026-11-21); a link that
+ * names a part of it (`?step=gaps`, from Hoy or a button) scrolls there and
+ * gives it keyboard focus, so a screen reader starts where the eye does.
+ * The opening part (the answer) needs neither.
  */
 export function FocusOnStep({ step }: { step: string }) {
-  const previous = useRef(step)
+  const done = useRef<string | null>(null)
   useEffect(() => {
-    if (previous.current === step) return
-    previous.current = step
-    document.getElementById('step-content')?.focus({ preventScroll: true })
+    if (done.current === step) return
+    done.current = step
+    if (step === 'overview' || step === 'decide') return
+    const target = document.getElementById(`s-${step}`)
+    if (!target) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' })
+    target.focus({ preventScroll: true })
   }, [step])
   return null
 }

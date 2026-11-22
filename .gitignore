@@ -1,5 +1,5 @@
 # Dependencies
-node_modules/
+node_modules
 .pnp
 .pnp.js
 
@@ -62,3 +62,12 @@ dist/
 
 # Local demo recordings — not product code
 /app-videos/
+
+# layout sweep screenshots (npm run ui:sweep)
+ui-sweep/
+web/spike/dist/
+web/public/worker/
+web/out/
+web/.next/
+web/spike/screens/
+web/extension/dist/

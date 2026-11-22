@@ -1,5 +1,7 @@
-import { randomUUID } from 'node:crypto'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
+import { readAliases } from '@/lib/company-aliases'
+import type { ApplicationLink } from '@/lib/discover/annotate'
+import { GMAIL_NOTE_PREFIX, parseGmailNote } from '@/lib/gmail-note'
 import {
   type ApplicationStatus,
   ApplicationStatusSchema,
@@ -10,6 +12,7 @@ import {
   type GroundingReport,
   type Market,
   type OutcomeEvent,
+  type OutcomeType,
   type Requirement,
   type Source,
   SourceSchema,
@@ -29,6 +32,8 @@ export type ApplicationRecord = {
   source: Source
   sourceUrl: string | null
   company: string
+  /** Other names or email domains the employer writes under (migration 0012). */
+  companyAliases: string[]
   jobTitle: string
   market: Market
   documentLanguage: DocumentLanguage
@@ -77,7 +82,7 @@ export function createApplication(
     coverage: Coverage
   },
 ): string {
-  const id = input.id ?? `app_${randomUUID()}`
+  const id = input.id ?? `app_${crypto.randomUUID()}`
 
   db.transaction((tx) => {
     tx.insert(applications)
@@ -149,6 +154,7 @@ export function getApplication(db: Db, id: string): ApplicationRecord | null {
     source: row.source,
     sourceUrl: row.sourceUrl,
     company: row.company,
+    companyAliases: readAliases(row.companyAliases),
     jobTitle: row.jobTitle,
     market: row.market,
     documentLanguage: row.documentLanguage,
@@ -174,7 +180,12 @@ export function getApplication(db: Db, id: string): ApplicationRecord | null {
       strength: m.strength,
       rationale: m.rationale,
     })),
-    outcomes: outRows.map((o) => ({ at: o.at, type: o.type, ...(o.note ? { note: o.note } : {}) })),
+    outcomes: outRows.map((o) => ({
+      at: o.at,
+      type: o.type,
+      ...(o.note ? { note: o.note } : {}),
+      ...(o.scheduledAt ? { scheduledAt: o.scheduledAt } : {}),
+    })),
     documents: row.documents,
     groundingReport: row.groundingReport,
   }
@@ -187,7 +198,7 @@ export function findByPostingHash(db: Db, hash: string): ApplicationRecord | nul
 
 /** Appends to the log, then recomputes the denormalised status column. */
 export function appendOutcome(db: Db, applicationId: string, event: OutcomeEvent): string {
-  const id = `out_${randomUUID()}`
+  const id = `out_${crypto.randomUUID()}`
   db.transaction((tx) => {
     tx.insert(outcomeEvents)
       .values({
@@ -196,6 +207,7 @@ export function appendOutcome(db: Db, applicationId: string, event: OutcomeEvent
         at: event.at,
         type: event.type,
         note: event.note ?? null,
+        scheduledAt: event.scheduledAt ?? null,
       })
       .run()
 
@@ -212,9 +224,59 @@ export function appendOutcome(db: Db, applicationId: string, event: OutcomeEvent
       archived: row?.archived ?? false,
     })
 
-    tx.update(applications).set({ status }).where(eq(applications.id, applicationId)).run()
+    // What the company received, kept once at send time: a CV recomposed
+    // later must not change what "Defend your CV" prepares him for.
+    const docs = row?.documents as Record<string, unknown> | null | undefined
+    const snapshot =
+      event.type === 'applied' && docs?.cv != null && docs.sentCv == null
+        ? { documents: { ...docs, sentCv: docs.cv } }
+        : {}
+
+    tx.update(applications)
+      .set({ status, ...snapshot })
+      .where(eq(applications.id, applicationId))
+      .run()
   })
   return id
+}
+
+/** How long a second tap of the same outcome button counts as the first. */
+export const REPEAT_TAP_MS = 10 * 60_000
+
+/**
+ * A one-click log from the app. The same outcome tapped again on the same
+ * application within REPEAT_TAP_MS is the same event and returns the id
+ * already logged, marked `repeated` so the app offers no undo for it (that
+ * undo would delete the one real event): before this, double taps and quick taps through the
+ * buttons turned one HR call into "screen + interview + interview" and the
+ * history claimed nine interviews where there were two. A different outcome
+ * tapped right after (screen, then interview) is still its own event — both
+ * can be true. Only the person's
+ * own taps (no note) count; an outcome the agent logged from an email
+ * carries a note and is never matched.
+ */
+export function logManualOutcome(
+  db: Db,
+  applicationId: string,
+  type: OutcomeEvent['type'],
+  now: Date = new Date(),
+): { id: string; repeated: boolean } {
+  const since = new Date(now.getTime() - REPEAT_TAP_MS).toISOString()
+  const recent = db
+    .select({ id: outcomeEvents.id })
+    .from(outcomeEvents)
+    .where(
+      and(
+        eq(outcomeEvents.applicationId, applicationId),
+        eq(outcomeEvents.type, type),
+        sql`${outcomeEvents.note} IS NULL`,
+        sql`${outcomeEvents.at} >= ${since}`,
+      ),
+    )
+    .orderBy(desc(outcomeEvents.at))
+    .get()
+  if (recent) return { id: recent.id, repeated: true }
+  return { id: appendOutcome(db, applicationId, { at: now.toISOString(), type }), repeated: false }
 }
 
 /**
@@ -238,8 +300,135 @@ export function removeOutcome(db: Db, applicationId: string, outcomeId: string):
       hasDocuments: row?.documents != null,
       archived: row?.archived ?? false,
     })
-    tx.update(applications).set({ status }).where(eq(applications.id, applicationId)).run()
+    // The snapshot of the CV sent belongs to an "applied": with none left it
+    // was a slip, and the real send must take its own (prep defends it).
+    const docs = row?.documents as Record<string, unknown> | null | undefined
+    const unsent =
+      docs?.sentCv != null && !outs.some((o) => o.type === 'applied')
+        ? { documents: Object.fromEntries(Object.entries(docs).filter(([k]) => k !== 'sentCv')) }
+        : {}
+    tx.update(applications)
+      .set({ status, ...unsent })
+      .where(eq(applications.id, applicationId))
+      .run()
   })
+}
+
+/**
+ * Sets or clears when an interview or screen outcome takes place (other types: false). Scoped by
+ * both ids so a stray id never touches another application's history; returns
+ * false when there is no such row. Status is untouched: the time is not an event.
+ */
+export function setScheduledAt(
+  db: Db,
+  applicationId: string,
+  outcomeId: string,
+  iso: string | null,
+): boolean {
+  const res = db
+    .update(outcomeEvents)
+    .set({ scheduledAt: iso })
+    .where(
+      and(
+        eq(outcomeEvents.id, outcomeId),
+        eq(outcomeEvents.applicationId, applicationId),
+        inArray(outcomeEvents.type, ['interview', 'screen']),
+      ),
+    )
+    .run()
+  return res.changes > 0
+}
+
+/**
+ * The outcomes the agent read from the user's mail (note `gmail:<id> «quote»`),
+ * oldest first, with the id Undo needs. Anything else in the log is never listed
+ * here, so Undo can never reach a click the user made.
+ */
+export function listMailOutcomes(
+  db: Db,
+  applicationId: string,
+): { id: string; at: string; type: OutcomeType; quote: string; scheduledAt: string | null }[] {
+  return db
+    .select()
+    .from(outcomeEvents)
+    .where(
+      and(
+        eq(outcomeEvents.applicationId, applicationId),
+        sql`substr(${outcomeEvents.note}, 1, ${GMAIL_NOTE_PREFIX.length}) = ${GMAIL_NOTE_PREFIX}`,
+      ),
+    )
+    .orderBy(asc(outcomeEvents.at))
+    .all()
+    .map((o) => ({
+      id: o.id,
+      at: o.at,
+      type: o.type,
+      scheduledAt: o.scheduledAt,
+      quote: parseGmailNote(o.note)?.quote ?? '',
+    }))
+}
+
+/**
+ * The whole outcome log with ids, oldest first (insertion order breaks a
+ * same-instant tie): Seguimiento's thread builder sorts it into mail events,
+ * "Tú" and the interview card, and needs each id for Undo and the time edit.
+ */
+export function listOutcomes(
+  db: Db,
+  applicationId: string,
+): {
+  id: string
+  at: string
+  type: OutcomeType
+  note: string | null
+  scheduledAt: string | null
+  meetingUrl: string | null
+}[] {
+  return db
+    .select({
+      id: outcomeEvents.id,
+      at: outcomeEvents.at,
+      type: outcomeEvents.type,
+      note: outcomeEvents.note,
+      scheduledAt: outcomeEvents.scheduledAt,
+      meetingUrl: outcomeEvents.meetingUrl,
+    })
+    .from(outcomeEvents)
+    .where(eq(outcomeEvents.applicationId, applicationId))
+    .orderBy(asc(outcomeEvents.at), asc(sql`rowid`))
+    .all()
+}
+
+/**
+ * Each open (non-archived) application's outcome log, dates and types only:
+ * all the personal stale threshold needs, without loading every posting.
+ */
+export function listOpenOutcomeLogs(db: Db): { outcomes: { at: string; type: OutcomeType }[] }[] {
+  const rows = db
+    .select({
+      applicationId: outcomeEvents.applicationId,
+      at: outcomeEvents.at,
+      type: outcomeEvents.type,
+    })
+    .from(outcomeEvents)
+    .innerJoin(applications, eq(applications.id, outcomeEvents.applicationId))
+    .where(eq(applications.archived, false))
+    .all()
+  const byApp = new Map<string, { at: string; type: OutcomeType }[]>()
+  for (const r of rows) {
+    const list = byApp.get(r.applicationId) ?? []
+    list.push({ at: r.at, type: r.type })
+    byApp.set(r.applicationId, list)
+  }
+  return [...byApp.values()].map((outcomes) => ({ outcomes }))
+}
+
+/** Replaces the aliases wholesale; the caller has normalised them (normalizeAliases). */
+export function setCompanyAliases(db: Db, applicationId: string, aliases: string[]): void {
+  db.update(applications)
+    .set({ companyAliases: aliases })
+    .where(eq(applications.id, applicationId))
+    .run()
 }
 
 /**
@@ -449,4 +638,22 @@ export function listApplications(db: Db, opts?: { archived?: boolean }): Applica
         hasDocuments: row.documents != null,
       }
     })
+}
+
+/**
+ * The cheap projection the discover page annotates cards from: every
+ * application's identity, link, status and age — no requirements, mappings
+ * or posting bodies.
+ */
+export function listApplicationLinks(db: Db): ApplicationLink[] {
+  return db
+    .select({
+      id: applications.id,
+      sourceUrl: applications.sourceUrl,
+      status: applications.status,
+      createdAt: applications.createdAt,
+    })
+    .from(applications)
+    .all()
+    .map((row) => ({ ...row, status: toStatus(row.status) }))
 }

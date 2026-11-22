@@ -4,6 +4,43 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Web edition:** CVForge runs entirely in the browser. The database lives
+  in the browser's private storage, your Anthropic key talks to Anthropic
+  directly, and nothing passes through a server of ours. Export and import
+  the database file, an optional password lock, and a page that says
+  plainly what is stored where.
+- **Share a posting from your phone:** install the web edition and share
+  screenshots of a job posting to it; it reads them and analyses the job.
+- **Chrome extension:** an "Analizar" button beside a LinkedIn posting and
+  CVForge in the side panel, working on your own data.
+- **Interview prep** for an application, grounded in your own experience.
+- **Base CVs** you can keep ready, update and translate.
+- **Your details are editable** on Mi experiencia: summary, skills, target
+  titles, location, time zone, markets and work authorization.
+- Any country as a market, with the Spanish of that country.
+
+### Changed
+
+- A new, lighter design: one light theme, a calmer home page, each
+  application as one page, and Mi experiencia simplified to one clear
+  action per role.
+- The stage bar keeps an interview visible after a later rejection.
+- Dates are picked as month and year, never typed.
+- Importing your CV again merges with what you already edited instead of
+  replacing it.
+- Numbers are compared as values in every check, in any ISO currency.
+
+### Fixed
+
+- Roles print their real employer and dates from your profile, never the
+  model's copy of them.
+- A CV's top line is a headline you can back up, not the posting's title.
+- Spend is recorded even when a call is cut off mid-way.
+
 ## [1.4.0] - 2026-10-07
 
 ### Added

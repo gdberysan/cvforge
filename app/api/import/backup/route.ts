@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { paidRunInFlight } from '@/lib/ai/in-flight'
 import { validateBackup } from '@/lib/db/backup'
 import { restoreDatabase } from '@/lib/db/client'
 import { DatabaseInUseError } from '@/lib/db/restore'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
+import { doorOf, tailnetConfig } from '@/lib/http/doors'
 import { isSameOriginRequest } from '@/lib/http/same-origin'
 
 const MAX_BACKUP_BYTES = 50 * 1024 * 1024
@@ -22,6 +24,14 @@ const Body = z.object({ backup: z.string().min(100).max(MAX_BACKUP_BASE64) })
 export async function POST(request: Request) {
   if (isDemo()) return NextResponse.json(demoBlock(), { status: 403 })
 
+  // Defence in depth behind the guard's path check: whatever spelling of
+  // this path reached the handler, only the Mac itself may run it.
+  if (doorOf(request.headers, tailnetConfig()) !== 'local') {
+    return NextResponse.json(
+      { error: 'Only from the Mac itself.', code: 'mac-only' },
+      { status: 403 },
+    )
+  }
   if (!isSameOriginRequest(request)) {
     return NextResponse.json({ error: 'forbidden', code: 'forbidden' }, { status: 403 })
   }
@@ -42,6 +52,16 @@ export async function POST(request: Request) {
       {
         status: 422,
       },
+    )
+  }
+
+  // A paid run in progress would save its result into whatever database is
+  // there when it finishes — the restored one, where its application may not
+  // exist. Wait for it instead of losing what it cost.
+  if (paidRunInFlight()) {
+    return NextResponse.json(
+      { error: 'A paid run is still in progress.', code: 'run-in-progress' },
+      { status: 409 },
     )
   }
 

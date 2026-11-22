@@ -3,12 +3,15 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { skipApplicationAction } from '@/app/(app)/triage/actions'
-import { useT } from '@/components/i18n/LocaleProvider'
+import { useLocale, useT } from '@/components/i18n/LocaleProvider'
+import { MarketOptions } from '@/components/ui/MarketOptions'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText, plural } from '@/lib/i18n'
+import { marketLabel } from '@/lib/markets'
 import { sourceFromUrl } from '@/lib/posting-source'
-import type { Coverage, EvidenceMapping, Market, Requirement } from '@/lib/schemas'
+import type { Coverage, EvidenceMapping, Market, Requirement, Source } from '@/lib/schemas'
 import { readEventStream } from '@/lib/sse-client'
+import { haptic } from '@/lib/ui/haptics'
 import { VerdictCard } from './VerdictCard'
 
 type Result = {
@@ -21,33 +24,48 @@ type Result = {
   mappings: EvidenceMapping[]
 }
 
-/** Where you would actually be working. It decides whether a location,
- *  timezone or authorization line in the posting is a blocker or noise. */
-const MARKETS: { value: Market; label: string }[] = [
-  { value: 'mx', label: 'mx' },
-  { value: 'us-remote', label: 'us-remote' },
-  { value: 'eu-remote', label: 'eu-remote' },
-]
-
 export function TriageConsole({
-  defaultMarket = 'mx',
+  defaultMarket = 'us-remote',
+  ownMarkets = [],
   initialText = '',
+  initialSource,
+  initialSourceUrl,
   demoPostings,
   compact = false,
+  title,
+  secondary,
+  footer,
 }: {
+  /** Where you would actually be working. It decides whether a location,
+   *  timezone or authorization line in the posting is a blocker or noise. */
   defaultMarket?: Market
+  /** The profile's markets, offered first. */
+  ownMarkets?: readonly Market[]
   /** Prefilled posting — the wizard's sample, or nothing. */
   initialText?: string
+  /** Discover handoff: recorded on the application, defaulted by the API otherwise. */
+  initialSource?: Source
+  initialSourceUrl?: string
   /** Demo only: the seeded postings; the box becomes a chooser. */
   demoPostings?: { id: string; label: string; text: string }[]
   /** On a page whose job is a list (the pipeline): the box starts three rows
    *  tall and grows to the full height when it is focused or holds text. */
   compact?: boolean
+  /** A heading inside the card ("A new posting"), where the page has none. */
+  title?: string
+  /** A second way in beside Analyse — the web edition's screenshots. */
+  secondary?: React.ReactNode
+  /** Quiet help at the bottom of the card (hints, the sample link). */
+  footer?: React.ReactNode
 }) {
   const t = useT()
+  const locale = useLocale()
   const router = useRouter()
   const [market, setMarket] = useState<Market>(defaultMarket)
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState(initialSourceUrl ?? '')
+  // The discover handoff names the source once; the next posting pasted
+  // into this same box must not inherit it (nor the previous link).
+  const [source, setSource] = useState(initialSource)
   const [text, setText] = useState(initialText)
   const [result, setResult] = useState<Result | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -96,9 +114,10 @@ export function TriageConsole({
         body: JSON.stringify({
           text,
           market,
-          // Read off the host, so it is not a second thing to state by hand
-          // after pasting the link.
-          source: trimmedUrl ? sourceFromUrl(trimmedUrl) : undefined,
+          // A caller that already knows the source (the /discover handoff) wins;
+          // otherwise it is read off the host, so it is not a second thing to
+          // state by hand after pasting the link.
+          source: source ?? (trimmedUrl ? sourceFromUrl(trimmedUrl) : undefined),
           // Undefined, never '': the route validates this with z.string().url(),
           // so an empty string would fail the whole request and cost a paste
           // its analysis over a field the user deliberately left blank.
@@ -112,6 +131,7 @@ export function TriageConsole({
         if (!res.ok) throw new ApiFailure(data.error, data.code)
         setResult(data)
         setTriaged((n) => n + 1)
+        haptic('done')
         return
       }
 
@@ -119,11 +139,13 @@ export function TriageConsole({
         if (event.done) {
           setResult(event as unknown as Result)
           setTriaged((n) => n + 1)
+          haptic('done')
         } else if (typeof event.stage === 'string') {
           setStage({ name: event.stage, detail: event.detail as string | undefined })
         }
       })
     } catch (e) {
+      haptic('failed')
       // Known codes render in the UI language; anything else shows the
       // server's own words rather than nothing.
       setError(
@@ -144,6 +166,7 @@ export function TriageConsole({
     setResult(null)
     setText('')
     setUrl('')
+    setSource(undefined)
     setError(null)
     requestAnimationFrame(() => boxRef.current?.focus())
   }
@@ -167,85 +190,29 @@ export function TriageConsole({
     next()
   }
 
-  // The current in the frame: a slow, faint trace while the box waits for a
-  // paste, a fast bright one while the machine works, none once it has
-  // answered. Purely a state of the console; the SVG is decoration.
-  const live = result ? undefined : running ? 'is-running' : 'is-idle'
   const expanded = !compact || focused || text.length > 0
+  const status = running
+    ? `${stageCopy(stage?.name)}${stage?.detail ? `  ·  ${stage.detail}` : ''}`
+    : result
+      ? result.company.trim()
+        ? `${result.jobTitle} · ${result.company}`
+        : result.jobTitle
+      : canRun
+        ? t('triage.ready')
+        : ''
 
   return (
     <div>
-      <div className={['console', 'console-live', live].filter(Boolean).join(' ')}>
-        {live && (
-          <svg className="console-trace" aria-hidden="true" focusable="false">
-            <rect className="console-trace-tail" pathLength="100" />
-            <rect className="console-trace-head" pathLength="100" />
-          </svg>
-        )}
-        <p className="console-line">
-          <span className="console-sigil">$</span>
-          <span className="cmd-token">cvforge triage --posting</span>
-          {/* The one setting that changes the answer, written as what it is:
-              a flag on the command. A form control above the box would be a
-              second thing to look at before you have even pasted anything. */}
-          <label
-            className="cmd-token"
-            style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4 }}
-          >
-            <span style={{ color: 'var(--text-faint)' }}>--market</span>
-            <span className="sr-only">{t('triage.market.label')}</span>
-            <select
-              value={market}
-              onChange={(e) => setMarket(e.target.value as Market)}
-              disabled={running || Boolean(result)}
-              className="flag-select"
-              // A <select> sizes itself to its widest option, which left the
-              // underline running on past a short value like "mx".
-              style={{ width: `${market.length + 1}ch` }}
-            >
-              {MARKETS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          {/* Second flag on the same command line, for the same reason --market
-              is one: the link is a fact about the posting, not a form to fill
-              in. Keeping it here means the URL is captured at the one moment
-              it is still on the clipboard. */}
-          <label
-            className="cmd-token"
-            style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4 }}
-          >
-            <span style={{ color: 'var(--text-faint)' }}>--url</span>
-            <span className="sr-only">{t('triage.url.label')}</span>
-            <input
-              type="url"
-              inputMode="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              disabled={running || Boolean(result)}
-              placeholder={t('triage.url.placeholder')}
-              className="flag-input"
-            />
-          </label>
-          {running && <span className="cursor" aria-hidden />}
-        </p>
+      {/* One card, one gesture (friendly redesign 2026-11-21): paste, then
+          Analyse. Where you would work and the link are details, folded
+          under one line that already says the market chosen for you. */}
+      <div className={running ? 'intake-card is-running' : 'intake-card'}>
+        {title && <h2 className="intake-title">{title}</h2>}
 
         {!result && demoPostings && demoPostings.length > 0 && (
-          <div style={{ marginTop: 'var(--space-4)' }}>
-            <p className="fact" style={{ color: 'var(--text-muted)' }}>
-              {t('demo.choose')}
-            </p>
-            <div
-              style={{
-                display: 'flex',
-                gap: 'var(--space-2)',
-                flexWrap: 'wrap',
-                marginTop: 'var(--space-2)',
-              }}
-            >
+          <div className="intake-demo">
+            <p className="intake-hint">{t('demo.choose')}</p>
+            <div className="intake-demo-list">
               {demoPostings.map((p) => (
                 <button
                   key={p.id}
@@ -273,68 +240,83 @@ export function TriageConsole({
               // duplicate application rows.
               if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && canRun && !running) analyse()
             }}
-            rows={expanded ? 12 : 3}
+            rows={expanded ? 10 : 4}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             // biome-ignore lint/a11y/noAutofocus: this page exists to receive a paste
             autoFocus={!compact}
             readOnly={Boolean(demoPostings?.length)}
-            title={demoPostings?.length ? t('demo.readOnlyBox') : undefined}
             placeholder={t('triage.placeholder')}
             aria-label={t('triage.aria')}
-            className="field-bare"
-            // No resize grabber: the console is the frame, and a drag handle
-            // inside it breaks the one thing this screen is trying to be.
-            style={{ marginTop: 'var(--space-4)', font: 'var(--type-mono)', resize: 'none' }}
+            className="field intake-box"
           />
         )}
 
-        {/* Muted, not faint: this line is live feedback during a 30-second
-            run, so it has to clear the small-text contrast floor. */}
-        <p
-          className="console-line"
-          aria-live="polite"
-          style={{ color: 'var(--text-muted)', marginTop: 'var(--space-3)' }}
-        >
-          <span aria-hidden>&gt;</span>
-          <span>
-            {running && stageCopy(stage?.name)}
-            {running && stage?.detail && `  ·  ${stage.detail}`}
-            {!running &&
-              result &&
-              (result.company.trim() ? `${result.jobTitle} @ ${result.company}` : result.jobTitle)}
-            {!running && !result && canRun && t('triage.ready')}
-            {!running && !result && !canRun && t('triage.waiting')}
-          </span>
-          {result?.cached && <span>{t('triage.cached')}</span>}
+        {!result && (
+          <details className="intake-more">
+            <summary>{t('triage.more', { market: marketLabel(market, locale) })}</summary>
+            <div className="intake-more-body">
+              <label className="intake-field">
+                <span>{t('triage.market.label')}</span>
+                <select
+                  value={market}
+                  onChange={(e) => setMarket(e.target.value as Market)}
+                  disabled={running}
+                  className="field"
+                >
+                  <MarketOptions own={ownMarkets} current={market} locale={locale} />
+                </select>
+              </label>
+              {/* The link is a fact about the posting, captured here while it
+                  is still on the clipboard. */}
+              <label className="intake-field">
+                <span>{t('triage.url.label')}</span>
+                <input
+                  type="url"
+                  inputMode="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  disabled={running}
+                  placeholder={t('triage.url.placeholder')}
+                  className="field"
+                />
+              </label>
+            </div>
+          </details>
+        )}
+
+        {/* Live feedback during a 30-second run; muted, never faint. */}
+        <p className={status ? 'intake-status' : 'intake-status is-empty'} aria-live="polite">
+          {running && <span className="intake-spinner" aria-hidden />}
+          <span>{status}</span>
+          {result?.cached && <span> {t('triage.cached')}</span>}
         </p>
 
-        {triaged > 0 && (
-          <p className="fact" style={{ marginTop: 'var(--space-2)', color: 'var(--text-muted)' }}>
-            {plural(t, triaged, 'triage.session')}
+        {error && (
+          // role="alert" so the failure is announced — the status line goes
+          // quiet on error, and silence reads as a hang.
+          <p role="alert" className="intake-error">
+            {error}
           </p>
         )}
+
+        {!result && (
+          <div className="intake-actions">
+            {secondary}
+            <button
+              type="button"
+              onClick={analyse}
+              disabled={running || !canRun}
+              className="btn btn-primary"
+            >
+              {running ? t('triage.running') : t('triage.run')}
+            </button>
+          </div>
+        )}
+
+        {triaged > 0 && <p className="intake-hint">{plural(t, triaged, 'triage.session')}</p>}
+        {!result && footer && <div className="intake-footer">{footer}</div>}
       </div>
-
-      {error && (
-        // role="alert" so the failure is announced — the aria-live status
-        // line above goes quiet on error, and silence reads as a hang.
-        <p role="alert" style={{ color: 'var(--signal-error)', marginTop: 'var(--space-4)' }}>
-          {error}
-        </p>
-      )}
-
-      {!result && (
-        <button
-          type="button"
-          onClick={analyse}
-          disabled={running || !canRun}
-          className="btn btn-primary"
-          style={{ marginTop: 'var(--space-5)' }}
-        >
-          {running ? t('triage.running') : t('triage.run')}
-        </button>
-      )}
 
       {result && (
         // 88px clears the sticky nav, which would otherwise cover the blocker
@@ -350,7 +332,7 @@ export function TriageConsole({
             // The row is already persisted as `triaged`, so saving for later
             // is exactly: leave it in the pipeline and move on.
             onSaveForLater={next}
-            onBuild={() => router.push(`/application/${result.applicationId}`)}
+            onBuild={() => router.push(`/application/${result.applicationId}?step=decide`)}
           />
         </div>
       )}

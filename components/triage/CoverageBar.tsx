@@ -1,18 +1,17 @@
 'use client'
 
 import { useT } from '@/components/i18n/LocaleProvider'
+import { Meta } from '@/components/ui/Meta'
 import type { Coverage } from '@/lib/schemas'
 
 /**
- * Amber means STRONG here, deliberately departing from Korven's --signal-warn
- * alias (spec §10.3). In this system amber is the raven's eye — the positive
- * focal signal — so a fully covered posting should glow. Mapping it to a
- * warning would invert the meaning of the brand's only accent.
+ * What you have is green (friendly redesign 2026-11-21), partial a mid grey,
+ * missing a light red: three lightnesses, so they part without colour too.
  */
 const SEGMENT_COLOR = {
-  strong: 'var(--accent)',
+  strong: 'var(--tone-strong)',
   partial: 'var(--bar-partial)',
-  missing: 'var(--signal-error)',
+  missing: 'var(--tone-missing-border)',
 } as const
 
 export function CoverageBar({ coverage }: { coverage: Coverage }) {
@@ -56,22 +55,22 @@ export function CoverageBar({ coverage }: { coverage: Coverage }) {
       </div>
 
       <p className="fact" style={{ marginTop: 'var(--space-3)' }}>
-        {t('coverage.evidenced', {
-          strong: coverage.mandatoryStrong,
-          total: coverage.mandatoryTotal,
-        })}
-        {coverage.mandatoryPartial > 0 && (
-          <span style={{ color: 'var(--text-muted)' }}>
-            {'  ·  '}
-            {t('coverage.partial', { n: coverage.mandatoryPartial })}
-          </span>
-        )}
-        {coverage.mandatoryMissing > 0 && (
-          <span style={{ color: 'var(--text-muted)' }}>
-            {'  ·  '}
-            {t('coverage.missing', { n: coverage.mandatoryMissing })}
-          </span>
-        )}
+        <Meta>
+          {t('coverage.evidenced', {
+            strong: coverage.mandatoryStrong,
+            total: coverage.mandatoryTotal,
+          })}
+          {coverage.mandatoryPartial > 0 && (
+            <span style={{ color: 'var(--text-muted)' }}>
+              {t('coverage.partial', { n: coverage.mandatoryPartial })}
+            </span>
+          )}
+          {coverage.mandatoryMissing > 0 && (
+            <span style={{ color: 'var(--text-muted)' }}>
+              {t('coverage.missing', { n: coverage.mandatoryMissing })}
+            </span>
+          )}
+        </Meta>
       </p>
     </div>
   )

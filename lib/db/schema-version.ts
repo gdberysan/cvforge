@@ -15,7 +15,10 @@ export function newestKnownMigration(
   migrationsFolder = path.join(process.cwd(), 'drizzle'),
 ): number {
   const journal = JSON.parse(
-    readFileSync(path.join(migrationsFolder, 'meta', '_journal.json'), 'utf8'),
+    readFileSync(
+      path.join(/* turbopackIgnore: true */ migrationsFolder, 'meta', '_journal.json'),
+      'utf8',
+    ),
   ) as { entries: { when: number }[] }
   return Math.max(0, ...journal.entries.map((e) => e.when))
 }

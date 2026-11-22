@@ -6,7 +6,10 @@ import { deleteApplicationAction } from '@/app/(app)/application/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { errorText } from '@/lib/i18n'
 
-/** Deleting an application takes its documents with it, so it takes two clicks. */
+/**
+ * Deleting an application takes its documents with it, so it takes two
+ * clicks. It sits quietly at the foot of Seguimiento, beside the aliases.
+ */
 export function DeleteApplication({ applicationId }: { applicationId: string }) {
   const t = useT()
   const router = useRouter()
@@ -15,22 +18,21 @@ export function DeleteApplication({ applicationId }: { applicationId: string }) 
   const [isPending, startTransition] = useTransition()
 
   return (
-    <p style={{ marginTop: 'var(--space-9)' }} aria-live="polite">
+    <div className="app-delete" aria-live="polite">
       {error && (
-        <span role="alert" style={{ color: 'var(--signal-error)', marginRight: 'var(--space-3)' }}>
+        <span role="alert" className="app-delete-error">
           {error}
         </span>
       )}
       {!armed ? (
-        <button type="button" className="action-quiet" onClick={() => setArmed(true)}>
+        <button type="button" className="btn btn-danger-outline" onClick={() => setArmed(true)}>
           {t('application.delete')}
         </button>
       ) : (
         <button
           type="button"
-          className="action-quiet"
+          className="btn btn-danger"
           disabled={isPending}
-          style={{ color: 'var(--signal-error)' }}
           onClick={() =>
             startTransition(async () => {
               const result = await deleteApplicationAction(applicationId)
@@ -45,6 +47,6 @@ export function DeleteApplication({ applicationId }: { applicationId: string }) 
           {t('application.deleteConfirm')}
         </button>
       )}
-    </p>
+    </div>
   )
 }

@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import { manualId } from '@/lib/manual-id'
 import type { MasterProfile, Project } from '@/lib/schemas'
 
 export type NewProject = {
@@ -32,7 +32,7 @@ export function addProject(
   profile: MasterProfile,
   input: NewProject,
 ): { profile: MasterProfile; projectId: string } {
-  const projectId = `proj_${randomUUID().slice(0, 8)}`
+  const projectId = manualId('proj')
   return {
     projectId,
     profile: { ...profile, projects: [...profile.projects, toProject(projectId, input)] },

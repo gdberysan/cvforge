@@ -211,7 +211,9 @@ describe('mapEvidence', () => {
   })
 
   it("asks for rationales in the reader's language, outside the cached system blocks", async () => {
-    callStructuredMock.mockResolvedValue({ mappings: [] })
+    callStructuredMock.mockResolvedValue({
+      mappings: [{ requirementId: 'req_1', evidenceIds: [], strength: 'none', rationale: '' }],
+    })
     await mapEvidence({ requirements, projection, validEvidenceIds })
     await mapEvidence({ requirements, projection, validEvidenceIds, rationaleLanguage: 'en' })
     const [es, en] = callStructuredMock.mock.calls.map((c) => c[0])
@@ -333,6 +335,45 @@ describe('mapEvidence', () => {
     callStructuredMock.mockResolvedValue({ mappings: [] })
     const result = await mapEvidence({ requirements, projection, validEvidenceIds })
     expect(result).toHaveLength(1)
-    expect(result[0]).toMatchObject({ requirementId: 'req_1', strength: 'none', evidenceIds: [] })
+    expect(result[0]).toMatchObject({
+      requirementId: 'req_1',
+      strength: 'none',
+      evidenceIds: [],
+      unjudged: true,
+    })
+  })
+
+  it('asks once more, about the omitted requirements only', async () => {
+    const location: Requirement = {
+      id: 'req_2',
+      text: 'Based in Mexico',
+      keyword: 'Mexico',
+      variants: [],
+      kind: 'location',
+      mandatory: true,
+      weight: 3,
+    }
+    callStructuredMock
+      .mockResolvedValueOnce({
+        mappings: [
+          { requirementId: 'req_1', evidenceIds: ['ev_1'], strength: 'strong', rationale: 'r' },
+        ],
+      })
+      .mockResolvedValueOnce({
+        mappings: [
+          { requirementId: 'req_2', evidenceIds: [], strength: 'strong', rationale: 'CDMX' },
+        ],
+      })
+    const result = await mapEvidence({
+      requirements: [...requirements, location],
+      projection,
+      validEvidenceIds,
+    })
+    expect(callStructuredMock).toHaveBeenCalledTimes(2)
+    const retry = callStructuredMock.mock.calls[1][0].user as string
+    expect(retry).toContain('req_2')
+    expect(retry).not.toContain('req_1 |')
+    expect(result[1]).toMatchObject({ requirementId: 'req_2', strength: 'strong' })
+    expect(result[1].unjudged).toBeUndefined()
   })
 })

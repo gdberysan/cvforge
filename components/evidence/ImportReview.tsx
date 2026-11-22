@@ -4,12 +4,16 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { acceptImportAction } from '@/app/(app)/evidence/import/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { IconDocument } from '@/components/ui/icons'
+import { Meta } from '@/components/ui/Meta'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText, plural } from '@/lib/i18n'
 import { formatSpan } from '@/lib/import/dates'
+import { periodLabel } from '@/lib/period'
 import { readAsBase64 } from '@/lib/read-file'
 import type { ParsedCV } from '@/lib/schemas'
 import { readEventStream } from '@/lib/sse-client'
+import { haptic } from '@/lib/ui/haptics'
 
 const MAX_PDF_BYTES = 10 * 1024 * 1024
 
@@ -81,6 +85,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
 
       await readEventStream(res.body, (event) => {
         if (event.done) {
+          haptic('done')
           setParsed(event.parsed as ParsedCV)
           setProblems(event.problems as string[])
         } else if (typeof event.stage === 'string') {
@@ -88,6 +93,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
         }
       })
     } catch (e) {
+      haptic('failed')
       setError(
         e instanceof ApiFailure
           ? errorText(t, e.code, e.message)
@@ -115,7 +121,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
 
   if (!parsed) {
     return (
-      <div>
+      <div className="import-card">
         {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop is inherently pointer-only; the file button and input inside are the accessible path to the same action */}
         <div
           className="console"
@@ -136,28 +142,9 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
           }}
           style={dragOver ? { borderColor: 'var(--accent)' } : undefined}
         >
-          <p className="console-line">
-            <span className="console-sigil">$</span>
-            <span className="cmd-token">cvforge import --cv</span>
-            {mode === 'pdf' && file && <span className="cmd-token">{file.name}</span>}
-            {loading && <span className="cursor" aria-hidden />}
-          </p>
-
           {mode === 'pdf' ? (
             <>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 'var(--space-4)',
-                  minHeight: '16rem',
-                  margin: 'var(--space-4) 0',
-                  border: `1px dashed ${dragOver ? 'var(--accent)' : 'var(--border-default)'}`,
-                  borderRadius: 'var(--radius-md)',
-                }}
-              >
+              <div className={`import-drop${dragOver ? ' is-over' : ''}`}>
                 {loading ? (
                   // The drop zone becomes the waiting screen: the two lines are
                   // the two real model calls, so this is progress, not theatre.
@@ -168,11 +155,14 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
                     <span style={{ color: stage === 'evidence' ? 'var(--accent)' : undefined }}>
                       {stageCopy}
                     </span>
-                    <span className="cursor" aria-hidden />
+                    <span className="intake-spinner" aria-hidden />
                   </p>
                 ) : (
                   <>
-                    <p style={{ color: 'var(--text-muted)' }}>{t('import.drop')}</p>
+                    <span className="import-drop-icon" aria-hidden>
+                      <IconDocument />
+                    </span>
+                    <p className="import-drop-text">{t('import.drop')}</p>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -221,15 +211,14 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
               autoFocus
               placeholder={t('import.placeholder')}
               aria-label={t('import.aria')}
-              className="field-bare"
-              // The console is the frame; a drag handle inside it breaks that.
-              style={{ marginTop: 'var(--space-4)', font: 'var(--type-mono)', resize: 'none' }}
+              className="field intake-box"
+              style={{ marginTop: 'var(--space-4)' }}
             />
           )}
 
           {/* Muted, not faint: live feedback must clear the contrast floor. */}
-          <p className="console-line" aria-live="polite" style={{ color: 'var(--text-muted)' }}>
-            <span aria-hidden>&gt;</span>
+          <p className="intake-status" aria-live="polite">
+            {loading && <span className="intake-spinner" aria-hidden />}
             <span>
               {loading && stageCopy}
               {!loading &&
@@ -266,7 +255,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
           </button>
           <button
             type="button"
-            className="action-quiet"
+            className="action import-switch"
             onClick={() => switchMode(mode === 'pdf' ? 'text' : 'pdf')}
           >
             {mode === 'pdf' ? t('import.pasteInstead') : t('import.pdfInstead')}
@@ -350,11 +339,11 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
 
       <p className="eyebrow">{t('import.skeleton')}</p>
       <p className="fact" style={{ marginTop: 'var(--space-3)', color: 'var(--text-muted)' }}>
-        {t('import.roles', { n: parsed.profile.experience.length })}
-        {'  ·  '}
-        {plural(t, parsed.evidence.length, 'evidence.records')}
-        {'  ·  '}
-        {t('evidence.quantified', { n: quantified })}
+        <Meta>
+          {t('import.roles', { n: parsed.profile.experience.length })}
+          {plural(t, parsed.evidence.length, 'evidence.records')}
+          {t('evidence.quantified', { n: quantified })}
+        </Meta>
       </p>
 
       <p
@@ -381,7 +370,12 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
               </span>
             </h2>
             <p className="fact" style={{ marginTop: 'var(--space-2)' }}>
-              {role.period.start} → {role.period.end ?? t('evidence.present')}
+              {periodLabel(
+                role.period.start,
+                role.period.end,
+                t('intl.locale'),
+                t('evidence.present'),
+              )}
             </p>
 
             <ul

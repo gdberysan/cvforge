@@ -18,6 +18,14 @@ describe('parseMetric', () => {
     })
   })
 
+  it('reads a Latin American currency code as the currency', () => {
+    expect(parseMetric('ventas de 2,000,000 COP en el primer año')).toMatchObject({
+      value: 2_000_000,
+      unit: 'COP',
+      currency: 'COP',
+    })
+  })
+
   it('reads a multiplier', () => {
     expect(parseMetric('tripled throughput 3x')).toMatchObject({ value: 3, unit: 'x' })
   })

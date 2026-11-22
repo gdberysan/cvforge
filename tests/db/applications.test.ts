@@ -10,6 +10,7 @@ import {
   findByPostingHash,
   getApplication,
   listApplications,
+  logManualOutcome,
   mergeDocuments,
   removeOutcome,
   saveDocuments,
@@ -58,6 +59,7 @@ const coverage: Coverage = {
   desirablePartial: 0,
   desirableMissing: 0,
   hardBlockers: [],
+  unjudgedGates: [],
   verdict: 'strong',
 }
 
@@ -107,6 +109,48 @@ describe('application queries', () => {
 
       appendOutcome(db, id, { at: '2026-08-14T00:00:00.000Z', type: 'interview' })
       expect(getApplication(db, id)?.status).toBe('interviewing')
+    })
+  })
+
+  it('counts a repeated tap of the same outcome as the one already logged', () => {
+    withDb((db) => {
+      const id = createApplication(db, input)
+      const t0 = new Date('2026-09-07T21:06:10.000Z')
+      const first = logManualOutcome(db, id, 'interview', t0)
+      expect(first.repeated).toBe(false)
+      expect(logManualOutcome(db, id, 'interview', new Date(t0.getTime() + 2_000))).toEqual({
+        id: first.id,
+        repeated: true,
+      })
+      expect(logManualOutcome(db, id, 'interview', new Date(t0.getTime() + 9 * 60_000)).id).toBe(
+        first.id,
+      )
+      // A different outcome is its own event; so is the same one much later.
+      expect(logManualOutcome(db, id, 'screen', new Date(t0.getTime() + 3_000)).id).not.toBe(
+        first.id,
+      )
+      const later = logManualOutcome(db, id, 'interview', new Date(t0.getTime() + 11 * 60_000))
+      expect(later.repeated).toBe(false)
+      expect(getApplication(db, id)?.outcomes.map((o) => o.type)).toEqual([
+        'interview',
+        'screen',
+        'interview',
+      ])
+    })
+  })
+
+  it('never folds a tap into an outcome the agent logged from an email', () => {
+    withDb((db) => {
+      const id = createApplication(db, input)
+      const t0 = new Date('2026-10-16T12:00:00.000Z')
+      const fromMail = appendOutcome(db, id, {
+        at: t0.toISOString(),
+        type: 'interview',
+        note: 'gmail:abc «confirmo tu entrevista»',
+      })
+      expect(logManualOutcome(db, id, 'interview', new Date(t0.getTime() + 60_000))).not.toBe(
+        fromMail,
+      )
     })
   })
 
@@ -232,6 +276,7 @@ describe('application queries', () => {
           unknownEntities: [],
           distortions: [],
           claimedGaps: [],
+          unsupportedClaims: [],
           passed: true,
         },
       )

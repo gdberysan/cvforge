@@ -69,7 +69,15 @@ function renderPanel(over: Partial<typeof selection> = {}) {
   )
 }
 
+/** A gap is a line until you say you have done it: open each one. */
+function openGaps() {
+  for (const b of screen.queryAllByRole('button', { name: "I've done this — add it" })) {
+    fireEvent.click(b)
+  }
+}
+
 function fillFirstGap() {
+  openGaps()
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'I built two workflows.' } })
   fireEvent.change(screen.getByRole('combobox'), { target: { value: 'exp_1' } })
 }
@@ -111,15 +119,23 @@ describe('GapFill', () => {
   it('will not submit while every gap is blank, so skipping costs nothing', () => {
     renderPanel()
     expect(
-      (screen.getByRole('button', { name: /record these/i }) as HTMLButtonElement).disabled,
+      (screen.getByRole('button', { name: /save these/i }) as HTMLButtonElement).disabled,
     ).toBe(true)
+  })
+
+  it('a gap starts as a line with one way in, not a form', () => {
+    renderPanel()
+    expect(screen.queryByRole('textbox')).toBeNull()
+    openGaps()
+    expect(screen.getByRole('textbox')).toBeTruthy()
   })
 
   it('will not submit an answer with no role chosen', () => {
     renderPanel()
+    openGaps()
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'I built two workflows.' } })
     expect(
-      (screen.getByRole('button', { name: /record these/i }) as HTMLButtonElement).disabled,
+      (screen.getByRole('button', { name: /save these/i }) as HTMLButtonElement).disabled,
     ).toBe(true)
   })
 
@@ -131,7 +147,7 @@ describe('GapFill', () => {
   it('sends what was written, with the role the user picked', async () => {
     renderPanel()
     fillFirstGap()
-    fireEvent.click(screen.getByRole('button', { name: /record these/i }))
+    fireEvent.click(screen.getByRole('button', { name: /save these/i }))
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled())
     const body = JSON.parse(
@@ -149,7 +165,7 @@ describe('GapFill', () => {
   it('shows the figures that were left out, not just a count', async () => {
     renderPanel()
     fillFirstGap()
-    fireEvent.click(screen.getByRole('button', { name: /record these/i }))
+    fireEvent.click(screen.getByRole('button', { name: /save these/i }))
 
     await waitFor(() => expect(screen.getByText('40%')).toBeTruthy())
   })
@@ -157,12 +173,12 @@ describe('GapFill', () => {
   it('saves before it re-scores', async () => {
     renderPanel()
     fillFirstGap()
-    fireEvent.click(screen.getByRole('button', { name: /record these/i }))
+    fireEvent.click(screen.getByRole('button', { name: /save these/i }))
 
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /save and re-score/i })).toBeTruthy(),
+      expect(screen.getByRole('button', { name: /save and recheck/i })).toBeTruthy(),
     )
-    fireEvent.click(screen.getByRole('button', { name: /save and re-score/i }))
+    fireEvent.click(screen.getByRole('button', { name: /save and recheck/i }))
 
     await waitFor(() => expect(remapMock).toHaveBeenCalled())
     expect(acceptMock.mock.invocationCallOrder[0]).toBeLessThan(
@@ -174,21 +190,21 @@ describe('GapFill', () => {
     acceptMock.mockResolvedValue({ ok: false, error: 'nope', code: 'invalid-request' })
     renderPanel()
     fillFirstGap()
-    fireEvent.click(screen.getByRole('button', { name: /record these/i }))
+    fireEvent.click(screen.getByRole('button', { name: /save these/i }))
 
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /save and re-score/i })).toBeTruthy(),
+      expect(screen.getByRole('button', { name: /save and recheck/i })).toBeTruthy(),
     )
-    fireEvent.click(screen.getByRole('button', { name: /save and re-score/i }))
+    fireEvent.click(screen.getByRole('button', { name: /save and recheck/i }))
 
     await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
     expect(remapMock).not.toHaveBeenCalled()
-    expect(screen.getByRole('button', { name: /save and re-score/i })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /save and recheck/i })).toBeTruthy()
   })
 
   it('says which requirements can only be fixed on the profile', () => {
     renderPanel({ blockers: [{ ...req('req_9', 'CET overlap'), kind: 'timezone' }] })
-    expect(screen.getByText(/judged against your profile/i)).toBeTruthy()
+    expect(screen.getByText(/checked against your profile/i)).toBeTruthy()
   })
   it('shows the secondary gaps up front when nothing mandatory is missing', () => {
     // Otherwise the screen promises gaps and renders no fields at all: a
@@ -204,6 +220,8 @@ describe('GapFill', () => {
       ],
     })
 
+    // Shown, one button away from its form.
+    openGaps()
     expect(screen.getByRole('textbox')).toBeTruthy()
     expect(screen.getByText(/no python anywhere/i)).toBeTruthy()
   })
@@ -221,9 +239,9 @@ describe('GapFill', () => {
 
     renderPanel()
     fillFirstGap()
-    fireEvent.click(screen.getByRole('button', { name: /record these/i }))
+    fireEvent.click(screen.getByRole('button', { name: /save these/i }))
 
     await waitFor(() => expect(screen.getByText(/already covered/i)).toBeTruthy())
-    expect(screen.queryByRole('button', { name: /save and re-score/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /save and recheck/i })).toBeNull()
   })
 })

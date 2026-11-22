@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { inBrowser } from './client'
 import { type AiErrorKind, classify } from './errors'
 
 /**
@@ -10,7 +11,11 @@ export async function validateApiKey(
   key: string,
 ): Promise<{ ok: true } | { ok: false; kind: AiErrorKind }> {
   try {
-    await new Anthropic({ apiKey: key, maxRetries: 0 }).models.list({ limit: 1 })
+    await new Anthropic({
+      apiKey: key,
+      maxRetries: 0,
+      ...(inBrowser() ? { dangerouslyAllowBrowser: true } : {}),
+    }).models.list({ limit: 1 })
     return { ok: true }
   } catch (error) {
     return { ok: false, kind: classify(error) }

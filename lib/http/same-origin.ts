@@ -27,7 +27,7 @@ export function isSameOriginRequest(request: Request): boolean {
   return isLoopback(host)
 }
 
-function isLoopback(host: string): boolean {
+export function isLoopback(host: string): boolean {
   const name = host
     .replace(/:\d+$/, '')
     .replace(/^\[(.*)\]$/, '$1')

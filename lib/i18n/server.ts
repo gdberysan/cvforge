@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { makeTranslate, type Translate } from './index'
-import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, type Locale } from './locale'
+import { FIRST_VISIT_LOCALE, isLocale, LOCALE_COOKIE, type Locale } from './locale'
 
 /**
  * A cookie rather than a profile field: the very first screen — paste your CV —
@@ -9,7 +9,7 @@ import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, type Locale } from './locale'
  */
 export async function getLocale(): Promise<Locale> {
   const value = (await cookies()).get(LOCALE_COOKIE)?.value
-  return isLocale(value) ? value : DEFAULT_LOCALE
+  return isLocale(value) ? value : FIRST_VISIT_LOCALE
 }
 
 export async function getTranslate(): Promise<{ locale: Locale; t: Translate }> {

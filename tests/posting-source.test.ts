@@ -16,13 +16,13 @@ describe('sourceFromUrl', () => {
 
   it('never matches a lookalike host that merely ends in the same letters', () => {
     // notlinkedin.com must not read as LinkedIn: a substring check would say
-    // it does, and the application would record the wrong source.
+    // it does, and the source is what /discover later matches applications on.
     expect(sourceFromUrl('https://notlinkedin.com/jobs/view/1')).toBe('other')
     expect(sourceFromUrl('https://linkedin.com.evil.example/jobs/1')).toBe('other')
   })
 
   it('says "other" for an unknown host rather than guessing a company site', () => {
-    expect(sourceFromUrl('https://careers.examplecorp.com/job/123')).toBe('other')
+    expect(sourceFromUrl('https://careers.acme-retail.com/job/123')).toBe('other')
   })
 
   it('says "other" for anything that is not a usable URL', () => {

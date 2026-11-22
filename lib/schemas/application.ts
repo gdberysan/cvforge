@@ -16,6 +16,8 @@ export const OutcomeEventSchema = z.object({
   at: z.string().datetime(),
   type: OutcomeTypeSchema,
   note: z.string().optional(),
+  /** When the interview takes place; not model-facing, so no format constraint. */
+  scheduledAt: z.string().optional(),
 })
 export type OutcomeEvent = z.infer<typeof OutcomeEventSchema>
 

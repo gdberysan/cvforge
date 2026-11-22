@@ -41,7 +41,7 @@ function bodyOf() {
 describe('TriageConsole posting URL', () => {
   it('sends the URL it was given, so the posting can be reopened later', async () => {
     render(<TriageConsole initialText={posting} />)
-    fireEvent.change(screen.getByLabelText(/url/i), {
+    fireEvent.change(screen.getByLabelText(/link to the posting/i), {
       target: { value: 'https://www.linkedin.com/jobs/view/42' },
     })
     fireEvent.click(screen.getByRole('button', { name: /analiz|analys/i }))
@@ -52,7 +52,7 @@ describe('TriageConsole posting URL', () => {
 
   it('infers the source from the host instead of asking for it twice', async () => {
     render(<TriageConsole initialText={posting} />)
-    fireEvent.change(screen.getByLabelText(/url/i), {
+    fireEvent.change(screen.getByLabelText(/link to the posting/i), {
       target: { value: 'https://www.occ.com.mx/empleo/oferta/1' },
     })
     fireEvent.click(screen.getByRole('button', { name: /analiz|analys/i }))
@@ -69,5 +69,24 @@ describe('TriageConsole posting URL', () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled())
     expect(bodyOf().sourceUrl).toBeUndefined()
+  })
+
+  it('keeps a handed-in source when the URL came from discover', async () => {
+    // /discover already knows the job is from LinkedIn; the inference must not
+    // override what the caller stated.
+    render(
+      <TriageConsole
+        initialText={posting}
+        initialSource="linkedin"
+        initialSourceUrl="https://www.linkedin.com/jobs/view/7"
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: /analiz|analys/i }))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    expect(bodyOf()).toMatchObject({
+      source: 'linkedin',
+      sourceUrl: 'https://www.linkedin.com/jobs/view/7',
+    })
   })
 })

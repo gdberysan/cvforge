@@ -52,13 +52,13 @@ describe('InterviewPanel with a stale draft from a different role at the same id
     window.localStorage.setItem(
       'cvforge.interview.exp_1',
       JSON.stringify({
-        fingerprint: { locale: 'en', company: 'Globex.com', title: 'Support Coordinator' },
+        fingerprint: { locale: 'en', company: 'Bazario.com', title: 'Onboarding Coordinator' },
         draft: {
           questions: [
             {
               id: 'q1',
               targetStubId: null,
-              question: 'About Globex?',
+              question: 'About Bazario?',
               why: '',
               probesFor: 'context',
             },
@@ -67,14 +67,14 @@ describe('InterviewPanel with a stale draft from a different role at the same id
         },
       }),
     )
-    const northwindRole: Experience = {
+    const apuestaRole: Experience = {
       id: 'exp_1',
-      title: 'Marketing Coordinator',
-      company: 'Northwind Gaming',
-      period: { start: '2024-03' },
+      title: 'PPC Coordinator',
+      company: 'Apuesta Online',
+      period: { start: '2026-01' },
       summary: '',
     }
-    render(<InterviewPanel role={northwindRole} stubs={[]} existingCount={1} />)
-    expect(screen.queryByText(/About Globex/)).toBeNull()
+    render(<InterviewPanel role={apuestaRole} stubs={[]} existingCount={1} />)
+    expect(screen.queryByText(/About Bazario/)).toBeNull()
   })
 })

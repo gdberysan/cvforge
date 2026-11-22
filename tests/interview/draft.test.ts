@@ -26,7 +26,7 @@ const questions: InterviewQuestion[] = [
   },
 ]
 
-const fp = { locale: 'en' as const, company: 'Northwind Gaming', title: 'Marketing Coordinator' }
+const fp = { locale: 'en' as const, company: 'Apuesta Online', title: 'PPC Coordinator' }
 
 describe('interview drafts', () => {
   it('round-trips questions and answers per role', () => {
@@ -70,14 +70,14 @@ describe('interview drafts', () => {
     saveDraft(
       storage,
       'exp_1',
-      { locale: 'en', company: 'Globex.com', title: 'Support Coordinator' },
-      { questions, answers: { q1: 'About Globex.' } },
+      { locale: 'en', company: 'Bazario.com', title: 'Onboarding Coordinator' },
+      { questions, answers: { q1: 'About Bazario.' } },
     )
     // Same id, now a different role — e.g. after a re-import reassigned it.
     const draft = loadDraft(storage, 'exp_1', {
       locale: 'en',
-      company: 'Northwind Gaming',
-      title: 'Marketing Coordinator',
+      company: 'Apuesta Online',
+      title: 'PPC Coordinator',
     })
     expect(draft).toBeNull()
   })
@@ -90,11 +90,7 @@ describe('interview drafts', () => {
 
   it('resumes a matching draft for the same role and locale', () => {
     const storage = memoryStorage()
-    const esFp = {
-      locale: 'es' as const,
-      company: 'Northwind Gaming',
-      title: 'Marketing Coordinator',
-    }
+    const esFp = { locale: 'es' as const, company: 'Apuesta Online', title: 'PPC Coordinator' }
     saveDraft(storage, 'exp_1', esFp, { questions, answers: { q1: 'En español.' } })
     expect(loadDraft(storage, 'exp_1', esFp)?.answers.q1).toBe('En español.')
   })

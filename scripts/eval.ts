@@ -67,6 +67,7 @@ for (const fx of fixtures) {
     keyword: r.keyword,
     kind: r.kind,
     mandatory: r.mandatory,
+    variants: r.variants,
   }))
 
   const all = compareExtraction(fx.expected.requirements, actual)
@@ -119,6 +120,9 @@ for (const fx of fixtures) {
       expectedVerdict: fx.expected.verdict,
       sameEvidence,
       ok,
+      // The extraction itself, so a drift can be re-judged later without
+      // paying for the run again.
+      actual,
     })}\n`,
   )
 }

@@ -1,14 +1,18 @@
 import type {
   CompanionKind,
   CoverLetter,
+  EvidenceMapping,
   GroundingReport,
   RecruiterMessage,
+  Requirement,
   ScreeningSet,
 } from '@/lib/schemas'
+import { wholeWord } from '@/lib/verify/checks'
 import { runCompanionChecks } from '@/lib/verify/companion'
 import { findTells, warrantsRewrite } from '@/lib/verify/tells'
+import { knownGaps } from './compose'
 import { postingVocabularyOf, verifyDistortions } from './distortions'
-import { buildEntityIndex, projectSourcesOf } from './projection'
+import { buildEntityIndex, recordSourcesOf } from './projection'
 import {
   type CompanionArgs,
   composeCoverLetter,
@@ -126,14 +130,54 @@ export async function composeAndVerifyCompanion(
     ...report.invalidCitations.map((c) => c.bulletId),
     ...report.unverifiedNumbers.map((n) => n.bulletId),
   ])
-  const candidates = paragraphsOf(kind, document).filter((p) => !failedIds.has(p.id))
+  const checked = withGapSources(
+    paragraphsOf(kind, document).filter((p) => !failedIds.has(p.id)),
+    args.requirements,
+    args.mappings,
+  )
   report.distortions = await verifyDistortions(
-    candidates,
+    checked.candidates,
     args.evidence,
-    new Map([...selectedCredentials, ...projectSourcesOf(args.profile, args.evidence)]),
+    new Map([
+      ...selectedCredentials,
+      ...recordSourcesOf(args.profile, args.evidence),
+      ...checked.sources,
+    ]),
     args.reasonLanguage,
+    args.jobTitle,
   )
   report.passed = report.passed && report.distortions.length === 0
 
   return { document, report }
+}
+
+/**
+ * A paragraph naming a known gap — cited or not — carries that gap as a
+ * source of its distortion check, so the model can tell "I have not used
+ * Kubernetes" (honest) from "I run Kubernetes in production" (the claim the
+ * analysis found nothing for). Companions skip the CV's hard gap rule because
+ * naming a gap honestly is allowed in prose; without this, an uncited
+ * paragraph was judged against no sources and the gap never came up at all.
+ */
+export function withGapSources(
+  paragraphs: Paragraphish[],
+  requirements: Requirement[],
+  mappings: EvidenceMapping[],
+): { candidates: Paragraphish[]; sources: Map<string, string> } {
+  const gaps = [...knownGaps(requirements, mappings)].map(
+    ([keyword, requirement]) => [keyword, requirement, wholeWord(keyword)] as const,
+  )
+  const sources = new Map<string, string>()
+  const candidates = paragraphs.map((p) => {
+    const named = gaps.filter(([, , matcher]) => matcher.test(p.text))
+    for (const [keyword, requirement] of named)
+      sources.set(
+        `gap:${keyword}`,
+        `the analysis found NO evidence for "${requirement}". Acknowledging it as a gap is honest; claiming or implying it is not.`,
+      )
+    return named.length === 0
+      ? p
+      : { ...p, citedEvidenceIds: [...p.citedEvidenceIds, ...named.map(([k]) => `gap:${k}`)] }
+  })
+  return { candidates, sources }
 }

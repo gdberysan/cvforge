@@ -5,7 +5,7 @@ const callStructuredMock = vi.fn()
 vi.mock('@/lib/ai/client', () => ({ callStructured: callStructuredMock }))
 
 const { parseCv, validateReferentialIntegrity } = await import('@/lib/ai/stages/parse-cv')
-const { UndatedRoleError } = await import('@/lib/import/dates')
+const { IncompleteRoleError, UndatedRoleError } = await import('@/lib/import/dates')
 const {
   CvSkeletonSchema,
   CvProfileSkeletonSchema,
@@ -25,6 +25,7 @@ const skeleton = {
     links: [],
   },
   summary: '',
+  summaryCitedEvidenceIds: [],
   experience: [
     { id: 'exp_1', title: 'Engineer', company: 'Kavak', period: { start: '2021-03' }, summary: '' },
   ],
@@ -315,6 +316,66 @@ describe('toParsedCV dates', () => {
       experience: [{ ...role, period: { start: '2018-01', end: 'a while ago' } }],
     })
     expect(() => toParsedCV(unreadableEnd)).toThrow(UndatedRoleError)
+  })
+})
+
+/**
+ * 2026-11-19 audit: the import grammar still carried rules the API cannot
+ * enforce (a CEFR enum, min lengths, closed lists), each one a failed paid
+ * import with no retry. The model may now send what the CV says; the code
+ * reads it into the stored shape, and says what it changed or left out.
+ */
+describe('toParsedCV reads what the grammar cannot enforce', () => {
+  const read = (over: object) =>
+    toParsedCV(CvSkeletonSchema.parse({ ...skeleton, ...over }) as never)
+
+  it('reads a language level the CV words, and says so; leaves out one it cannot read', () => {
+    const { parsed, problems } = read({
+      languages: [
+        { language: 'Inglés', level: 'b2' },
+        { language: 'Español', level: 'Nativo' },
+        { language: 'Portugués', level: 'Avanzado' },
+        { language: 'Italiano', level: 'Conversacional' },
+        { language: 'Francés', level: 'some' },
+      ],
+    })
+    expect(parsed.profile.languages).toEqual([
+      { language: 'Inglés', level: 'B2' },
+      { language: 'Español', level: 'native' },
+      { language: 'Portugués', level: 'C1' },
+      { language: 'Italiano', level: 'B1' },
+    ])
+    expect(problems.join('\n')).toContain('"Avanzado" read as C1')
+    expect(problems.join('\n')).toContain('Francés')
+  })
+
+  it('refuses a role with no employer before the second paid call, like an undated one', () => {
+    expect(() => read({ experience: [{ ...skeleton.experience[0], company: '' }] })).toThrow(
+      IncompleteRoleError,
+    )
+  })
+
+  it('normalises closed lists instead of failing on them, and drops empty lines', () => {
+    const { parsed, problems } = read({
+      evidence: [
+        {
+          ...skeleton.evidence[0],
+          kind: 'accomplishment',
+          strength: 'high',
+          metrics: [
+            { raw: 'grew sales 40%', value: 40, unit: '%', direction: 'increase' },
+            { raw: ' ' },
+          ],
+        },
+        { ...skeleton.evidence[0], id: 'ev_2', text: '  ' },
+        { ...skeleton.evidence[0], id: 'ev_3', sourceRef: { type: 'volunteering', id: 'x' } },
+      ],
+    })
+    expect(parsed.evidence).toHaveLength(1)
+    expect(parsed.evidence[0]).toMatchObject({ kind: 'achievement', strength: 'supporting' })
+    expect(parsed.evidence[0].metrics).toEqual([{ raw: 'grew sales 40%', value: 40, unit: '%' }])
+    expect(problems.join('\n')).toContain('Left out')
+    expect(ParsedCVSchema.safeParse(parsed).success).toBe(true)
   })
 })
 

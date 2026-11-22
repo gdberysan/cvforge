@@ -1,6 +1,8 @@
 /**
- * 4px meter under a figure. Below the honesty threshold the caller passes
- * `muted` and the bar renders hatched — a texture, never a claim.
+ * One bar style for every rate (craft pass): an 8 px rounded track, filled
+ * to the figure. Below the honesty threshold the caller passes `muted` and
+ * the track stays empty: the words beside it ("Pocos datos") say why. A
+ * genuine 0 % is an empty track too, never a coloured sliver.
  */
 export function Meter({
   pct,
@@ -11,28 +13,10 @@ export function Meter({
   color: string
   muted?: boolean
 }) {
+  const width = muted || pct === 0 ? 0 : Math.max(pct, 2)
   return (
-    <div
-      style={{
-        height: 4,
-        borderRadius: 'var(--radius-pill)',
-        background: 'var(--surface-inset)',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        className="meter-fill"
-        style={{
-          height: '100%',
-          // A genuine 0% stays an empty track — a colored sliver would be an
-          // implied claim. The floor only keeps small nonzero values visible.
-          width: muted ? '100%' : pct === 0 ? 0 : `${Math.max(pct, 1.5)}%`,
-          background: muted
-            ? 'repeating-linear-gradient(135deg, var(--hatch) 0 4px, transparent 4px 8px)'
-            : color,
-          borderRadius: 'var(--radius-pill)',
-        }}
-      />
+    <div className="meter" aria-hidden="true">
+      <div className="meter-fill" style={{ width: `${width}%`, background: color }} />
     </div>
   )
 }

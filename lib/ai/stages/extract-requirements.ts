@@ -15,6 +15,7 @@ Extraction rules:
    - "hard" — a concrete verifiable skill, tool, credential, or years-of-experience bar.
    - "soft" — a behavioural or interpersonal quality.
    Classify a remote-work constraint by what it actually restricts: "EU-based only" is location; "must overlap 4h with CET" is timezone; "must be authorized to work in the US" is authorization.
+   A screening step of the hiring process is NOT authorization, even when mandatory: a background check, drug test, reference check, credit check, or "must pass a security clearance process" is "soft". Only a permit, citizenship or residency the candidate must already hold is authorization. Holding an existing security clearance is "hard".
 4. "keyword" is the shortest canonical term (e.g. "Kubernetes", "CET overlap"). "variants" lists other spellings the posting or a CV might use (e.g. ["K8s"], ["Central European Time"]). Do not repeat the keyword inside variants.
 5. "weight": 3 = repeated or emphasised, 2 = stated normally, 1 = mentioned in passing.
 6. "language" is the language of the POSTING. Use "es-MX" for any Spanish posting.

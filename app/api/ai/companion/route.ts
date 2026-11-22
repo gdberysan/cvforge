@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { composeAndVerifyCompanion } from '@/lib/ai/companion'
 import { AiError } from '@/lib/ai/errors'
 import { db } from '@/lib/db/client'
-import { listAnswers, upsertAnswer } from '@/lib/db/queries/answers'
-import { getApplication, mergeDocuments } from '@/lib/db/queries/applications'
-import { listEvidence } from '@/lib/db/queries/evidence'
+import { getApplication } from '@/lib/db/queries/applications'
 import { getProfile } from '@/lib/db/queries/profile'
 import { isDemo } from '@/lib/demo/mode'
 import { getLocale } from '@/lib/i18n/server'
-import type { ScreeningSet } from '@/lib/schemas'
+import { generateCompanion } from '@/lib/kit/generate'
+import { kitWorking } from '@/lib/kit/queue'
+import { documentMessage } from '@/lib/push/messages'
+import { notify } from '@/lib/push/notify'
 
 const Body = z.object({
   applicationId: z.string().min(1),
@@ -27,6 +27,20 @@ export async function POST(request: Request) {
   }
 
   const application = getApplication(db, body.data.applicationId)
+  // A page opened before a chase still shows Generar; the kit is already
+  // paying for this letter. Screening answers and messages are not in it.
+  if (
+    application &&
+    body.data.kind === 'coverLetter' &&
+    !isDemo() &&
+    kitWorking(db, application.id)
+  ) {
+    return NextResponse.json(
+      { error: 'The kit for this application is being written.', code: 'kit-busy' },
+      { status: 409 },
+    )
+  }
+
   const profile = getProfile(db)
   if (!application || !profile) {
     return NextResponse.json({ error: 'Not found', code: 'role-not-found' }, { status: 404 })
@@ -49,44 +63,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ document: stored.document, report: stored.report })
   }
 
-  // The bank feeds generation in the document's language only — an answer is
-  // written in a language, not translated across one.
-  const bank = listAnswers(db)
-    .filter((a) => a.language === application.documentLanguage)
-    .map((a) => ({ question: a.question, answer: a.answer }))
-
   try {
-    const { document, report } = await composeAndVerifyCompanion(body.data.kind, {
+    // Written and saved — bank upsert included — by the same code the
+    // background kit uses.
+    const { document, report } = await generateCompanion(db, application.id, body.data.kind, {
       // Reasons for any flag are read on this screen, in its language.
       reasonLanguage: await getLocale(),
-      profile,
-      requirements: application.requirements,
-      mappings: application.mappings,
-      evidence: listEvidence(db),
-      language: application.documentLanguage,
-      company: application.company,
-      jobTitle: application.jobTitle,
       recruiterName: body.data.recruiterName,
-      bank,
     })
 
-    mergeDocuments(db, application.id, { [body.data.kind]: { document, report } })
-
-    // Generate once, refine, reuse: fresh screening answers join the bank —
-    // but ONLY when grounding passed. The bank is fed back into future
-    // composes as "the person's own prior writing"; banking a failed set
-    // would launder an unverified figure into a trusted source, and the
-    // in-place upsert would overwrite an answer the user already refined.
-    if (body.data.kind === 'screening' && report.passed) {
-      for (const answer of (document as ScreeningSet).answers) {
-        upsertAnswer(db, {
-          question: answer.question,
-          answer: answer.answer,
-          language: application.documentLanguage,
-        })
-      }
+    // Always notify: the phone's service worker stays silent when the app
+    // is already in front (public/sw.js), so a watched run makes no noise.
+    {
+      const message = documentMessage(await getLocale(), {
+        kind: 'companion',
+        jobTitle: application.jobTitle,
+        company: application.company,
+        applicationId: application.id,
+      })
+      void notify(db, message).catch(() => {})
     }
-
     return NextResponse.json({ document, report })
   } catch (error) {
     if (error instanceof AiError) {

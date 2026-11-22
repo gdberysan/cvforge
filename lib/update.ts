@@ -20,6 +20,27 @@ let inFlight = false
 
 const parse = (v: string) => v.split('.').map((n) => Number.parseInt(n, 10) || 0)
 
+/** "1.2.26" → "1.2": a release line. The private 1.2.x and public 1.4.x builds are separate lines. */
+export function lineOf(version: string): string {
+  return parse(version).slice(0, 2).join('.')
+}
+
+/**
+ * The newest version on this build's own line, from the manifest. One file
+ * at one URL serves every line, so it carries `lines` — {"1.2": "1.2.27",
+ * "1.4": "1.4.1"} — and a build reads only its own entry. Builds up to 1.2.26
+ * read `version` alone; that field must therefore keep naming the newest
+ * 1.2.x, or every one of those installs is offered a release from another
+ * line. A version on a different line is never offered here either: moving
+ * between lines is not an update.
+ */
+export function latestForLine(manifest: unknown, current: string): string | null {
+  const m = manifest as { version?: unknown; lines?: Record<string, unknown> } | null
+  const line = lineOf(current)
+  const candidate = m?.lines?.[line] ?? m?.version
+  return typeof candidate === 'string' && lineOf(candidate) === line ? candidate : null
+}
+
 export function isNewer(candidate: string, current: string): boolean {
   const a = parse(candidate)
   const b = parse(current)
@@ -42,8 +63,7 @@ function refreshIfStale(): void {
   fetch(VERSION_URL, { signal: AbortSignal.timeout(4000), cache: 'no-store' })
     .then((res) => (res.ok ? res.json() : null))
     .then((data: unknown) => {
-      const version = (data as { version?: unknown } | null)?.version
-      cache = { at: Date.now(), latest: typeof version === 'string' ? version : null }
+      cache = { at: Date.now(), latest: latestForLine(data, pkg.version) }
     })
     .catch(() => {
       // Offline or the site is down: try again tomorrow, never complain.

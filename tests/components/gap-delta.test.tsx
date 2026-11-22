@@ -30,7 +30,7 @@ describe('GapDelta', () => {
 
   it('says plainly that nothing moved rather than dressing it up', () => {
     render(<GapDelta delta={delta()} />)
-    expect(screen.getByText(/nothing moved/i)).toBeTruthy()
+    expect(screen.getByText(/nothing changed/i)).toBeTruthy()
   })
 
   it('reports a partial move as partial, not as coverage', () => {
@@ -55,6 +55,6 @@ describe('GapDelta', () => {
       />,
     )
     expect(screen.getByText('Salesforce')).toBeTruthy()
-    expect(screen.queryByText(/nothing moved/i)).toBeNull()
+    expect(screen.queryByText(/nothing changed/i)).toBeNull()
   })
 })

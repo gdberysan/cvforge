@@ -107,6 +107,7 @@ function cvWith(text: string): CVContent {
   return {
     header: { fullName: 'G', title: 'Engineer', contactLines: [] },
     summary: '',
+    summaryCitedEvidenceIds: [],
     experience: [
       {
         experienceId: 'exp_1',

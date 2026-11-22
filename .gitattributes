@@ -13,3 +13,11 @@
 /demo/ export-ignore
 /scripts/demo-build.ts export-ignore
 /tests/demo/seed-file.test.ts export-ignore
+# Personal-only scraper: exclude the scraper source and the real entry that
+# imports it from the buyer source archive. The stub/helpers (stub, mode,
+# errors, presets, annotate) stay, so the app's #discover surface compiles.
+/lib/discover/linkedin.ts export-ignore
+/lib/discover/index.ts export-ignore
+/app/(app)/discover/ export-ignore
+/components/discover/ export-ignore
+/.claude/ export-ignore

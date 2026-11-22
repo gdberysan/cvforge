@@ -5,6 +5,7 @@ import { useT } from '@/components/i18n/LocaleProvider'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText } from '@/lib/i18n'
 import { readAsBase64 } from '@/lib/read-file'
+import { SettingsRow } from './SettingsGroup'
 
 /**
  * The reverse of BackupCard, and far more dangerous: this replaces
@@ -59,46 +60,36 @@ export function RestoreCard() {
   }
 
   return (
-    <section style={{ display: 'grid', gap: 'var(--space-3)', maxWidth: '36em' }}>
-      <p className="fact-label">{t('settings.restore.title')}</p>
-      <p style={{ font: 'var(--type-body-sm)', color: 'var(--text-muted)' }}>
-        {t('settings.restore.lede')}
-      </p>
-
-      {!file && (
-        <label className="btn btn-quiet" style={{ justifySelf: 'start', cursor: 'pointer' }}>
-          {t('settings.restore.choose')}
-          <input type="file" accept=".db" onChange={pick} style={{ display: 'none' }} />
-        </label>
-      )}
+    <>
+      <SettingsRow label={t('settings.restore.title')} hint={t('settings.restore.lede')}>
+        {!file && (
+          <label className="btn btn-quiet file-pick">
+            {t('settings.restore.choose')}
+            <input type="file" accept=".db" onChange={pick} className="file-pick-input" />
+          </label>
+        )}
+      </SettingsRow>
 
       {file && !confirming && (
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-3)' }}>
-          <span className="fact">{file.name}</span>
-          <button type="button" className="btn btn-primary" onClick={() => setConfirming(true)}>
-            {t('settings.restore.start')}
-          </button>
-          <button type="button" className="btn btn-quiet" onClick={() => setFile(null)}>
-            {t('record.no')}
-          </button>
+        <div className="settings-row">
+          <span className="fact settings-file">{file.name}</span>
+          <div className="settings-row-control">
+            <button type="button" className="btn btn-quiet" onClick={() => setFile(null)}>
+              {t('record.no')}
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => setConfirming(true)}>
+              {t('settings.restore.start')}
+            </button>
+          </div>
         </div>
       )}
 
       {file && confirming && (
-        <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
-          <p role="alert" style={{ color: 'var(--signal-error)', font: 'var(--type-body-sm)' }}>
+        <div className="settings-row is-stacked">
+          <p role="alert" className="settings-warning">
             {t('settings.restore.warning')}
           </p>
-          <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-            <button
-              type="button"
-              className="btn btn-primary"
-              disabled={restoring}
-              onClick={restore}
-              style={{ background: 'var(--signal-error)', borderColor: 'var(--signal-error)' }}
-            >
-              {restoring ? t('settings.restore.restoring') : t('settings.restore.confirm')}
-            </button>
+          <div className="settings-row-control">
             <button
               type="button"
               className="btn btn-quiet"
@@ -107,15 +98,18 @@ export function RestoreCard() {
             >
               {t('record.no')}
             </button>
+            <button type="button" className="btn btn-danger" disabled={restoring} onClick={restore}>
+              {restoring ? t('settings.restore.restoring') : t('settings.restore.confirm')}
+            </button>
           </div>
         </div>
       )}
 
       {error && (
-        <p role="alert" style={{ color: 'var(--signal-error)', font: 'var(--type-body-sm)' }}>
-          {error}
+        <p role="alert" className="settings-feedback">
+          <span className="is-error">{error}</span>
         </p>
       )}
-    </section>
+    </>
   )
 }
