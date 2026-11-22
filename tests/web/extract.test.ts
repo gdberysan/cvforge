@@ -67,6 +67,10 @@ describe('reading a posting from the page', () => {
     expect(
       linkedInJobUrl('https://www.linkedin.com/jobs/collections/recommended/?currentJobId=99'),
     ).toBe('https://www.linkedin.com/jobs/view/99/')
+    // A country address with the title before the id, as a logged-out visit shows it.
+    expect(
+      linkedInJobUrl('https://mx.linkedin.com/jobs/view/gerencia-de-marketing-at-acme-4483465272'),
+    ).toBe('https://www.linkedin.com/jobs/view/4483465272/')
     expect(linkedInJobUrl('https://www.linkedin.com/feed/')).toBeNull()
     expect(linkedInJobUrl('https://evil.example.com/jobs/view/1/')).toBeNull()
   })

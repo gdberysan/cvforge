@@ -43,7 +43,8 @@ await build({
   logLevel: 'warning',
 })
 
-const linkedin = ['https://www.linkedin.com/jobs/*']
+// Country addresses too: a visitor in Mexico lands on mx.linkedin.com.
+const linkedin = ['https://*.linkedin.com/jobs/*']
 const manifest = {
   manifest_version: 3,
   name: 'CVForge',

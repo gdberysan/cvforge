@@ -31,6 +31,25 @@ describe('resolveShared', () => {
     })
   })
 
+  it('keeps the text of a LinkedIn posting that came with it (the extension sends both)', () => {
+    expect(
+      resolveShared({
+        text: LONG,
+        url: 'https://mx.linkedin.com/jobs/view/gerencia-de-marketing-at-acme-4483465272',
+      }),
+    ).toEqual({
+      kind: 'text',
+      text: LONG.trim(),
+      url: 'https://www.linkedin.com/jobs/view/4483465272/',
+    })
+    // LinkedIn's own share line is a sentence and the link: still just a link.
+    expect(
+      resolveShared({
+        text: 'Mira este empleo en Acme: https://www.linkedin.com/jobs/view/4012345678/',
+      }),
+    ).toMatchObject({ kind: 'linkedin', jobId: '4012345678' })
+  })
+
   it('falls back to the paste box for anything else, keeping the link', () => {
     expect(resolveShared({ url: 'https://jobs.lever.co/acme/123' })).toEqual({
       kind: 'paste',

@@ -30,9 +30,14 @@ function safeUrl(value: string | undefined): string | undefined {
 export function resolveShared(params: { title?: string; text?: string; url?: string }): Shared {
   const url = safeUrl(params.url) ?? safeUrl(params.text?.match(HTTP_URL)?.[0])
   const jobId = linkedInJobId(url ?? null)
-  if (jobId) return { kind: 'linkedin', jobId, url: `https://www.linkedin.com/jobs/view/${jobId}/` }
-
+  const canonical = jobId ? `https://www.linkedin.com/jobs/view/${jobId}/` : url
   const text = params.text?.trim() ?? ''
-  if (text.length >= MIN_POSTING) return { kind: 'text', text, ...(url ? { url } : {}) }
+  // A posting that arrives with its text (the extension sends both) is that
+  // posting. Only a bare link — LinkedIn's app shares one line and the
+  // address — leaves the text for the person to bring.
+  if (text.replace(HTTP_URL, '').trim().length >= MIN_POSTING) {
+    return { kind: 'text', text, ...(canonical ? { url: canonical } : {}) }
+  }
+  if (jobId && canonical) return { kind: 'linkedin', jobId, url: canonical }
   return url ? { kind: 'paste', url } : { kind: 'paste' }
 }

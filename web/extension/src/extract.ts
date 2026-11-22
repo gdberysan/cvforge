@@ -30,11 +30,14 @@ const first = (doc: Document, selectors: string[]): HTMLElement | null => {
 
 const textOf = (el: HTMLElement | null) => clean(el?.innerText ?? el?.textContent)
 
-/** "https://www.linkedin.com/jobs/view/123/?trk=…" or "?currentJobId=123" -> the canonical view URL. */
+/** "…linkedin.com/jobs/view/123/?trk=…", "…/jobs/view/title-at-acme-123" or "?currentJobId=123" -> the canonical view URL. */
 export function linkedInJobUrl(href: string): string | null {
   const url = new URL(href)
   if (!/(^|\.)linkedin\.com$/.test(url.hostname)) return null
-  const id = url.pathname.match(/\/jobs\/view\/(\d+)/)?.[1] ?? url.searchParams.get('currentJobId')
+  // The id may follow the title: /jobs/view/gerencia-de-marketing-at-acme-4483465272
+  const id =
+    url.pathname.match(/\/jobs\/view\/(?:[^/]*?-)?(\d{6,})(?:\/|$)/)?.[1] ??
+    url.searchParams.get('currentJobId')
   return id && /^\d+$/.test(id) ? `https://www.linkedin.com/jobs/view/${id}/` : null
 }
 
