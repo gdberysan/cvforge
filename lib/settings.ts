@@ -120,11 +120,6 @@ export function clearApiKey(): void {
   writeSettings(rest)
 }
 
-/** Env first (the satellite's own launcher convention), then config.json. */
-export function satelliteDbPath(): string | undefined {
-  return process.env.CVFORGE_SATELLITE_DB_PATH || readSettings().satelliteDbPath
-}
-
 /** Env or file. Like the old env-only hint, a false does not prove the SDK
  *  cannot resolve an OAuth profile — only construction can. */
 export function hasCredentials(): boolean {

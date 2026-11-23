@@ -33,20 +33,6 @@ export function documentMessage(
   }
 }
 
-/** The background kit (lib/kit/runner.ts): one push for the whole kit, ready or not. */
-export function kitMessage(
-  locale: Locale,
-  a: { ok: boolean; jobTitle: string; company: string; applicationId: string },
-): PushMessage {
-  const t = makeTranslate(locale)
-  return {
-    kind: a.ok ? 'kit-ready' : 'kit-failed',
-    title: t(a.ok ? 'push.kitReady' : 'push.kitFailed', { title: a.jobTitle }),
-    body: a.company,
-    url: `/application/${a.applicationId}?step=docs`,
-  }
-}
-
 /** A find from the job agent, opening its card on Hoy. */
 export function findMessage(
   locale: Locale,
