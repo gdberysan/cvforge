@@ -1,8 +1,10 @@
 /**
  * On a LinkedIn job page: one small button beside the posting, "Analizar en
  * CVForge". A click reads the posting already on screen (extract.ts) and
- * asks the extension to open the side panel with it. Nothing runs until the
- * click, and nothing is fetched from LinkedIn.
+ * asks the extension to open the side panel with it. Nothing is read until
+ * that click; after it, and only while this tab's Rumbo panel stays open, the
+ * job on screen is followed so the panel can show it. Nothing is fetched
+ * from LinkedIn.
  *
  * LinkedIn is a single-page app that rebuilds its DOM as you move between
  * jobs: the button lives in its own shadow root and is put back whenever the
@@ -93,7 +95,10 @@ function mount(): void {
  * the column between jobs, so a half-drawn page reads as nothing).
  */
 let lastSeen = ''
+// Told by the extension: true only while this tab's side panel is open.
+let following = false
 function announce(): void {
+  if (!following) return
   const url = linkedInJobUrl(location.href)
   if (!url || url === lastSeen) return
   const posting = extractPosting(document, location.href)
@@ -114,8 +119,18 @@ function settle(): void {
 /** Open while this page lives: its closing tells the extension the tab left. */
 function stayInTouch(): void {
   try {
-    chrome.runtime.connect({ name: 'cvforge-page' }).onDisconnect.addListener(() => {
-      // The extension's worker slept and dropped it: say hello again.
+    const port = chrome.runtime.connect({ name: 'cvforge-page' })
+    port.onMessage.addListener((message) => {
+      if (message?.type !== 'cvforge:follow') return
+      following = message.on === true
+      if (following) {
+        lastSeen = ''
+        announce()
+      }
+    })
+    port.onDisconnect.addListener(() => {
+      // The extension's worker slept and dropped it: stop following until it says again.
+      following = false
       setTimeout(stayInTouch, 1000)
     })
   } catch {

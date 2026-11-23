@@ -21,7 +21,7 @@ Pega una vacante, o pulsa "Analizar en Rumbo" en una vacante de LinkedIn, y Rumb
 
 Gratis. Usa Claude, la IA de Anthropic, con una clave tuya: pagas directo a Anthropic unos centavos por vacante, y Rumbo te muestra cuánto llevas.
 
-Privacidad: Rumbo lee la vacante que estás viendo solo cuando pulsas el botón. Tu CV, tus postulaciones y tu clave viven solo en tu navegador. No hay cuenta ni servidor de Rumbo que vea tus datos.
+Privacidad: Rumbo lee la vacante que estás viendo cuando pulsas el botón y, mientras su panel está abierto, sigue la que abras después. Tu CV, tus postulaciones y tu clave viven solo en tu navegador. No hay cuenta, y nada tuyo se guarda en un servidor de Rumbo.
 
 **Description (en)**
 Paste a job posting, or press "Analyse in Rumbo" on a LinkedIn job, and in a minute Rumbo tells you whether it's worth your time: what you meet, what you half meet and what you're missing. Then it helps you apply without inventing anything about you.
@@ -33,7 +33,7 @@ Paste a job posting, or press "Analyse in Rumbo" on a LinkedIn job, and in a min
 
 Free. It uses Claude, Anthropic's AI, with a key of your own: you pay Anthropic a few cents per posting, and Rumbo shows the running total.
 
-Privacy: Rumbo reads the job you're looking at only when you press the button. Your CV, applications and key live only in your browser. There is no account and no Rumbo server that sees your data.
+Privacy: Rumbo reads the job you're looking at when you press the button and, while its panel is open, follows the one you open next. Your CV, applications and key live only in your browser. There is no account, and nothing of yours is stored on a Rumbo server.
 
 **Images:** `1-respuesta.png`, `2-no-aplica.png`, `3-panel.png` (1280×800); promo tile `promo-440x280.png`; icon comes from the zip (128×128).
 
@@ -49,7 +49,7 @@ Privacy: Rumbo reads the job you're looking at only when you press the button. Y
 - `activeTab`: When the person clicks the toolbar icon on any page, Rumbo reads that page's posting (or the selected text), only then.
 - `scripting`: Runs that one-time read on the active tab after the click.
 - Host permission `https://rumbo.korven.dev/*`: The side panel shows the Rumbo web app, whose data lives in the person's browser for that site.
-- Content script on `https://*.linkedin.com/jobs/*`: Shows the "Analizar en Rumbo" button on job pages and reads the posting when it's pressed.
+- Content script on `https://*.linkedin.com/jobs/*`: Shows the "Analizar en Rumbo" button on job pages and reads the posting when it's pressed; while Rumbo's side panel is open for that tab, it reads the job the person opens next so the panel can show it.
 
 **Remote code:** No. All code is in the package.
 

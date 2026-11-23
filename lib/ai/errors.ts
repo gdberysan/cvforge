@@ -7,6 +7,8 @@ export type AiErrorKind =
   | 'invalid-output'
   | 'network'
   | 'trial-ended'
+  | 'trial-unavailable'
+  | 'too-large'
   | 'unknown'
 
 export class AiError extends Error {
@@ -36,6 +38,10 @@ export class AiError extends Error {
         return 'The model returned an unexpected shape. Retry; if it persists, the prompt needs fixing.'
       case 'trial-ended':
         return 'The free trial is used up. Add your own Anthropic key in Settings to keep going.'
+      case 'trial-unavailable':
+        return 'The free trial cannot run this step right now. Add your own Anthropic key in Settings to keep going.'
+      case 'too-large':
+        return 'That file is too large to send. Use a smaller PDF, or paste the text instead.'
       case 'network':
         return 'Could not reach the API. Check your connection and retry — your input is preserved.'
       default:
@@ -49,8 +55,16 @@ export function classify(error: unknown): AiErrorKind {
   if (status === 429) return 'rate-limit'
   if (status === 529) return 'overloaded'
   if (status === 401 || status === 403) return 'auth'
-  // Only the web edition's trial server answers 402 (web/trial/proxy.ts).
-  if (status === 402) return 'trial-ended'
+  // Only the web edition's trial server answers 402 (web/trial/proxy.ts):
+  // `trial_ended` when this trial is over (used up or expired), anything else
+  // when only this step cannot run now (too little left for it, or every
+  // trial is full for the day), which must not end the trial.
+  if (status === 402) {
+    const type = (error as { error?: { error?: { type?: unknown } } }).error?.error?.type
+    return type === 'trial_ended' ? 'trial-ended' : 'trial-unavailable'
+  }
+  // A body over the trial server's (or the API's) size limit.
+  if (status === 413) return 'too-large'
   if (status === 408) return 'timeout'
   // A 5xx is the API's problem, not the user's, and as transient as a 529:
   // it gets the same single backoff instead of "something went wrong".

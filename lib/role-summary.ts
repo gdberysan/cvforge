@@ -32,7 +32,7 @@ const PAY =
 
 /**
  * A heading that opens a section about the company rather than the role
- * ("About Step Labs", "Sobre Acme", "Quiénes somos"): the paragraph under it
+ * ("About Pinecrest Studio", "Sobre Acme", "Quiénes somos"): the paragraph under it
  * describes the employer, so the whole section is skipped, not just the line.
  * Only ever tested against a heading line (see `isCompanyHeading`), so a
  * sentence like "About 40% of your time…" never opens one.
@@ -52,7 +52,7 @@ const ROLE_HEADING =
 
 /**
  * The same heading words pasted onto their paragraph with no break: "The
- * RoleAs a…", "About Nido SocialNido Social is…". The heading ends where a
+ * RoleAs a…", "About Marea SocialMarea Social is…". The heading ends where a
  * lowercase letter runs straight into a capital within the first words.
  * Such a line is skipped whole — never trimmed — and still moves the
  * section on (role: the company section ends; company: it begins).
@@ -67,7 +67,7 @@ const gluedRole = (line: string) => {
 /**
  * A company heading glued on: within the first six words a lowercase letter
  * runs into a capital, and the word starting there repeats a word of the
- * heading ("About Nido SocialNido Social is…"). The repeat is what tells a
+ * heading ("About Marea SocialMarea Social is…"). The repeat is what tells a
  * paste from a brand: "About our McDonald's account:" is a sentence.
  */
 function gluedCompany(line: string): boolean {
@@ -80,7 +80,7 @@ function gluedCompany(line: string): boolean {
 
 /**
  * A short line that reads as a heading: at most six words, no sentence end.
- * "About Step Labs" is one; "About 40% of your time is client work." is not.
+ * "About Pinecrest Studio" is one; "About 40% of your time is client work." is not.
  */
 const isCompanyHeading = (line: string) =>
   COMPANY_HEADING.test(line) && line.split(/\s+/).length <= 6 && !/[.!?]["'”’)]?$/.test(line)
@@ -95,14 +95,14 @@ const SELF_OPENER = /^(we are|we['’]re|somos|our mission|nuestra misi[oó]n)\b
 const HIRING =
   /^\s*(?:(?:currently|now|actively)\s+)?(?:hiring|looking|seeking|searching|recruiting|buscando|busca|contratando|en b[uú]squeda)\b/i
 /**
- * Openers that name the company: "At Nielsen," / "En Nielsen," / "When you
- * join Nielsen," / "Al unirte a Nielsen,", then "Nielsen is" / "Nielsen es".
+ * Openers that name the company: "At Lumen Metrics," / "En Lumen Metrics," / "When you
+ * join Lumen Metrics," / "Al unirte a Lumen Metrics,", then "Lumen Metrics is" / "Lumen Metrics es".
  */
 const AT_COMPANY = /^(?:at|en|when you join|al unirte a)\s+([^,]{1,80}),/i
 const COMPANY_IS = /\s(?:is|es)\b/gi
 
 /**
- * True when the line opens like company copy (spec: Nielsen's "At Nielsen,
+ * True when the line opens like company copy (spec: Lumen Metrics's "At Lumen Metrics,
  * we are passionate about our work to power a better media future…"). The
  * company is compared by `companyCore` — case, accents and a legal suffix
  * ignored — and only at the very start of the line: a role paragraph that

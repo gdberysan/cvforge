@@ -18,8 +18,10 @@
 import { globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
+// The job agent's actions (any agent-actions file, app/(app)/agent/) never
+// reach the browser: the agent is private and the web edition has none.
 export const DESKTOP_ONLY =
-  /app\/api\/(export\/pdf|export\/backup|import\/backup|shutdown|push\/)|app\/\(app\)\/(settings|agent|discover)\/actions/
+  /app\/api\/(export\/pdf|export\/backup|import\/backup|shutdown|push\/|kit\/)|app\/\(app\)\/(settings|agent|discover)\/actions|agent-actions/
 
 /**
  * Desktop-only action modules the web edition replaces with its own

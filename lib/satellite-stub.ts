@@ -6,7 +6,8 @@
  * exists, and a private-only test holds the real entry to this shape.
  */
 import type { ReactNode } from 'react'
-import type { FindCard, MailAgent, MailCard } from '@/lib/satellite-types'
+import type { Db } from '@/lib/db/client'
+import type { FindCard, KitPhase, MailAgent, MailCard } from '@/lib/satellite-types'
 
 export function agentFinds(): FindCard[] {
   return []
@@ -31,3 +32,19 @@ export function AgentStatusRow(): ReactNode | Promise<ReactNode> {
 export function AgentSettingsGroup(): ReactNode | Promise<ReactNode> {
   return null
 }
+
+/**
+ * True while the agent is writing this application's kit (CV, letter,
+ * answers): a manual compose waits instead of racing it.
+ */
+export function kitWorking(_db: Db, _applicationId: string): boolean {
+  return false
+}
+
+/** Where this application's chase kit stands. */
+export function kitPhaseFor(_db: Db, _applicationId: string): KitPhase {
+  return 'none'
+}
+
+/** Starts the server-side runner that writes chased kits (instrumentation.ts). */
+export function startKitRunner(_db: Db): void {}

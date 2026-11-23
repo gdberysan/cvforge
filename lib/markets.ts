@@ -230,12 +230,25 @@ export function defaultMarket(profileMarkets: readonly Market[] | undefined): Ma
 export function marketNamedIn(place: string | null | undefined): Market | null {
   if (!place) return null
   const l = foldPlace(place)
-  let best: { code: string; at: number } | null = null
+  // Every name found, as spans: a country inside a longer name is that name
+  // ("Mexico" inside "New Mexico", "Jersey" inside "New Jersey"), not a match.
+  const found: { code: string; at: number; end: number }[] = []
   for (const { code, pattern } of countryPatterns()) {
     for (const m of l.matchAll(pattern)) {
-      if (!best || m.index > best.at) best = { code, at: m.index }
+      found.push({ code, at: m.index, end: m.index + m[0].length })
     }
   }
+  const whole = found.filter(
+    (f) =>
+      !found.some((g) => g !== f && g.at <= f.at && g.end >= f.end && g.end - g.at > f.end - f.at),
+  )
+  // The last name wins: "Atlanta, Georgia, United States" is the US.
+  // On the very same words, the US state: in a job's location "Georgia"
+  // is far more often Atlanta's than Tbilisi's.
+  const best = whole.reduce<(typeof whole)[number] | null>(
+    (b, f) => (!b || f.at > b.at || (f.at === b.at && f.code === 'us') ? f : b),
+    null,
+  )
   if (!best) return null
   // "United States (Remote)" is the US remote market; "Mexico (Remote)" is
   // still Mexico: remote within one country.
@@ -288,10 +301,94 @@ let patternCache: { code: string; pattern: RegExp }[] | null = null
 
 function countryPatterns(): { code: string; pattern: RegExp }[] {
   if (patternCache) return patternCache
+  const literal = (n: string) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   patternCache = countryCodes().map((code) => {
-    const names = [...new Set([marketLabel(code, 'en'), marketLabel(code, 'es')].map(foldPlace))]
-    const alt = names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
-    return { code, pattern: new RegExp(`\\b(?:${alt})\\b`, 'g') }
+    const names = [
+      ...new Set(
+        [marketLabel(code, 'en'), marketLabel(code, 'es'), ...(PLACE_ALIASES[code] ?? [])].map(
+          foldPlace,
+        ),
+      ),
+    ]
+    return {
+      code,
+      pattern: new RegExp(`(?<![\\p{L}.])(?:${names.map(literal).join('|')})(?![\\p{L}])`, 'gu'),
+    }
   })
   return patternCache
+}
+
+/**
+ * Other ways a place names a country: its short forms, and the US states (a
+ * place in Georgia, New Mexico or New Jersey is in the US, and the longer
+ * name keeps "Mexico" or "Jersey" inside it from reading as the country).
+ */
+const US_STATES = [
+  'Alabama',
+  'Alaska',
+  'Arizona',
+  'Arkansas',
+  'California',
+  'Colorado',
+  'Connecticut',
+  'Delaware',
+  'Florida',
+  'Georgia',
+  'Hawaii',
+  'Idaho',
+  'Illinois',
+  'Indiana',
+  'Iowa',
+  'Kansas',
+  'Kentucky',
+  'Louisiana',
+  'Maine',
+  'Maryland',
+  'Massachusetts',
+  'Michigan',
+  'Minnesota',
+  'Mississippi',
+  'Missouri',
+  'Montana',
+  'Nebraska',
+  'Nevada',
+  'New Hampshire',
+  'New Jersey',
+  'New Mexico',
+  'New York',
+  'North Carolina',
+  'North Dakota',
+  'Ohio',
+  'Oklahoma',
+  'Oregon',
+  'Pennsylvania',
+  'Rhode Island',
+  'South Carolina',
+  'South Dakota',
+  'Tennessee',
+  'Texas',
+  'Utah',
+  'Vermont',
+  'Virginia',
+  'Washington',
+  'West Virginia',
+  'Wisconsin',
+  'Wyoming',
+  'Nuevo Mexico',
+  'Nueva York',
+  'Nueva Jersey',
+]
+const PLACE_ALIASES: Record<string, string[]> = {
+  us: [
+    'USA',
+    'U.S.A.',
+    'U.S.',
+    'EE. UU.',
+    'EE.UU.',
+    'EEUU',
+    'United States of America',
+    ...US_STATES,
+  ],
+  gb: ['UK', 'U.K.', 'Reino Unido', 'England', 'Inglaterra', 'Scotland', 'Escocia', 'Wales'],
+  mx: ['CDMX', 'Ciudad de México'],
 }

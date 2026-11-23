@@ -11,6 +11,15 @@ export type FollowUpDraft = {
   usedAt: string | null
 }
 
+/** What the application screen shows of a draft. */
+export type FollowUpDraftView = {
+  id: string
+  to: string
+  subject: string
+  body: string
+  usedAt: string | null
+}
+
 /** A new draft for an application; older ones are kept (spec §5: "for the count"). */
 export function saveDraft(
   db: Db,

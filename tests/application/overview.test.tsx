@@ -29,8 +29,8 @@ vi.mock('@/lib/i18n/server', async () => {
 vi.mock('@/components/studio/Workspace', () => ({ Workspace: () => null }))
 vi.mock('@/components/application/FocusOnStep', () => ({ FocusOnStep: () => null }))
 
-const POSTING = `About Step Labs
-Step Labs is a conversion rate optimization agency for high-growth DTC brands, distributed across LATAM and beyond.
+const POSTING = `About Pinecrest Studio
+Pinecrest Studio is a conversion rate optimization agency for high-growth DTC brands, distributed across LATAM and beyond.
 The Role
 As an Account Strategist, you'll own growth and conversion strategy for a portfolio of DTC e-commerce brands.`
 
@@ -69,7 +69,7 @@ async function renderPage(postingRaw: string, step?: string) {
   const { LocaleProvider } = await import('@/components/i18n/LocaleProvider')
   const id = createApplication(holder.db as never, {
     source: 'linkedin',
-    company: 'Step Labs',
+    company: 'Pinecrest Studio',
     jobTitle: 'Account Strategist',
     market: 'mx',
     documentLanguage: 'en',
@@ -99,7 +99,7 @@ describe('application overview', () => {
     const items = Array.from(document.querySelectorAll('.story-head .app-meta-item')).map(
       (el) => el.textContent,
     )
-    expect(items.slice(0, 3)).toEqual(['Step Labs', 'México', 'CV en inglés'])
+    expect(items.slice(0, 3)).toEqual(['Pinecrest Studio', 'México', 'CV en inglés'])
     expect(items[3]).toMatch('Ver vacante')
     expect(items).toHaveLength(4)
     // Sent: the answer is said once, in the band under the stages; the panel

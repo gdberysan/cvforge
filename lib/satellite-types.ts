@@ -66,3 +66,6 @@ export type MailAgent = {
   status: () => MailStatus
   thread: (applicationId: string) => MailThreadItem[]
 }
+
+/** Where the agent's chase kit for an application stands ('none' without an agent). */
+export type KitPhase = 'none' | 'working' | 'retry' | 'done' | 'failed'

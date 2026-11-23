@@ -34,6 +34,20 @@ export async function readToken(
   token: string,
   now: number,
 ): Promise<string | null> {
+  const pass = await readPass(secret, token, now)
+  return pass && !pass.expired ? pass.id : null
+}
+
+/**
+ * A pass this server signed, and whether its seven days are over; null when
+ * it is forged or malformed. An expired pass is a trial that ended, which the
+ * app says differently from a missing key.
+ */
+export async function readPass(
+  secret: string,
+  token: string,
+  now: number,
+): Promise<{ id: string; expired: boolean } | null> {
   const parts = token.split('.')
   if (parts.length !== 4 || parts[0] !== 't1') return null
   const [, id = '', exp = ''] = parts
@@ -45,6 +59,5 @@ export async function readToken(
   let diff = 0
   for (let i = 0; i < got.length; i++) diff |= got.charCodeAt(i) ^ expected.charCodeAt(i)
   if (diff !== 0) return null
-  if (Number(exp) < now) return null
-  return id
+  return { id, expired: Number(exp) < now }
 }

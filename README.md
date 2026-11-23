@@ -21,7 +21,7 @@ Rumbo is built the other way round. It starts from what you actually did, and ev
 - **Writes the application** (CV, cover letter, screening answers, a note to the recruiter) only from what you did, and checks every claim before you see it.
 - **Fills real gaps honestly.** When a posting asks for something you did but never wrote down, you describe it once and it counts from then on. What you leave blank stays blank.
 - **Keeps your search in one place:** what you applied to, who answered, what's waiting on you.
-- **Works from LinkedIn** with the browser extension: a button on the job page opens Rumbo beside it, and it follows you as you move between jobs.
+- **Works from LinkedIn** with the browser extension (coming to the Chrome Web Store; today you can load it from this repo): a button on the job page opens Rumbo beside it, and while that panel is open it follows you as you move between jobs.
 - **Works from your phone:** install it and share screenshots of a posting to it.
 
 ## What it costs
@@ -34,15 +34,15 @@ Rumbo is free and always will be. It uses Claude, the AI made by Anthropic, with
 | A full application (CV, letter, answers) | about $0.50 USD |
 | A whole job search | about $3–6 USD |
 
-Getting a key takes about five minutes; Rumbo walks you through it.
+Your first try needs no key: a free trial, on Rumbo's key, lets you read your CV, analyse a posting and get a tailored CV. After that, getting a key takes about five minutes; Rumbo walks you through it.
 
 ## Privacy
 
 - No account, no sign-up, no tracking.
 - Your CV, applications and key live only in your browser, on your device.
 - With your own key, the app's only outside connection is to Anthropic's API, to run the analysis: nothing passes through a server of ours.
-- The free trial is the one exception: without a key of your own, your calls pass through Rumbo's server on their way to Anthropic, using our key. It checks each call and keeps only numbers (what your trial has spent), never your CV, the posting or the answers.
-- The extension reads a job page only when you press its button.
+- The free trial is the one exception: without a key of your own, your calls pass through Rumbo's server on their way to Anthropic, using our key. It checks each call and keeps only counts (what your trial has spent, and how often a network asks, under a one-way code), never your CV, the posting or the answers.
+- The extension reads a job page when you press its button and, while its panel is open, the job you open next. It sends nothing to any server.
 
 The full detail, in plain words, is on the [privacy page](https://rumbo.korven.dev/app/privacidad/).
 

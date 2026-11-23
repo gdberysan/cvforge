@@ -3,33 +3,33 @@ import { roleSummary } from '@/lib/role-summary'
 
 // Shaped like real stored postings (LinkedIn pastes, agency boards, OCC):
 // one paragraph per line, headings on their own line or glued on.
-const HALDEN = `e-Commerce AI Business Enablement Sr. Lead
+const HALDEN = `Regional Growth Programs Lead
 Job Type:  Full-Time
-Location Type:  Onsite
-Primary Location:  Mexico City, MX
+Location Type:  Hybrid
+Primary Location:  Guadalajara, MX
 
-The Lead, AI Business Enablement guides the artificial intelligence journey of Halden's LATAM eCommerce business. It is a senior individual contributor role for a curious builder: someone who turns AI capability into commercial results across Amazon, Mercado Norte and other strategic digital customers, and who helps the whole regional organization work smarter along the way.
+The Regional Growth Lead shapes how Halden's online stores across LATAM win and keep customers. It is a senior individual contributor role for a hands-on planner: someone who turns customer research, store data and the regional teams' plans into campaigns, offers and site changes that ship every month and show up in the numbers.
 
 Where You'll Make an Impact`
 
-const STEP_LABS = `About Step Labs
-Step Labs is a conversion rate optimization (CRO), design, and development agency for high-growth DTC brands. We partner with 7-to-9-figure e-commerce companies — concentrated in health, supplements, and consumer goods — to turn their stores into compounding growth engines.We work in tight, senior pods.
+const STEP_LABS = `About Pinecrest Studio
+Pinecrest Studio is a design and development agency for growing direct-to-consumer brands. We partner with online stores of every size, mostly in home goods and personal care, to plan, build and test what they sell online.
 The Role
-As an Account Strategist, you'll own growth and conversion strategy for a portfolio of DTC e-commerce brands. You'll sit at the intersection of paid media, CRO, and account management — shaping the plan, partnering with our project managers to ship it, and translating performance data into clear next moves.
+As an Account Strategist, you'll own growth and conversion strategy for a portfolio of DTC e-commerce brands. You'll sit at the intersection of paid media, CRO, and account management, shaping the plan with each client, running the weekly reviews and turning what the tests show into the next quarter's roadmap for every brand you own.
 What You'll Do
 Own CRO strategy across client e-commerce stores — identifying friction, prioritizing tests, and building experiment roadmaps.`
 
 const APSA = `Gerente de E-commerce y Marketplaces (Amazon · Mercado Norte · Shopify · TikTok Shop)
-APSA (Acabados de Papeles Satinados y Absorbentes, S.A. de C.V.) · Ecatepec de Morelos, México, Mexico
+Papelera Ejemplo (Papeles de Ejemplo del Centro, S.A. de C.V.) · Toluca, México, Mexico
 
-En Apsa somos fabricantes con presencia en Amazon, Mercado Norte y nuestra tienda propia en Shopify. Buscamos a la persona que tome el control total del canal digital: estrategia, operación, crecimiento y resultados.
+En Papelera Ejemplo somos fabricantes con presencia en Amazon, Mercado Norte y nuestra tienda propia en Shopify. Buscamos a la persona que tome el control total del canal digital: estrategia, operación, crecimiento y resultados.
 ¿Qué vas a hacer?
-Liderar la operación y el crecimiento de nuestras tiendas en Amazon, Mercado Norte y Shopify: catálogo, contenido, precios, inventario.`
+Liderar la operación y el crecimiento de nuestras tiendas en Amazon, Mercado Norte y Shopify: catálogo, contemarea, precios, inventario.`
 
 describe('roleSummary', () => {
   it('takes the first real paragraph, clipped at a sentence end', () => {
     expect(roleSummary(HALDEN)).toBe(
-      "The Lead, AI Business Enablement guides the artificial intelligence journey of Halden's LATAM eCommerce business.",
+      "The Regional Growth Lead shapes how Halden's online stores across LATAM win and keep customers.",
     )
   })
 
@@ -41,19 +41,19 @@ describe('roleSummary', () => {
 
   it('reads Spanish postings and does not split inside "S.A. de C.V."', () => {
     expect(roleSummary(APSA)).toBe(
-      'En Apsa somos fabricantes con presencia en Amazon, Mercado Norte y nuestra tienda propia en Shopify. Buscamos a la persona que tome el control total del canal digital: estrategia, operación, crecimiento y resultados.',
+      'En Papelera Ejemplo somos fabricantes con presencia en Amazon, Mercado Norte y nuestra tienda propia en Shopify. Buscamos a la persona que tome el control total del canal digital: estrategia, operación, crecimiento y resultados.',
     )
   })
 
   it('skips a line with a heading glued on, whole — never trimmed, never garbled', () => {
-    const nido = `Acerca del empleo
-About Nido SocialNido Social is a full-funnel eCommerce growth agency specializing in acquisition and retention for direct-to-consumer brands.
+    const marea = `Acerca del empleo
+About Marea SocialMarea Social is a full-funnel eCommerce growth agency specializing in acquisition and retention for direct-to-consumer brands.
 Our partnership-first approach has earned us a 90% client retention rate and recognition as an Inc. 5000 honoree.
-The RoleAs a Paid Search Media Buyer at Nido Social, you will own the strategy, execution, and optimization of Google Ads accounts.
+The RoleAs a Paid Search Media Buyer at Marea Social, you will own the strategy, execution, and optimization of Google Ads accounts.
 You will launch and manage search, shopping, and Performance Max campaigns while testing to drive scalable growth.`
     // The company section (glued "About …") is skipped; the glued role line is
     // dropped rather than cut; the next whole role sentence is the summary.
-    expect(roleSummary(nido)).toBe(
+    expect(roleSummary(marea)).toBe(
       'You will launch and manage search, shopping, and Performance Max campaigns while testing to drive scalable growth.',
     )
   })
@@ -184,23 +184,23 @@ Liderar la implementación y evolución de la agenda de Marketing ROI, coordinan
     expect(roleSummary(text)).toBe(text)
   })
 
-  it('skips company copy that opens "At <Company>," (Nielsen)', () => {
-    const nielsen = `About the job
-At Nielsen, we are passionate about our work to power a better media future for all people by providing powerful insights that drive client decisions and deliver extraordinary results.
+  it('skips company copy that opens "At <Company>," (Lumen Metrics)', () => {
+    const lumen = `About the job
+At Lumen Metrics, we are passionate about our work to power a better media future for all people by providing powerful insights that drive client decisions and deliver extraordinary results.
 As a Senior Analyst, Paid Media, you will own campaign measurement for our largest advertisers across search, social and retail media, turning results into recommendations.`
-    expect(roleSummary(nielsen, 'Nielsen')).toBe(
+    expect(roleSummary(lumen, 'Lumen Metrics')).toBe(
       'As a Senior Analyst, Paid Media, you will own campaign measurement for our largest advertisers across search, social and retail media, turning results into recommendations.',
     )
     // Case and a legal suffix on the stored name make no difference.
-    expect(roleSummary(nielsen, 'NIELSEN, Inc.')).toMatch(/^As a Senior Analyst/)
+    expect(roleSummary(lumen, 'LUMEN METRICS, Inc.')).toMatch(/^As a Senior Analyst/)
   })
 
-  it('skips "When you join <Company>," too (Nielsen\'s second paragraph)', () => {
-    const text = `When you join Nielsen, you will join a dynamic team committed to excellence, perseverance, and the ambition to make an impact together.
+  it('skips "When you join <Company>," too (Lumen Metrics\'s second paragraph)', () => {
+    const text = `When you join Lumen Metrics, you will join a dynamic team committed to excellence, perseverance, and the ambition to make an impact together.
 As a Senior Analyst, Paid Media, you will own campaign measurement for our largest advertisers across search, social and retail media.`
-    expect(roleSummary(text, 'Nielsen')).toMatch(/^As a Senior Analyst/)
+    expect(roleSummary(text, 'Lumen Metrics')).toMatch(/^As a Senior Analyst/)
     // Another company in that slot is not this employer's copy.
-    expect(roleSummary(text, 'Acme')).toMatch(/^When you join Nielsen/)
+    expect(roleSummary(text, 'Acme')).toMatch(/^When you join Lumen Metrics/)
   })
 
   it('skips Spanish company copy: "En <Company>,", "<Company> es", "Somos", "Nuestra misión"', () => {
@@ -216,18 +216,18 @@ Como Especialista de Marketplaces serás responsable de la estrategia comercial 
 
   it('keeps a role paragraph that merely mentions the company, or says the company is hiring', () => {
     const mention =
-      'You will join the Nielsen Media Analytics team as its first paid-media analyst, reporting to the Director of Measurement in Mexico City.'
-    expect(roleSummary(mention, 'Nielsen')).toBe(mention)
+      'You will join the Lumen Metrics Media Analytics team as its first paid-media analyst, reporting to the Director of Measurement in Mexico City.'
+    expect(roleSummary(mention, 'Lumen Metrics')).toBe(mention)
     const hiring =
-      'Nielsen is hiring a Paid Media Analyst to own measurement for our largest advertisers across search, social and retail media.'
-    expect(roleSummary(hiring, 'Nielsen')).toBe(hiring)
+      'Lumen Metrics is hiring a Paid Media Analyst to own measurement for our largest advertisers across search, social and retail media.'
+    expect(roleSummary(hiring, 'Lumen Metrics')).toBe(hiring)
     const looking =
       'We are looking for an E-Commerce Growth Marketing Manager to turn our digital channels into scalable, profitable growth engines.'
-    expect(roleSummary(looking, 'Nielsen')).toBe(looking)
+    expect(roleSummary(looking, 'Lumen Metrics')).toBe(looking)
     // Another company's name in the "is" slot is not this company's copy.
     const other =
       'Amazon Ads is the channel you will own: sponsored products, brands and display for a portfolio of consumer brands in Mexico.'
-    expect(roleSummary(other, 'Nielsen')).toBe(other)
+    expect(roleSummary(other, 'Lumen Metrics')).toBe(other)
   })
 
   it('every summary is a verbatim substring of one input line (property)', () => {
@@ -238,18 +238,18 @@ Como Especialista de Marketplaces serás responsable de la estrategia comercial 
       'We want a Ph.D. in statistics or a related field, and three years running marketing-mix models for consumer brands. More text follows here for the reader.',
       'You know Node.JS well.You will build the automation layer of our agency, from webhooks to the dashboards clients see every day.',
       'Vue.JS is our front end. You will build the automation layer of our agency, from webhooks to the dashboards clients see every day.',
-      'Step Labs turns DTC stores into compounding growth engines.We work in tight, senior pods of strategists, designers and developers.',
+      'Pinecrest Studio turns DTC stores into compounding growth engines.We work in tight, senior pods of strategists, designers and developers.',
       'El perfil ideal es Lic. en Mercadotecnia, con experiencia comprobable optimizando campañas en Amazon y Mercado Norte por ROAS.',
       'Text  with   doubled    spaces inside it, which must come back exactly as stored and never collapsed by the summary.',
       '\tLeading tab and trailing spaces around a line that describes the role in enough words to qualify for the block.   ',
       `${'Long sentence word '.repeat(10)}ends here. ${'Another long sentence word '.repeat(10)}ends too.`,
-      'About Nido SocialNido Social is an agency.\nThe RoleAs a buyer you own Google Ads.\nYou will launch and manage search, shopping, and Performance Max campaigns while testing to drive growth.',
-      'At Nielsen, we are passionate about our work to power a better media future for all people.\nYou will join the Nielsen team that measures paid media for the largest advertisers in Mexico.',
+      'About Marea SocialMarea Social is an agency.\nThe RoleAs a buyer you own Google Ads.\nYou will launch and manage search, shopping, and Performance Max campaigns while testing to drive growth.',
+      'At Lumen Metrics, we are passionate about our work to power a better media future for all people.\nYou will join the Lumen Metrics team that measures paid media for the largest advertisers in Mexico.',
     ]
     let seen = 0
     // With and without a company: skipping its copy must never touch the text.
     for (const input of probes) {
-      for (const company of ['', 'Nielsen', 'Step Labs']) {
+      for (const company of ['', 'Lumen Metrics', 'Pinecrest Studio']) {
         const out = roleSummary(input, company)
         if (out === null) continue
         seen++

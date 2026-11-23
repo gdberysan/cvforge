@@ -9,6 +9,5 @@
   "@/app/(app)/pipeline/actions": "./actions/pipeline.ts",
   "@/app/(app)/share/actions": "./actions/share.ts",
   "@/app/(app)/triage/actions": "./actions/triage.ts",
-  "@/app/(app)/settings/actions": "./actions/settings.ts",
-  "@/app/(app)/discover/actions": "./actions/discover.ts"
+  "@/app/(app)/settings/actions": "./actions/settings.ts"
 }
