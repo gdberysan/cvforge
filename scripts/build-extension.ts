@@ -14,10 +14,15 @@ import path from 'node:path'
 import { build } from 'esbuild'
 import pkg from '../package.json' with { type: 'json' }
 
-const site = new URL(process.env.CVFORGE_SITE ?? 'http://127.0.0.1:3100').origin
+// The app's address, base path included (https://rumbo.korven.dev/app/);
+// permissions and framing are granted to its origin.
+const app = new URL(process.env.CVFORGE_SITE ?? 'http://127.0.0.1:3100/app/')
+if (!app.pathname.endsWith('/')) app.pathname += '/'
+const site = app.origin
 const testAt = process.argv.indexOf('--test-origin')
 const testOrigin = testAt > 0 ? new URL(process.argv[testAt + 1] as string).origin : null
-const out = path.join('web', 'extension', 'dist')
+// EXT_OUT keeps a store build (the live site) apart from the unpacked one you test.
+const out = process.env.EXT_OUT ?? path.join('web', 'extension', 'dist')
 rmSync(out, { recursive: true, force: true })
 mkdirSync(path.join(out, 'icons'), { recursive: true })
 
@@ -30,7 +35,7 @@ await build({
   format: 'esm',
   target: 'chrome120',
   outdir: out,
-  define: { CVFORGE_SITE: JSON.stringify(site) },
+  define: { CVFORGE_SITE: JSON.stringify(app.href) },
   logLevel: 'warning',
 })
 // Content scripts and injected files are classic scripts, not modules.
@@ -47,12 +52,12 @@ await build({
 const linkedin = ['https://*.linkedin.com/jobs/*']
 const manifest = {
   manifest_version: 3,
-  name: 'CVForge',
+  name: 'Rumbo',
   description:
-    'Analyse a job posting against your own experience, in a side panel. Reads the posting you are looking at only when you ask; your data stays in your browser.',
+    'Rumbo: is this job worth your time? Analyse the posting you are looking at against your own experience, in a side panel. Reads the page only when you ask; your data stays in your browser.',
   version: pkg.version.split('-')[0],
   icons: { 48: 'icons/icon-48.png', 128: 'icons/icon-128.png' },
-  action: { default_title: 'CVForge' },
+  action: { default_title: 'Rumbo' },
   // No default panel: each tab gets its own when it asks (background.ts).
   background: { service_worker: 'background.js', type: 'module' },
   permissions: ['sidePanel', 'storage', 'activeTab', 'scripting'],
@@ -73,6 +78,8 @@ const manifest = {
 writeFileSync(path.join(out, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`)
 copyFileSync('web/extension/static/panel.html', path.join(out, 'panel.html'))
 for (const size of [48, 128]) {
-  copyFileSync('public/icons/icon-192.png', path.join(out, 'icons', `icon-${size}.png`))
+  copyFileSync(`web/public/icons/icon-${size}.png`, path.join(out, 'icons', `icon-${size}.png`))
 }
-console.log(`extension -> ${out} (site ${site}${testOrigin ? `, test origin ${testOrigin}` : ''})`)
+console.log(
+  `extension -> ${out} (app ${app.href}${testOrigin ? `, test origin ${testOrigin}` : ''})`,
+)

@@ -3,8 +3,9 @@
 **El código de este repositorio se publica bajo la licencia MIT (ver `LICENSE`
 en la raíz). Este aviso NO forma parte de esa licencia y la acota.**
 
-Los nombres **«Korven»** y **«CVForge»**, el wordmark, el emblema y el icono de
-la aplicación (`packaging/CVForge.app/Contents/Resources/CVForge.icns`) son
+Los nombres **«Korven»**, **«CVForge»** y **«Rumbo»**, el wordmark, el emblema, la
+aguja de Rumbo y los iconos de la aplicación (`packaging/CVForge.app/Contents/Resources/CVForge.icns`,
+`web/public/icons/`, `web/app/icon.svg`) son
 **© Korven, todos los derechos reservados**. NO están cubiertos por la
 licencia MIT del código y no se conceden derechos sobre ellos.
 
@@ -24,8 +25,9 @@ libre; la identidad, no.
 `LICENSE` at the root). This notice is NOT part of that license and narrows
 it.**
 
-The **"Korven"** and **"CVForge"** names, the wordmark, the emblem and the
-application icon (`packaging/CVForge.app/Contents/Resources/CVForge.icns`) are
+The **"Korven"**, **"CVForge"** and **"Rumbo"** names, the wordmark, the emblem,
+Rumbo's needle and the application icons (`packaging/CVForge.app/Contents/Resources/CVForge.icns`,
+`web/public/icons/`, `web/app/icon.svg`) are
 **© Korven, all rights reserved**. They are NOT covered by the MIT license of
 the code, and no rights to them are granted.
 

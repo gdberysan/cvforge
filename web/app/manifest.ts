@@ -1,7 +1,9 @@
 import type { MetadataRoute } from 'next'
+import { BRAND } from '@/lib/brand'
+import { BASE } from '@/web/lib/base'
 
-/** The dark --surface-base (styles/korven/colors.css). */
-const BACKGROUND = '#0E131B'
+/** --surface-base of the one light theme (app/globals.css): the splash and bar match the app. */
+const BACKGROUND = '#F6F4EF'
 
 /**
  * Installs the web edition (Chrome makes it a WebAPK, which is what puts it
@@ -25,21 +27,26 @@ export default function manifest(): MetadataRoute.Manifest & {
   }
 } {
   return {
-    id: '/',
-    name: 'CVForge',
-    short_name: 'CVForge',
-    start_url: '/',
-    scope: '/',
+    id: `${BASE}/`,
+    name: BRAND,
+    short_name: BRAND,
+    start_url: `${BASE}/`,
+    scope: `${BASE}/`,
     display: 'standalone',
     background_color: BACKGROUND,
     theme_color: BACKGROUND,
     icons: [
-      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-      { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      { src: `${BASE}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
+      { src: `${BASE}/icons/icon-512.png`, sizes: '512x512', type: 'image/png' },
+      {
+        src: `${BASE}/icons/maskable-512.png`,
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
     ],
     share_target: {
-      action: '/share-target',
+      action: `${BASE}/share-target`,
       method: 'POST',
       enctype: 'multipart/form-data',
       params: {

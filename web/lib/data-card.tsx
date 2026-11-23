@@ -1,16 +1,17 @@
 'use client'
 
+import { type ChangeEvent, useState } from 'react'
+import { useT } from '@/components/i18n/LocaleProvider'
+import { SettingsRow } from '@/components/settings/SettingsGroup'
+import { LOCALE_COOKIE } from '@/lib/i18n/locale'
+import { dataChanged, workerApi } from './actions-client'
 /**
  * The web edition's own data controls: the whole database as one file, out
  * and back in. A file from the desktop app imports too (its WAL header is
  * rewritten), and an import is checked before it replaces anything
  * (web/lib/db-file.ts). Replacing everything takes a second, explicit tap.
  */
-import { type ChangeEvent, useState } from 'react'
-import { useT } from '@/components/i18n/LocaleProvider'
-import { SettingsRow } from '@/components/settings/SettingsGroup'
-import { LOCALE_COOKIE } from '@/lib/i18n/locale'
-import { dataChanged, workerApi } from './actions-client'
+import { BASE } from './base'
 
 export function DataCard() {
   const t = useT()
@@ -130,7 +131,7 @@ function EraseRow() {
       if ('caches' in window) for (const k of await caches.keys()) await caches.delete(k)
       // biome-ignore lint/suspicious/noDocumentCookie: expiring the one first-party cookie (language)
       document.cookie = `${LOCALE_COOKIE}=; path=/; max-age=0; samesite=lax`
-      location.replace('/')
+      location.replace(`${BASE}/`)
     } catch {
       setFailed(true)
       setBusy(false)

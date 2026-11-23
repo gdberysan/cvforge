@@ -7,6 +7,7 @@
  * opening, ready, busy (another tab has it), moved (another tab took it),
  * unsupported (no OPFS or Web Locks), failed.
  */
+import { BASE } from './base'
 import '@/web/lib/zod-jitless'
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import type { WorkerApi } from '@/web/worker/api'
@@ -61,7 +62,7 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
       return
     }
     // Built by scripts/build-web-worker.ts (esbuild), served as a static file.
-    worker.current ??= new Worker('/worker/cvforge-worker.js', { type: 'module' })
+    worker.current ??= new Worker(`${BASE}/worker/cvforge-worker.js`, { type: 'module' })
     const api = connect<WorkerApi>(worker.current)
     apiRef.current = api
     let opened = { locked: false, interrupted: 0 }

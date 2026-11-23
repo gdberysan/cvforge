@@ -24,7 +24,7 @@
     "db:bundle": "tsx scripts/bundle-migrations.ts",
     "test:wasm": "vitest run -c vitest.wasm.config.ts",
     "web:worker": "tsx scripts/gen-web-bridge.ts && tsx scripts/build-web-worker.ts",
-    "web:build": "tsx scripts/gen-web-bridge.ts && tsx scripts/build-web-worker.ts --minify && next build web && tsx scripts/web-csp.ts && tsx scripts/web-manifest.ts",
+    "web:build": "tsx scripts/gen-web-bridge.ts && tsx scripts/build-web-worker.ts --minify && next build web && tsx scripts/web-csp.ts && tsx scripts/web-manifest.ts && tsx scripts/web-site.ts",
     "web:verify": "tsx scripts/web-verify.ts",
     "web:dev": "tsx scripts/gen-web-bridge.ts && tsx scripts/build-web-worker.ts && next dev web -H 127.0.0.1 -p 3100",
     "web:bridge": "tsx scripts/gen-web-bridge.ts",

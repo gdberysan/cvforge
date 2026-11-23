@@ -48,7 +48,8 @@ function show(posting: PagePosting | null): void {
     frame.contentWindow.postMessage({ type: 'cvforge:posting', posting: parts(posting) }, SITE)
     return
   }
-  const url = new URL('/share/', CVFORGE_SITE)
+  // Relative to the app's address, which carries its base path (/app/).
+  const url = new URL('share/', CVFORGE_SITE)
   if (posting) {
     if (posting.source === 'linkedin' && posting.title) {
       for (const [k, v] of Object.entries({ ...parts(posting), job: posting.title })) {

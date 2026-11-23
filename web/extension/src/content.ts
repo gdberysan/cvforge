@@ -14,8 +14,8 @@ const HOST_ID = 'cvforge-analyse'
 // The page's own language first: LinkedIn may be in Spanish in an English browser.
 const label = () =>
   (document.documentElement.lang || navigator.language).toLowerCase().startsWith('es')
-    ? 'Analizar en CVForge'
-    : 'Analyse in CVForge'
+    ? 'Analizar en Rumbo'
+    : 'Analyse in Rumbo'
 
 function anchor(): HTMLElement | null {
   const signedIn = signedInJob(document)?.titleEl

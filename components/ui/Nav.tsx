@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { BRAND } from '@/lib/brand'
 import { formatUsd } from '@/lib/spend/cost'
 import { IconMark } from './icons'
 import { LocaleSwitch } from './LocaleSwitch'
@@ -64,7 +65,7 @@ export function Nav({
     return (
       <div className="shutdown">
         <div>
-          <p className="eyebrow">CVForge</p>
+          <p className="eyebrow">{BRAND}</p>
           <h1 className="shutdown-title">{t('shutdown.title')}</h1>
           <p className="prose shutdown-body">{t('shutdown.body')}</p>
         </div>
@@ -81,7 +82,7 @@ export function Nav({
         <span aria-hidden className="brand-mark">
           <IconMark />
         </span>
-        CVForge
+        {BRAND}
       </Link>
 
       <div className="topnav-links">

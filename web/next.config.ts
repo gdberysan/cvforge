@@ -15,8 +15,12 @@ const actionAliases = JSON.parse(
  * server of ours. It shares lib/ and components/ with the desktop build one
  * directory up; aliases swap out what a browser cannot run.
  */
+// The app's place on its host: the landing page has the root (scripts/web-site.ts).
+const base = process.env.WEB_BASE ?? '/app'
+
 const config: NextConfig = {
   output: 'export',
+  basePath: base,
   // Static hosts serve /pipeline/index.html for /pipeline.
   trailingSlash: true,
   images: { unoptimized: true },
@@ -35,7 +39,12 @@ const config: NextConfig = {
       '#discover': '../lib/discover/stub.ts',
     },
   },
-  env: { NEXT_PUBLIC_BUILD_ID: process.env.CVFORGE_BUILD_ID ?? String(Date.now()) },
+  env: {
+    NEXT_PUBLIC_BUILD_ID: process.env.CVFORGE_BUILD_ID ?? String(Date.now()),
+    // The web edition's name (lib/brand.ts); the desktop build keeps CVForge.
+    NEXT_PUBLIC_BRAND: 'Rumbo',
+    NEXT_PUBLIC_BASE: base,
+  },
 }
 
 export default config

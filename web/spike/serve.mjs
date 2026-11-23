@@ -1,11 +1,11 @@
-// A static server that behaves like Cloudflare Pages for web/out:
+// A static server that behaves like the host for web/site (landing + app under /app):
 // directories serve index.html, and web/public/_redirects' 200 rewrites apply.
 
 import { readFile, stat } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import path from 'node:path'
 
-const root = path.resolve('web/out')
+const root = path.resolve(process.env.WEB_ROOT ?? 'web/site')
 const types = {
   '.html': 'text/html',
   '.js': 'text/javascript',
@@ -13,6 +13,10 @@ const types = {
   '.wasm': 'application/wasm',
   '.woff2': 'font/woff2',
   '.txt': 'text/x-component',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.json': 'application/json',
+  '.webmanifest': 'application/manifest+json',
 }
 // Cloudflare Pages' _headers: a path pattern, then indented "Name: value" lines.
 const headerRules = []

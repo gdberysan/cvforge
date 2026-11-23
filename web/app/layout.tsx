@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { BRAND } from '@/lib/brand'
 import { geist, marker, stamp } from '@/lib/fonts'
 import { DatabaseProvider } from '@/web/lib/database'
 import { WebLocale } from '@/web/lib/locale'
@@ -14,7 +15,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'CVForge',
+  title: BRAND,
   description:
     'Job applications grounded in what you actually did. Your data stays in your browser.',
 }

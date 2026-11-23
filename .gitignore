@@ -68,6 +68,9 @@ ui-sweep/
 web/spike/dist/
 web/public/worker/
 web/out/
+web/site/
 web/.next/
 web/spike/screens/
 web/extension/dist/
+web/extension/dist-store/
+web/extension/*.zip

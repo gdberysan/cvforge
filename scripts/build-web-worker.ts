@@ -40,6 +40,8 @@ await build({
   // Desktop code reads process.env (demo mode, model overrides); in the
   // Worker there is no environment, so every lookup is simply unset.
   banner: { js: 'globalThis.process ??= { env: {} };' },
+  // The web edition's name, as the pages have it (lib/brand.ts).
+  define: { 'process.env.NEXT_PUBLIC_BRAND': JSON.stringify('Rumbo') },
   logLevel: 'warning',
 })
 copyFileSync(

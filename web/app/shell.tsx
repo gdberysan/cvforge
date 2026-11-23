@@ -8,6 +8,7 @@ import { IconMark } from '@/components/ui/icons'
 import { MomentHost } from '@/components/ui/MomentHost'
 import { Nav } from '@/components/ui/Nav'
 import { ToastHost } from '@/components/ui/ToastHost'
+import { BRAND } from '@/lib/brand'
 import { useDatabase } from '@/web/lib/database'
 import { onJobs } from '@/web/lib/jobs'
 import { UnlockScreen } from '@/web/lib/unlock-screen'
@@ -25,6 +26,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const [jobs, setJobs] = useState(0)
   const [seenInterrupted, setSeenInterrupted] = useState(false)
   useEffect(() => onJobs(setJobs), [])
+  // Someone who uses the app skips the landing page next time (web/landing).
+  const started = shell?.started ?? false
+  useEffect(() => {
+    if (!started) return
+    try {
+      localStorage.setItem('rumbo:returning', '1')
+    } catch {}
+  }, [started])
 
   if (state.kind === 'locked') return <UnlockScreen />
   if (state.kind !== 'ready') {
@@ -37,7 +46,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <span aria-hidden className="brand-mark">
               <IconMark />
             </span>
-            CVForge
+            {BRAND}
           </span>
         </nav>
         <main id="main" className="page">
@@ -66,7 +75,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
     )
   }
 
-  const started = shell?.started ?? false
   return (
     <>
       <a href="#main" className="skip-link">

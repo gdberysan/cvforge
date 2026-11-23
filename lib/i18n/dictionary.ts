@@ -1615,7 +1615,7 @@ const en = {
   'web.data.exportFailed': 'The copy could not be made.',
   'web.data.importTitle': 'Bring in a copy',
   'web.data.importHint':
-    "A file from Export, or a backup from CVForge for Mac or Windows. It replaces everything here, but what's here now is saved aside first.",
+    "A file from Export, or a backup from the Mac or Windows app. It replaces everything here, but what's here now is saved aside first.",
   'web.data.importConfirm': 'Replace my data with {name}',
   'web.data.imported': 'Done. Your data is the copy you brought in.',
   'web.data.importFailed': 'The file could not be read.',
@@ -3312,7 +3312,7 @@ const es: Record<MessageKey, string> = {
   'web.data.exportFailed': 'No se pudo hacer la copia.',
   'web.data.importTitle': 'Traer una copia',
   'web.data.importHint':
-    'Un archivo de Exportar, o un respaldo de CVForge para Mac o Windows. Reemplaza todo lo que hay aquí, pero antes guarda aparte lo actual.',
+    'Un archivo de Exportar, o un respaldo de la app para Mac o Windows. Reemplaza todo lo que hay aquí, pero antes guarda aparte lo actual.',
   'web.data.importConfirm': 'Reemplazar mis datos con {name}',
   'web.data.imported': 'Listo. Tus datos son la copia que trajiste.',
   'web.data.importFailed': 'No se pudo leer el archivo.',

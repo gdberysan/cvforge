@@ -1,4 +1,4 @@
-/* CVForge (web edition) service worker. One job for now: receive a share
+/* Rumbo (web edition) service worker. One job for now: receive a share
  * from Android's share menu — screenshots of a posting, or a link and text —
  * keep it in IndexedDB (web/lib/shared-shots.ts reads it) and open Analizar.
  * The manifest's share_target posts multipart form data here. */
@@ -28,7 +28,10 @@ function save(entry) {
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url)
-  if (event.request.method !== 'POST' || url.pathname.replace(/\/$/, '') !== '/share-target') return
+  // Paths are read against this worker's scope: the app may live under a base path (/app/).
+  const scope = new URL(self.registration.scope)
+  const target = new URL('share-target', scope).pathname
+  if (event.request.method !== 'POST' || url.pathname.replace(/\/$/, '') !== target) return
   event.respondWith(
     (async () => {
       try {
@@ -43,9 +46,12 @@ self.addEventListener('fetch', (event) => {
           text: String(form.get('text') || ''),
           url: String(form.get('url') || ''),
         })
-        return Response.redirect(`/share/?shared=${encodeURIComponent(id)}`, 303)
+        return Response.redirect(
+          new URL(`share/?shared=${encodeURIComponent(id)}`, scope).href,
+          303,
+        )
       } catch {
-        return Response.redirect('/share/?shared=failed', 303)
+        return Response.redirect(new URL('share/?shared=failed', scope).href, 303)
       }
     })(),
   )

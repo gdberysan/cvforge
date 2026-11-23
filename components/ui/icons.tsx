@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { BRAND } from '@/lib/brand'
 
 /**
  * CVForge's icons, drawn here rather than pulled from a library: one 24px
@@ -60,12 +61,23 @@ export const IconPerson = () => (
   </Icon>
 )
 
-/** The wordmark's mark: a check, what CVForge gives back. */
-export const IconMark = () => (
-  <Icon size={16} className="icon brand-check">
-    <path d="M5 12l4 4L19 6" />
-  </Icon>
-)
+/**
+ * The wordmark's mark. CVForge: a check, what it gives back. Rumbo: a compass
+ * needle pointing up and forward, its leading half warm.
+ */
+export const IconMark = () =>
+  BRAND === 'Rumbo' ? (
+    <svg viewBox="0 0 24 24" width={22} height={22} className="icon brand-needle" aria-hidden>
+      <g transform="rotate(45 12 12)">
+        <path className="brand-needle-fore" d="M12 2.5 L14.6 12 L9.4 12 Z" />
+        <path className="brand-needle-back" d="M9.4 12 L14.6 12 L12 21.5 Z" />
+      </g>
+    </svg>
+  ) : (
+    <Icon size={16} className="icon brand-check">
+      <path d="M5 12l4 4L19 6" />
+    </Icon>
+  )
 
 /** Pipeline: applications moving through stages. */
 export const IconPipeline = () => (

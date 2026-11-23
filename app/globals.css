@@ -8240,3 +8240,7 @@ textarea#details-titles {
   border-color: var(--border-default);
   box-shadow: none;
 }
+
+/* Rumbo's mark: the needle on the same ink tile. */
+.brand-mark .brand-needle-fore { fill: var(--fill-warm); }
+.brand-mark .brand-needle-back { fill: var(--surface-base); }

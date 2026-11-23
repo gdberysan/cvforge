@@ -8,6 +8,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Rumbo:** the web edition's new name, at
+  [rumbo.korven.dev](https://rumbo.korven.dev), with a compass-needle mark.
+  A landing page at the root, written and signed by the author, with a live
+  example answer; the app lives at `/app/`. The desktop app keeps its name.
+- **The first run shows the answer before asking for anything:** three real
+  analyses for a made-up person, then the key step, field first.
+- **The extension follows you on LinkedIn:** the side panel swaps to the job
+  you open, in place and without a flash, shows the job as a card, belongs
+  to its tab and closes when the tab leaves LinkedIn.
 - **Web edition:** CVForge runs entirely in the browser. The database lives
   in the browser's private storage, your Anthropic key talks to Anthropic
   directly, and nothing passes through a server of ours. Export and import
@@ -25,6 +34,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- **Analysis runs on Claude Sonnet 5.5:** the same verdicts as Opus on 28 of
+  28 eval runs, at about $0.04 a posting instead of $0.11. Writing stays on
+  Opus. Every cost the app shows is the measured one.
+- Screens that cannot work yet (no key, no CV) say what is missing instead
+  of offering a box that fails.
 - A new, lighter design: one light theme, a calmer home page, each
   application as one page, and Mi experiencia simplified to one clear
   action per role.
