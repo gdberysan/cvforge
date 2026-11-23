@@ -9294,3 +9294,38 @@ a.btn-primary:not(:has(svg))::after {
   font-size: 16px;
   line-height: 1.55;
 }
+
+/* The free trial (web edition): one button and what it means, then the key
+   for whoever already has one. */
+.trial-card {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+.trial-note {
+  margin: 0;
+  font: 400 14px/1.5 var(--font-headline);
+  color: var(--text-muted);
+  max-width: 34rem;
+}
+.welcome-subtitle {
+  margin: 36px 0 12px;
+  font: 700 20px/1.2 var(--font-headline);
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+}
+.trial-pill {
+  color: var(--text-accent);
+  background: var(--fill-warm-soft);
+}
+.trial-card .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.trial-ended {
+  margin: 0;
+  font: 400 17px/1.5 var(--font-voice);
+  color: var(--text-strong);
+}

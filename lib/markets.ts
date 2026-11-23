@@ -219,3 +219,79 @@ export function marketRule(market: Market, lengths: { onePage: string; twoPages:
 export function defaultMarket(profileMarkets: readonly Market[] | undefined): Market {
   return profileMarkets?.[0] ?? 'us-remote'
 }
+
+/**
+ * The market a place names, or null when it names none: a country (English or
+ * Spanish: "Bogotá, Colombia", "Ciudad de México"), or that country's remote
+ * market when the text says remote and one exists. LinkedIn writes "City,
+ * State, Country", so the last country named wins ("Atlanta, Georgia, United
+ * States" is the US, not Georgia). Cities alone are not guessed.
+ */
+export function marketNamedIn(place: string | null | undefined): Market | null {
+  if (!place) return null
+  const l = foldPlace(place)
+  let best: { code: string; at: number } | null = null
+  for (const { code, pattern } of countryPatterns()) {
+    for (const m of l.matchAll(pattern)) {
+      if (!best || m.index > best.at) best = { code, at: m.index }
+    }
+  }
+  if (!best) return null
+  // "United States (Remote)" is the US remote market; "Mexico (Remote)" is
+  // still Mexico: remote within one country.
+  const remoteOf = `${best.code}-remote`
+  return /\b(remote|remoto)\b/.test(l) && isMarket(remoteOf) ? remoteOf : best.code
+}
+
+/**
+ * A suggestion, never a decision: the triage market control stays editable.
+ * The country a location names; remote with no country, the person's first
+ * remote market; anything else, their default.
+ */
+export function marketFromPlace(place: string | null, profileMarkets: readonly Market[]): Market {
+  const named = marketNamedIn(place)
+  if (named) return named
+  if (place && /\b(remote|remoto)\b/.test(foldPlace(place))) {
+    return profileMarkets.find((m) => !isCountryMarket(m)) ?? defaultMarket(profileMarkets)
+  }
+  return defaultMarket(profileMarkets)
+}
+
+/**
+ * The markets to offer someone: the ones they saved, else the country their
+ * own location names ("Ciudad de México" is Mexico), else none. A CV read for
+ * the first time saves no markets, and "US remote" for a person in Mexico
+ * mislabelled every posting and wrote US-spelling, one-page CVs for it.
+ */
+export function effectiveMarkets(
+  saved: readonly Market[] | undefined,
+  location: string | null | undefined,
+): Market[] {
+  if (saved && saved.length > 0) return [...saved]
+  const home = marketNamedIn(location)
+  return home && isCountryMarket(home) ? [home] : []
+}
+
+/**
+ * The market a pasted posting names near its top (its title and location
+ * line), or null. Only the first lines: further down, a posting mentions
+ * countries for other reasons ("clients in Brazil").
+ */
+export function marketOfPosting(text: string): Market | null {
+  const head = text.split('\n').slice(0, 4).join('\n').slice(0, 400)
+  return marketNamedIn(head)
+}
+
+const foldPlace = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
+
+let patternCache: { code: string; pattern: RegExp }[] | null = null
+
+function countryPatterns(): { code: string; pattern: RegExp }[] {
+  if (patternCache) return patternCache
+  patternCache = countryCodes().map((code) => {
+    const names = [...new Set([marketLabel(code, 'en'), marketLabel(code, 'es')].map(foldPlace))]
+    const alt = names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+    return { code, pattern: new RegExp(`\\b(?:${alt})\\b`, 'g') }
+  })
+  return patternCache
+}

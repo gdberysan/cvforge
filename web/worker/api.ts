@@ -3,6 +3,7 @@
  * counterpart of the desktop's server actions and API routes: same names,
  * same results, the same lib/ code underneath.
  */
+import { resetClient } from '@/lib/ai/client'
 import { setPaidCallLedger } from '@/lib/ai/in-flight'
 import { setSpendRecorder } from '@/lib/ai/spend-hook'
 import { type Screenshot, transcribePosting } from '@/lib/ai/stages/transcribe-posting'
@@ -92,6 +93,27 @@ export const api = {
       name: profile?.basics.fullName ?? null,
       hasKey: Boolean(readSettings().anthropicApiKey),
       spend: spendSummary(db()),
+    }
+  },
+
+  /**
+   * Starts the free trial (web/trial): asks Rumbo's trial server for a pass
+   * and keeps it like a key. `closed`: no trial right now (switched off or the
+   * month's budget is spent); `limit`: too many trials from this network today.
+   */
+  startTrial: async (): Promise<'started' | 'closed' | 'limit' | 'failed'> => {
+    try {
+      const res = await fetch(`${self.location.origin}/trial/start/`, { method: 'POST' })
+      const body = (await res.json().catch(() => ({}))) as { state?: string; token?: string }
+      if (res.ok && body.state === 'started' && body.token) {
+        writeSettings({ ...readSettings(), trialToken: body.token, trialEnded: false })
+        await settingsSaved()
+        resetClient()
+        return 'started'
+      }
+      return body.state === 'limit' ? 'limit' : body.state === 'closed' ? 'closed' : 'failed'
+    } catch {
+      return 'failed'
     }
   },
 

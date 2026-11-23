@@ -180,12 +180,14 @@ export function runDeterministicChecks(args: {
       // and record text carry prose ("subí ROAS 3.4x"), so their quantities
       // are extracted the same way the bullet's are before comparing.
       const allowed = allowedQuantityForms(citedItems)
+      const explicit = explicitCurrencyFigures(bullet.text)
       for (const line of citedCredentials)
         for (const token of extractQuantities(line)) allowed.add(normaliseQuantity(token))
       for (const token of extractQuantities(bullet.text)) {
         if (
           !allowed.has(normaliseQuantity(token)) ||
-          dollarSignSwapsCurrency(token, citedItems, args.market)
+          (dollarSignSwapsCurrency(token, citedItems, args.market) &&
+            !explicit.has(normaliseQuantity(token)))
         ) {
           report.unverifiedNumbers.push({ bulletId: bullet.id, token })
         }
@@ -439,6 +441,34 @@ export function allowedQuantityForms(citedItems: EvidenceItem[]): Set<string> {
       }),
     ),
   ])
+}
+
+/**
+ * The "$" figures a line states its currency for: "$890 MXN", and both ends
+ * of a range that names it once ("de $1,450 a $890 MXN"). The reader splits
+ * "$890 MXN" into a bare "$890" and "890 MXN"; without this the bare half was
+ * read in the market's currency and flagged as a swap (2026-11-23: a pesos
+ * figure written with MXN, flagged on a market that took "$" as dollars).
+ */
+export function explicitCurrencyFigures(text: string): Set<string> {
+  const amount = String.raw`\$\s?\d[\d.,]*(?:\s?(?:mil|millones|millón|million|millions|[kKM]{1,2}))?`
+  const range = new RegExp(
+    `(${amount})(?:\\s*(?:a|to|y|and|–|-)\\s*(${amount}))?\\s*([A-Z]{3})\\b`,
+    'gu',
+  )
+  const figures = new Set<string>()
+  for (const m of text.matchAll(range)) {
+    // A real currency code only: "$500 CAC" names a metric, not pesos.
+    if (!isCurrencyCode(m[3] ?? '')) continue
+    for (const figure of [m[1], m[2]]) if (figure) figures.add(normaliseQuantity(figure))
+  }
+  return figures
+}
+
+let currencyCodes: Set<string> | null = null
+function isCurrencyCode(code: string): boolean {
+  currencyCodes ??= new Set(Intl.supportedValuesOf('currency'))
+  return currencyCodes.has(code)
 }
 
 /**

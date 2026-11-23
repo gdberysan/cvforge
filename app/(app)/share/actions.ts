@@ -5,6 +5,7 @@ import { db } from '@/lib/db/client'
 import { getProfile } from '@/lib/db/queries/profile'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
 import { marketFromLocation } from '@/lib/discover/annotate'
+import { effectiveMarkets } from '@/lib/markets'
 import type { Market } from '@/lib/schemas'
 import { postingFromDetail } from '@/lib/share/posting'
 
@@ -23,7 +24,8 @@ export async function readLinkedInPostingAction(jobId: string): Promise<LinkedIn
   if (isDemo()) return demoBlock()
   if (!isDiscoverEnabled()) return { status: 'off' }
   if (!/^\d{6,}$/.test(jobId)) return { status: 'failed' }
-  const markets = getProfile(db)?.preferences.markets ?? []
+  const owner = getProfile(db)
+  const markets = owner ? effectiveMarkets(owner.preferences.markets, owner.basics.location) : []
   try {
     const detail = await fetchLinkedInDetail(jobId)
     const text = postingFromDetail(detail)
