@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { AiError } from '@/lib/ai/errors'
 import { buildEvidenceProjection } from '@/lib/ai/projection'
 import { runRemap, runTriage } from '@/lib/ai/triage'
 import { db } from '@/lib/db/client'
@@ -14,7 +13,10 @@ import { getProfile } from '@/lib/db/queries/profile'
 import { isDemo } from '@/lib/demo/mode'
 import { demoTriageEvents } from '@/lib/demo/triage-events'
 import { hashEvidenceProjection, hashPosting } from '@/lib/hash'
+import { eventStream } from '@/lib/http/event-stream'
 import { getLocale } from '@/lib/i18n/server'
+import { verdictMessage } from '@/lib/push/messages'
+import { notify } from '@/lib/push/notify'
 import { MarketSchema, SourceSchema } from '@/lib/schemas'
 
 const MAX_POSTING = 50_000
@@ -28,8 +30,6 @@ const Body = z.object({
   sourceUrl: z.string().url().optional(),
   market: MarketSchema.default('us-remote'),
 })
-
-const encoder = new TextEncoder()
 
 /**
  * Streams progress as Server-Sent Events. Triage takes 20-40 seconds across
@@ -87,22 +87,15 @@ export async function POST(request: Request) {
       )
     }
     const script = demoTriageEvents(existing)
-    const replay = new ReadableStream({
-      async start(controller) {
+    return eventStream(
+      async (send) => {
         for (const step of script) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(step.event)}\n\n`))
+          send(step.event)
           if (step.delayMs) await new Promise((r) => setTimeout(r, step.delayMs))
         }
-        controller.close()
       },
-    })
-    return new Response(replay, {
-      headers: {
-        'content-type': 'text/event-stream; charset=utf-8',
-        'cache-control': 'no-cache, no-transform',
-        connection: 'keep-alive',
-      },
-    })
+      { fallback: 'Unexpected error during triage.' },
+    )
   }
 
   // Both cached paths reuse the stored analysis, but the intake fields
@@ -132,51 +125,11 @@ export async function POST(request: Request) {
     })
   }
 
-  // Closing the tab mid-run must not discard the paid model calls: `send`
-  // goes quiet once the client is gone, and results are persisted regardless.
-  let open = true
-  const stream = new ReadableStream({
-    cancel() {
-      open = false
-    },
-    async start(controller) {
-      const send = (event: unknown) => {
-        if (!open) return
-        try {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`))
-        } catch {
-          open = false
-        }
-      }
-
-      try {
-        if (existing) {
-          const { mappings, coverage } = await runRemap({
-            requirements: existing.requirements,
-            profile,
-            evidence,
-            onProgress: (stage, detail) => send({ stage, detail }),
-            rationaleLanguage,
-          })
-
-          send({ stage: 'saving' })
-          updateAnalysis(db, existing.id, { mappings, coverage, evidenceHash })
-
-          send({
-            done: true,
-            applicationId: existing.id,
-            cached: false,
-            company: existing.company,
-            jobTitle: existing.jobTitle,
-            requirements: existing.requirements,
-            mappings,
-            coverage,
-          })
-          return
-        }
-
-        const result = await runTriage({
-          postingText: body.data.text,
+  return eventStream(
+    async (send) => {
+      if (existing) {
+        const { mappings, coverage } = await runRemap({
+          requirements: existing.requirements,
           profile,
           evidence,
           onProgress: (stage, detail) => send({ stage, detail }),
@@ -184,43 +137,70 @@ export async function POST(request: Request) {
         })
 
         send({ stage: 'saving' })
-        const applicationId = createApplication(db, {
-          source: body.data.source ?? 'other',
-          sourceUrl: body.data.sourceUrl,
-          company: result.company,
-          jobTitle: result.jobTitle,
-          market: body.data.market,
-          documentLanguage: result.language,
-          postingRaw: body.data.text,
-          postingHash: hash,
-          evidenceHash,
-          requirements: result.requirements,
-          mappings: result.mappings,
-          coverage: result.coverage,
-        })
+        updateAnalysis(db, existing.id, { mappings, coverage, evidenceHash })
 
-        send({ done: true, applicationId, cached: false, ...result })
-      } catch (error) {
-        // Errors travel as events: the response already committed a 200 with
-        // the stream, so a status code is no longer available to carry them.
-        send(
-          error instanceof AiError
-            ? { error: error.userMessage, code: error.kind }
-            : { error: 'Unexpected error during triage.', code: 'unexpected' },
-        )
-      } finally {
-        if (open) controller.close()
+        send({
+          done: true,
+          applicationId: existing.id,
+          cached: false,
+          company: existing.company,
+          jobTitle: existing.jobTitle,
+          requirements: existing.requirements,
+          mappings,
+          coverage,
+        })
+        // Always: Android keeps a backgrounded tab's connection open, so
+        // 'still connected' does not mean 'still looking'. The phone's service
+        // worker stays silent when the app is already in front (public/sw.js).
+        {
+          const message = verdictMessage(rationaleLanguage, {
+            verdict: coverage.verdict,
+            jobTitle: existing.jobTitle,
+            company: existing.company,
+            applicationId: existing.id,
+          })
+          void notify(db, message).catch(() => {})
+        }
+        return
+      }
+
+      const result = await runTriage({
+        postingText: body.data.text,
+        profile,
+        evidence,
+        onProgress: (stage, detail) => send({ stage, detail }),
+        rationaleLanguage,
+      })
+
+      send({ stage: 'saving' })
+      const applicationId = createApplication(db, {
+        source: body.data.source ?? 'other',
+        sourceUrl: body.data.sourceUrl,
+        company: result.company,
+        jobTitle: result.jobTitle,
+        market: body.data.market,
+        documentLanguage: result.language,
+        postingRaw: body.data.text,
+        postingHash: hash,
+        evidenceHash,
+        requirements: result.requirements,
+        mappings: result.mappings,
+        coverage: result.coverage,
+      })
+
+      send({ done: true, applicationId, cached: false, ...result })
+      {
+        const message = verdictMessage(rationaleLanguage, {
+          verdict: result.coverage.verdict,
+          jobTitle: result.jobTitle,
+          company: result.company,
+          applicationId,
+        })
+        void notify(db, message).catch(() => {})
       }
     },
-  })
-
-  return new Response(stream, {
-    headers: {
-      'content-type': 'text/event-stream; charset=utf-8',
-      'cache-control': 'no-cache, no-transform',
-      connection: 'keep-alive',
-    },
-  })
+    { fallback: 'Unexpected error during triage.' },
+  )
 }
 
 function json(payload: unknown, status = 200) {

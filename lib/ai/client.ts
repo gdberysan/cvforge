@@ -2,8 +2,9 @@ import Anthropic from '@anthropic-ai/sdk'
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import type { z } from 'zod'
 import { readSettings } from '@/lib/settings'
-import { type Effort, MAX_TOKENS, modelFor, reasoningFor } from './config'
-import { AiError, classify, messageOf } from './errors'
+import { type Effort, MAX_TOKENS, MAX_TOKENS_CEILING, modelFor, reasoningFor } from './config'
+import { AiError, type AiErrorKind, classify, messageOf } from './errors'
+import { trackPaidCall } from './in-flight'
 import { reportSpend } from './spend-hook'
 
 export type SystemBlock = {
@@ -23,6 +24,14 @@ export type UserBlock =
       type: 'document'
       source: { type: 'base64'; media_type: 'application/pdf'; data: string }
     }
+  | {
+      type: 'image'
+      source: {
+        type: 'base64'
+        media_type: 'image/jpeg' | 'image/png' | 'image/webp'
+        data: string
+      }
+    }
 
 /**
  * Constructed lazily. The SDK throws at construction when it cannot resolve
@@ -35,9 +44,16 @@ export type UserBlock =
  */
 const globalForAi = globalThis as unknown as { __anthropic?: Anthropic }
 
+/** A browser page or Worker: the web edition, where there is no process.env. */
+export const inBrowser = (): boolean =>
+  typeof window !== 'undefined' ||
+  typeof (globalThis as { WorkerGlobalScope?: unknown }).WorkerGlobalScope !== 'undefined'
+
 function getClient(): Anthropic {
   if (!globalForAi.__anthropic) {
-    const envHasKey = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN)
+    const env: Record<string, string | undefined> =
+      typeof process === 'undefined' ? {} : process.env
+    const envHasKey = Boolean(env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN)
     const fileKey = envHasKey ? undefined : readSettings().anthropicApiKey
     try {
       // maxRetries: 0 because the retry policy lives HERE — the SDK default
@@ -46,6 +62,9 @@ function getClient(): Anthropic {
       globalForAi.__anthropic = new Anthropic({
         ...(fileKey ? { apiKey: fileKey } : {}),
         maxRetries: 0,
+        // The web edition calls Anthropic straight from the person's own
+        // browser with their own key (CSP-locked page, no server of ours).
+        ...(inBrowser() ? { dangerouslyAllowBrowser: true } : {}),
       })
     } catch (error) {
       throw new AiError('auth', 'No Anthropic credentials could be resolved', error)
@@ -100,19 +119,49 @@ export function usageFromError(error: unknown): Usage | null {
   return null
 }
 
-export async function callStructured<T extends z.ZodTypeAny>(opts: {
+type StructuredCall<T extends z.ZodTypeAny> = {
   schema: T
   system: SystemBlock[]
   user: string | UserBlock[]
   effort: Effort
   /** Names the pipeline stage on its spend row. */
   stage?: string
-}): Promise<z.infer<T>> {
+  /** A stage whose answer is long; capped at MAX_TOKENS_CEILING. */
+  maxTokens?: number
+}
+
+/** One structured model call, counted as in flight so a restore waits for it (see in-flight.ts). */
+export function callStructured<T extends z.ZodTypeAny>(
+  opts: StructuredCall<T>,
+): Promise<z.infer<T>> {
+  return trackPaidCall(() => callStructuredUntracked(opts), {
+    stage: opts.stage ?? 'unknown',
+    model: modelFor(opts.stage),
+  })
+}
+
+/**
+ * Which failures are worth another try, and after how long. Overload is
+ * transient, so one backoff. A refused or dropped connection never reached
+ * the API, so it costs nothing to retry, and a flaky home connection drops in
+ * bursts of seconds (2026-10-29: about one connect in five refused at once):
+ * three backoffs outlast one. A rate limit is never retried — that only
+ * deepens the hole — and neither is a timeout, which already waited ten
+ * minutes and may have been billed.
+ */
+const RETRY_DELAYS_MS: Partial<Record<AiErrorKind, number[]>> = {
+  overloaded: [1500],
+  network: [2000, 5000, 15000],
+}
+
+async function callStructuredUntracked<T extends z.ZodTypeAny>(
+  opts: StructuredCall<T>,
+): Promise<z.infer<T>> {
   const model = modelFor(opts.stage)
   const reasoning = reasoningFor(model, opts.effort)
   const request = {
     model,
-    max_tokens: MAX_TOKENS,
+    max_tokens: Math.min(opts.maxTokens ?? MAX_TOKENS, MAX_TOKENS_CEILING),
     thinking: reasoning.thinking,
     output_config: {
       ...(reasoning.effort ? { effort: reasoning.effort } : {}),
@@ -148,25 +197,23 @@ export async function callStructured<T extends z.ZodTypeAny>(opts: {
   // billed response has arrived, discarding its usage. Anthropic bills a
   // truncated or malformed answer the same as a good one, so the response
   // is taken as-is, its spend recorded, and the parsing done here.
-  let response: Reply
-  try {
-    response = (await getClient().messages.create(request as never)) as Reply
-  } catch (error) {
-    if (error instanceof AiError) throw error
-    recordUsage(usageFromError(error))
-
-    const kind = classify(error)
-    // Overload is transient, so one backoff is worth it. A rate limit is not:
-    // retrying immediately just deepens the hole.
-    if (kind !== 'overloaded') {
-      throw new AiError(kind, `AI request failed (${kind})`, error)
-    }
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+  let response: Reply | undefined
+  for (let attempt = 0; response === undefined; attempt++) {
     try {
       response = (await getClient().messages.create(request as never)) as Reply
-    } catch (retryError) {
-      recordUsage(usageFromError(retryError))
-      throw new AiError(classify(retryError), 'Retry after overload failed', retryError)
+    } catch (error) {
+      if (error instanceof AiError) throw error
+      recordUsage(usageFromError(error))
+      const kind = classify(error)
+      const delay = RETRY_DELAYS_MS[kind]?.[attempt]
+      if (delay === undefined) {
+        throw new AiError(
+          kind,
+          attempt === 0 ? `AI request failed (${kind})` : `Retry after ${kind} failed`,
+          error,
+        )
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }
 

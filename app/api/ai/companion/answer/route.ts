@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withGapSources } from '@/lib/ai/companion'
 import { postingVocabularyOf, verifyDistortions } from '@/lib/ai/distortions'
 import { AiError } from '@/lib/ai/errors'
-import { projectSourcesOf } from '@/lib/ai/projection'
+import { recordSourcesOf } from '@/lib/ai/projection'
 import {
   composeScreeningAnswer,
   selectCredentialsForComposition,
@@ -65,6 +66,7 @@ export async function POST(request: Request) {
       mappings: application.mappings,
       evidence,
       language: application.documentLanguage,
+      market: application.market,
       company: application.company,
       jobTitle: application.jobTitle,
       question: body.data.question,
@@ -89,11 +91,17 @@ export async function POST(request: Request) {
 
     // The same narrow model question the batch route asks — does this
     // answer overstate its sources?
-    report.distortions = await verifyDistortions(
+    const checked = withGapSources(
       [{ id: composed.id, text: composed.answer, citedEvidenceIds: composed.citedEvidenceIds }],
+      application.requirements,
+      application.mappings,
+    )
+    report.distortions = await verifyDistortions(
+      checked.candidates,
       evidence,
-      new Map([...selectedCredentials, ...projectSourcesOf(profile, evidence)]),
+      new Map([...selectedCredentials, ...recordSourcesOf(profile, evidence), ...checked.sources]),
       await getLocale(),
+      application.jobTitle,
     )
     report.passed = report.passed && report.distortions.length === 0
 

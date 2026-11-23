@@ -91,18 +91,35 @@ export function projectLine(p: Project): string {
 }
 
 /**
- * Each project record's id → its project's line. A letter must know the
- * stack the person recorded on the project, or it argues the person out of
- * a skill they stated ("not a TypeScript codebase" about a TypeScript tool).
+ * Each record's id → the line of what it stands on: a project record's
+ * project (name, stack, dates), a role record's role (title, employer,
+ * dates). A letter must know the stack the person recorded on the project,
+ * or it argues the person out of a skill they stated ("not a TypeScript
+ * codebase" about a TypeScript tool); and the checker must know a role's
+ * employer, or a summary naming the company the work was recorded under
+ * reads as an invented employer.
  */
-export function projectSourcesOf(
+export function recordSourcesOf(
   profile: MasterProfile,
   evidence: EvidenceItem[],
 ): Map<string, string> {
-  const lineOf = new Map(profile.projects.map((p) => [p.id, projectLine(p)]))
+  const projectOf = new Map(profile.projects.map((p) => [p.id, projectLine(p)]))
+  const roleOf = new Map(
+    profile.experience.map((r) => [
+      r.id,
+      [[r.title, r.company].filter((x) => x.trim()).join(' at '), formatSpan(r.period, 'present')]
+        .filter(Boolean)
+        .join(' | '),
+    ]),
+  )
   return new Map(
     evidence.flatMap((e) => {
-      const line = e.sourceRef.type === 'project' ? lineOf.get(e.sourceRef.id) : undefined
+      const line =
+        e.sourceRef.type === 'project'
+          ? projectOf.get(e.sourceRef.id)
+          : e.sourceRef.type === 'experience'
+            ? roleOf.get(e.sourceRef.id)
+            : undefined
       return line ? [[e.id, line] as [string, string]] : []
     }),
   )

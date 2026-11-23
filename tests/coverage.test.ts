@@ -25,6 +25,21 @@ function map(requirementId: string, strength: EvidenceMapping['strength']): Evid
 }
 
 describe('computeCoverage', () => {
+  it('does not gate on a requirement the mapper never judged, and surfaces it', () => {
+    const requirements = [
+      req('r1', { kind: 'location', text: 'Must be EU-based' }),
+      ...Array.from({ length: 9 }, (_, i) => req(`r${i + 2}`)),
+    ]
+    const mappings = [
+      { ...map('r1', 'none'), unjudged: true },
+      ...Array.from({ length: 9 }, (_, i) => map(`r${i + 2}`, 'strong')),
+    ]
+    const c = computeCoverage(requirements, mappings)
+    expect(c.hardBlockers).toEqual([])
+    expect(c.unjudgedGates?.map((r) => r.id)).toEqual(['r1'])
+    expect(c.verdict).not.toBe('skip')
+  })
+
   it('counts mandatory and desirable requirements separately', () => {
     const requirements = [req('r1'), req('r2'), req('r3', { mandatory: false })]
     const c = computeCoverage(requirements, [

@@ -1,5 +1,5 @@
 import type { CVContent } from '@/lib/schemas'
-import { educationLine, formatDate, projectDates, projectTitle } from './format'
+import { cvOutline, type OutlineItem } from './outline'
 
 type RenderOpts = {
   language: 'en' | 'es-MX'
@@ -7,24 +7,7 @@ type RenderOpts = {
   accentRule?: boolean
 }
 
-export const HEADINGS = {
-  en: {
-    summary: 'Summary',
-    experience: 'Experience',
-    projects: 'Projects',
-    education: 'Education',
-    skills: 'Skills',
-    present: 'Present',
-  },
-  'es-MX': {
-    summary: 'Resumen',
-    experience: 'Experiencia',
-    projects: 'Proyectos',
-    education: 'Educación',
-    skills: 'Habilidades',
-    present: 'actualidad',
-  },
-} as const
+export { HEADINGS } from './outline'
 
 function escapeHtml(value: string): string {
   return value
@@ -82,70 +65,33 @@ function documentCss(opts: RenderOpts): string {
  * headings, contact in the body — the ATS constraints that genuinely help.
  */
 export function renderCvHtml(content: CVContent, opts: RenderOpts): string {
-  const h = HEADINGS[opts.language]
   const e = escapeHtml
+  const outline = cvOutline(content, opts.language)
 
-  const experience = content.experience
-    .map((role) => {
-      const end = role.endDate ? formatDate(role.endDate, opts.language) : h.present
-      return `
+  const item = (it: OutlineItem): string => {
+    if (it.kind === 'para') return `<p>${e(it.text)}</p>`
+    if (it.kind === 'skills')
+      return `<div class="skills-row"><span class="skills-cat">${e(it.category)}:</span> ${e(it.items.join(', '))}</div>`
+    // A role never breaks across pages: half a role on each page reads as two.
+    return `
         <div class="role" style="page-break-inside: avoid;">
           <div class="role-head">
-            <span class="role-title">${e(role.title)} — ${e(role.company)}</span>
-            <span class="role-dates">${e(formatDate(role.startDate, opts.language))} – ${e(end)}</span>
+            <span class="role-title">${e(it.left)}</span>
+            ${it.right ? `<span class="role-dates">${e(it.right)}</span>` : ''}
           </div>
-          <ul>${role.bullets.map((b) => `<li>${e(b.text)}</li>`).join('')}</ul>
+          ${it.bullets.length > 0 ? `<ul>${it.bullets.map((b) => `<li>${e(b)}</li>`).join('')}</ul>` : ''}
         </div>`
-    })
-    .join('')
-
-  const projects = content.projects
-    .map((project) => {
-      const dates = projectDates(project, opts.language, h.present)
-      return `
-        <div class="role" style="page-break-inside: avoid;">
-          <div class="role-head">
-            <span class="role-title">${e(projectTitle(project))}</span>
-            ${dates ? `<span class="role-dates">${e(dates)}</span>` : ''}
-          </div>
-          <ul>${project.bullets.map((b) => `<li>${e(b.text)}</li>`).join('')}</ul>
-        </div>`
-    })
-    .join('')
-
-  const education = content.education
-    .map(
-      (ed) =>
-        `<div class="role"><div class="role-head"><span class="role-title">${e(educationLine(ed))}</span><span class="role-dates">${e(ed.period)}</span></div></div>`,
-    )
-    .join('')
-
-  const skills = content.skills
-    .map(
-      (s) =>
-        `<div class="skills-row"><span class="skills-cat">${e(s.category)}:</span> ${e(s.items.join(', '))}</div>`,
-    )
-    .join('')
-
-  const extras = content.extras
-    .map((x) => `<h2>${e(x.heading)}</h2>${x.lines.map((l) => `<p>${e(l)}</p>`).join('')}`)
-    .join('')
+  }
 
   return `<!doctype html>
 <html lang="${opts.language === 'es-MX' ? 'es-MX' : 'en'}">
-<head><meta charset="utf-8"><title>${e(content.header.fullName)}</title><style>${documentCss(opts)}</style></head>
+<head><meta charset="utf-8"><title>${e(outline.name)}</title><style>${documentCss(opts)}</style></head>
 <body>
   <div class="doc">
-    <p class="name">${e(content.header.fullName)}</p>
-    <p class="title">${e(content.header.title)}</p>
-    <p class="contact">${content.header.contactLines.map(e).join(' · ')}</p>
-
-    ${content.summary ? `<h2>${h.summary}</h2><p>${e(content.summary)}</p>` : ''}
-    ${experience ? `<h2>${h.experience}</h2>${experience}` : ''}
-    ${projects ? `<h2>${h.projects}</h2>${projects}` : ''}
-    ${education ? `<h2>${h.education}</h2>${education}` : ''}
-    ${skills ? `<h2>${h.skills}</h2>${skills}` : ''}
-    ${extras}
+    <p class="name">${e(outline.name)}</p>
+    ${outline.title ? `<p class="title">${e(outline.title)}</p>` : ''}
+    <p class="contact">${e(outline.contact)}</p>
+    ${outline.sections.map((s) => `<h2>${e(s.heading)}</h2>${s.items.map(item).join('')}`).join('\n    ')}
   </div>
 </body>
 </html>`

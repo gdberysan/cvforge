@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { reconcileImport } from '@/lib/import/reconcile'
+import { mergeImport, reconcileImport } from '@/lib/import/reconcile'
 import type { EvidenceItem, Experience, MasterProfile } from '@/lib/schemas'
 
 const base: Omit<MasterProfile, 'experience'> = {
@@ -113,11 +113,11 @@ describe('reconcileImport', () => {
   it('gives the original id to the stint with the identical start, whatever the import order', () => {
     // Backlog #7: one greedy pass let a later, merely overlapping stint take
     // the original role's id because it came first in the new CV.
-    const existing = [role('exp_1', 'Tiendamax', '2016-01', '2019-06')]
+    const existing = [role('exp_1', 'Bazario', '2016-01', '2019-06')]
     const parsed = parsedWith(
       [
-        role('exp_1', 'Tiendamax', '2018-01', '2019-06'),
-        role('exp_2', 'Tiendamax', '2016-01', '2017-12'),
+        role('exp_1', 'Bazario', '2018-01', '2019-06'),
+        role('exp_2', 'Bazario', '2016-01', '2017-12'),
       ],
       [stub('ev_later', 'exp_1'), stub('ev_original', 'exp_2')],
     )
@@ -146,5 +146,93 @@ describe('reconcileImport', () => {
     const existing = [role('exp_1', 'Inc.', '2016-01', '2018-06')]
     const out = reconcileImport(existing, parsedWith([role('exp_9', 'Acme Inc.', '2016-01')], []))
     expect(out.profile.experience[0].id).not.toBe('exp_1')
+  })
+})
+
+/**
+ * 2026-11-19 audit: accepting a re-import replaced the whole profile, so what
+ * a CV never states came back empty, hand-made projects vanished, and
+ * positional ids moved kept evidence to whatever now sat at that position —
+ * evidence a CV then silently dropped once its role or project was gone.
+ */
+describe('mergeImport', () => {
+  const kept = (id: string, type: 'experience' | 'project' | 'certification', to: string) => ({
+    ...stub(id, to),
+    sourceRef: { type, id: to },
+    origin: 'interview' as const,
+  })
+  const current: MasterProfile = {
+    ...base,
+    basics: { ...base.basics, timezone: 'America/Bogota' },
+    experience: [
+      role('exp_1', 'Acme', '2020-01'),
+      role('exp_2', 'OldCo', '2015-01', '2017-12'),
+      role('exp_3', 'Gone SA', '2012-01', '2014-12'),
+    ],
+    projects: [
+      { id: 'proj_1', name: 'Price Tracker', description: '', stack: [] },
+      { id: 'proj_2', name: 'Side Tool', description: '', stack: [] },
+    ],
+    certifications: [{ id: 'cert_1', name: 'Google Ads Search', issuer: 'Google' }],
+    workAuthorization: [{ country: 'Colombia', status: 'Citizen' }],
+    preferences: { targetTitles: ['Growth Lead'], markets: ['us-remote'] },
+  }
+  // The new CV: Acme kept, OldCo dropped from it, a new project first in line,
+  // the old Price Tracker second, the certificate renumbered.
+  const incoming = {
+    profile: {
+      ...base,
+      experience: [role('exp_1', 'Acme', '2020-01'), role('exp_2', 'NewCo', '2018-01', '2019-12')],
+      projects: [
+        { id: 'proj_1', name: 'Shiny App', description: '', stack: [] },
+        { id: 'proj_2', name: 'Price tracker', description: '', stack: [] },
+      ],
+      certifications: [
+        { id: 'cert_1', name: 'Meta Blueprint', issuer: 'Meta' },
+        { id: 'cert_2', name: 'Google Ads Search', issuer: 'Google' },
+      ],
+    },
+    evidence: [
+      { ...stub('ev_new', 'exp_2'), sourceRef: { type: 'project' as const, id: 'proj_1' } },
+    ],
+  }
+  const keptEvidence = [
+    kept('ev_a', 'experience', 'exp_2'),
+    kept('ev_b', 'project', 'proj_1'),
+    kept('ev_c', 'certification', 'cert_1'),
+  ]
+  const out = mergeImport(current, keptEvidence, incoming)
+
+  it('keeps what only the person sets: work authorization, preferences, time zone', () => {
+    expect(out.profile.workAuthorization).toEqual(current.workAuthorization)
+    expect(out.profile.preferences).toEqual(current.preferences)
+    expect(out.profile.basics.timezone).toBe('America/Bogota')
+  })
+
+  it('keeps a role the new CV leaves out when the person has evidence on it, and only then', () => {
+    const companies = out.profile.experience.map((r) => r.company)
+    expect(companies).toContain('OldCo')
+    expect(companies).not.toContain('Gone SA')
+    expect(out.profile.experience.find((r) => r.company === 'OldCo')?.id).toBe('exp_2')
+    // The new role cannot take an id kept evidence already means.
+    expect(out.profile.experience.find((r) => r.company === 'NewCo')?.id).not.toBe('exp_2')
+  })
+
+  it('matches projects and certificates by name, so kept evidence stays on its own', () => {
+    expect(out.profile.projects.find((p) => p.name === 'Price tracker')?.id).toBe('proj_1')
+    expect(out.profile.projects.find((p) => p.name === 'Shiny App')?.id).not.toBe('proj_1')
+    expect(out.profile.certifications.find((c) => c.name === 'Google Ads Search')?.id).toBe(
+      'cert_1',
+    )
+    expect(out.profile.certifications.find((c) => c.name === 'Meta Blueprint')?.id).not.toBe(
+      'cert_1',
+    )
+    // The new CV's own evidence follows its project to the new id.
+    const shiny = out.profile.projects.find((p) => p.name === 'Shiny App')?.id
+    expect(out.evidence[0].sourceRef).toEqual({ type: 'project', id: shiny })
+  })
+
+  it('keeps every hand-made project the new CV does not mention', () => {
+    expect(out.profile.projects.map((p) => p.name)).toContain('Side Tool')
   })
 })

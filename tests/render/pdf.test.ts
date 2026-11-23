@@ -11,6 +11,7 @@ const content: CVContent = {
     contactLines: ['g@b.com'],
   },
   summary: 'Twelve years building ecommerce systems.',
+  summaryCitedEvidenceIds: [],
   experience: [
     {
       experienceId: 'exp_1',

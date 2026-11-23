@@ -128,6 +128,21 @@ export class UndatedRoleError extends Error {
   }
 }
 
+/**
+ * A role the CV names without an employer or a title. Stopped before the
+ * second paid call like an undated one: the stored profile needs both, and
+ * filling either in ("Freelance") would be inventing it.
+ */
+export class IncompleteRoleError extends Error {
+  readonly code = 'cv-incomplete-role'
+  constructor(readonly roles: string[]) {
+    super(
+      `The CV names these roles without an employer or a title: ${roles.join('; ')}. Add both (for self-employment, write it as the employer) and import again.`,
+    )
+    this.name = 'IncompleteRoleError'
+  }
+}
+
 /** Human-readable span for display and prompts; '' when nothing is known. */
 export function formatSpan(
   period: { start?: string; end?: string } | undefined,

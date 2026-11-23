@@ -7,12 +7,25 @@ afterEach(() => {
 })
 
 describe('modelFor', () => {
-  it('is the pinned model unless the environment routes that exact stage', () => {
-    expect(modelFor('extract-requirements')).toBe(MODEL)
+  it('runs analysis on Sonnet 5.5 and writing on the pinned model', () => {
+    expect(modelFor('extract-requirements')).toBe('claude-sonnet-5-5')
+    expect(modelFor('map-evidence')).toBe('claude-sonnet-5-5')
+    // Where "never invents" lives: not moved until an eval covers it.
+    for (const stage of [
+      'compose-cv',
+      'compose-cover-letter',
+      'verify-distortion',
+      'parse-cv-evidence',
+    ]) {
+      expect(modelFor(stage)).toBe(MODEL)
+    }
+    expect(modelFor(undefined)).toBe(MODEL)
+  })
+
+  it('lets the environment route any one stage, for measuring', () => {
     process.env.CVFORGE_MODEL_EXTRACT_REQUIREMENTS = 'claude-haiku-4-5'
     expect(modelFor('extract-requirements')).toBe('claude-haiku-4-5')
-    expect(modelFor('map-evidence')).toBe(MODEL)
-    expect(modelFor(undefined)).toBe(MODEL)
+    expect(modelFor('map-evidence')).toBe('claude-sonnet-5-5')
   })
 })
 
@@ -42,6 +55,18 @@ describe('rates by model', () => {
     expect(computeCostUsd(tokens, 'claude-haiku-4-5')).toBeCloseTo(1)
     expect(computeCostUsd(tokens, 'claude-opus-5')).toBeCloseTo(5)
     expect(computeCostUsd(tokens)).toBeCloseTo(5)
+  })
+  it('bills Sonnet 5.5 at $2 / $10, its cache reads at $0.10', () => {
+    expect(computeCostUsd(tokens, 'claude-sonnet-5-5')).toBeCloseTo(2)
+    expect(
+      computeCostUsd(
+        { ...tokens, inputTokens: 0, cacheReadTokens: 1_000_000 },
+        'claude-sonnet-5-5',
+      ),
+    ).toBeCloseTo(0.1)
+    expect(
+      computeCostUsd({ ...tokens, inputTokens: 0, outputTokens: 1_000_000 }, 'claude-sonnet-5-5'),
+    ).toBeCloseTo(10)
   })
   it('never bills an unknown model at zero', () => {
     expect(rateFor('claude-something-new')).toEqual(rateFor('claude-opus-5'))

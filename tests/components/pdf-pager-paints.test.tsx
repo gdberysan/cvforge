@@ -41,7 +41,7 @@ beforeEach(() => {
 
 describe('PdfPager', () => {
   it('paints the first page of a single-page document without any navigation', async () => {
-    render(<PdfPager applicationId="app_1" refreshKey={0} />)
+    render(<PdfPager query="applicationId=app_1" refreshKey={0} />)
     // The component dynamically imports pdfjs before it can paint; under a
     // loaded parallel suite that outruns waitFor's 1s default.
     await waitFor(() => expect(paint).toHaveBeenCalled(), { timeout: 5000 })

@@ -67,8 +67,10 @@ vi.stubGlobal(
 
 function deleteTheRecord() {
   render(<EvidenceEditor profile={profile} evidence={[item]} />)
-  fireEvent.click(screen.getByRole('button', { name: 'delete' }))
-  fireEvent.click(screen.getByRole('button', { name: 'yes' }))
+  // Records read first; delete lives in the editor.
+  fireEvent.click(screen.getByText('Rebuilt checkout'))
+  fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Yes' }))
 }
 
 afterEach(() => {
@@ -91,13 +93,13 @@ describe('EvidenceEditor orphaned records', () => {
       sourceRef: { type: 'experience', id: 'exp_gone' },
     }
     render(<EvidenceEditor profile={profile} evidence={[item, orphan]} />)
-    expect(screen.getByText('Records without a role or project')).toBeTruthy()
-    expect(screen.getByDisplayValue('Recorded under a role that no longer exists')).toBeTruthy()
+    expect(screen.getByText('Entries without a role or project')).toBeTruthy()
+    expect(screen.getByText('Recorded under a role that no longer exists')).toBeTruthy()
   })
 
   it('stays hidden when every record has its role', () => {
     render(<EvidenceEditor profile={profile} evidence={[item]} />)
-    expect(screen.queryByText('Records without a role or project')).toBeNull()
+    expect(screen.queryByText('Entries without a role or project')).toBeNull()
   })
 })
 
@@ -111,7 +113,7 @@ describe('EvidenceEditor delete', () => {
     deleteTheRecord()
 
     await screen.findByText('save failed')
-    expect(screen.getByDisplayValue('Rebuilt checkout')).toBeTruthy()
+    expect(screen.getByText('Rebuilt checkout')).toBeTruthy()
   })
 
   it('a successful delete removes the row and offers undo', async () => {
@@ -120,7 +122,7 @@ describe('EvidenceEditor delete', () => {
     deleteTheRecord()
 
     await screen.findByText('saved')
-    expect(screen.queryByDisplayValue('Rebuilt checkout')).toBeNull()
+    expect(screen.queryByText('Rebuilt checkout')).toBeNull()
     expect(screen.getByRole('button', { name: /undo/i })).toBeTruthy()
   })
 
@@ -145,7 +147,7 @@ describe('EvidenceEditor delete', () => {
     fireEvent.click(await screen.findByRole('button', { name: /undo/i }))
 
     await screen.findByText('save failed')
-    expect(screen.queryByDisplayValue('Rebuilt checkout')).toBeNull()
+    expect(screen.queryByText('Rebuilt checkout')).toBeNull()
   })
 
   it('deleting a record cancels its pending debounced save', async () => {
@@ -155,11 +157,12 @@ describe('EvidenceEditor delete', () => {
     try {
       vi.mocked(deleteEvidenceAction).mockResolvedValue({ ok: true, sortOrder: 3 })
       render(<EvidenceEditor profile={profile} evidence={[item]} />)
+      fireEvent.click(screen.getByText('Rebuilt checkout'))
       fireEvent.change(screen.getByDisplayValue('Rebuilt checkout'), {
         target: { value: 'Rebuilt checkout flow' },
       })
-      fireEvent.click(screen.getByRole('button', { name: 'delete' }))
-      fireEvent.click(screen.getByRole('button', { name: 'yes' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Yes' }))
       await act(() => vi.advanceTimersByTimeAsync(3000))
       expect(upsertEvidenceAction).not.toHaveBeenCalled()
     } finally {
@@ -174,8 +177,8 @@ describe('EvidenceEditor server refresh', () => {
     // role's records. Keeping the stale list would resurrect them as
     // editable "orphans" that one keystroke re-upserts into the database.
     const { rerender } = render(<EvidenceEditor profile={profile} evidence={[item]} />)
-    expect(screen.getByDisplayValue('Rebuilt checkout')).toBeTruthy()
+    expect(screen.getByText('Rebuilt checkout')).toBeTruthy()
     rerender(<EvidenceEditor profile={profile} evidence={[]} />)
-    expect(screen.queryByDisplayValue('Rebuilt checkout')).toBeNull()
+    expect(screen.queryByText('Rebuilt checkout')).toBeNull()
   })
 })

@@ -1,6 +1,9 @@
 import type { EvidenceItem, GroundingReport, Requirement } from '@/lib/schemas'
 import { checkDistortions } from './stages/verify-distortion'
 
+/** The reason a line carries when the check never judged it (fail-closed). */
+export const NO_VERDICT_REASON = 'distortion check returned no verdict for this text'
+
 export type DistortionCandidate = { id: string; text: string; citedEvidenceIds: string[] }
 
 /**
@@ -26,32 +29,70 @@ export async function verifyDistortions(
    * source; a project record adds its project's line, because a project's
    * stack is the person's own statement and "built it in TypeScript" must
    * not be judged unsupported for living there rather than in the record.
+   * A role record adds its role's title and employer, so naming the employer
+   * the work was done for is not read as an invented one.
    */
   extraSources: Map<string, string> = new Map(),
   reasonLanguage?: 'en' | 'es',
+  /** The role applied for: naming it is fine, claiming to hold it is not. */
+  targetTitle?: string,
 ): Promise<GroundingReport['distortions']> {
   const evidenceById = new Map(evidence.map((e) => [e.id, e]))
-  const verdicts = await checkDistortions(
-    candidates.map((c) => ({
-      id: c.id,
-      text: c.text,
-      sources: c.citedEvidenceIds.flatMap((id) => {
-        const item = evidenceById.get(id)
-        const extra = extraSources.get(id)
-        return [
-          item ? sourceLine(item) : '',
-          extra === undefined ? '' : item ? `[project] ${extra}` : `[credential] ${extra}`,
-        ].filter(Boolean)
-      }),
-    })),
-    reasonLanguage,
-  )
+  // Verdicts come back by id, so two lines sharing one (the composer numbers
+  // bullets itself) used to share a verdict: the last answered for both, and
+  // a flagged line could pass. A repeated id is asked under its own key.
+  const seen = new Map<string, number>()
+  const keys = candidates.map((c) => {
+    const n = (seen.get(c.id) ?? 0) + 1
+    seen.set(c.id, n)
+    return n === 1 ? c.id : `${c.id}#${n}`
+  })
+  const asked = candidates.map((c, i) => ({
+    id: keys[i],
+    text: c.text,
+    sources: c.citedEvidenceIds.flatMap((id) => {
+      const item = evidenceById.get(id)
+      const extra = extraSources.get(id)
+      return [
+        item ? sourceLine(item) : '',
+        extra === undefined
+          ? ''
+          : item
+            ? `[${item.sourceRef.type === 'project' ? 'project' : 'role'}] ${extra}`
+            : id.startsWith('profile:')
+              ? `[profile] ${extra}`
+              : id.startsWith('gap:')
+                ? `[known gap] ${extra}`
+                : `[credential] ${extra}`,
+      ].filter(Boolean)
+    }),
+  }))
+  // A failed check must not cost the paid draft it was checking: every line
+  // then goes unjudged (asked once more below, then failing closed), and the
+  // caller ships the draft with those lines flagged.
+  let verdicts: Awaited<ReturnType<typeof checkDistortions>> = []
+  try {
+    verdicts = await checkDistortions(asked, reasonLanguage, targetTitle)
+  } catch {
+    verdicts = []
+  }
+  // On a long CV the batched call can skip a line. Those lines are asked once
+  // more on their own; if that call fails too they fail closed below, as
+  // before — the retry must never turn one unjudged line into a lost run.
+  const answered = new Set(verdicts.map((v) => v.bulletId))
+  const missing = asked.filter((b) => !answered.has(b.id))
+  if (missing.length > 0) {
+    try {
+      verdicts.push(...(await checkDistortions(missing, reasonLanguage, targetTitle)))
+    } catch {
+      // fail closed below
+    }
+  }
 
   const verdictById = new Map(verdicts.map((v) => [v.bulletId, v]))
-  return candidates.flatMap((c) => {
-    const v = verdictById.get(c.id)
-    if (!v)
-      return [{ bulletId: c.id, reason: 'distortion check returned no verdict for this text' }]
+  return candidates.flatMap((c, i) => {
+    const v = verdictById.get(keys[i])
+    if (!v) return [{ bulletId: c.id, reason: NO_VERDICT_REASON }]
     return v.supported ? [] : [{ bulletId: c.id, reason: v.reason }]
   })
 }

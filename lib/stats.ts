@@ -6,6 +6,7 @@ import type {
   Requirement,
   Source,
 } from '@/lib/schemas'
+import { calendarDaysSince, serverTimeZone } from '@/lib/time'
 
 /**
  * The outcomes layer: arithmetic over the user's own data, nothing else.
@@ -57,14 +58,17 @@ const RESPONSE_TYPES = new Set(['acknowledged', 'screen', 'interview', 'offer'])
 /** Outcomes that settle an application — it is no longer waiting on anyone. */
 const SETTLED_TYPES = new Set(['rejected', 'withdrawn', 'ghosted', 'offer'])
 
-const sortedByDate = (outcomes: OutcomeEvent[]) =>
+/** The part of an application the reply-timing arithmetic reads. */
+type OutcomeLog = { outcomes: readonly Pick<OutcomeEvent, 'at' | 'type'>[] }
+
+const sortedByDate = <O extends Pick<OutcomeEvent, 'at'>>(outcomes: readonly O[]) =>
   [...outcomes].sort((a, b) => a.at.localeCompare(b.at))
 
-export function appliedAt(app: StatApp): string | null {
+export function appliedAt(app: OutcomeLog): string | null {
   return sortedByDate(app.outcomes).find((o) => o.type === 'applied')?.at ?? null
 }
 
-export function respondedAt(app: StatApp): string | null {
+export function respondedAt(app: OutcomeLog): string | null {
   return sortedByDate(app.outcomes).find((o) => RESPONSE_TYPES.has(o.type))?.at ?? null
 }
 
@@ -171,13 +175,15 @@ export const daysBetween = (a: string, b: string) =>
   Math.floor((new Date(b).getTime() - new Date(a).getTime()) / DAY)
 
 export function velocity(
-  apps: StatApp[],
+  apps: OutcomeLog[],
   now: string,
 ): {
   appliedThisWeek: number
   appliedPrevWeek: number
   medianResponseDays: number | null
   timedResponses: number
+  /** Every measured reply time in days, shortest first: what the median sits in. */
+  responseDays: number[]
 } {
   const appliedDates = apps.map(appliedAt).filter((d): d is string => Boolean(d))
   // A future-dated entry (a typo in the date field) is not "this week", and
@@ -205,7 +211,30 @@ export function velocity(
         ? gaps[(gaps.length - 1) / 2]
         : Math.round((gaps[gaps.length / 2 - 1] + gaps[gaps.length / 2]) / 2)
 
-  return { appliedThisWeek, appliedPrevWeek, medianResponseDays, timedResponses: gaps.length }
+  return {
+    appliedThisWeek,
+    appliedPrevWeek,
+    medianResponseDays,
+    timedResponses: gaps.length,
+    responseDays: gaps,
+  }
+}
+
+/**
+ * Applications sent in each of the last `weeks` seven-day windows, oldest
+ * first; the last entry is this week (the same window as appliedThisWeek).
+ */
+export function weeklySent(apps: OutcomeLog[], now: string, weeks = 8): number[] {
+  const counts = new Array<number>(weeks).fill(0)
+  for (const app of apps) {
+    const a = appliedAt(app)
+    if (!a) continue
+    const days = daysBetween(a, now)
+    if (days < 0) continue
+    const back = Math.floor(days / 7)
+    if (back < weeks) counts[weeks - 1 - back] += 1
+  }
+  return counts
 }
 
 export type AttentionReason = 'interviewing' | 'stale' | 'decide' | 'unsent'
@@ -222,12 +251,16 @@ const DECIDE_WINDOW_DAYS = 14
  * panel that claims to show it: two hand-rolled copies drifted within a day
  * of each other once already. Each application appears once.
  */
-export function attentionApplications(apps: StatApp[], now: string): AttentionItem[] {
+export function attentionApplications(
+  apps: StatApp[],
+  now: string,
+  timeZone: string = serverTimeZone(),
+): AttentionItem[] {
   const open = apps.filter((a) => !a.archived)
   const interviewing = open
     .filter((a) => a.status === 'interviewing')
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-  const stale = staleApplications(open, now)
+  const stale = staleApplications(open, now, timeZone)
   const decide = open
     .filter(
       (a) =>
@@ -274,24 +307,99 @@ export function waitingApplications(apps: StatApp[]): StatApp[] {
 /** Fallback until a personal median exists; then 1.5× the median, floor 7. */
 const DEFAULT_STALE_DAYS = 10
 
-export function staleThresholdDays(apps: StatApp[], now: string): number {
+export function staleThresholdDays(apps: OutcomeLog[], now: string): number {
   const median = velocity(apps, now).medianResponseDays
   return median === null ? DEFAULT_STALE_DAYS : Math.max(7, Math.round(median * 1.5))
 }
 
-/** Applied, unanswered, unsettled, and past the threshold: needs a nudge or a ghost entry. */
+/**
+ * Applied, unanswered, unsettled, and past the threshold: needs a nudge or a
+ * ghost entry. Whether it is stale is judged in elapsed days (the window);
+ * the count it reports is calendar days in `timeZone` — the count the
+ * Postulaciones card prints ("Enviada hace 9 días"), so the two never
+ * disagree by one around midnight.
+ */
 export function staleApplications(
   apps: StatApp[],
   now: string,
+  timeZone: string = serverTimeZone(),
 ): { id: string; daysSinceApplied: number }[] {
   const threshold = staleThresholdDays(apps, now)
   return apps
     .flatMap((app) => {
-      const a = appliedAt(app)
-      if (!a || respondedAt(app)) return []
-      if (app.outcomes.some((o) => SETTLED_TYPES.has(o.type))) return []
-      const days = daysBetween(a, now)
-      return days > threshold ? [{ id: app.id, daysSinceApplied: days }] : []
+      const sent = appliedAt(app)
+      if (!sent || staleDays(app, threshold, now) === null) return []
+      return [{ id: app.id, daysSinceApplied: calendarDaysSince(sent, Date.parse(now), timeZone) }]
     })
     .sort((a, b) => b.daysSinceApplied - a.daysSinceApplied)
+}
+
+/**
+ * One application against a threshold already known: days since it was
+ * sent when it is applied, unanswered, unsettled and past it; else null.
+ * The single rule behind staleApplications, for a page that judges one row.
+ */
+export function staleDays(app: OutcomeLog, thresholdDays: number, now: string): number | null {
+  const a = appliedAt(app)
+  if (!a || respondedAt(app)) return null
+  if (app.outcomes.some((o) => SETTLED_TYPES.has(o.type))) return null
+  const days = daysBetween(a, now)
+  return days > thresholdDays ? days : null
+}
+
+export type ResponseRate = {
+  /** Sends old enough to have been answered (see responseRateSeries). */
+  applied: number
+  responded: number
+  /** Whole percent; null under MIN_FOR_RATE — a rate on one or two sends is noise. */
+  rate: number | null
+  /** Running rate at the end of each week, oldest first; null until MIN_FOR_RATE sends count. */
+  series: (number | null)[]
+  /** Points, last 30 days vs the 30 before; null unless both windows have MIN_FOR_RATE. */
+  delta: number | null
+}
+
+const MIN_FOR_RATE = 3
+
+/**
+ * Response rate over the sends that have had time to be answered: older than
+ * staleThresholdDays, the same line that separates "within its normal reply
+ * time" from "needs a nudge". A send from two days ago has not been ignored
+ * yet; counting it as unanswered made every burst of applying read as a
+ * collapse. A recent send that already got a reply waits its turn too —
+ * counting only the fast yeses would flatter the rate the other way.
+ *
+ * The line is the running rate up to each week, not each week on its own:
+ * a week of one or two sends swung between 0% and 100% and said nothing.
+ */
+export function responseRateSeries(apps: StatApp[], now: string, weeks = 8): ResponseRate {
+  const nowMs = Date.parse(now)
+  const ripe = nowMs - staleThresholdDays(apps, now) * DAY
+  const sent = apps.flatMap((a) => {
+    const at = appliedAt(a)
+    if (!at || Date.parse(at) > ripe) return []
+    return [{ at: Date.parse(at), responded: respondedAt(a) !== null }]
+  })
+  const exact = (rows: typeof sent) => (rows.filter((s) => s.responded).length / rows.length) * 100
+  const rateOrNull = (rows: typeof sent) =>
+    rows.length >= MIN_FOR_RATE ? Math.round(exact(rows)) : null
+  const within = (from: number, to: number) => sent.filter((s) => s.at > from && s.at <= to)
+
+  const series = Array.from({ length: weeks }, (_, i) =>
+    rateOrNull(sent.filter((s) => s.at <= nowMs - (weeks - 1 - i) * 7 * DAY)),
+  )
+  const last = within(nowMs - 30 * DAY, nowMs)
+  const prev = within(nowMs - 60 * DAY, nowMs - 30 * DAY)
+
+  return {
+    applied: sent.length,
+    responded: sent.filter((s) => s.responded).length,
+    rate: rateOrNull(sent),
+    series,
+    // Subtract the exact rates, round once: rounding each first can drift a point.
+    delta:
+      last.length >= MIN_FOR_RATE && prev.length >= MIN_FOR_RATE
+        ? Math.round(exact(last) - exact(prev))
+        : null,
+  }
 }

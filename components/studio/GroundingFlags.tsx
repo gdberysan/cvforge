@@ -1,9 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { useT } from '@/components/i18n/LocaleProvider'
+import { createContext, useContext, useState } from 'react'
+import { useLocale, useT } from '@/components/i18n/LocaleProvider'
+import { IconCheck, IconVerified } from '@/components/ui/icons'
+import { Meta } from '@/components/ui/Meta'
 import { plural } from '@/lib/i18n'
 import type { GroundingReport } from '@/lib/schemas'
+import { openingWords, readableReason } from '@/lib/ui/readable-reason'
 
 /**
  * The verification result, worn on the sleeve. A pass is one quiet green
@@ -20,7 +23,29 @@ import type { GroundingReport } from '@/lib/schemas'
 function snippet(text: string | undefined): string | null {
   if (!text) return null
   const clean = text.replace(/\s+/g, ' ').trim()
-  return clean.length > 72 ? `“${clean.slice(0, 70).trimEnd()}…”` : `“${clean}”`
+  // Spanish quotes in both languages' chrome would be wrong for English;
+  // « » reads correctly in Spanish and is unambiguous in English too.
+  // Long enough to recognise the line, cut between words.
+  return `«${openingWords(clean, 110)}»`
+}
+
+/**
+ * True once the application is sent: the flags then describe a CV already
+ * out the door, so they stop asking you to review it "before you send".
+ */
+export const DocumentsSent = createContext(false)
+
+/**
+ * True once the application is sent or settled: the documents are a record,
+ * and the paid moves (rewrite, swap in a base CV) are no longer offered.
+ */
+export const DocumentsLocked = createContext(false)
+
+const SECTIONS = ['title', 'skills', 'education', 'extras'] as const
+
+/** The dictionary key of a section-level flag; anything else is a CV line. */
+function sectionKey(id: string): (typeof SECTIONS)[number] | 'line' {
+  return (SECTIONS as readonly string[]).includes(id) ? (id as (typeof SECTIONS)[number]) : 'line'
 }
 
 export function GroundingFlags({
@@ -28,14 +53,16 @@ export function GroundingFlags({
   textOf = {},
 }: {
   report: GroundingReport
-  /** Bullet or paragraph id → its text. A flag names the line it is about,
+  /** Bullet or paragraph id to its text. A flag names the line it is about,
    *  not an internal id like "b5" that the reader cannot see anywhere. */
   textOf?: Record<string, string>
 }) {
   const t = useT()
+  const sent = useContext(DocumentsSent)
+  const locale = useLocale()
   const [reviewed, setReviewed] = useState<Set<string>>(new Set())
 
-  const hard = [
+  const hard: { id: string; key: string; text: string; quote?: string }[] = [
     ...report.uncitedBullets.map((id) => ({
       id,
       key: `uncited-${id}`,
@@ -61,6 +88,15 @@ export function GroundingFlags({
           })
         : t('studio.flag.claimedGap', { keyword: g.keyword }),
     })),
+    ...(report.unsupportedClaims ?? []).map((c) => ({
+      id: c.bulletId,
+      key: `unsupported-${c.bulletId}-${c.text}`,
+      // The claim itself is the quote: a skill or a degree, not a whole section.
+      quote: c.text,
+      text: t('studio.flag.unsupported', {
+        section: t(`studio.section.${sectionKey(c.bulletId)}`),
+      }),
+    })),
     ...report.distortions.map((d) => ({
       id: d.bulletId,
       key: `distortion-${d.bulletId}`,
@@ -70,7 +106,8 @@ export function GroundingFlags({
 
   if (hard.length === 0) {
     return (
-      <p className="fact-label" style={{ color: 'var(--signal-ok)' }}>
+      <p className="verify-ok icon-label">
+        <IconVerified />
         {t('studio.verified')}
       </p>
     )
@@ -88,50 +125,38 @@ export function GroundingFlags({
   }
 
   return (
-    <div
-      role="alert"
-      style={{
-        border: '1px solid var(--signal-error)',
-        borderRadius: 'var(--radius-md)',
-        padding: 'var(--space-4)',
-      }}
-    >
-      <p className="fact-label" style={{ color: 'var(--signal-error)' }}>
-        {plural(t, hard.length, 'studio.unverified')}
-        {reviewedCount > 0 && (
-          <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>
-            {' '}
-            · {t('studio.reviewedCount', { r: reviewedCount, n: hard.length })}
-          </span>
-        )}
+    <div role={sent ? undefined : 'alert'} className={sent ? 'verify-card is-sent' : 'verify-card'}>
+      <p className="verify-head">
+        <Meta>
+          {plural(t, hard.length, sent ? 'studio.unverifiedSent' : 'studio.unverified')}
+          {reviewedCount > 0 && (
+            <span className="verify-count">
+              {t('studio.reviewedCount', { r: reviewedCount, n: hard.length })}
+            </span>
+          )}
+        </Meta>
       </p>
-      <ul
-        style={{
-          margin: 'var(--space-3) 0 0',
-          paddingLeft: '1.1em',
-          color: 'var(--text-body)',
-          font: 'var(--type-body-sm)',
-        }}
-      >
+      <ul className="verify-list">
         {hard.map((f) => {
           const isReviewed = reviewed.has(f.key)
+          const quote = snippet(f.quote ?? textOf[f.id])
           return (
-            <li key={f.key} style={{ marginBottom: 'var(--space-1)' }}>
-              <span
-                className={snippet(textOf[f.id]) ? 'flag-quote' : 'ident'}
-                title={f.id}
-                style={{ textDecoration: isReviewed ? 'line-through' : 'none' }}
-              >
-                {snippet(textOf[f.id]) ?? f.id}
-              </span>{' '}
-              <span style={{ textDecoration: isReviewed ? 'line-through' : 'none' }}>{f.text}</span>{' '}
+            <li key={f.key} className={isReviewed ? 'verify-row is-reviewed' : 'verify-row'}>
+              <span className={quote ? 'flag-quote' : 'ident'}>
+                {quote ??
+                  (sectionKey(f.id) === 'line' ? f.id : t(`studio.section.${sectionKey(f.id)}`))}
+              </span>
+              <span className="verify-reason">
+                {readableReason(f.text, locale === 'es' ? 'es' : 'en')}
+              </span>
               <button
                 type="button"
-                className="action"
+                className="verify-toggle icon-label"
                 onClick={() => toggle(f.key)}
                 aria-pressed={isReviewed}
               >
-                {isReviewed ? t('studio.flag.unreview') : t('studio.flag.markReviewed')}
+                <IconCheck />
+                {t('studio.flag.reviewed')}
               </button>
             </li>
           )

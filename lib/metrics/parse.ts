@@ -1,4 +1,4 @@
-import type { Currency } from '@/lib/schemas'
+import { CURRENCY_CODES, type Currency } from '@/lib/schemas/metric'
 
 export type ParsedMetric = {
   value?: number
@@ -30,7 +30,8 @@ const MAGNITUDE: Record<string, number> = {
   billion: 1e9,
 }
 
-const CURRENCY_CODES = new Set(['MXN', 'USD', 'EUR'])
+const CODES = new RegExp(`^\\s*(${CURRENCY_CODES.join('|')})\\b`, 'i')
+const CODES_BEFORE = new RegExp(`\\b(${CURRENCY_CODES.join('|')})\\s*$`, 'i')
 
 /** Number, optional magnitude suffix, then whatever unit token follows. */
 // The word boundary sits INSIDE the optional magnitude group on purpose: a
@@ -84,11 +85,10 @@ export function parseMetric(raw: string): ParsedMetric {
   // to THIS number — "cut costs 30% saving $5,000 MXN" must not stamp MXN
   // onto the 30.
   const before = scan.slice(0, match.index)
-  const code = (after.match(/^\s*(mxn|usd|eur)\b/i) ??
-    before.match(/\b(mxn|usd|eur)\s*$/i))?.[1]?.toUpperCase()
-  if (code && CURRENCY_CODES.has(code)) {
+  const code = (after.match(CODES) ?? before.match(CODES_BEFORE))?.[1]?.toUpperCase()
+  if (code) {
     result.unit = code
-    result.currency = code as Currency
+    result.currency = code
     return result
   }
 

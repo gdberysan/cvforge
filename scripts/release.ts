@@ -1,9 +1,14 @@
 /**
- * Builds the release zip: scrub gate → standalone build → bundle Node
- * runtimes → stage the user layout → boot gate → sha256. Dry runs with
- * `--ref HEAD`.
+ * Builds the release zip: scrub gate → standalone build (CVFORGE_DISCOVER
+ * stripped) → discover-exclusion gate → bundle Node runtimes → stage the
+ * buyer layout → boot gate → sha256. Dry runs with `--ref HEAD`.
  *
- * User layout — nothing to install, nothing to compile, no terminal:
+ * `--personal` builds the maintainer's own copy instead: discover enabled,
+ * the exclusion gate inverted to prove the scraper is present, the launchers
+ * patched to export the flag, and a distinct `cvforge-personal-*` name. Never
+ * sold. See the `personal` const below.
+ *
+ * Buyer layout — nothing to install, nothing to compile, no terminal:
  *
  *   cvforge-vX.Y.Z/
  *     LEEME.html               the product manual
@@ -14,6 +19,8 @@
  *       node/                  pinned Node runtimes: mac-arm64/x64, win-x64
  *       start.sh               Linux / terminal fallback (system Node)
  *       LICENSE
+ *     codigo-fuente/           PERSONAL builds only — the maintainer's source
+ *                              (scrubbed git archive). Buyers get compiled only.
  *
  * datos/ appears next to LEEME on first use (created by the launchers).
  * The zip ships the compiled app, not the source tree; the scrub gate still
@@ -42,6 +49,15 @@ const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: strin
 const refArg = process.argv.indexOf('--ref')
 const ref = refArg !== -1 ? process.argv[refArg + 1] : `v${pkg.version}`
 const dry = ref === 'HEAD'
+/**
+ * Personal build (`--personal`): the maintainer's own copy, WITH the LinkedIn
+ * scraper enabled. It is never sold — a distinct artifact name, the exclusion
+ * gate inverts to prove the scraper IS present, and the launchers export
+ * CVFORGE_DISCOVER=1 so the page is live. The buyer path is unchanged when the
+ * flag is absent.
+ */
+const personal = process.argv.includes('--personal')
+
 const git = (...args: string[]) => execFileSync('git', args, { encoding: 'utf8' }).trim()
 
 if (!dry) {
@@ -69,15 +85,19 @@ if (!dry) {
 
 // Three files carry the version and all three ship: package.json (the
 // artifact name), public/version.json (what the opt-in update check reads)
-// and the CHANGELOG's top entry (the release notes). A forgotten
+// and the CHANGELOG's top entry (packaged into the personal zip). A forgotten
 // bump used to ship silently.
 {
   const versionJson = JSON.parse(readFileSync('public/version.json', 'utf8')) as {
     version?: string
+    lines?: Record<string, string>
   }
+  const line = pkg.version.split('.').slice(0, 2).join('.')
   const changelogTop = readFileSync('CHANGELOG.md', 'utf8').match(/^## \[?v?(\d+\.\d+\.\d+)/m)?.[1]
   const mismatches = [
     versionJson.version !== pkg.version && `public/version.json says ${versionJson.version}`,
+    versionJson.lines?.[line] !== pkg.version &&
+      `public/version.json's lines["${line}"] is ${versionJson.lines?.[line] ?? 'missing'}`,
     changelogTop !== pkg.version && `CHANGELOG.md's top entry is ${changelogTop ?? 'missing'}`,
   ].filter(Boolean)
   if (mismatches.length > 0) {
@@ -89,12 +109,50 @@ if (!dry) {
 execFileSync('npx', ['tsx', 'scripts/scrub-check.ts', ref], { stdio: 'inherit' })
 
 // ---------------------------------------------------------------- build
-console.log('release: building standalone server…')
-execFileSync('npm', ['run', 'build'], { stdio: 'inherit' })
+console.log(
+  `release: building standalone server${personal ? ' (personal — discover enabled)' : ''}…`,
+)
+// Discover (personal-only) must not ship in a buyer build: strip
+// CVFORGE_DISCOVER so '#discover' resolves to the stub, regardless of the
+// parent shell. A personal build sets it so the alias resolves to the real
+// scraper module.
+execFileSync('npm', ['run', 'build'], {
+  stdio: 'inherit',
+  env: { ...process.env, CVFORGE_DISCOVER: personal ? '1' : '' },
+})
 const standalone = path.join('.next', 'standalone')
 if (!existsSync(path.join(standalone, 'server.js'))) {
   console.error('release: .next/standalone/server.js missing — is output "standalone" set?')
   process.exit(1)
+}
+
+// Trust, but verify — same philosophy as the API-key bundle scan. A buyer
+// build must contain NO scraper (the alias resolved to the stub); a personal
+// build must contain it (the alias resolved to the real module). The marker
+// is the LinkedIn endpoint literal, which survives minification.
+const serverChunks: string[] = []
+const walkServer = (dir: string): void => {
+  for (const name of readdirSync(dir)) {
+    const full = path.join(dir, name)
+    if (statSync(full).isDirectory()) walkServer(full)
+    else if (/\.(js|mjs)$/.test(name)) serverChunks.push(full)
+  }
+}
+walkServer(path.join('.next', 'server'))
+const offending = serverChunks.filter((f) => readFileSync(f, 'utf8').includes('jobs-guest'))
+if (personal) {
+  if (offending.length === 0) {
+    console.error('personal: scraper missing from the build — did CVFORGE_DISCOVER=1 reach it?')
+    process.exit(1)
+  }
+  console.log('release: personal build includes discover (verified).')
+} else {
+  console.log('release: verifying discover exclusion…')
+  if (offending.length > 0) {
+    console.error('release: scraper code compiled into the buyer build — was CVFORGE_DISCOVER set?')
+    for (const f of offending) console.error(`  ${f}`)
+    process.exit(1)
+  }
 }
 
 // ------------------------------------------------------- node runtimes
@@ -130,9 +188,29 @@ const RUNTIMES = [
 const cacheDir = path.join(os.homedir(), '.cache', 'cvforge-release', NODE_VERSION)
 mkdirSync(cacheDir, { recursive: true })
 
+/**
+ * The pinned version's checksum list, cached beside its runtimes: it never
+ * changes, so a release with a warm cache needs no network — one that
+ * fetched it on every run failed on a passing network drop.
+ */
+async function nodeShasums(base: string): Promise<string> {
+  const cached = path.join(cacheDir, 'SHASUMS256.txt')
+  if (existsSync(cached)) return readFileSync(cached, 'utf8')
+  let res: Response
+  try {
+    res = await fetch(`${base}SHASUMS256.txt`)
+  } catch (err) {
+    throw new Error(`could not reach nodejs.org for ${NODE_VERSION} checksums`, { cause: err })
+  }
+  if (!res.ok) throw new Error(`nodejs.org checksums: HTTP ${res.status}`)
+  const text = await res.text()
+  writeFileSync(cached, text)
+  return text
+}
+
 async function fetchRuntimes(): Promise<void> {
   const base = `https://nodejs.org/dist/${NODE_VERSION}/`
-  const shasums = await (await fetch(`${base}SHASUMS256.txt`)).text()
+  const shasums = await nodeShasums(base)
   for (const rt of RUNTIMES) {
     const archive = path.join(cacheDir, rt.file)
     const expected = shasums
@@ -173,9 +251,22 @@ async function fetchRuntimes(): Promise<void> {
 }
 
 // ---------------------------------------------------------------- stage
-const name = `cvforge-v${pkg.version}${dry ? '-dry' : ''}`
-const outDir = path.join('dist', 'publico')
+const name = `cvforge-${personal ? 'personal-' : ''}v${pkg.version}${dry ? '-dry' : ''}`
+// publico/ = sellable buyer builds (no scraper); personal/ = the maintainer's
+// own builds (with the scraper). Never mix them — a scraper/PII build must
+// never land in the folder that gets uploaded for sale.
+const outDir = path.join('dist', personal ? 'personal' : 'publico')
 const zip = path.join(outDir, `${name}.zip`)
+
+/** Replace `from` with `to` in a file, failing loudly if the anchor moved. */
+function inject(file: string, from: string, to: string): void {
+  const before = readFileSync(file, 'utf8')
+  const after = before.replace(from, to)
+  if (after === before) {
+    throw new Error(`personal: could not inject the discover flag into ${path.basename(file)}`)
+  }
+  writeFileSync(file, after)
+}
 
 // The prebuilt native binaries better-sqlite3 ships. The source install holds
 // every platform's; the copies the tracer stages hold only the build host's.
@@ -231,8 +322,15 @@ function playwrightCoreDirs(dir: string): string[] {
   return found
 }
 
-// The zip ships the compiled app only; the source lives in the repository.
-const TOP_LEVEL = ['LEEME.html', 'CVForge.app', 'CVForge (Windows).vbs', 'programa']
+// Buyers receive the compiled app only. The source (codigo-fuente/) is the
+// maintainer's, so it ships in personal builds only — never for sale.
+const TOP_LEVEL = [
+  'LEEME.html',
+  'CVForge.app',
+  'CVForge (Windows).vbs',
+  'programa',
+  ...(personal ? ['codigo-fuente'] : []),
+]
 
 /**
  * The ONLY entries a Next standalone server needs at runtime. Next's tracer
@@ -253,6 +351,70 @@ const SERVIDOR_KEEP = new Set([
   'demo',
   'public',
 ])
+
+/**
+ * Next's build-time trace manifests (`*.nft.json`) under a server's `.next`.
+ * The standalone server never reads them, yet each lists the project tree the
+ * tracer saw — up to the maintainer's dist/ folder and its quarantined zips.
+ * Paths only, no content, but a buyer has no business with any of it.
+ */
+function traceManifests(servidorDir: string): string[] {
+  const found: string[] = []
+  const walk = (dir: string): void => {
+    for (const n of readdirSync(dir)) {
+      const f = path.join(dir, n)
+      if (statSync(f).isDirectory()) walk(f)
+      else if (n.endsWith('.nft.json')) found.push(f)
+    }
+  }
+  const next = path.join(servidorDir, '.next')
+  if (existsSync(next)) walk(next)
+  return found
+}
+
+/**
+ * Files in a staged server that name the build machine's project folder.
+ * Next writes it into the embedded config (outputFileTracingRoot,
+ * turbopack.root, repoRoot) and appDir; the standalone server resolves its
+ * own location from __dirname at run time and reads none of them, but every
+ * zip through v1.2.58 carried the maintainer's home folder in them.
+ */
+const BUILD_ROOT_FILES = ['server.js', path.join('.next', 'required-server-files.json')]
+
+/** Replaces the build root with "." in those files; returns how many changed. */
+function scrubBuildRoot(servidorDir: string, buildRoot: string): number {
+  let changed = 0
+  for (const rel of BUILD_ROOT_FILES) {
+    const f = path.join(servidorDir, rel)
+    if (!existsSync(f)) continue
+    const text = readFileSync(f, 'utf8')
+    const next = text.split(buildRoot).join('.')
+    if (next !== text) {
+      writeFileSync(f, next)
+      changed++
+    }
+  }
+  return changed
+}
+
+/** Every file under `dir` whose text contains `needle`, binaries skipped. */
+function filesContaining(dir: string, needle: string): string[] {
+  const found: string[] = []
+  const walk = (d: string): void => {
+    for (const n of readdirSync(d)) {
+      const f = path.join(d, n)
+      const st = statSync(f)
+      if (st.isDirectory()) walk(f)
+      else if (st.size < 32 * 1024 * 1024) {
+        const buf = readFileSync(f)
+        if (buf.subarray(0, 8192).includes(0)) continue
+        if (buf.includes(needle)) found.push(f)
+      }
+    }
+  }
+  walk(dir)
+  return found
+}
 
 function stageAndZip(): void {
   const stage = mkdtempSync(path.join(os.tmpdir(), 'cvforge-stage-'))
@@ -285,23 +447,15 @@ function stageAndZip(): void {
         rmSync(path.join(servidor, entry), { recursive: true, force: true })
       }
     }
-    // Users get the demo's data, never its source: persona.ts is the seed
+    // Buyers get the demo's data, never its source: persona.ts is the seed
     // builder's input and shipped as TypeScript in every zip through v1.2.19.
     rmSync(path.join(servidor, 'demo', 'persona.ts'), { force: true })
+    for (const f of traceManifests(servidor)) rmSync(f)
+    scrubBuildRoot(servidor, process.cwd())
     cpSync(path.join('.next', 'static'), path.join(servidor, '.next', 'static'), {
       recursive: true,
     })
     cpSync('public', path.join(servidor, 'public'), { recursive: true })
-
-    // Next writes the build machine's absolute project path into the
-    // standalone config (outputFileTracingRoot, turbopack root). It is build
-    // metadata — the server resolves everything from its own directory — but
-    // it would publish the builder's home folder in every zip.
-    for (const file of ['server.js', path.join('.next', 'required-server-files.json')]) {
-      const target = path.join(servidor, file)
-      const text = readFileSync(target, 'utf8')
-      writeFileSync(target, text.split(JSON.stringify(process.cwd()).slice(1, -1)).join('.'))
-    }
 
     // We bundle three node runtimes (mac-arm64/x64, win-x64) but npm installs
     // only the build host's better-sqlite3 prebuild, so every copy the tracer
@@ -322,6 +476,27 @@ function stageAndZip(): void {
     chmodSync(path.join(root, 'programa', 'start.sh'), 0o755)
     cpSync('LICENSE', path.join(root, 'programa', 'LICENSE'))
 
+    if (personal) {
+      // The alias baked the scraper into the build; the launchers must also
+      // export CVFORGE_DISCOVER=1 so isDiscoverEnabled() is true at runtime
+      // (nav shows discover, /discover serves instead of 404ing).
+      inject(
+        path.join(root, 'CVForge.app', 'Contents', 'MacOS', 'CVForge'),
+        'HOSTNAME=127.0.0.1 PORT="$PORT" CVFORGE_DB_PATH="$ROOT/datos/cvforge.db"',
+        'CVFORGE_DISCOVER=1 HOSTNAME=127.0.0.1 PORT="$PORT" CVFORGE_DB_PATH="$ROOT/datos/cvforge.db"',
+      )
+      inject(
+        path.join(root, 'programa', 'start.sh'),
+        'exec env HOSTNAME=127.0.0.1 PORT="$PORT" CVFORGE_DB_PATH="$ROOT/datos/cvforge.db" node server.js',
+        'exec env CVFORGE_DISCOVER=1 HOSTNAME=127.0.0.1 PORT="$PORT" CVFORGE_DB_PATH="$ROOT/datos/cvforge.db" node server.js',
+      )
+      inject(
+        path.join(root, 'CVForge (Windows).vbs'),
+        'env("CVFORGE_DB_PATH") = root & "\\datos\\cvforge.db"',
+        'env("CVFORGE_DB_PATH") = root & "\\datos\\cvforge.db"\nenv("CVFORGE_DISCOVER") = "1"',
+      )
+    }
+
     for (const rt of RUNTIMES) {
       const dest = path.join(root, 'programa', 'node', rt.dir)
       mkdirSync(dest, { recursive: true })
@@ -329,6 +504,22 @@ function stageAndZip(): void {
       if (rt.bin === 'node') chmodSync(path.join(dest, rt.bin), 0o755)
     }
     chmodSync(path.join(root, 'CVForge.app', 'Contents', 'MacOS', 'CVForge'), 0o755)
+
+    // Source ships in the maintainer's PERSONAL build only — buyers get the
+    // compiled app. A scrubbed git archive (tracked files minus export-ignored
+    // scraper and gitignored data/backups/evals-private); builds from a clean
+    // `npm ci && npm run build`.
+    if (personal) {
+      const fuente = path.join(root, 'codigo-fuente')
+      mkdirSync(fuente, { recursive: true })
+      const tarball = path.join(stage, 'fuente.tar')
+      writeFileSync(
+        tarball,
+        execFileSync('git', ['archive', ref], { maxBuffer: 256 * 1024 * 1024 }),
+      )
+      execFileSync('tar', ['-xf', tarball, '-C', fuente])
+      rmSync(tarball, { force: true })
+    }
 
     mkdirSync(outDir, { recursive: true })
     rmSync(zip, { force: true })
@@ -340,12 +531,13 @@ function stageAndZip(): void {
 
 // ------------------------------------------------------------ boot gate
 // The scrub gate proves the source doesn't leak; this proves the exact zip
-// a user receives actually serves the app, using the bundled runtime.
+// a buyer receives actually serves the app, using the bundled runtime.
 async function bootGate(): Promise<void> {
   const tmp = mkdtempSync(path.join(os.tmpdir(), 'cvforge-release-'))
   const extracted = path.join(tmp, name)
   const port = 3891
   let child: ReturnType<typeof spawn> | null = null
+  let serverLog = ''
   try {
     execFileSync('unzip', ['-q', path.resolve(zip), '-d', tmp])
 
@@ -357,7 +549,7 @@ async function bootGate(): Promise<void> {
 
     // Assert the shipped server carries nothing but the allowlist — the gate
     // that would have caught the whole-repo leak (data/, backups/, evals). Runs
-    // on the EXTRACTED zip, so it proves what a user actually receives.
+    // on the EXTRACTED zip, so it proves what a buyer actually receives.
     const servidorRoot = path.join(extracted, 'programa', 'servidor')
     const demoSource = existsSync(path.join(servidorRoot, 'demo'))
       ? readdirSync(path.join(servidorRoot, 'demo')).filter((e) => /\.(ts|tsx|js|mjs)$/.test(e))
@@ -365,11 +557,25 @@ async function bootGate(): Promise<void> {
     if (demoSource.length > 0) {
       throw new Error(`source shipped under demo/: ${demoSource.join(', ')}`)
     }
+    const traces = traceManifests(servidorRoot)
+    if (traces.length > 0) {
+      throw new Error(
+        `trace manifests shipped (they list the project tree): ${traces.length}, e.g. ${path.relative(extracted, traces[0])}`,
+      )
+    }
+    // The build machine's project folder (its user name with it) must not
+    // ship anywhere in the server — whoever builds, whatever the denylist says.
+    const rooted = filesContaining(servidorRoot, process.cwd())
+    if (rooted.length > 0) {
+      throw new Error(
+        `the build folder ${process.cwd()} ships in: ${rooted.map((f) => path.relative(extracted, f)).join(', ')}`,
+      )
+    }
     const stray = readdirSync(servidorRoot).filter((e) => !SERVIDOR_KEEP.has(e))
     if (stray.length > 0) {
       throw new Error(`servidor/ leaked non-allowlisted entries: ${stray.join(', ')}`)
     }
-    // Belt-and-suspenders across the WHOLE zip: no
+    // Belt-and-suspenders across the WHOLE zip (server and codigo-fuente): no
     // database, backup, or personal file anywhere, node_modules aside
     // (third-party fixtures are not our PII).
     const sensitive: string[] = []
@@ -384,13 +590,6 @@ async function bootGate(): Promise<void> {
       }
     }
     scan(extracted)
-    // No file of ours may carry the build machine's paths (see stageAndZip).
-    for (const f of ['server.js', path.join('.next', 'required-server-files.json')]) {
-      const text = readFileSync(path.join(servidorRoot, f), 'utf8')
-      if (text.includes(process.cwd()) || text.includes(os.homedir())) {
-        sensitive.push(`${path.join('programa', 'servidor', f)} (build machine path)`)
-      }
-    }
     if (sensitive.length > 0) {
       throw new Error(`zip leaked sensitive files: ${sensitive.join(', ')}`)
     }
@@ -467,13 +666,20 @@ async function bootGate(): Promise<void> {
       if (!existsSync(path.join(pwCore, 'browsers.json'))) {
         throw new Error(`${path.relative(extracted, pwCore)} is missing browsers.json`)
       }
+      // The Ajustes "Install PDF engine" card forks this to download Chromium.
+      if (!existsSync(path.join(pwCore, 'lib', 'entry', 'oopBrowserDownload.js'))) {
+        throw new Error(`${path.relative(extracted, pwCore)} is missing the browser installer`)
+      }
     }
     for (const rt of RUNTIMES.filter((r) => r.dir.startsWith('mac-'))) {
       const macNode = path.join(extracted, 'programa', 'node', rt.dir, rt.bin)
       try {
         const out = execFileSync(
           macNode,
-          ['-e', "require('playwright'); process.stdout.write('OK')"],
+          [
+            '-e',
+            "require('playwright'); if (typeof require('playwright-core/lib/coreBundle').registry.installBrowsersForNpmInstall !== 'function') throw new Error('playwright installer missing'); process.stdout.write('OK')",
+          ],
           {
             cwd: path.join(extracted, 'programa', 'servidor'),
             encoding: 'utf8',
@@ -499,9 +705,18 @@ async function bootGate(): Promise<void> {
         HOSTNAME: '127.0.0.1',
         PORT: String(port),
         CVFORGE_DB_PATH: path.join(datos, 'cvforge.db'),
+        // Mirror what the personal launcher exports, so the boot gate exercises
+        // the same runtime the maintainer will actually get.
+        ...(personal ? { CVFORGE_DISCOVER: '1' } : {}),
       },
-      stdio: 'ignore',
+      stdio: ['ignore', 'pipe', 'pipe'],
     })
+    // Keep the server's last output, so a failed check says why the server stopped.
+    const onOutput = (chunk: Buffer) => {
+      serverLog = (serverLog + chunk.toString()).slice(-4000)
+    }
+    child.stdout?.on('data', onOutput)
+    child.stderr?.on('data', onOutput)
 
     let up = false
     for (let i = 0; i < 60 && !up; i++) {
@@ -520,6 +735,30 @@ async function bootGate(): Promise<void> {
     // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request -- 127.0.0.1 loopback al servidor local del smoke-test; HTTPS no aplica a la propia máquina.
     const icon = await (await fetch(`http://127.0.0.1:${port}/icon.svg`)).text()
     if (!icon.includes('CVForge')) throw new Error('icon route did not identify the app')
+    // The component gallery is a development tool; no build anyone runs may serve it.
+    // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request -- 127.0.0.1 loopback al servidor local del smoke-test; HTTPS no aplica a la propia máquina.
+    const gallery = await fetch(`http://127.0.0.1:${port}/muestrario`, {
+      signal: AbortSignal.timeout(2000),
+    })
+    if (gallery.status !== 404) {
+      throw new Error(`/muestrario served in a production build (status ${gallery.status})`)
+    }
+    if (personal) {
+      // The buyer build 404s here; the personal build must serve it.
+      // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request -- 127.0.0.1 loopback al servidor local del smoke-test; HTTPS no aplica a la propia máquina.
+      const disc = await fetch(`http://127.0.0.1:${port}/discover`, {
+        signal: AbortSignal.timeout(2000),
+      })
+      if (disc.status !== 200) {
+        throw new Error(`personal: /discover did not serve (status ${disc.status})`)
+      }
+    }
+  } catch (err) {
+    if (!serverLog) throw err
+    throw new Error(
+      `${err instanceof Error ? err.message : String(err)}\n--- packaged server output ---\n${serverLog.trim()}`,
+      { cause: err },
+    )
   } finally {
     child?.kill()
     rmSync(tmp, { recursive: true, force: true })

@@ -1,0 +1,8 @@
+/* The desktop's stylesheet, with the shared code one level up declared as
+   Tailwind sources: the web build runs from web/, where Tailwind would
+   otherwise find none of the components' utility classes (sr-only…). */
+@import "../../app/globals.css";
+@source "../../components";
+@source "../../lib";
+@source "../../app";
+@source "..";

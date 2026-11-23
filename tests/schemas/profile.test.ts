@@ -64,6 +64,20 @@ describe('deriveCurrency', () => {
   it('leaves a unit-less metric alone', () => {
     expect(deriveCurrency(metric({})).currency).toBeUndefined()
   })
+
+  // 2026-11-19 audit: an MXN/USD/EUR enum either failed a Colombian import
+  // or relabelled its pesos — a currency swap is a fabrication.
+  it('keeps any Latin American currency, from the unit or as stated', () => {
+    expect(deriveCurrency(metric({ unit: 'COP' })).currency).toBe('COP')
+    expect(deriveCurrency(metric({ currency: 'ars' })).currency).toBe('ARS')
+    expect(MetricSchema.safeParse({ raw: '800M COP', value: 8e8, currency: 'COP' }).success).toBe(
+      true,
+    )
+  })
+
+  it('drops a currency that is not a code, rather than failing the import', () => {
+    expect(deriveCurrency(metric({ currency: 'pesos' })).currency).toBeUndefined()
+  })
 })
 
 describe('EducationSchema', () => {
@@ -104,6 +118,7 @@ describe('MasterProfileSchema', () => {
         links: [{ label: 'korven.dev', url: 'https://korven.dev' }],
       },
       summary: '',
+      summaryCitedEvidenceIds: [],
       experience: [],
       education: [],
       skills: [],

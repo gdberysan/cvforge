@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "CVForge storage probe",
+  "version": "0.0.1",
+  "background": { "service_worker": "bg.js" },
+  "side_panel": { "default_path": "panel.html" },
+  "permissions": ["sidePanel"],
+  "host_permissions": ["http://127.0.0.1:4005/*"]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `outcome_events` ADD `scheduled_at` text;

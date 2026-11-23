@@ -10,6 +10,7 @@ const content: CVContent = {
     contactLines: ['g@b.com', 'Ciudad de México'],
   },
   summary: 'Twelve years building ecommerce systems.',
+  summaryCitedEvidenceIds: [],
   experience: [
     {
       experienceId: 'exp_1',
@@ -34,7 +35,7 @@ const content: CVContent = {
 }
 
 /** The spec's quality gate: the file unzips as a valid docx and the XML holds the content. */
-function documentXml(buffer: Buffer): string {
+function documentXml(buffer: Uint8Array): string {
   const files = unzipSync(new Uint8Array(buffer))
   const doc = files['word/document.xml']
   expect(doc).toBeDefined()
@@ -44,7 +45,7 @@ function documentXml(buffer: Buffer): string {
 describe('renderDocx', () => {
   it('produces a real zip container', async () => {
     const buffer = await renderDocx(content, { language: 'en' })
-    expect(buffer.subarray(0, 2).toString()).toBe('PK')
+    expect(new TextDecoder().decode(buffer.subarray(0, 2))).toBe('PK')
   })
 
   it('carries the content and conventional English headings in the document XML', async () => {

@@ -20,7 +20,7 @@ function withDb(fn: (db: Db) => void) {
 describe('spend tracking', () => {
   it('starts at zero with no calls on file', () => {
     withDb((db) => {
-      expect(spendSummary(db)).toEqual({ totalUsd: 0, calls: 0 })
+      expect(spendSummary(db)).toEqual({ totalUsd: 0, calls: 0, unknownCost: 0 })
     })
   })
 

@@ -45,10 +45,16 @@ export function computeCoverage(
   // handle), so an unmet gating requirement sitting in the desirable pool
   // is scoped in as a blocker too — the misclassification cuts both ways,
   // not just toward softer counts.
-  const hardBlockers = requirements.filter(
+  //
+  // An unjudged gate (see EvidenceMapping.unjudged) is neither: no one found
+  // it unmet, so it cannot gate, and it is surfaced for the person to check.
+  const unjudged = new Set(mappings.filter((m) => m.unjudged).map((m) => m.requirementId))
+  const gating = requirements.filter(
     (r) =>
       GATING_KINDS.has(r.kind) && get(r.id) === 'none' && (r.mandatory || mandatory.length === 0),
   )
+  const hardBlockers = gating.filter((r) => !unjudged.has(r.id))
+  const unjudgedGates = gating.filter((r) => unjudged.has(r.id))
 
   return {
     mandatoryTotal: mandatory.length,
@@ -60,6 +66,7 @@ export function computeCoverage(
     desirablePartial,
     desirableMissing,
     hardBlockers,
+    unjudgedGates,
     verdict: decideVerdict({
       hardBlockerCount: hardBlockers.length,
       mandatoryTotal: mandatory.length,
@@ -139,8 +146,8 @@ function decideVerdict(input: {
  * focal signal, so a posting worth your time should glow.
  */
 export const VERDICT_COLOR: Record<Verdict, string> = {
-  strong: 'var(--accent)',
-  'worth-it': 'var(--accent)',
+  strong: 'var(--tone-strong)',
+  'worth-it': 'var(--tone-strong)',
   stretch: 'var(--text-muted)',
   skip: 'var(--signal-error)',
 }

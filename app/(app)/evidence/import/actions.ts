@@ -5,7 +5,7 @@ import { db } from '@/lib/db/client'
 import { deleteEvidence, listEvidence, upsertEvidence } from '@/lib/db/queries/evidence'
 import { getProfile, saveProfile } from '@/lib/db/queries/profile'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
-import { reconcileImport } from '@/lib/import/reconcile'
+import { mergeImport } from '@/lib/import/reconcile'
 import { type ParsedCV, ParsedCVSchema } from '@/lib/schemas'
 
 type Result = { ok: true } | { ok: false; error: string; code: string }
@@ -27,11 +27,19 @@ export async function acceptImportAction(input: ParsedCV): Promise<Result> {
       code: 'invalid-request',
     }
   }
-  // Kept interviewed/manual records point at the OLD role ids, and the parser
-  // numbers roles by position — matched roles must keep their existing ids or
-  // the kept evidence silently reattaches to whatever now sits at that spot.
+  // A re-import is merged into what the person has (mergeImport): kept
+  // interviewed/manual records point at the OLD ids and the parser numbers
+  // by position, so matched records keep their ids; what a CV never states
+  // (work authorization, preferences, time zone) and what the person built
+  // here (projects, and any record their own evidence points at) is kept.
   const current = getProfile(db)
-  const data = current ? reconcileImport(current.experience, parsed.data) : parsed.data
+  const data = current
+    ? mergeImport(
+        current,
+        listEvidence(db).filter((item) => item.origin !== 'import'),
+        parsed.data,
+      )
+    : parsed.data
 
   // A new import supersedes the previous import's scaffolding — leaving the
   // old stubs would attach them to roles that no longer exist and feed the

@@ -113,4 +113,33 @@ describe('POST /api/ai/gaps', () => {
     expect(res.status).toBe(404)
     expect(structureAnswersMock).not.toHaveBeenCalled()
   })
+  it('keeps the roles that finished when a later one fails, and names the one that did not', async () => {
+    // 2026-11-19 audit: a failure on the second role threw away the first
+    // role's finished, paid result with it.
+    const { AiError } = await import('@/lib/ai/errors')
+    structureAnswersMock
+      .mockResolvedValueOnce({ evidence: [drafted('ev_a')], dropped: [] })
+      .mockRejectedValueOnce(new AiError('overloaded', 'busy'))
+    const res = await post({
+      applicationId: 'app_1',
+      entries: [
+        { requirementId: 'req_1', roleId: 'exp_1', question: 'q', answer: 'a' },
+        { requirementId: 'req_2', roleId: 'exp_2', question: 'q', answer: 'a' },
+      ],
+    })
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.evidence.map((e: EvidenceItem) => e.id)).toEqual(['ev_a'])
+    expect(body.unfinished).toEqual(['Lead — Beta'])
+  })
+
+  it('still fails as before when no role finished', async () => {
+    const { AiError } = await import('@/lib/ai/errors')
+    structureAnswersMock.mockRejectedValue(new AiError('overloaded', 'busy'))
+    const res = await post({
+      applicationId: 'app_1',
+      entries: [{ requirementId: 'req_1', roleId: 'exp_1', question: 'q', answer: 'a' }],
+    })
+    expect(res.status).toBe(502)
+  })
 })

@@ -78,7 +78,7 @@ export function TagRow({ tags, onChange }: { tags: string[]; onChange: (next: st
             <button
               type="button"
               onClick={() => setEditing({ tag, value: tag })}
-              title={t('tag.editAria', { tag })}
+              aria-label={t('tag.editAria', { tag })}
               style={bare}
             >
               {tag}
@@ -87,7 +87,6 @@ export function TagRow({ tags, onChange }: { tags: string[]; onChange: (next: st
               type="button"
               onClick={() => onChange(tags.filter((each) => each !== tag))}
               aria-label={t('tag.remove', { tag })}
-              title={t('tag.remove', { tag })}
               style={{ ...bare, color: 'var(--text-muted)', padding: '0 2px' }}
             >
               ×

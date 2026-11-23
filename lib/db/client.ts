@@ -6,6 +6,7 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { setSpendRecorder } from '@/lib/ai/spend-hook'
 import { isDemo } from '@/lib/demo/mode'
 import { loadSeed, SeedSchema } from '@/lib/demo/seed'
+import { startAutoBackup } from './auto-backup'
 import { recordApiCall } from './queries/spend'
 import { swapDatabaseFile } from './restore'
 import * as schema from './schema'
@@ -32,6 +33,11 @@ export function runMigrations(database: Db): void {
 }
 
 const DB_PATH = process.env.CVFORGE_DB_PATH ?? './data/cvforge.db'
+
+/** Where the daily automatic copies go: beside the database. */
+export function backupsDir(): string {
+  return path.join(/* turbopackIgnore: true */ path.dirname(DB_PATH), 'backups')
+}
 
 /**
  * Process-wide singleton. Next's dev server hot-reloads modules, so the handle
@@ -70,6 +76,7 @@ function connect(): Db {
     throw new DatabaseTooNewError()
   }
   runMigrations(handle)
+  startAutoBackup(() => (getDb() as Db & { $client: SqliteDatabase }).$client, backupsDir())
   return handle
 }
 

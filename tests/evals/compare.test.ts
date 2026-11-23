@@ -147,3 +147,34 @@ describe('compareExtraction — rewording is not regression', () => {
     expect(diff.mandatoryFlips).toEqual(['Google Merchant Center'])
   })
 })
+
+describe('compareExtraction — through variants', () => {
+  const r = (keyword: string, variants: string[] = []): ReqSnapshot => ({
+    keyword,
+    kind: 'hard',
+    mandatory: true,
+    variants,
+  })
+
+  it('matches a broader keyword whose variants name the snapshot, as a rename', () => {
+    const diff = compareExtraction(
+      [r('Zapier/Make automation')],
+      [r('Automation platforms', ['Zapier', 'Make', 'n8n'])],
+    )
+    expect(diff.jaccard).toBe(1)
+    expect(diff.renamed).toEqual([{ was: 'Zapier/Make automation', now: 'Automation platforms' }])
+  })
+
+  it('still keeps different tools apart', () => {
+    const diff = compareExtraction([r('YouTube Ads')], [r('Google Ads', ['Search Ads', 'PPC'])])
+    expect(diff.jaccard).toBe(0)
+  })
+})
+
+describe('compareExtraction — plurals', () => {
+  it('reads "AI APIs" as the snapshot\'s "AI API integration", reworded', () => {
+    const r = (keyword: string): ReqSnapshot => ({ keyword, kind: 'hard', mandatory: true })
+    const diff = compareExtraction([r('AI API integration')], [r('AI APIs')])
+    expect(diff.renamed).toEqual([{ was: 'AI API integration', now: 'AI APIs' }])
+  })
+})

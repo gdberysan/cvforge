@@ -1,0 +1,15 @@
+{
+  "@/app/(app)/application/[id]/gaps/actions": "./actions/application__id__gaps.ts",
+  "@/app/(app)/application/[id]/people-actions": "./actions/application__id__people-actions.ts",
+  "@/app/(app)/application/actions": "./actions/application.ts",
+  "@/app/(app)/cvs/actions": "./actions/cvs.ts",
+  "@/app/(app)/evidence/actions": "./actions/evidence.ts",
+  "@/app/(app)/evidence/import/actions": "./actions/evidence__import.ts",
+  "@/app/(app)/evidence/interview/actions": "./actions/evidence__interview.ts",
+  "@/app/(app)/pipeline/actions": "./actions/pipeline.ts",
+  "@/app/(app)/share/actions": "./actions/share.ts",
+  "@/app/(app)/triage/actions": "./actions/triage.ts",
+  "@/app/(app)/settings/actions": "./actions/settings.ts",
+  "@/app/(app)/agent/actions": "./actions/agent.ts",
+  "@/app/(app)/discover/actions": "./actions/discover.ts"
+}

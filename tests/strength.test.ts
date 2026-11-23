@@ -74,6 +74,36 @@ describe('computeProfileStrength', () => {
     expect(withQuantified.score - withOne.score).toBe(35)
   })
 
+  it('scores the metrics slice by the share of quantified achievements', () => {
+    const q = { metrics: [{ raw: '18%', value: 18, unit: '%' }] }
+    const evidence = [
+      ...Array.from({ length: 18 }, (_, i) => ev(`q${i}`, q)),
+      ...Array.from({ length: 4 }, (_, i) => ev(`n${i}`)),
+    ]
+    const m = computeProfileStrength(baseProfile, evidence).categories.find(
+      (c) => c.id === 'metrics',
+    )
+    expect(m).toMatchObject({ points: 25, got: 20, earned: false })
+  })
+
+  it('earns all of the metrics slice when every achievement is quantified, none when none is', () => {
+    const q = { metrics: [{ raw: '18%', value: 18, unit: '%' }] }
+    const all = computeProfileStrength(baseProfile, [ev('a', q)]).categories.find(
+      (c) => c.id === 'metrics',
+    )
+    const none = computeProfileStrength(baseProfile, [ev('a')]).categories.find(
+      (c) => c.id === 'metrics',
+    )
+    expect(all).toMatchObject({ got: 25, earned: true })
+    expect(none).toMatchObject({ got: 0, earned: false })
+  })
+
+  it('every other slice is all or nothing, so got is its points or zero', () => {
+    const { categories } = computeProfileStrength(baseProfile, [ev('a')])
+    for (const c of categories.filter((c) => c.id !== 'metrics'))
+      expect(c.got).toBe(c.earned ? c.points : 0)
+  })
+
   it('flags an empty summary as a high-severity suggestion', () => {
     const { suggestions } = computeProfileStrength({ ...baseProfile, summary: '' }, [ev('ev_1')])
     expect(suggestions.some((s) => s.id === 'summary-empty' && s.severity === 'high')).toBe(true)
@@ -107,7 +137,7 @@ describe('computeProfileStrength', () => {
         {
           id: 'exp_2',
           title: 'Lead',
-          company: 'Northwind',
+          company: 'Apuesta',
           period: { start: '2021-01' },
           summary: '',
         },
@@ -117,7 +147,7 @@ describe('computeProfileStrength', () => {
     const s = suggestions.find((x) => x.id === 'role-without-evidence')
     expect(s).toBeDefined()
     expect(s?.targetId).toBe('exp_2')
-    expect(s?.params?.company).toBe('Northwind')
+    expect(s?.params?.company).toBe('Apuesta')
   })
 
   it('does not credit a role holding only import stubs — the editor calls it empty', () => {
@@ -148,13 +178,13 @@ describe('computeProfileStrength', () => {
   it('breaks the score down into the seven categories, each with its point value', () => {
     const { categories } = computeProfileStrength({ ...baseProfile, summary: '' }, [ev('ev_1')])
     expect(categories).toEqual([
-      { id: 'summary', points: 15, earned: false },
-      { id: 'experience', points: 15, earned: true },
-      { id: 'evidencePerRole', points: 20, earned: true },
-      { id: 'metrics', points: 25, earned: false },
-      { id: 'tags', points: 10, earned: true },
-      { id: 'skills', points: 10, earned: true },
-      { id: 'targetTitles', points: 5, earned: true },
+      { id: 'summary', points: 15, earned: false, got: 0 },
+      { id: 'experience', points: 15, earned: true, got: 15 },
+      { id: 'evidencePerRole', points: 20, earned: true, got: 20 },
+      { id: 'metrics', points: 25, earned: false, got: 0 },
+      { id: 'tags', points: 10, earned: true, got: 10 },
+      { id: 'skills', points: 10, earned: true, got: 10 },
+      { id: 'targetTitles', points: 5, earned: true, got: 5 },
     ])
   })
 
@@ -166,6 +196,12 @@ describe('computeProfileStrength', () => {
     ])
     expect(categories.reduce((sum, c) => sum + c.points, 0)).toBe(100)
     expect(categories.filter((c) => c.earned).reduce((sum, c) => sum + c.points, 0)).toBe(score)
+  })
+
+  it('what each slice got sums to the score, including a part-earned metrics slice', () => {
+    const q = { metrics: [{ raw: '18%', value: 18, unit: '%' }] }
+    const { score, categories } = computeProfileStrength(baseProfile, [ev('a', q), ev('b')])
+    expect(categories.reduce((sum, c) => sum + c.got, 0)).toBe(score)
   })
 
   it('never returns a score outside 0..100', () => {

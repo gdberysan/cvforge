@@ -10,6 +10,15 @@ ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # no remedy short of a terminal. PORT pins a single rung.
 PORTS="${PORT:-3000 3001 3002 3003 3004 3005 3006 3007 3008 3009}"
 
+# The app is only a launcher for the folder around it. Dragged alone into
+# Applications, or run by macOS from a read-only quarantine copy (App
+# Translocation, a downloaded app opened in place), it finds no server and
+# used to quit without a word.
+if [ ! -d "$ROOT/programa/servidor" ]; then
+  osascript -e 'display alert "CVForge" message "CVForge.app tiene que quedarse dentro de su carpeta (la que tiene programa y LEEME). Mueve la carpeta completa adonde quieras, por ejemplo a Aplicaciones, y abre la app desde ahí.\n\nCVForge.app has to stay inside its folder (the one with programa and LEEME). Move the whole folder wherever you like, Applications included, and open the app from there."' >/dev/null 2>&1
+  exit 1
+fi
+
 case "$(uname -m)" in
   arm64) NODE="$ROOT/programa/node/mac-arm64/node" ;;
   *) NODE="$ROOT/programa/node/mac-x64/node" ;;

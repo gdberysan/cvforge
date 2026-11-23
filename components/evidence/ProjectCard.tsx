@@ -8,7 +8,11 @@ import {
   updateProjectAction,
 } from '@/app/(app)/evidence/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { IconPlus } from '@/components/ui/icons'
+import { Meta } from '@/components/ui/Meta'
+import { MonthField } from '@/components/ui/MonthField'
 import { errorText, plural } from '@/lib/i18n'
+import { periodLabel } from '@/lib/period'
 import type { Project } from '@/lib/schemas'
 
 const PERIOD = /^\d{4}-\d{2}$/
@@ -62,6 +66,8 @@ function ProjectFields({
   set: (d: Draft) => void
 }) {
   const t = useT()
+  // No end month: still going.
+  const [ongoing, setOngoing] = useState(draft.end === '')
   const field = (key: keyof Draft, label: string, placeholder?: string) => (
     <div>
       <label htmlFor={`${idPrefix}-${key}`} className="fact-label" style={{ display: 'block' }}>
@@ -83,10 +89,19 @@ function ProjectFields({
       {field('description', t('addProject.description'))}
       {field('stack', t('addProject.stack'), t('addProject.stackPlaceholder'))}
       {field('url', t('addProject.url'))}
-      <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
-        {field('start', t('addRole.start'), '2024-01')}
-        {field('end', t('addRole.end'), t('addRole.endPlaceholder'))}
-      </div>
+      <MonthField
+        id={`${idPrefix}-start`}
+        label={t('addRole.start')}
+        value={draft.start}
+        onChange={(start) => set({ ...draft, start })}
+      />
+      <MonthField
+        id={`${idPrefix}-end`}
+        label={t('addRole.end')}
+        value={draft.end}
+        onChange={(end) => set({ ...draft, end })}
+        current={{ label: t('addProject.current'), on: ongoing, onToggle: setOngoing }}
+      />
     </div>
   )
 }
@@ -127,13 +142,14 @@ export function ProjectHeader({
           }}
         >
           <h2 style={{ font: 'var(--type-h4)', color: 'var(--text-strong)' }}>
-            {project.name}
-            {project.stack.length > 0 && (
-              <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>
-                {' · '}
-                {project.stack.join(', ')}
-              </span>
-            )}
+            <Meta>
+              {project.name}
+              {project.stack.length > 0 && (
+                <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>
+                  {project.stack.join(', ')}
+                </span>
+              )}
+            </Meta>
           </h2>
           <button
             type="button"
@@ -154,15 +170,22 @@ export function ProjectHeader({
           </p>
         )}
         <p className="fact" style={{ marginTop: 'var(--space-2)' }}>
-          {project.period?.start
-            ? `${project.period.start} → ${project.period.end ?? t('evidence.present')}`
-            : t('evidence.undated')}
-          <span style={{ color: 'var(--text-muted)' }}>
-            {'  ·  '}
-            {plural(t, recordCount, 'evidence.records')}
-            {'  ·  '}
-            {t('evidence.quantified', { n: quantified })}
-          </span>
+          <Meta>
+            {project.period?.start
+              ? periodLabel(
+                  project.period.start,
+                  project.period.end,
+                  t('intl.locale'),
+                  t('evidence.present'),
+                )
+              : t('evidence.undated')}
+            <span style={{ color: 'var(--text-muted)' }}>
+              {plural(t, recordCount, 'evidence.records')}
+            </span>
+            <span style={{ color: 'var(--text-muted)' }}>
+              {t('evidence.quantified', { n: quantified })}
+            </span>
+          </Meta>
         </p>
       </>
     )
@@ -244,11 +267,10 @@ export function AddProject() {
 
   if (!open) {
     return (
-      <p style={{ marginTop: 'var(--space-4)' }}>
-        <button type="button" className="action" onClick={() => setOpen(true)}>
-          {t('evidence.addProject')}
-        </button>
-      </p>
+      <button type="button" className="add-tile" onClick={() => setOpen(true)}>
+        <IconPlus />
+        {t('evidence.addProject')}
+      </button>
     )
   }
 
