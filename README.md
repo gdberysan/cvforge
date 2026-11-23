@@ -40,7 +40,8 @@ Getting a key takes about five minutes; Rumbo walks you through it.
 
 - No account, no sign-up, no tracking.
 - Your CV, applications and key live only in your browser, on your device.
-- The only outside connection the app makes is to Anthropic's API, with your key, to run the analysis. Rumbo has no server that sees your data.
+- With your own key, the app's only outside connection is to Anthropic's API, to run the analysis: nothing passes through a server of ours.
+- The free trial is the one exception: without a key of your own, your calls pass through Rumbo's server on their way to Anthropic, using our key. It checks each call and keeps only numbers (what your trial has spent), never your CV, the posting or the answers.
 - The extension reads a job page only when you press its button.
 
 The full detail, in plain words, is on the [privacy page](https://rumbo.korven.dev/app/privacidad/).

@@ -1,5 +1,5 @@
 import { headers } from 'next/headers'
-import { AgentCard } from '@/components/settings/AgentCard'
+import { AgentSettingsGroup, AgentStatusRow } from '#satellite'
 import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
 import { BackupCard } from '@/components/settings/BackupCard'
 import { HapticsToggle } from '@/components/settings/HapticsToggle'
@@ -10,23 +10,14 @@ import { RestoreCard } from '@/components/settings/RestoreCard'
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsGroup'
 import { UpdateToggle } from '@/components/settings/UpdateToggle'
 import { LocaleSwitch } from '@/components/ui/LocaleSwitch'
-import { recentPostingTitles } from '@/lib/agent/search-titles'
 import { latestAutoBackup } from '@/lib/db/auto-backup'
 import { backupsDir, db } from '@/lib/db/client'
-import { getProfile } from '@/lib/db/queries/profile'
 import { isDemo } from '@/lib/demo/mode'
 import { doorOf, tailnetConfig } from '@/lib/http/doors'
 import { getTranslate } from '@/lib/i18n/server'
-import { localeTag } from '@/lib/locale-tag'
 import { listSubscriptions } from '@/lib/push/store'
 import { isPdfEngineAvailable } from '@/lib/render/pdf'
-import { readCompanies } from '@/lib/satellite/companies'
-import { readMailStatus } from '@/lib/satellite/mail'
-import { readSearchTitles } from '@/lib/satellite/search-titles'
-import { readSearches } from '@/lib/satellite/searches'
-import { isAgentAvailable, readAgentStatus } from '@/lib/satellite/settings'
-import { kitDailyCap, kitOnChase, readSettings, satelliteDbPath } from '@/lib/settings'
-import { serverTimeZone } from '@/lib/time'
+import { readSettings } from '@/lib/settings'
 import { formatDay } from '@/lib/ui/format-day'
 
 export const dynamic = 'force-dynamic'
@@ -48,25 +39,6 @@ export default async function SettingsPage() {
   // no Chrome, no Edge and no downloaded Chromium. (The demo serves
   // pre-rendered PDFs, so it never needs the offer.)
   const pdfReady = isDemo() || (await isPdfEngineAvailable())
-  // Personal installs only: the agent exists when the satellite's database
-  // is configured and present. Buyers never see it.
-  const agentFile = isDemo() ? undefined : satelliteDbPath()
-  const agent = isAgentAvailable(agentFile) ? readAgentStatus(agentFile) : null
-  const searches = agent && agentFile ? readSearchesSafe(agentFile) : undefined
-  const companies = agent && agentFile ? readCompaniesSafe(agentFile) : undefined
-  const mail = agent && agentFile ? readMailStatus(agentFile) : undefined
-  // The titles the agent looks for (its own setting, seeded once from the
-  // profile), previewed on recent postings with the enabled searches' keywords.
-  const profileTitles = agent ? (getProfile(db)?.preferences.targetTitles ?? []) : []
-  const searchTitles =
-    agent && agentFile
-      ? {
-          titles: readSearchTitlesSafe(agentFile, profileTitles),
-          profileTitles,
-          samples: recentPostingTitles(agentFile, db),
-          searchKeywords: (searches ?? []).filter((s) => s.enabled).map((s) => s.keywords),
-        }
-      : undefined
   const devices = isDemo() ? 0 : listSubscriptions(db).length
   const lastBackupFile = isDemo() ? null : latestAutoBackup(backupsDir())
   const lastBackup = lastBackupFile ? formatDay(lastBackupFile, locale) : null
@@ -96,21 +68,7 @@ export default async function SettingsPage() {
               hasSavedKey || envManaged ? t('settings.status.keyOk') : t('settings.status.keyNone')
             }
           />
-          {agent && (
-            <SettingsRow
-              label={
-                <>
-                  {dot(agent.settings.paused ? 'off' : 'ok')}
-                  {t('settings.agent.title')}
-                </>
-              }
-              hint={
-                agent.settings.paused
-                  ? t('settings.status.agentPaused')
-                  : t('settings.status.agentOn')
-              }
-            />
-          )}
+          <AgentStatusRow />
           <SettingsRow
             label={
               <>
@@ -145,27 +103,7 @@ export default async function SettingsPage() {
         </SettingsGroup>
         <KeyGuide />
 
-        {agent && (
-          <SettingsGroup title={t('settings.agent.title')} lede={t('settings.agent.lede')}>
-            <AgentCard
-              status={agent}
-              kit={{ onChase: kitOnChase(), dailyCap: kitDailyCap() }}
-              searches={searches}
-              companies={companies}
-              mail={mail}
-              searchTitles={searchTitles}
-              lastTick={
-                agent.lastTriagedAt
-                  ? new Intl.DateTimeFormat(localeTag(locale), {
-                      dateStyle: 'short',
-                      timeStyle: 'short',
-                      timeZone: serverTimeZone(),
-                    }).format(new Date(agent.lastTriagedAt))
-                  : undefined
-              }
-            />
-          </SettingsGroup>
-        )}
+        <AgentSettingsGroup />
 
         <SettingsGroup title={t('push.title')} lede={t('push.lede')}>
           <PushCard />
@@ -187,31 +125,4 @@ export default async function SettingsPage() {
       </div>
     </main>
   )
-}
-
-/** An older agent database without the table, or a busy one: Ajustes still renders. */
-function readSearchesSafe(file: string) {
-  try {
-    return readSearches(file)
-  } catch {
-    return undefined
-  }
-}
-
-/** null/undefined when the agent has not been restarted on a build with the table. */
-function readCompaniesSafe(file: string) {
-  try {
-    return readCompanies(file)
-  } catch {
-    return undefined
-  }
-}
-
-/** An agent database without a settings table, or a busy one: Ajustes still renders. */
-function readSearchTitlesSafe(file: string, profileTitles: string[]): string[] {
-  try {
-    return readSearchTitles(file, profileTitles)
-  } catch {
-    return profileTitles
-  }
 }

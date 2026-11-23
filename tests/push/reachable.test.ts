@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { markDelivered, pushReachable, pushState, saveSubscription } from '@/lib/push/store'
-import { withDb } from '../agent/fixtures'
+import { dbTest as withDb } from '../support/db-app'
 
 const NOW = new Date('2026-10-15T18:00:00Z')
 const sub = (endpoint: string) => ({ endpoint, p256dh: 'k', auth: 'a', label: 'S25' })
@@ -34,7 +34,7 @@ describe('pushReachable', () => {
 })
 
 /**
- * The Telegram backup says why the finds came there. "Desde hace 2 días" is
+ * A fallback says why the finds came there. "Desde hace 2 días" is
  * only true of a phone that once took a push.
  */
 describe('pushState', () => {

@@ -1,12 +1,11 @@
 import Link from 'next/link'
+import { AgentFinds, MailSuggestions } from '#satellite-ui'
 import { FirstRun, WelcomeSteps } from '@/components/onboarding/FirstRun'
-import { AgentFinds } from '@/components/today/AgentFinds'
-import { MailSuggestions } from '@/components/today/MailSuggestions'
 import { type InboxItem, TodayInbox } from '@/components/today/TodayInbox'
 import { LinkedInIntake } from '@/components/triage/LinkedInIntake'
 import { TriageConsole } from '@/components/triage/TriageConsole'
 import { ATTENTION_STEP, attentionWhy } from '@/lib/attention-copy'
-import { type Locale, plural, type Translate } from '@/lib/i18n'
+import type { Locale, Translate } from '@/lib/i18n'
 import { defaultMarket } from '@/lib/markets'
 import { SAMPLE_POSTING, SAMPLE_POSTING_MARKET } from '@/lib/onboarding/sample-posting'
 import type { HomeData } from '@/lib/pages/home'
@@ -208,12 +207,7 @@ export function HomeView({
 
           {/* Personal builds only: what the job agent found, folded away so the
           box stays the first thing on the page. */}
-          {data.finds.length > 0 && (
-            <details className="today-finds" open={Boolean(find)}>
-              <summary>{plural(t, data.finds.length, 'today.findsSummary')}</summary>
-              <AgentFinds finds={data.finds} highlight={find ?? null} />
-            </details>
-          )}
+          <AgentFinds finds={data.finds} highlight={find ?? null} />
         </div>
       </div>
     </main>

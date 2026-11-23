@@ -20,7 +20,9 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "#discover": ["./lib/discover/stub.ts"]
+      "#discover": ["./lib/discover/stub.ts"],
+      "#satellite": ["./lib/satellite-stub.ts"],
+      "#satellite-ui": ["./components/satellite-ui-stub.ts"]
     }
   },
   "include": [

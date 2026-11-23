@@ -5,8 +5,6 @@
  * one screen serves both editions.
  */
 
-import type { FindCard } from '@/components/today/AgentFinds'
-import type { MailCard } from '@/components/today/MailSuggestions'
 import { companyName } from '@/lib/company-name'
 import type { Db } from '@/lib/db/client'
 import { listFullApplications } from '@/lib/db/queries/applications'
@@ -15,6 +13,7 @@ import { getProfile } from '@/lib/db/queries/profile'
 import { demoPostings } from '@/lib/demo/postings'
 import type { Market } from '@/lib/markets'
 import { effectiveMarkets } from '@/lib/markets'
+import type { FindCard, MailCard } from '@/lib/satellite-types'
 import { hasCredentials } from '@/lib/settings'
 import {
   type AttentionItem,

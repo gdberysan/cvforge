@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { MailThread } from '#satellite-ui'
 import { AppMeta } from '@/components/application/AppMeta'
 import { CompanyAliases } from '@/components/application/CompanyAliases'
 import { DecideActions, RestoreButton } from '@/components/application/DecideActions'
@@ -9,7 +10,6 @@ import { GapEntry } from '@/components/application/GapEntry'
 import { GapFill } from '@/components/application/GapFill'
 import { InterviewCard } from '@/components/application/InterviewCard'
 import { KitProgress } from '@/components/application/KitProgress'
-import { MailThread } from '@/components/application/MailThread'
 import { MeetingPeople } from '@/components/application/MeetingPeople'
 import { PostingSheet } from '@/components/application/PostingSheet'
 import { Reanalyse } from '@/components/application/Reanalyse'
@@ -314,7 +314,7 @@ export function ApplicationView({
                 applicationId={application.id}
                 cards={track.mail.cards}
                 count={track.mail.count}
-                empty={t(track.mail.connected ? 'thread.emptyConnected' : 'thread.emptyNever')}
+                connected={track.mail.connected}
               />
               <YouList items={track.mail.you} />
             </>

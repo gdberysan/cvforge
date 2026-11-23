@@ -6,7 +6,7 @@
  *
  * LinkedIn is a single-page app that rebuilds its DOM as you move between
  * jobs: the button lives in its own shadow root and is put back whenever the
- * page drops it (the lesson from Mordue's panel, which had the same problem).
+ * page drops it, rather than assuming it survives a navigation.
  */
 import { extractPosting, linkedInJobUrl, signedInJob } from './extract'
 

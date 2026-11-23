@@ -12,7 +12,11 @@ export type Translate = (key: MessageKey, params?: Params) => string
 
 export function translate(locale: Locale, key: MessageKey, params?: Params): string {
   const table = dictionary[locale] ?? dictionary[DEFAULT_LOCALE]
-  const found = table[key] ?? dictionary[DEFAULT_LOCALE][key] ?? key
+  return fillMessage(table[key] ?? dictionary[DEFAULT_LOCALE][key] ?? key, params)
+}
+
+/** A dictionary string as shown: the build's product name, then the {params}. */
+export function fillMessage(found: string, params?: Params): string {
   // The dictionary names the product CVForge; a build under another name says that one.
   const raw = BRAND === 'CVForge' ? found : found.replaceAll('CVForge', BRAND)
   if (!params) return raw

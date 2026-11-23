@@ -1,5 +1,5 @@
 import { parseGmailNote } from '@/lib/gmail-note'
-import type { MailThreadItem } from '@/lib/satellite/mail'
+import type { MailThreadItem } from '@/lib/satellite-types'
 import type { OutcomeType } from '@/lib/schemas/application'
 import { dayIndex, isDateOnly, wallClock } from '@/lib/time'
 

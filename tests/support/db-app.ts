@@ -17,6 +17,21 @@ export function withDb(fn: (db: Db) => void) {
   }
 }
 
+/** `withDb` as a test body: `it('…', dbTest(async (db) => { … }))`. */
+export function dbTest(fn: (db: Db) => void | Promise<void>) {
+  return async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cvforge-'))
+    const { db, close } = openDb(path.join(dir, 'test.db'))
+    try {
+      runMigrations(db)
+      await fn(db)
+    } finally {
+      close()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  }
+}
+
 /** A bare application, no requirements. */
 export const seedApp = (db: Db, company = 'Acme') =>
   createApplication(db, {

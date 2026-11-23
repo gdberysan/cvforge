@@ -57,7 +57,7 @@ export function latestKitFor(db: Db, applicationId: string): KitJob | null {
 }
 
 /**
- * One open kit per application — a chase from Telegram and one from the app
+ * One open kit per application — a chase from the job agent and one from the app
  * must not pay twice — and at most "Kits por día" enqueued per local day.
  */
 export function enqueueKit(
@@ -65,8 +65,8 @@ export function enqueueKit(
   applicationId: string,
   now: Date = new Date(),
 ): { ok: true; jobId: string } | { ok: false; reason: 'open' | 'cap' } {
-  // One write transaction, taken before the check: Telegram's chase runs in
-  // the satellite's process and the app's in the server's, and two taps at
+  // One write transaction, taken before the check: the agent's chase runs in
+  // its own process and the app's in the server's, and two taps at
   // the same instant must not both pass the check.
   return db.transaction(
     (tx): { ok: true; jobId: string } | { ok: false; reason: 'open' | 'cap' } => {
@@ -195,7 +195,7 @@ export function kitPhase(job: KitJob | null, now: Date = new Date()): KitPhase {
 
 /**
  * Is the background kit writing this application's CV and letter right now?
- * The "Generar" routes ask, so a page opened before a Telegram chase cannot
+ * The "Generar" routes ask, so a page opened before an agent's chase cannot
  * pay for the same documents a second time. A kit waiting for its night
  * retry does not count: generating by hand meanwhile is the user's call.
  */
@@ -238,9 +238,9 @@ export type KitFailure = {
 }
 
 /**
- * Kits that failed after `since` (ISO), for the satellite to tell Telegram:
- * the spec's "errors always reach Telegram" includes a failed kit, and the
- * server has no Telegram of its own.
+ * Kits that failed after `since` (ISO), for the job agent to report: a
+ * failed kit is an error the person hears about, and the server has no
+ * channel of its own to say so.
  */
 export function kitFailuresSince(db: Db, since: string): KitFailure[] {
   return db

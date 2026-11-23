@@ -2,11 +2,10 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { chaseFind } from '@/lib/agent/chase'
 import { AiError } from '@/lib/ai/errors'
 import { enqueueKit, latestKitFor } from '@/lib/kit/queue'
 import { runKitOnce } from '@/lib/kit/runner'
-import { find, withDb } from '../agent/fixtures'
+import { seedApp, dbTest as withDb } from '../support/db-app'
 import { must } from '../support/must'
 
 let dir: string
@@ -37,8 +36,7 @@ describe('runKitOnce', () => {
   it(
     'writes the CV, then the cover letter, and sends one push when the kit is ready',
     withDb(async (db) => {
-      const out = chaseFind(db, '4460829599', find())
-      if (out.kind === 'repost') throw new Error('fixture')
+      const out = { applicationId: seedApp(db) }
       enqueueKit(db, out.applicationId, NOW())
       const order: string[] = []
       const cv = vi.fn(async () => {
@@ -65,8 +63,7 @@ describe('runKitOnce', () => {
   it(
     'a failed letter fails the kit, keeps it for the night retry, and says so once',
     withDb(async (db) => {
-      const out = chaseFind(db, '4460829599', find())
-      if (out.kind === 'repost') throw new Error('fixture')
+      const out = { applicationId: seedApp(db) }
       enqueueKit(db, out.applicationId, NOW())
       const notify = vi.fn(async (..._args: unknown[]) => 'sent' as const)
       const result = await runKitOnce(db, {
@@ -117,8 +114,7 @@ describe('runKitOnce — night retry', () => {
     withDb(async (db) => {
       const { claimNext, finishKit } = await import('@/lib/kit/queue')
       const { mergeDocuments } = await import('@/lib/db/queries/applications')
-      const out = chaseFind(db, '4460829599', find())
-      if (out.kind === 'repost') throw new Error('fixture')
+      const out = { applicationId: seedApp(db) }
       enqueueKit(db, out.applicationId, new Date('2026-10-15T16:00:00Z'))
       const job = must(claimNext(db, new Date('2026-10-15T16:00:01Z')), 'a claimed job')
       finishKit(db, job.id, { ok: false, code: 'network' }, new Date('2026-10-15T16:01:00Z'))
@@ -147,8 +143,7 @@ describe('runKitOnce — a document already there is never bought again', () => 
     withDb(async (db) => {
       const { claimNext, finishKit } = await import('@/lib/kit/queue')
       const { mergeDocuments, getApplication } = await import('@/lib/db/queries/applications')
-      const out = chaseFind(db, '4460829599', find())
-      if (out.kind === 'repost') throw new Error('fixture')
+      const out = { applicationId: seedApp(db) }
       enqueueKit(db, out.applicationId, new Date('2026-10-15T16:00:00Z'))
       const job = must(claimNext(db, new Date('2026-10-15T16:00:01Z')), 'a claimed job')
       finishKit(db, job.id, { ok: false, code: 'overloaded' }, new Date('2026-10-15T16:01:00Z'))

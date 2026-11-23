@@ -2,13 +2,13 @@
 
 import { useRouter } from 'next/navigation'
 import { useId, useState, useTransition } from 'react'
+import { AgentMark } from '#satellite-ui'
 import { setInterviewTimeAction } from '@/app/(app)/pipeline/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { IconCalendar } from '@/components/ui/icons'
 import { callLine } from '@/lib/call-line'
 import type { InterviewView } from '@/lib/seguimiento-view'
 import { showToast } from '@/lib/ui/toast'
-import { AgentMark } from './MailThread'
 
 /**
  * What the action stores for the editor's two fields: a bare `YYYY-MM-DD`
