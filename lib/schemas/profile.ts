@@ -1,8 +1,9 @@
 import { z } from 'zod'
+import { MarketSchema } from '@/lib/markets'
+import { serverTimeZone } from '@/lib/time'
 import { MonthSchema, PeriodSchema } from './evidence'
 
-export const MarketSchema = z.enum(['mx', 'us-remote', 'eu-remote'])
-export type Market = z.infer<typeof MarketSchema>
+export { type Market, MarketSchema } from '@/lib/markets'
 
 export const ExperienceSchema = z.object({
   id: z.string().min(1),
@@ -70,7 +71,8 @@ export const MasterProfileSchema = z.object({
     email: z.string().default(''),
     phone: z.string().optional(),
     location: z.string().default(''),
-    timezone: z.string().default('America/Mexico_City'),
+    /** The person's IANA zone; a timezone requirement is judged against it. */
+    timezone: z.string().default(() => serverTimeZone()),
     // Plain strings: CVs print "linkedin.com/in/x" without a scheme, and
     // what a CV states is valid data. A validator that rejects it at accept
     // time eats a paid parse.

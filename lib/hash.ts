@@ -1,8 +1,17 @@
-import { createHash } from 'node:crypto'
+import { sha256 } from '@noble/hashes/sha2.js'
+import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js'
+
+/**
+ * Synchronous sha256 that runs in Node and in a browser Worker alike — the
+ * web edition has no node:crypto, and WebCrypto's digest is async while every
+ * caller here is sync. Byte-identical to node:crypto (tested), so hashes
+ * stored by either edition match.
+ */
+const hex = (text: string): string => bytesToHex(sha256(utf8ToBytes(text)))
 
 /** Caches requirement extraction, so re-analysing the same posting is free. */
 export function hashPosting(text: string): string {
-  return createHash('sha256').update(text.trim()).digest('hex')
+  return hex(text.trim())
 }
 
 /**
@@ -13,5 +22,5 @@ export function hashPosting(text: string): string {
  * stale: re-map instead of serving the frozen one.
  */
 export function hashEvidenceProjection(projection: unknown): string {
-  return createHash('sha256').update(JSON.stringify(projection)).digest('hex')
+  return hex(JSON.stringify(projection))
 }

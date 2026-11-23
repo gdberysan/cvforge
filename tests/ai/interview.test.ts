@@ -61,6 +61,20 @@ describe('planInterview', () => {
     expect(await planInterview({ role, stubs })).toHaveLength(6)
   })
 
+  it('reads the loose model shape: "" is role-level, empty questions drop, odd probes are context', async () => {
+    callStructuredMock.mockResolvedValue({
+      questions: [
+        { id: 'q1', targetStubId: '', question: 'What else?', why: '', probesFor: 'Context' },
+        { id: '', targetStubId: 'ev_1', question: '   ', why: 'x', probesFor: 'metric' },
+        { id: '', targetStubId: 'ev_1', question: 'How much?', why: 'x', probesFor: 'impact' },
+      ],
+    })
+    expect(await planInterview({ role, stubs })).toEqual([
+      { id: 'q1', targetStubId: null, question: 'What else?', why: '', probesFor: 'context' },
+      { id: 'q3', targetStubId: 'ev_1', question: 'How much?', why: 'x', probesFor: 'context' },
+    ])
+  })
+
   it('passes the role and its stubs to the model', async () => {
     callStructuredMock.mockResolvedValue({ questions: [] })
     await planInterview({ role, stubs })
@@ -281,5 +295,23 @@ describe('structureAnswers', () => {
     })
 
     expect(evidence[0].period).toEqual(role.period)
+  })
+
+  it('accepts a date the model could not shape as a month, and falls back to the role', async () => {
+    // A YYYY-MM pattern lived only in the local re-validation: "2021" was a
+    // fatal invalid-output after the paid call.
+    const loose = { ...modelEvidence(), period: { start: '2021' }, kind: 'win', strength: 'big' }
+    expect(InterviewResultSchema.safeParse({ evidence: [loose] }).success).toBe(true)
+    callStructuredMock.mockResolvedValue({ evidence: [loose] })
+    const { evidence } = await structureAnswers({
+      role,
+      stubs,
+      answers: [{ questionId: 'q1', question: 'When?', answer: 'In 2021 I rebuilt checkout.' }],
+    })
+    expect(evidence[0]).toMatchObject({
+      period: role.period,
+      kind: 'achievement',
+      strength: 'supporting',
+    })
   })
 })

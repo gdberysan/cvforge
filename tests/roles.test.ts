@@ -15,7 +15,7 @@ describe('addRole', () => {
   it('appends the role with the stated facts and returns its id', () => {
     const { profile: next, roleId } = addRole(profile, {
       title: 'Automation Lead',
-      company: 'Northwind',
+      company: 'Apuesta',
       start: '2024-01',
       end: '2026-08',
     })
@@ -23,7 +23,7 @@ describe('addRole', () => {
     const added = next.experience.at(-1)
     expect(added?.id).toBe(roleId)
     expect(added?.title).toBe('Automation Lead')
-    expect(added?.company).toBe('Northwind')
+    expect(added?.company).toBe('Apuesta')
     expect(added?.period).toEqual({ start: '2024-01', end: '2026-08' })
     expect(MasterProfileSchema.safeParse(next).success).toBe(true)
   })
@@ -39,10 +39,10 @@ describe('addRole', () => {
 
   it('never reuses an existing role id — a future import must not collide', () => {
     const { roleId } = addRole(profile, { title: 'Lead', company: 'Acme', start: '2026-01' })
-    expect(roleId).toMatch(/^exp_/)
-    expect(profile.experience.some((r) => r.id === roleId)).toBe(false)
     // Import assigns exp_1, exp_2… — a manual id must live outside that range.
-    expect(roleId).not.toMatch(/^exp_\d+$/)
+    // The lead is always a letter (lib/manual-id.ts), so this holds every run.
+    expect(roleId).toMatch(/^exp_[a-f][0-9a-f]{7}$/)
+    expect(profile.experience.some((r) => r.id === roleId)).toBe(false)
   })
 
   it('does not mutate the profile it was given', () => {

@@ -28,6 +28,7 @@ const coverage = {
   desirableStrong: 0,
   desirableMissing: 0,
   hardBlockers: [],
+  unjudgedGates: [],
   verdict: 'skip' as const,
 }
 

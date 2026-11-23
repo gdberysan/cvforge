@@ -5,13 +5,22 @@ import { useState, useTransition } from 'react'
 import { clearApiKeyAction, saveApiKeyAction } from '@/app/(app)/settings/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { errorText } from '@/lib/i18n'
+import { SettingsRow } from './SettingsGroup'
 
+/**
+ * The key, in three states: from the phone it cannot be changed (saving is
+ * Mac-only), so no form is offered; with a key saved it is one row until
+ * "Cambiar"; with none, the form is the point of the group.
+ */
 export function ApiKeyForm({
   hasSavedKey,
   envManaged,
+  local,
 }: {
   hasSavedKey: boolean
   envManaged: boolean
+  /** True on the Mac itself; false through the phone's tailnet door. */
+  local: boolean
 }) {
   const t = useT()
   const router = useRouter()
@@ -19,6 +28,7 @@ export function ApiKeyForm({
   const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [changing, setChanging] = useState(false)
 
   function save() {
     setError(null)
@@ -30,6 +40,7 @@ export function ApiKeyForm({
         return
       }
       setKey('')
+      setChanging(false)
       setStatus(`${t('settings.connected')} · ${t('settings.saved')}`)
       router.refresh()
     })
@@ -44,59 +55,91 @@ export function ApiKeyForm({
     })
   }
 
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        save()
-      }}
-      style={{ display: 'grid', gap: 'var(--space-3)', maxWidth: '36em' }}
+  const keyRow = (
+    <SettingsRow
+      label={
+        <>
+          <span className={`status-dot ${hasSavedKey ? 'tone-ok' : 'tone-warn'}`} aria-hidden />
+          {hasSavedKey ? t('settings.key.saved') : t('settings.key.none')}
+        </>
+      }
+      hint={envManaged ? t('settings.envManaged') : undefined}
     >
-      {envManaged && (
-        <p className="fact" style={{ color: 'var(--text-muted)' }}>
-          {t('settings.envManaged')}
-        </p>
-      )}
-      <p className="fact" style={{ color: hasSavedKey ? 'var(--signal-ok)' : 'var(--text-muted)' }}>
-        {hasSavedKey ? t('settings.hasKey') : t('settings.noKey')}
-      </p>
-      <label className="fact-label" htmlFor="api-key">
-        {t('settings.keyLabel')}
-      </label>
-      <input
-        id="api-key"
-        className="field field-mono"
-        type="password"
-        autoComplete="off"
-        spellCheck={false}
-        placeholder={t('settings.keyPlaceholder')}
-        value={key}
-        onChange={(e) => setKey(e.target.value)}
-      />
-      <div
-        style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'baseline', flexWrap: 'wrap' }}
-      >
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={isPending || key.trim().length === 0}
-        >
-          {isPending ? t('settings.saving') : t('settings.save')}
-        </button>
-        {hasSavedKey && (
-          <button type="button" className="action-quiet" onClick={remove} disabled={isPending}>
-            {t('settings.remove')}
+      {local && hasSavedKey && !changing && (
+        <>
+          <button type="button" className="btn btn-quiet" onClick={() => setChanging(true)}>
+            {t('settings.key.change')}
           </button>
-        )}
-      </div>
-      <p aria-live="polite" style={{ minHeight: '1.5em' }}>
-        {status && <span style={{ color: 'var(--signal-ok)' }}>{status}</span>}
-        {error && (
-          <span role="alert" style={{ color: 'var(--signal-error)' }}>
-            {error}
-          </span>
-        )}
-      </p>
-    </form>
+          <button type="button" className="action-quiet" onClick={remove} disabled={isPending}>
+            {t('settings.key.remove')}
+          </button>
+        </>
+      )}
+    </SettingsRow>
+  )
+
+  const feedback = (status || error) && (
+    <p aria-live="polite" className="settings-feedback">
+      {status && <span className="is-ok">{status}</span>}
+      {error && (
+        <span role="alert" className="is-error">
+          {error}
+        </span>
+      )}
+    </p>
+  )
+
+  if (!local) {
+    return (
+      <>
+        {keyRow}
+        <SettingsRow label={t('settings.key.fromMac')} />
+      </>
+    )
+  }
+
+  return (
+    <>
+      {/* With no key the group's own title already says so. */}
+      {hasSavedKey && keyRow}
+      {(!hasSavedKey || changing) && (
+        <form
+          className="settings-row is-stacked settings-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            save()
+          }}
+        >
+          <label className="settings-row-label" htmlFor="api-key">
+            {t('settings.keyLabel')}
+          </label>
+          <input
+            id="api-key"
+            className="field field-mono"
+            type="password"
+            autoComplete="off"
+            spellCheck={false}
+            placeholder={t('settings.keyPlaceholder')}
+            value={key}
+            onChange={(e) => setKey(e.target.value)}
+          />
+          <div className="settings-row-control">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isPending || key.trim().length === 0}
+            >
+              {isPending ? t('settings.saving') : t('settings.save')}
+            </button>
+            {changing && (
+              <button type="button" className="btn btn-quiet" onClick={() => setChanging(false)}>
+                {t('addRole.cancel')}
+              </button>
+            )}
+          </div>
+        </form>
+      )}
+      {feedback}
+    </>
   )
 }

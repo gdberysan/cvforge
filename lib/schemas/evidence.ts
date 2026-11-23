@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { MetricSchema } from './metric'
+import { MetricSchema, ModelMetricSchema, readMetric } from './metric'
 
 export const EvidenceKindSchema = z.enum([
   'achievement',
@@ -56,3 +56,61 @@ export const EvidenceItemSchema = z.object({
   origin: EvidenceOriginSchema.default('manual'),
 })
 export type EvidenceItem = z.infer<typeof EvidenceItemSchema>
+
+/**
+ * An evidence item as the model may send it (CV import, interview, gap-fill):
+ * types only, because the request grammar enforces nothing else — an enum, a
+ * minimum length or a month pattern lived only in the local re-validation and
+ * failed a paid call with no retry. `readModelEvidence` makes it a stored one.
+ */
+export const ModelEvidenceSchema = z.object({
+  id: z.string(),
+  kind: z.string(),
+  sourceRef: z.object({ type: z.string(), id: z.string() }),
+  text: z.string(),
+  metrics: z.array(ModelMetricSchema),
+  tags: z.array(z.string()),
+  period: z.object({ start: z.string().optional(), end: z.string().optional() }).optional(),
+  strength: z.string(),
+})
+export type ModelEvidence = z.infer<typeof ModelEvidenceSchema>
+
+const KINDS = EvidenceKindSchema.options
+const SOURCE_TYPES = SourceRefSchema.shape.type.options
+
+/**
+ * The stored fields of a model-sent item, or why it cannot be stored: no
+ * text says nothing, and a source type outside the four cannot be placed.
+ * An unknown kind reads as an achievement and an unknown strength as
+ * supporting — the weakest claim, never a stronger one. Ids and periods stay
+ * the caller's: each landing site owns them.
+ */
+export function readModelEvidence(
+  item: ModelEvidence,
+):
+  | { ok: true; fields: Omit<EvidenceItem, 'id' | 'period' | 'origin'> }
+  | { ok: false; reason: 'empty' | 'unplaceable' } {
+  const text = item.text.trim()
+  if (!text) return { ok: false, reason: 'empty' }
+  const type = item.sourceRef.type.trim().toLowerCase()
+  if (!(SOURCE_TYPES as readonly string[]).includes(type) || !item.sourceRef.id.trim())
+    return { ok: false, reason: 'unplaceable' }
+  const kind = item.kind.trim().toLowerCase()
+  return {
+    ok: true,
+    fields: {
+      kind: (KINDS as readonly string[]).includes(kind) ? (kind as EvidenceKind) : 'achievement',
+      sourceRef: { type: type as SourceRef['type'], id: item.sourceRef.id.trim() },
+      text,
+      metrics: item.metrics.flatMap((m) => readMetric(m) ?? []),
+      tags: item.tags,
+      strength: item.strength.trim().toLowerCase() === 'core' ? 'core' : 'supporting',
+    },
+  }
+}
+
+/** A month the model sent, if it is one; otherwise undefined (the caller falls back). */
+export function readMonth(text: string | undefined): string | undefined {
+  const month = text?.trim()
+  return month && MonthSchema.safeParse(month).success ? month : undefined
+}

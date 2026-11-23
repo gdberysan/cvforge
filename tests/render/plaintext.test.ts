@@ -9,6 +9,7 @@ const content: CVContent = {
     contactLines: ['g@b.com', 'Ciudad de México'],
   },
   summary: 'Twelve years building ecommerce systems.',
+  summaryCitedEvidenceIds: [],
   experience: [
     {
       experienceId: 'exp_1',
@@ -76,7 +77,7 @@ describe('projects section', () => {
           {
             projectId: 'proj_1',
             name: 'Shelf Tracker',
-            url: 'github.com/example/shelf',
+            url: 'github.com/g/shelf',
             startDate: '2024-03',
             bullets: [bullet],
           },
@@ -87,7 +88,7 @@ describe('projects section', () => {
     )
     expect(text).toContain('PROYECTOS')
     expect(text.indexOf('PROYECTOS')).toBeGreaterThan(text.indexOf('EXPERIENCIA'))
-    expect(text).toContain('Shelf Tracker — github.com/example/shelf  (mar 2024 – actualidad)')
+    expect(text).toContain('Shelf Tracker — github.com/g/shelf  (mar 2024 – actualidad)')
     expect(text).toMatch(/^Undated tool$/m)
   })
 

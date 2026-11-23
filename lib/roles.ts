@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import { manualId } from '@/lib/manual-id'
 import type { MasterProfile } from '@/lib/schemas'
 
 export type NewRole = {
@@ -12,15 +12,14 @@ export type NewRole = {
 
 /**
  * Manual entry, as the design promises: a CV is a snapshot, and the newest
- * role is exactly what an imported PDF lacks. The id is random-suffixed so it
- * can never collide with import's sequential exp_N ids — or with a future
- * re-import's.
+ * role is exactly what an imported PDF lacks. The id (see manualId) can never
+ * collide with import's sequential exp_N ids — or with a future re-import's.
  */
 export function addRole(
   profile: MasterProfile,
   role: NewRole,
 ): { profile: MasterProfile; roleId: string } {
-  const roleId = `exp_${randomUUID().slice(0, 8)}`
+  const roleId = manualId('exp')
   return {
     roleId,
     profile: {

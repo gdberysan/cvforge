@@ -47,6 +47,26 @@ describe('callStructured', () => {
     expect(req.output_config.format.type).toBe('json_schema')
   })
 
+  it('lets one stage raise max_tokens, never past what a non-streaming call allows', async () => {
+    createMock.mockResolvedValue(reply({ answer: 'ok' }))
+    await callStructured({
+      schema: Schema,
+      system: [{ text: 'sys' }],
+      user: 'hi',
+      effort: 'low',
+      maxTokens: 20000,
+    })
+    expect(createMock.mock.calls[0][0].max_tokens).toBe(20000)
+    await callStructured({
+      schema: Schema,
+      system: [{ text: 'sys' }],
+      user: 'hi',
+      effort: 'low',
+      maxTokens: 64000,
+    })
+    expect(createMock.mock.calls[1][0].max_tokens).toBe(21000)
+  })
+
   it('never sends sampling parameters, which 400 on claude-opus-5', async () => {
     createMock.mockResolvedValue(reply({ answer: 'ok' }))
     await callStructured({ schema: Schema, system: [{ text: 'sys' }], user: 'hi', effort: 'low' })
@@ -123,6 +143,51 @@ describe('callStructured', () => {
     expect(createMock).toHaveBeenCalledTimes(2)
   })
 
+  describe('a refused connection', () => {
+    // What the SDK throws when the connection never opens: no status.
+    class APIConnectionError extends Error {}
+    const refused = () => new APIConnectionError('Connection error.')
+    const call = () =>
+      callStructured({ schema: Schema, system: [{ text: 's' }], user: 'u', effort: 'low' })
+
+    it('is retried with backoff and succeeds once the network is back', async () => {
+      vi.useFakeTimers()
+      try {
+        createMock
+          .mockRejectedValueOnce(refused())
+          .mockRejectedValueOnce(refused())
+          .mockResolvedValueOnce(reply({ answer: 'ok' }))
+        const pending = call()
+        await vi.runAllTimersAsync()
+        expect((await pending).answer).toBe('ok')
+        expect(createMock).toHaveBeenCalledTimes(3)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('gives up as a network error after three retries', async () => {
+      vi.useFakeTimers()
+      try {
+        for (let i = 0; i < 4; i++) createMock.mockRejectedValueOnce(refused())
+        const pending = call().catch((e: unknown) => e)
+        await vi.runAllTimersAsync()
+        const caught = await pending
+        expect(caught).toBeInstanceOf(AiError)
+        expect((caught as InstanceType<typeof AiError>).kind).toBe('network')
+        expect(createMock).toHaveBeenCalledTimes(4)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('a rate limit is still never retried', async () => {
+      createMock.mockRejectedValueOnce(Object.assign(new Error('rate'), { status: 429 }))
+      await expect(call()).rejects.toMatchObject({ kind: 'rate-limit' })
+      expect(createMock).toHaveBeenCalledTimes(1)
+    })
+  })
+
   it('passes structured user content through unchanged, so a PDF can ride as a document block', async () => {
     createMock.mockResolvedValue(reply({ answer: 'ok' }))
     const blocks = [
@@ -170,7 +235,7 @@ describe('callStructured', () => {
 
       expect(seen[0]).toMatchObject({
         stage: 'extract-requirements',
-        model: 'claude-opus-5',
+        model: 'claude-sonnet-5-5',
         inputTokens: 1200,
         outputTokens: 300,
         cacheReadTokens: 500,

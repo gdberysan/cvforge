@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { EvidenceEditor } from '@/components/evidence/EvidenceEditor'
+import { EVIDENCE_FILTER_EVENT } from '@/components/evidence/ShowEvidenceButton'
 import type { EvidenceItem, MasterProfile } from '@/lib/schemas'
 
 vi.mock('@/app/(app)/evidence/actions', () => ({
@@ -35,6 +36,7 @@ const profile = {
     links: [],
   },
   summary: '',
+  summaryCitedEvidenceIds: [],
   experience: [role('exp_done', 'Finished Co'), role('exp_todo', 'Unfinished Co')],
   education: [],
   skills: [],
@@ -61,32 +63,58 @@ const rec = (id: string, roleId: string, over: Partial<EvidenceItem> = {}): Evid
 
 afterEach(cleanup)
 
-describe('Experiencia as a work queue', () => {
+describe('Experiencia: the jobs are the index', () => {
   const evidence = [
     rec('ev_complete', 'exp_done'),
     rec('ev_no_number', 'exp_todo', { metrics: [], text: 'Shipped a thing' }),
   ]
 
-  it('opens roles that need work and collapses finished ones', () => {
+  it('opens the newest job; one only missing numbers stays a line that says so', () => {
     render(<EvidenceEditor profile={profile} evidence={evidence} />)
+    expect(screen.getByRole('button', { name: /Finished Co/ }).getAttribute('aria-expanded')).toBe(
+      'true',
+    )
     expect(
-      screen.getByRole('button', { name: 'Expand Finished Co' }).getAttribute('aria-expanded'),
+      screen.getByRole('button', { name: /Unfinished Co/ }).getAttribute('aria-expanded'),
     ).toBe('false')
+    expect(screen.getByText('1 without a number')).toBeTruthy()
+  })
+
+  it('a job with nothing usable yet starts open, its one move inside', () => {
+    const stubs = [
+      rec('ev_complete', 'exp_done'),
+      rec('ev_stub', 'exp_todo', { origin: 'import', metrics: [], text: 'From the CV' }),
+    ]
+    render(<EvidenceEditor profile={profile} evidence={stubs} />)
     expect(
-      screen.getByRole('button', { name: 'Collapse Unfinished Co' }).getAttribute('aria-expanded'),
+      screen.getByRole('button', { name: /Unfinished Co/ }).getAttribute('aria-expanded'),
     ).toBe('true')
   })
 
-  it('"Without a number" shows only those records, and hides roles with none', () => {
+  it('tapping a job opens and closes it', () => {
     render(<EvidenceEditor profile={profile} evidence={evidence} />)
-    fireEvent.click(screen.getByRole('button', { name: /Without a number/ }))
+    const job = screen.getByRole('button', { name: /Unfinished Co/ })
+    fireEvent.click(job)
+    expect(job.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(job)
+    expect(job.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('"Without a number" shows only those records, and hides jobs with none', () => {
+    render(<EvidenceEditor profile={profile} evidence={evidence} />)
+    act(() => {
+      window.dispatchEvent(new CustomEvent(EVIDENCE_FILTER_EVENT, { detail: 'unquantified' }))
+    })
     expect(screen.queryByText('Finished Co')).toBeNull()
-    expect(screen.getByDisplayValue('Shipped a thing')).toBeTruthy()
+    expect(screen.getByText('Shipped a thing')).toBeTruthy()
     expect(screen.queryByDisplayValue('ev_complete')).toBeNull()
   })
 
-  it('offers no filter with nothing behind it', () => {
+  it('editing a job swaps its line for the form, and back', () => {
     render(<EvidenceEditor profile={profile} evidence={evidence} />)
-    expect(screen.queryByRole('button', { name: /Only your CV/ })).toBeNull()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Edit job' })[0])
+    expect(screen.getByDisplayValue('Finished Co')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.queryByDisplayValue('Finished Co')).toBeNull()
   })
 })

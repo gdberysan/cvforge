@@ -57,6 +57,62 @@
       "when": 1788800000000,
       "tag": "0007_verdict_gate_only",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1792025300205,
+      "tag": "0008_cv_variants",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1792049693996,
+      "tag": "0009_push",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1792104147819,
+      "tag": "0010_kit_jobs",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1792194383821,
+      "tag": "0011_follow_up_drafts",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1792204607925,
+      "tag": "0012_company_aliases",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1792210631811,
+      "tag": "0013_outcome_scheduled_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1792314234617,
+      "tag": "0014_interview_prep",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1795238222657,
+      "tag": "0015_open_calls",
+      "breakpoints": true
     }
   ]
 }

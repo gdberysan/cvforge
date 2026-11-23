@@ -1,8 +1,9 @@
-import { UndatedRoleError } from '@/lib/import/dates'
+import { IncompleteRoleError, UndatedRoleError } from '@/lib/import/dates'
 import {
   CvEvidenceSkeletonSchema,
   CvProfileSkeletonSchema,
   type ImportResult,
+  incompleteRoles,
   type ParsedCV,
   toParsedCV,
   undatedRoles,
@@ -32,7 +33,7 @@ Rules:
 1. Assign evidence ids "ev_1", "ev_2"…
 2. Every evidence item's sourceRef MUST use one of the ids listed in the <sources> block, with the matching type. Never reference an id that is not listed.
 3. Split each role's accomplishments into one evidence item per distinct achievement. Keep the CV's original wording in "text" verbatim. Do not shorten it, do not polish it, do not add an action verb it does not have. That wording is the raw material the interview will interrogate — rewriting it destroys the thing we need.
-4. Extract metrics into structured form ONLY where the CV states an actual figure. If a number is money, set both "unit" and "currency" (MXN, USD, or EUR). If the CV does not say which currency, infer from context — a Mexican employer implies MXN — and keep the original wording in "raw" so the user can correct it.
+4. Extract metrics into structured form ONLY where the CV states an actual figure. If a number is money, set both "unit" and "currency" to the ISO 4217 code of the currency the CV uses (MXN, USD, EUR, COP, ARS, CLP, PEN, BRL…). If the CV does not say which, use the currency of the country the role was in when that is clear; otherwise leave currency out. Never change a currency, and keep the original wording in "raw" so the user can correct it.
 5. Tag each evidence item with the skills and technologies it evidences.`
 
 export type CvInput = { text: string } | { pdf: string }
@@ -81,6 +82,9 @@ export async function parseCv(
   // pass could not produce anything importable for it anyway.
   const undated = undatedRoles(profile.experience)
   if (undated.length > 0) throw new UndatedRoleError(undated)
+  // So does a role without an employer or a title: storing one needs both.
+  const incomplete = incompleteRoles(profile.experience)
+  if (incomplete.length > 0) throw new IncompleteRoleError(incomplete)
 
   const sources = [
     ...profile.experience.map((e) => `experience ${e.id}: ${e.title} at ${e.company}`),

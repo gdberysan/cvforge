@@ -17,6 +17,7 @@ const { composeAndVerifyCompanion } = await import('@/lib/ai/companion')
 const profile = {
   basics: { fullName: 'Test', headline: '', email: '', location: '', timezone: '', links: [] },
   summary: '',
+  summaryCitedEvidenceIds: [],
   experience: [
     { id: 'exp_1', title: 'Lead', company: 'Alpha', period: { start: '2020-01' }, summary: '' },
   ],

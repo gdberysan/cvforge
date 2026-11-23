@@ -29,6 +29,6 @@ export function demoBlock(): { ok: false; error: string; code: 'demo-read-only' 
 }
 
 export const DEMO_LINKS = {
-  get: 'https://github.com/gdberysan/cvforge',
+  buy: 'https://korven.dev/cvforge',
   how: 'https://korven.dev/cvforge/como-esta-hecho',
 } as const

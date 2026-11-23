@@ -1,0 +1,4 @@
+# One built page serves every id (Cloudflare Pages: a 200 rewrite, not a redirect).
+/application/*/gaps/*  /application/_/gaps/  200
+/application/*         /application/_/       200
+/evidence/interview/*  /evidence/interview/_/  200

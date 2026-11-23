@@ -1,6 +1,7 @@
 'use client'
 
 import { useLocale, useT } from '@/components/i18n/LocaleProvider'
+import { Meta } from '@/components/ui/Meta'
 import { plural } from '@/lib/i18n'
 
 export type InterviewSessionView = {
@@ -31,28 +32,26 @@ export function InterviewHistory({ sessions }: { sessions: InterviewSessionView[
   })
 
   return (
-    <div style={{ marginTop: 'var(--space-4)', display: 'grid', gap: 'var(--space-2)' }}>
+    <div className="history">
       {sessions.map((session) => (
-        <details
-          key={session.id}
-          style={{
-            border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-md)',
-            padding: 'var(--space-3) var(--space-4)',
-          }}
-        >
-          <summary className="fact-label" style={{ cursor: 'pointer', color: 'var(--text-muted)' }}>
-            <span>
+        <details key={session.id} className="history-item">
+          {/* The whole band is the ≥44px target. */}
+          <summary className="history-summary">
+            <Meta>
               {t('evidence.history.summary', {
                 date: dateFormatter.format(new Date(session.createdAt)),
               })}
-            </span>
-            {' · '}
-            <span>{plural(t, session.answers.length, 'evidence.history.count')}</span>
+              {plural(t, session.answers.length, 'evidence.history.count')}
+            </Meta>
           </summary>
           <div
             className="stack"
-            style={{ marginTop: 'var(--space-4)', gap: 'var(--space-4)', maxWidth: '38em' }}
+            style={{
+              marginTop: 'var(--space-1)',
+              paddingBottom: 'var(--space-3)',
+              gap: 'var(--space-4)',
+              maxWidth: '38em',
+            }}
           >
             {session.answers.map((qa) => (
               <div key={qa.question}>

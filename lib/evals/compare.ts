@@ -12,7 +12,14 @@
  * (reported in `renamed`, never silently), while two that merely share a word
  * are not: `Google Ads` and `YouTube Ads` stay distinct.
  */
-export type ReqSnapshot = { keyword: string; kind: string; mandatory: boolean }
+export type ReqSnapshot = {
+  keyword: string
+  kind: string
+  mandatory: boolean
+  /** The extraction's own synonyms for the requirement. Snapshots taken
+   *  before they were recorded have none. */
+  variants?: string[]
+}
 
 export type ExtractionDiff = {
   matched: number
@@ -67,6 +74,8 @@ const tokenize = (k: string): string[] =>
     .trim()
     .split(' ')
     .filter(Boolean)
+    // "APIs" and "API" are one word: a plural is wording, not a requirement.
+    .map((t) => (t.length > 3 && t.endsWith('s') && !t.endsWith('ss') ? t.slice(0, -1) : t))
 
 /** `Webhooks & APIs` and `Webhooks and APIs` are the same string here. */
 const canon = (k: string) => tokenize(k).join(' ')
@@ -111,13 +120,31 @@ export function compareExtraction(expected: ReqSnapshot[], actual: ReqSnapshot[]
   // strictly one-to-one: a bare `Salesforce` may claim ONE of `Salesforce
   // Marketing Cloud` / `Salesforce CRM`, never both.
   const candidates: { eKey: string; aKey: string; overlap: number }[] = []
+  //
+  // A requirement's variants are the extraction's own statement of what the
+  // keyword covers: "Automation platforms (variants: Zapier, Make)" is the
+  // snapshot's "Zapier/Make automation" under a broader name, and the
+  // one fixture drifted on exactly that. So each side is also matched
+  // through its keyword plus variants — still words-contained, still one to
+  // one, and still reported as renamed.
+  const withVariants = (r: ReqSnapshot) =>
+    new Set([r.keyword, ...(r.variants ?? [])].flatMap(tokenize))
   for (const [eKey, e] of expLeft) {
     const eTok = new Set(tokenize(e.keyword))
+    const eAll = withVariants(e)
     for (const [aKey, a] of actLeft) {
       const aTok = new Set(tokenize(a.keyword))
+      const aAll = withVariants(a)
       const [small, big] = eTok.size <= aTok.size ? [eTok, aTok] : [aTok, eTok]
-      if (!carriesMeaning(small) || !isSubset(small, big)) continue
-      candidates.push({ eKey, aKey, overlap: small.size })
+      if (carriesMeaning(small) && isSubset(small, big)) {
+        candidates.push({ eKey, aKey, overlap: small.size })
+      } else if (
+        (carriesMeaning(eTok) && isSubset(eTok, aAll)) ||
+        (carriesMeaning(aTok) && isSubset(aTok, eAll))
+      ) {
+        // Through variants: ranked below any direct containment.
+        candidates.push({ eKey, aKey, overlap: 0.5 })
+      }
     }
   }
   candidates.sort((x, y) => y.overlap - x.overlap)

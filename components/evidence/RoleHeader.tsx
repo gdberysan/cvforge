@@ -1,40 +1,105 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { deleteRoleAction, updateRoleAction } from '@/app/(app)/evidence/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { IconChevron } from '@/components/ui/icons'
+import { Meta } from '@/components/ui/Meta'
+import { MonthField } from '@/components/ui/MonthField'
 import { errorText, plural, type Translate } from '@/lib/i18n'
+import { periodLabel } from '@/lib/period'
 import type { Experience } from '@/lib/schemas'
 
 const PERIOD = /^\d{4}-\d{2}$/
 
 /**
- * A role's stated facts, editable in place. Facts flow verbatim into every
- * generated CV, so a typo'd company name is not cosmetic — and until now the
- * only way to fix one was a full re-import. Delete is armed behind a second
- * click that names how many evidence records go with it: interviewed records
- * die too, which is exactly why it says so.
+ * A job as one line of the page's index: the title (the button that opens
+ * it), the company, when, and how much is there — plus, when some results
+ * still lack a number, how many. Tapping anywhere on the line opens the job;
+ * everything you can do with it sits at the foot of the opened card.
  */
 export function RoleHeader({
   role,
   recordCount,
-  quantified,
-  needsExpanding,
+  missingNumbers,
+  open,
+  bodyId,
+  onToggle,
 }: {
   role: Experience
   recordCount: number
-  quantified: number
-  needsExpanding: boolean
+  missingNumbers: number
+  open: boolean
+  bodyId: string
+  /** Absent while a filter shows every matching job open. */
+  onToggle?: () => void
+}) {
+  const t = useT()
+  return (
+    <div className="role-card">
+      <div className="role-card-main">
+        <h3 className="role-card-title">
+          <button
+            type="button"
+            className="role-open"
+            aria-expanded={open}
+            aria-controls={bodyId}
+            onClick={onToggle}
+            disabled={!onToggle}
+          >
+            {role.title}
+            {role.company.trim() && <span className="sr-only">, {role.company}</span>}
+          </button>
+        </h3>
+        {/* Where, when, how much: one line, the company first and darker. */}
+        <p className="role-card-facts">
+          <Meta>
+            {role.company.trim() && <span className="role-card-company">{role.company}</span>}
+            {periodLabel(
+              role.period.start,
+              role.period.end,
+              t('intl.locale'),
+              t('evidence.present'),
+            )}
+            {plural(t, recordCount, 'evidence.entries')}
+          </Meta>
+          {missingNumbers > 0 && (
+            <span className="tag tone-attn">
+              {t('evidence.missingNumbers', { n: missingNumbers })}
+            </span>
+          )}
+        </p>
+      </div>
+      <span className="role-chevron" aria-hidden>
+        <IconChevron />
+      </span>
+    </div>
+  )
+}
+
+/**
+ * A job's stated facts, edited in place. Facts flow verbatim into every
+ * generated CV, so a typo'd company name is not cosmetic. Delete is armed
+ * behind a second click that names how many entries go with it.
+ */
+export function RoleForm({
+  role,
+  recordCount,
+  onDone,
+}: {
+  role: Experience
+  recordCount: number
+  onDone: () => void
 }) {
   const t = useT()
   const router = useRouter()
-  const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(role.title)
   const [company, setCompany] = useState(role.company)
   const [start, setStart] = useState(role.period.start)
   const [end, setEnd] = useState(role.period.end ?? '')
+  // No end month means the job is still going.
+  const [ongoing, setOngoing] = useState(!role.period.end)
   const [armedDelete, setArmedDelete] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSaving, startSave] = useTransition()
@@ -43,66 +108,7 @@ export function RoleHeader({
     title.trim().length > 0 &&
     company.trim().length > 0 &&
     PERIOD.test(start) &&
-    (end === '' || PERIOD.test(end))
-
-  function beginEdit() {
-    setTitle(role.title)
-    setCompany(role.company)
-    setStart(role.period.start)
-    setEnd(role.period.end ?? '')
-    setArmedDelete(false)
-    setError(null)
-    setEditing(true)
-  }
-
-  if (!editing) {
-    return (
-      <>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'baseline',
-            gap: 'var(--space-5)',
-            flexWrap: 'wrap',
-            marginTop: 'var(--space-4)',
-          }}
-        >
-          <h2 style={{ font: 'var(--type-h4)', color: 'var(--text-strong)' }}>
-            {role.title}
-            {/* Non-breaking before the interpunct: if the line wraps, the
-                separator must not be the first thing on the next line. */}
-            <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>
-              {' · '}
-              {role.company}
-            </span>
-          </h2>
-          <span style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'baseline' }}>
-            <button type="button" className="action-quiet" onClick={beginEdit}>
-              {t('role.edit')}
-            </button>
-            <Link
-              href={`/evidence/interview/${role.id}`}
-              className="action"
-              style={needsExpanding ? undefined : { color: 'var(--text-muted)' }}
-            >
-              {t('evidence.expand')}
-            </Link>
-          </span>
-        </div>
-
-        <p className="fact" style={{ marginTop: 'var(--space-2)' }}>
-          {role.period.start} → {role.period.end ?? t('evidence.present')}
-          <span style={{ color: 'var(--text-muted)' }}>
-            {'  ·  '}
-            {plural(t, recordCount, 'evidence.records')}
-            {'  ·  '}
-            {t('evidence.quantified', { n: quantified })}
-          </span>
-        </p>
-      </>
-    )
-  }
+    (ongoing || (PERIOD.test(end) && end >= start))
 
   const field = (
     id: string,
@@ -112,7 +118,7 @@ export function RoleHeader({
     placeholder?: string,
   ) => (
     <div>
-      <label htmlFor={id} className="fact-label" style={{ display: 'block' }}>
+      <label htmlFor={id} className="fact-label block">
         {label}
       </label>
       <input
@@ -120,38 +126,38 @@ export function RoleHeader({
         value={value}
         onChange={(e) => set(e.target.value)}
         placeholder={placeholder}
-        className="field"
-        style={{ marginTop: 'var(--space-2)' }}
+        className="field field-gap"
       />
     </div>
   )
 
   return (
-    <div style={{ marginTop: 'var(--space-4)', maxWidth: '34em' }}>
-      <div className="stack" style={{ gap: 'var(--space-4)' }}>
+    <div className="role-form">
+      <div className="role-form-fields">
         {field(`${role.id}-title`, t('addRole.title'), title, setTitle)}
         {field(`${role.id}-company`, t('addRole.company'), company, setCompany)}
-        <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
-          {field(`${role.id}-start`, t('addRole.start'), start, setStart, '2024-01')}
-          {field(`${role.id}-end`, t('addRole.end'), end, setEnd, t('addRole.endPlaceholder'))}
-        </div>
+        <MonthField
+          id={`${role.id}-start`}
+          label={t('addRole.start')}
+          value={start}
+          onChange={setStart}
+        />
+        <MonthField
+          id={`${role.id}-end`}
+          label={t('addRole.end')}
+          value={end}
+          onChange={setEnd}
+          current={{ label: t('addRole.current'), on: ongoing, onToggle: setOngoing }}
+        />
       </div>
 
       {error && (
-        <p role="alert" style={{ color: 'var(--signal-error)', marginTop: 'var(--space-4)' }}>
+        <p role="alert" className="form-error">
           {error}
         </p>
       )}
 
-      <div
-        style={{
-          display: 'flex',
-          gap: 'var(--space-3)',
-          marginTop: 'var(--space-5)',
-          alignItems: 'baseline',
-          flexWrap: 'wrap',
-        }}
-      >
+      <div className="role-form-actions">
         <button
           type="button"
           className="btn btn-primary"
@@ -162,20 +168,20 @@ export function RoleHeader({
                 title,
                 company,
                 start,
-                ...(end ? { end } : {}),
+                ...(!ongoing && end ? { end } : {}),
               })
               if (!result.ok) {
                 setError(errorText(t, result.code, result.error))
                 return
               }
-              setEditing(false)
+              onDone()
               router.refresh()
             })
           }
         >
           {isSaving ? t('role.saving') : t('role.save')}
         </button>
-        <button type="button" className="btn btn-quiet" onClick={() => setEditing(false)}>
+        <button type="button" className="btn btn-quiet" onClick={onDone}>
           {t('addRole.cancel')}
         </button>
         <DeleteRole
@@ -223,13 +229,7 @@ function DeleteRole({
     )
   }
   return (
-    <button
-      type="button"
-      className="action-quiet"
-      onClick={onConfirm}
-      disabled={disabled}
-      style={{ color: 'var(--signal-error)' }}
-    >
+    <button type="button" className="action-quiet is-error" onClick={onConfirm} disabled={disabled}>
       {plural(t, recordCount, 'role.deleteConfirm')}
     </button>
   )

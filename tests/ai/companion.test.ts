@@ -5,13 +5,13 @@ vi.mock('@/lib/ai/client', () => ({ callStructured: callStructuredMock }))
 
 const { composeCoverLetter, composeScreening, composeRecruiterMessage, composeScreeningAnswer } =
   await import('@/lib/ai/stages/compose-companion')
-const { composeAndVerifyCompanion } = await import('@/lib/ai/companion')
+const { composeAndVerifyCompanion, withGapSources } = await import('@/lib/ai/companion')
 
 import type { EvidenceItem, MasterProfile, Requirement } from '@/lib/schemas'
 
 const profile: MasterProfile = {
   basics: {
-    fullName: 'Alex',
+    fullName: 'Ana',
     headline: '',
     email: 'g@b.com',
     location: 'CDMX',
@@ -308,5 +308,32 @@ describe('composeAndVerifyCompanion', () => {
     callStructuredMock.mockResolvedValue({ paragraphs: [] })
     await composeCoverLetter(baseArgs)
     expect(JSON.stringify(callStructuredMock.mock.calls[0])).not.toContain('lang_ingles')
+  })
+})
+
+describe('withGapSources', () => {
+  it('hands a paragraph naming a known gap the gap as a source, cited or not', () => {
+    const requirements: Requirement[] = [
+      {
+        id: 'r1',
+        text: 'Kubernetes in production',
+        keyword: 'Kubernetes',
+        variants: [],
+        kind: 'hard',
+        mandatory: true,
+        weight: 3,
+      },
+    ]
+    const { candidates, sources } = withGapSources(
+      [
+        { id: 'p1', text: 'Opero Kubernetes a diario.', citedEvidenceIds: [] },
+        { id: 'p2', text: 'Me entusiasma el puesto.', citedEvidenceIds: [] },
+      ],
+      requirements,
+      [{ requirementId: 'r1', evidenceIds: [], strength: 'none', rationale: '' }],
+    )
+    expect(candidates[0].citedEvidenceIds).toEqual(['gap:kubernetes'])
+    expect(candidates[1].citedEvidenceIds).toEqual([])
+    expect(sources.get('gap:kubernetes')).toContain('Kubernetes in production')
   })
 })

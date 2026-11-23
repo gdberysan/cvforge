@@ -44,10 +44,8 @@ export function DecideActions({
   }
 
   return (
-    <div style={{ marginTop: 'var(--space-7)' }}>
-      <div
-        style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'center' }}
-      >
+    <div className="decide-actions">
+      <div className="phone-footer decide-actions-row">
         {archived ? (
           <button
             type="button"
@@ -74,10 +72,48 @@ export function DecideActions({
         )}
       </div>
       {error && (
-        <p role="alert" style={{ color: 'var(--signal-error)', marginTop: 'var(--space-3)' }}>
+        <p role="alert" className="decide-error">
           {error}
         </p>
       )}
     </div>
+  )
+}
+
+/**
+ * A discarded application's one move, where it is seen: beside its status
+ * at the top, not under the whole page.
+ */
+export function RestoreButton({ applicationId }: { applicationId: string }) {
+  const t = useT()
+  const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+  return (
+    <span className="restore">
+      <button
+        type="button"
+        className="btn btn-primary"
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            setError(null)
+            const result = await restoreApplicationAction(applicationId)
+            if (!result.ok) {
+              setError(errorText(t, result.code, result.error))
+              return
+            }
+            router.refresh()
+          })
+        }
+      >
+        {t('decide.restore')}
+      </button>
+      {error && (
+        <span role="alert" className="decide-error">
+          {error}
+        </span>
+      )}
+    </span>
   )
 }

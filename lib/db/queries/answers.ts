@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { and, desc, eq } from 'drizzle-orm'
 import { normalizeQuestion } from '@/lib/answers'
 import type { Db } from '../client'
@@ -37,7 +36,7 @@ export function upsertAnswer(db: Db, input: BankedAnswer): void {
 
     tx.insert(answerBank)
       .values({
-        id: `ans_${randomUUID()}`,
+        id: `ans_${crypto.randomUUID()}`,
         questionKey: key,
         question: input.question,
         answer: input.answer,

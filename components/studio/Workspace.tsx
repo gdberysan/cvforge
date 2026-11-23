@@ -12,6 +12,7 @@ import type {
   ScreeningSet,
 } from '@/lib/schemas'
 import { CompanionPanel } from './CompanionPanel'
+import { DocumentsLocked, DocumentsSent } from './GroundingFlags'
 import { Studio } from './Studio'
 
 type Tab = 'cv' | CompanionKind
@@ -34,18 +35,27 @@ export function Workspace({
   initialCoverLetter,
   initialScreening,
   initialRecruiterMessage,
+  variants,
+  sent = false,
+  locked = false,
 }: {
   applicationId: string
   company: string
   documentLanguage: 'en' | 'es-MX'
   evidence: EvidenceItem[]
-  /** Evidence id → where it came from, for labels instead of ids. */
+  /** Evidence id to where it came from, for labels instead of ids. */
   sourceLabels: Record<string, string>
   initialCv: CVContent | null
   initialCvReport: GroundingReport | null
   initialCoverLetter: CompanionState<CoverLetter>
   initialScreening: CompanionState<ScreeningSet>
   initialRecruiterMessage: CompanionState<RecruiterMessage>
+  /** Composed base CVs in this application's document language. */
+  variants: { id: string; label: string; stale: boolean }[]
+  /** The application has been sent: verification flags speak in the past. */
+  sent?: boolean
+  /** Sent or settled: no paid moves on the documents. */
+  locked?: boolean
 }) {
   const t = useT()
   const [tab, setTab] = useState<Tab>('cv')
@@ -58,79 +68,66 @@ export function Workspace({
   ]
 
   return (
-    <div>
-      <div
-        role="tablist"
-        aria-label={t('workspace.tabsAria')}
-        style={{
-          display: 'flex',
-          gap: 'var(--space-2)',
-          flexWrap: 'wrap',
-          borderBottom: '1px solid var(--border-subtle)',
-          marginBottom: 'var(--space-6)',
-        }}
-      >
-        {tabs.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={tab === id}
-            onClick={() => setTab(id)}
-            style={{
-              // Tabs are words, not facts: Inter, like every other control.
-              font: 'var(--type-label)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '10px 12px',
-              color: tab === id ? 'var(--text-strong)' : 'var(--text-muted)',
-              borderBottom: `2px solid ${tab === id ? 'var(--accent)' : 'transparent'}`,
-              marginBottom: -1,
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+    <DocumentsSent.Provider value={sent}>
+      <DocumentsLocked.Provider value={locked}>
+        <div>
+          {/* Words, not facts: the sans, like every other control. On a phone
+          the bar scrolls sideways inside itself, never the page. */}
+          <div role="tablist" aria-label={t('workspace.tabsAria')} className="doc-tabs">
+            {tabs.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={tab === id}
+                onClick={() => setTab(id)}
+                className="doc-tab"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
-      {/* Panels stay mounted and hide — unmounting them discarded freshly
+          {/* Panels stay mounted and hide — unmounting them discarded freshly
           generated documents the moment you peeked at another tab. */}
-      <div hidden={tab !== 'cv'}>
-        <Studio
-          applicationId={applicationId}
-          company={company}
-          documentLanguage={documentLanguage}
-          evidence={evidence}
-          sourceLabels={sourceLabels}
-          initialCv={initialCv}
-          initialReport={initialCvReport}
-        />
-      </div>
-      <div hidden={tab !== 'coverLetter'}>
-        <CompanionPanel
-          kind="coverLetter"
-          applicationId={applicationId}
-          initialDocument={initialCoverLetter?.document ?? null}
-          initialReport={initialCoverLetter?.report ?? null}
-        />
-      </div>
-      <div hidden={tab !== 'screening'}>
-        <CompanionPanel
-          kind="screening"
-          applicationId={applicationId}
-          initialDocument={initialScreening?.document ?? null}
-          initialReport={initialScreening?.report ?? null}
-        />
-      </div>
-      <div hidden={tab !== 'recruiterMessage'}>
-        <CompanionPanel
-          kind="recruiterMessage"
-          applicationId={applicationId}
-          initialDocument={initialRecruiterMessage?.document ?? null}
-          initialReport={initialRecruiterMessage?.report ?? null}
-        />
-      </div>
-    </div>
+          <div hidden={tab !== 'cv'}>
+            <Studio
+              applicationId={applicationId}
+              company={company}
+              documentLanguage={documentLanguage}
+              evidence={evidence}
+              sourceLabels={sourceLabels}
+              initialCv={initialCv}
+              initialReport={initialCvReport}
+              variants={variants}
+            />
+          </div>
+          <div hidden={tab !== 'coverLetter'}>
+            <CompanionPanel
+              kind="coverLetter"
+              applicationId={applicationId}
+              initialDocument={initialCoverLetter?.document ?? null}
+              initialReport={initialCoverLetter?.report ?? null}
+            />
+          </div>
+          <div hidden={tab !== 'screening'}>
+            <CompanionPanel
+              kind="screening"
+              applicationId={applicationId}
+              initialDocument={initialScreening?.document ?? null}
+              initialReport={initialScreening?.report ?? null}
+            />
+          </div>
+          <div hidden={tab !== 'recruiterMessage'}>
+            <CompanionPanel
+              kind="recruiterMessage"
+              applicationId={applicationId}
+              initialDocument={initialRecruiterMessage?.document ?? null}
+              initialReport={initialRecruiterMessage?.report ?? null}
+            />
+          </div>
+        </div>
+      </DocumentsLocked.Provider>
+    </DocumentsSent.Provider>
   )
 }

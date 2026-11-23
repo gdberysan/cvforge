@@ -10,6 +10,7 @@ const content: CVContent = {
     contactLines: ['g@b.com', 'Ciudad de México'],
   },
   summary: 'Twelve years building ecommerce systems.',
+  summaryCitedEvidenceIds: [],
   experience: [
     {
       experienceId: 'exp_1',
@@ -29,7 +30,7 @@ const content: CVContent = {
     {
       experienceId: 'exp_2',
       title: 'Lead',
-      company: 'Northwind',
+      company: 'Apuesta',
       startDate: '2021-01',
       bullets: [
         {

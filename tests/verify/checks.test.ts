@@ -5,7 +5,7 @@ import { runDeterministicChecks } from '@/lib/verify/checks'
 
 const profile: MasterProfile = {
   basics: {
-    fullName: 'Alex',
+    fullName: 'Ana',
     headline: '',
     email: 'g@b.com',
     location: 'CDMX',
@@ -48,8 +48,9 @@ const evidence: EvidenceItem[] = [
 
 function cv(bullets: CVContent['experience'][number]['bullets']): CVContent {
   return {
-    header: { fullName: 'Alex', title: 'Engineer', contactLines: [] },
+    header: { fullName: 'Ana', title: 'Engineer', contactLines: [] },
     summary: '',
+    summaryCitedEvidenceIds: [],
     experience: [
       {
         experienceId: 'exp_1',
@@ -145,6 +146,33 @@ describe('runDeterministicChecks', () => {
     })
     expect(report.passed).toBe(false)
     expect(report.unverifiedNumbers).toHaveLength(1)
+  })
+
+  it('reads a bare "$" in the market’s currency: pesos on a Mexico CV, dollars elsewhere', () => {
+    // 2026-11-19 audit: "$1.2M" passed against a 1.2M MXN record on a US CV,
+    // where a reader takes it as dollars — about 17 times the money.
+    const pesoEvidence: EvidenceItem[] = [
+      { ...evidence[0], metrics: [{ raw: '$1.2M', value: 1_200_000, currency: 'MXN' }] },
+    ]
+    const at = (market: 'mx' | 'us-remote' | undefined, text: string, ev = pesoEvidence) =>
+      runDeterministicChecks({
+        cv: cv([{ id: 'b1', text, citedEvidenceIds: ['ev_1'], keywordsUsed: [] }]),
+        evidence: ev,
+        profile,
+        selectedEvidenceIds: selected,
+        market,
+      }).unverifiedNumbers
+    expect(at('us-remote', 'Managed a $1.2M budget')).toEqual([{ bulletId: 'b1', token: '$1.2M' }])
+    expect(at('mx', 'Gestioné un presupuesto de $1.2M')).toEqual([])
+    expect(at('us-remote', 'Managed a 1.2M MXN budget')).toEqual([])
+    // A dollar record reads fine as "$" abroad, and a figure with no recorded
+    // currency is the person's own wording: neither is flagged.
+    const dollars = [
+      { ...evidence[0], metrics: [{ raw: '$1.2M', value: 1_200_000, currency: 'USD' }] },
+    ]
+    expect(at('us-remote', 'Managed a $1.2M budget', dollars)).toEqual([])
+    const unstated = [{ ...evidence[0], text: 'Managed a $1.2M budget', metrics: [] }]
+    expect(at('us-remote', 'Managed a $1.2M budget', unstated)).toEqual([])
   })
 
   it('flags an entity that appears nowhere in the profile', () => {
@@ -464,7 +492,7 @@ describe('project attribution', () => {
     id: 'ev_p1',
     kind: 'project-highlight',
     sourceRef: { type: 'project', id: 'proj_1' },
-    text: 'Built Shelf Tracker, a stock reporting tool for small shops',
+    text: 'Built Shelf Tracker, a reporting tool for paid media teams',
     metrics: [],
     tags: [],
     period: { start: '2024-03' },

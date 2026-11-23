@@ -20,6 +20,7 @@ const coverage: Coverage = {
   desirablePartial: 0,
   desirableMissing: 0,
   hardBlockers: [],
+  unjudgedGates: [],
   verdict: 'strong',
 }
 
@@ -43,7 +44,7 @@ function respondWithVerdict() {
 
 async function renderVerdict() {
   render(<TriageConsole initialText={'x'.repeat(120)} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Analyse this posting' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Analyse' }))
   return await screen.findByRole('button', { name: 'Skip' })
 }
 
@@ -83,7 +84,7 @@ describe('TriageConsole skip', () => {
     const skip = await renderVerdict()
     fireEvent.click(skip)
 
-    await screen.findByRole('button', { name: 'Analyse this posting' })
+    await screen.findByRole('button', { name: 'Analyse' })
     expect(screen.queryByRole('button', { name: 'Skip' })).toBeNull()
     expect(screen.queryByRole('alert')).toBeNull()
   })

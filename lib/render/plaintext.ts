@@ -1,67 +1,29 @@
 import type { CVContent } from '@/lib/schemas'
-import { HEADINGS } from './cv-html'
-import { educationLine, formatDate, projectDates, projectTitle } from './format'
+import { cvOutline } from './outline'
 
 /**
  * Half of application forms are a textarea. Same content, same order, no
  * markup — headings uppercased, bullets dashed, one blank line per section.
  */
 export function renderPlaintext(content: CVContent, opts: { language: 'en' | 'es-MX' }): string {
-  const h = HEADINGS[opts.language]
-  const lines: string[] = [
-    content.header.fullName,
-    content.header.title,
-    content.header.contactLines.join(' · '),
-  ]
+  const outline = cvOutline(content, opts.language)
+  const lines: string[] = [outline.name, ...(outline.title ? [outline.title] : []), outline.contact]
 
-  const section = (title: string) => {
-    lines.push('', title.toUpperCase(), '')
-  }
-
-  if (content.summary) {
-    section(h.summary)
-    lines.push(content.summary)
-  }
-
-  if (content.experience.length > 0) {
-    section(h.experience)
-    for (const role of content.experience) {
-      lines.push(
-        `${role.title} — ${role.company}  (${formatDate(role.startDate, opts.language)} – ${role.endDate ? formatDate(role.endDate, opts.language) : h.present})`,
-      )
-      for (const bullet of role.bullets) lines.push(`- ${bullet.text}`)
-      lines.push('')
+  for (const section of outline.sections) {
+    lines.push('', section.heading.toUpperCase(), '')
+    for (const it of section.items) {
+      if (it.kind === 'para') lines.push(it.text)
+      else if (it.kind === 'skills') lines.push(`${it.category}: ${it.items.join(', ')}`)
+      else {
+        lines.push(it.right ? `${it.left}  (${it.right})` : it.left)
+        for (const bullet of it.bullets) lines.push(`- ${bullet}`)
+        if (it.bullets.length > 0) lines.push('')
+      }
     }
   }
 
-  if (content.projects.length > 0) {
-    section(h.projects)
-    for (const project of content.projects) {
-      const dates = projectDates(project, opts.language, h.present)
-      lines.push(dates ? `${projectTitle(project)}  (${dates})` : projectTitle(project))
-      for (const bullet of project.bullets) lines.push(`- ${bullet.text}`)
-      lines.push('')
-    }
-  }
-
-  if (content.education.length > 0) {
-    section(h.education)
-    for (const ed of content.education) {
-      lines.push(`${educationLine(ed)}  (${ed.period})`)
-    }
-  }
-
-  if (content.skills.length > 0) {
-    section(h.skills)
-    for (const group of content.skills) {
-      lines.push(`${group.category}: ${group.items.join(', ')}`)
-    }
-  }
-
-  for (const extra of content.extras) {
-    section(extra.heading)
-    lines.push(...extra.lines)
-  }
-
-  return `${lines.join('\n').trim()}\n`
+  return `${lines
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()}\n`
 }
