@@ -8,9 +8,13 @@ updates:
       # the PDF ladder launches only the Chromium revision this exact
       # Playwright installs; a bump silently drops buyers to the print fallback.
       - dependency-name: playwright
+        # Patches (security fixes) still come through; only feature bumps wait.
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
       # Each zod minor can change the request grammar zodOutputFormat sends
       # to the model; bump only after diffing that output for every schema.
       - dependency-name: zod
+        # Patches (security fixes) still come through; only feature bumps wait.
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
