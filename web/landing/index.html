@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Rumbo · tu siguiente trabajo, sin adivinar</title>
-<meta name="description" content="Pega una vacante y Rumbo te dice si vale tu tiempo, qué cumples y qué te falta. Luego te ayuda a postularte sin inventar nada de ti. Gratis.">
+<meta name="description" content="Pega una vacante y Rumbo te dice si vale tu tiempo, qué cumples y qué te falta. Luego te arma un CV a la medida de esa vacante, sin inventar nada de ti. Gratis.">
 <meta property="og:title" content="Rumbo · tu siguiente trabajo, sin adivinar">
 <meta property="og:description" content="Te dice si una vacante vale tu tiempo y te ayuda a postularte sin inventar nada de ti. Gratis, y tus datos se quedan en tu navegador.">
 <meta property="og:type" content="website">
@@ -222,6 +222,23 @@ section { padding-block: clamp(48px, 7vh, 72px); }
 .kicker { margin: 0 0 16px; font: 500 14px/1.3 var(--data); letter-spacing: .04em; color: var(--amber-ink); }
 h2 { margin: 0 0 26px; font: 700 clamp(34px, 4.6vw, 54px)/1.04 var(--display); letter-spacing: -0.035em; max-width: 18ch; }
 
+/* The tailored CV: the pitch and the job's words on the left, a real CV on paper on the right. */
+.cv-grid { display: grid; grid-template-columns: var(--split); gap: var(--split-gap); align-items: start; }
+.cv-grid h2 { margin-bottom: 18px; }
+.cv-lede { margin: 0 0 26px; color: var(--ink-soft); max-width: var(--measure); }
+.cv-asks-label { margin: 0 0 10px; font: 600 14px/1.3 var(--display); color: var(--ink-faint); }
+.cv-asks { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.cv-asks li { padding: 6px 12px; border-radius: 999px; background: var(--sheet); border: 1px solid var(--rule); font: 600 16px/1.3 var(--display); }
+.cv-also { margin: 24px 0 0; font: 400 16px/1.5 var(--display); color: var(--ink-faint); }
+.cv-sheet { margin: 0; background: var(--sheet); border-radius: 18px; padding: 32px 34px; box-shadow: var(--shadow); }
+.cv-name { margin: 0; font: 700 26px/1.15 var(--display); letter-spacing: -0.02em; }
+.cv-role { margin: 2px 0 0; font: 400 16px/1.4 var(--display); color: var(--ink-soft); }
+.cv-job { margin: 22px 0 10px; font: 600 16px/1.4 var(--display); }
+.cv-bullets { margin: 0; padding-left: 1.1em; display: grid; gap: 14px; font: 400 16px/1.55 var(--text); }
+.cv-bullets mark { background: color-mix(in srgb, var(--amber) 32%, transparent); color: inherit; border-radius: 4px; padding: 0 2px; }
+.cv-cite { display: block; margin-top: 4px; font: 500 14px/1.3 var(--display); color: var(--strong); }
+.cv-sheet figcaption { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--rule); font: 400 14px/1.45 var(--display); color: var(--ink-faint); }
+
 /* The note: a letter. Its first line is set large, like the start of a page. */
 .note-grid { display: block; }
 .note { columns: 2; column-gap: var(--split-gap); }
@@ -256,6 +273,9 @@ h2 { margin: 0 0 26px; font: 700 clamp(34px, 4.6vw, 54px)/1.04 var(--display); l
 
 /* Costs: the $0 is the peak of the page. */
 .cost-grid { display: grid; grid-template-columns: var(--split); gap: var(--split-gap); align-items: start; }
+.zero span { display: inline-block; transform-origin: left bottom; white-space: nowrap; transition: color .5s ease; }
+/* Counting down it is just a number; the green is for landing on $0. */
+.zero span.counting { color: var(--ink); }
 .zero { margin: 24px 0 0; font: 800 clamp(120px, 20vw, 240px)/0.82 var(--display); letter-spacing: -0.06em; color: var(--strong); }
 .zero-label { margin: 18px 0 0; font: 600 22px/1.3 var(--display); max-width: none; letter-spacing: -0.01em; }
 .zero-note { margin: 6px 0 0; font-size: 18px; color: var(--ink-faint); max-width: 22rem; }
@@ -280,10 +300,16 @@ footer {
   border-top: 1px solid var(--rule);
 }
 footer nav { display: flex; flex-wrap: wrap; gap: 0 20px; }
+/* Korven's wordmark (as on korven.dev): K, the hexagon with its amber node, RVEN. */
+.made-by { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: var(--ink-faint); text-decoration: none; }
+.made-by:hover .korven { color: var(--ink); }
+.korven { display: inline-flex; align-items: center; font: 700 18px/1 var(--display); letter-spacing: 0.04em; color: var(--ink-soft); transition: color .15s ease; }
+.korven-hex { width: 15px; height: 16px; margin: 0 1px; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 footer a { color: var(--ink-faint); display: inline-flex; align-items: center; min-height: 44px; }
 
 @media (max-width: 900px) {
-  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero, .cv-grid { grid-template-columns: minmax(0, 1fr); }
   .note { columns: 1; }
   .cost-grid { grid-template-columns: minmax(0, 1fr); }
 }
@@ -301,6 +327,7 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
   .answer { padding: 20px; }
   .verdict h3 { font-size: 34px; }
   .nots, .ways { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .cv-sheet { padding: 22px; }
   .way-card { padding: 22px; }
   .last .start { width: 100%; }
   .nots h3 { font-size: 26px; }
@@ -330,7 +357,7 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
   <div class="hero">
     <div>
       <h1 class="rise">Tu siguiente trabajo, <em>sin adivinar.</em></h1>
-      <p class="lede rise d1">Pega una vacante y Rumbo te dice si vale tu tiempo, qué cumples y qué te falta. Luego te ayuda a postularte sin inventar nada de ti.</p>
+      <p class="lede rise d1">Pega una vacante y Rumbo te dice si vale tu tiempo, qué cumples y qué te falta. Luego te arma un CV a la medida de esa vacante, sin inventar nada de ti.</p>
       <div class="start rise d2">
         <a class="btn" href="/app/">Probarlo con mi CV
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -349,6 +376,29 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
     </section>
   </div>
 
+  <section aria-labelledby="h-cv">
+    <p class="kicker">Un CV para cada vacante</p>
+    <div class="cv-grid">
+      <div>
+        <h2 id="h-cv">Un CV distinto para cada vacante, sin escribirlo tú.</h2>
+        <p class="cv-lede">Rehacer tu CV para cada vacante toma horas. Rumbo lo arma en minutos: pone primero lo que esa vacante pide, usa sus mismas palabras para que los filtros lo encuentren, y cada línea sale de algo que de verdad hiciste. Si una frase no se puede respaldar, no entra.</p>
+        <p class="cv-asks-label">Lo que pide la vacante</p>
+        <ul class="cv-asks"><li>Meta Ads</li><li>Google Ads</li><li>GA4</li><li>CRM</li><li>Looker Studio</li><li>Excel avanzado</li></ul>
+        <p class="cv-also">También la carta, las respuestas a las preguntas de filtro y el mensaje al reclutador. En PDF o Word.</p>
+      </div>
+      <figure class="cv-sheet" aria-label="Fragmento del CV que Rumbo escribió para Lucas, el ejemplo inventado">
+        <p class="cv-name">Lucas Lara</p>
+        <p class="cv-role">Coordinador de Marketing Digital</p>
+        <p class="cv-job">Farmacias del Valle · 2021 – 2025</p>
+        <ul class="cv-bullets">
+          <li>Operé campañas de <mark>Meta Ads</mark> y <mark>Google Ads</mark> para la tienda en línea con un presupuesto mensual de $450 mil MXN; el ROAS combinado pasó de 2.1 a 3.4 en seis meses al reestructurar por categoría, con conversiones de compra importadas desde <mark>GA4</mark>.<span class="cv-cite">Sale de: tu experiencia en Farmacias del Valle</span></li>
+          <li>Diseñé en HubSpot (<mark>CRM</mark>) los flujos de recompra del programa de lealtad, con lo que la tasa de recompra a 60 días subió de 18% a 27% en el segmento de enfermedades crónicas.<span class="cv-cite">Sale de: tu experiencia en Farmacias del Valle</span></li>
+        </ul>
+        <figcaption>El CV real que Rumbo escribió para Lucas, el ejemplo inventado. Resaltado: las palabras de la vacante.</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <section class="note-grid" aria-label="Una nota de quien lo hizo">
     <div class="note-head">
       <p class="kicker">Una nota</p>
@@ -358,10 +408,9 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
       <p>Postularme a todo me estaba agotando, y las herramientas que probé hacían justo lo que no necesitaba: me hacían sonar impresionante con cosas que yo no había hecho. Un reclutador lee eso como un hecho, y en la entrevista te lo preguntan.</p>
       <p>Así que la hice al revés. Rumbo parte de lo que de verdad hiciste y no escribe una sola línea que no puedas respaldar. Y antes de que escribas nada, te dice si una vacante vale la pena. A mí me dijo que no más veces de las que me gustaba. Casi siempre tenía razón.</p>
       <p>Es gratis porque buscar trabajo ya cuesta bastante. Solo pagas la IA que usas, unos centavos, directo a quien la hace. Yo no cobro nada, no veo tus datos y no los vendo.</p>
-      <p>Ojalá te sirva.</p>
+      <p>Ojalá te sirva tanto como a mí. :)</p>
       <div class="sign">
         <span class="name">Gerardo</span>
-        <span class="where">México</span>
       </div>
     </div>
   </section>
@@ -408,7 +457,7 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
     <p class="kicker">Lo que cuesta, medido</p>
     <div class="cost-grid">
       <div>
-        <p class="zero" aria-hidden="true">$0</p>
+        <p class="zero" aria-hidden="true"><span>$0</span></p>
         <h2 id="h-costs" class="zero-label">Lo que cobra Rumbo. Hoy y siempre.</h2>
         <p class="zero-note">Sin suscripción, sin plan premium, sin prueba que se vence.</p>
       </div>
@@ -438,7 +487,11 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
   </section>
 
   <footer>
-    <span>Rumbo · hecho en México por Gerardo</span>
+    <a class="made-by" href="https://korven.dev">
+      <span>Hecho por</span>
+      <span class="vh">Korven</span>
+      <span class="korven" aria-hidden="true">K<svg viewBox="0 0 16 17" class="korven-hex"><title>O</title><polygon points="8,1 15,4.8 15,12.2 8,16 1,12.2 1,4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8" cy="8.5" r="2.8" fill="#FF8A2B"/></svg>RVEN</span>
+    </a>
     <nav aria-label="Enlaces"><a href="/app/privacidad/">Cómo se cuida tu privacidad</a><a href="https://github.com/gdberysan/cvforge">Código abierto</a></nav>
   </footer>
 </div>
@@ -495,6 +548,37 @@ function show(i) {
 }
 for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => show(Number(b.dataset.i)));
 show(0);
+
+// The price joke: when the cost section comes into view, a big price rolls
+// down to $0, shrinking to fit while it is wide. Without motion it is $0.
+const zero = document.querySelector('.zero span');
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (zero && !calm && 'IntersectionObserver' in window) {
+  const START = 1999;
+  const fmt = (n) => '$' + n.toLocaleString('es-MX');
+  const fit = () => {
+    zero.style.transform = '';
+    const scale = Math.min(1, zero.parentElement.clientWidth / zero.scrollWidth);
+    zero.style.transform = scale < 1 ? `scale(${scale})` : '';
+  };
+  const seen = new IntersectionObserver((entries) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    seen.disconnect();
+    zero.classList.add('counting');
+    zero.textContent = fmt(START);
+    fit();
+    const t0 = performance.now() + 350;
+    const step = (now) => {
+      const k = Math.max(0, Math.min(1, (now - t0) / 1900));
+      zero.textContent = fmt(Math.round(START * (1 - (1 - (1 - k) ** 3))));
+      fit();
+      if (k < 1) requestAnimationFrame(step);
+      else zero.classList.remove('counting');
+    };
+    requestAnimationFrame(step);
+  }, { threshold: 0.6 });
+  seen.observe(zero.parentElement);
+}
 </script>
 </body>
 </html>
