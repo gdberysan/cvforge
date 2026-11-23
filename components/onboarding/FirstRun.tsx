@@ -7,6 +7,7 @@ import { useT } from '@/components/i18n/LocaleProvider'
 import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
 import { KeyGuide } from '@/components/settings/KeyGuide'
 import { VerdictCard } from '@/components/triage/VerdictCard'
+import { IconArrow } from '@/components/ui/icons'
 import { SAMPLE_VERDICTS } from '@/lib/onboarding/sample-verdicts'
 
 /**
@@ -53,14 +54,18 @@ export function FirstRun({
   if (step === 'look') return <FirstLook onStart={() => setStep('key')} privacy={privacy} />
 
   return (
-    <main id="main" tabIndex={-1} className="page welcome">
-      <WelcomeSteps at={1} label={t('start.keyEyebrow')} />
-      <h1 className="welcome-title">{t('start.keyTitle')}</h1>
-      <p className="welcome-lede">{t('start.keyLede')}</p>
-      {/* The field first: it is what this screen is for. How to get a key
-          sits under it, open, for someone who has none yet. */}
-      <div className="welcome-card settings-rows">
-        <ApiKeyForm hasSavedKey={false} envManaged={false} local={local} />
+    <main id="main" tabIndex={-1} className="page welcome welcome-key">
+      {/* On a wide screen, the field on the left and how to get a key beside
+          it; on a phone, one under the other. */}
+      <div className="welcome-main">
+        <WelcomeSteps at={1} label={t('start.keyEyebrow')} />
+        <h1 className="welcome-title">{t('start.keyTitle')}</h1>
+        <p className="welcome-lede">{t('start.keyLede')}</p>
+        {/* The field first: it is what this screen is for. How to get a key
+            sits beside it, open, for someone who has none yet. */}
+        <div className="welcome-card settings-rows">
+          <ApiKeyForm hasSavedKey={false} envManaged={false} local={local} />
+        </div>
       </div>
       <KeyGuide open />
       <div className="welcome-links">
@@ -86,21 +91,27 @@ function FirstLook({ onStart, privacy }: { onStart: () => void; privacy: React.R
   const shown = SAMPLE_VERDICTS.find((s) => s.id === picked) ?? SAMPLE_VERDICTS[0]
   return (
     <main id="main" tabIndex={-1} className="page welcome first-look">
-      <h1 className="welcome-title">{t('start.lookTitle')}</h1>
-      <p className="welcome-lede">{t('start.lookLede')}</p>
-
-      <div className="first-look-start">
-        <button type="button" className="btn btn-primary" onClick={onStart}>
-          {t('start.lookCta')}
-        </button>
-        <p className="first-look-cost">{t('start.lookCost')}</p>
+      {/* The landing's hero: the promise and the button on the left, the
+          answer itself on the right. */}
+      <div className="first-look-intro">
+        <h1 className="welcome-title">
+          {t('start.lookTitle')} <em>{t('start.lookTitleEnd')}</em>
+        </h1>
+        <p className="welcome-lede">{t('start.lookLede')}</p>
+        <div className="first-look-start">
+          <button type="button" className="btn btn-primary" onClick={onStart}>
+            {t('start.lookCta')}
+            <IconArrow />
+          </button>
+          <p className="first-look-cost">{t('start.lookCost')}</p>
+        </div>
+        <div className="welcome-links">{privacy}</div>
       </div>
 
       <section className="first-look-example" aria-labelledby="h-example">
         <h2 id="h-example" className="first-look-heading">
           {t('start.lookExample')}
         </h2>
-        <p className="first-look-who">{t('start.lookWho')}</p>
         <fieldset className="first-look-picks" aria-label={t('start.lookExample')}>
           {SAMPLE_VERDICTS.map((s) => (
             <button
@@ -128,9 +139,8 @@ function FirstLook({ onStart, privacy }: { onStart: () => void; privacy: React.R
             onBuild={() => {}}
           />
         )}
+        <p className="first-look-who">{t('start.lookWho')}</p>
       </section>
-
-      <div className="welcome-links">{privacy}</div>
     </main>
   )
 }

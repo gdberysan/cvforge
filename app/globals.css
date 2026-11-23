@@ -98,6 +98,11 @@
   --font-serif: var(--font-text);
   --font-display: var(--font-text);
   --font-mono: var(--font-text);
+  /* Rumbo's voice (2026-11-23): the landing's faces, for headlines, the
+     sentences that speak to the person, and section labels. */
+  --font-headline: var(--font-headline-loaded), "Avenir Next", system-ui, sans-serif;
+  --font-voice: var(--font-voice-loaded), Georgia, "Times New Roman", serif;
+  --font-kicker: var(--font-kicker-loaded), ui-monospace, monospace;
 
   --surface-base: #F6F4EF;
   --surface-sunken: #ECE9E2;
@@ -1532,9 +1537,10 @@ button.fact-chip:focus-visible { outline: none; box-shadow: inset 3px 0 0 var(--
    no line starts or ends with a stray separator. The 4px padding keeps the
    clip clear of the focus ring. */
 .app-meta { overflow: hidden; margin: -4px; padding: 4px; }
-.app-meta-list { display: flex; flex-wrap: wrap; align-items: center; margin-left: -1.1em; font: 400 14px/1.4 var(--font-text); color: var(--text-muted); }
+.app-meta-list { display: flex; flex-wrap: wrap; align-items: center; font: 400 14px/1.4 var(--font-text); color: var(--text-muted); }
 .app-meta-item { display: inline-flex; align-items: center; white-space: nowrap; }
 .app-meta-item::before { content: '·'; flex: none; width: 1.1em; text-align: center; }
+.app-meta-item:first-child::before { content: none; }
 .app-meta-item .action { font-weight: 600; }
 .verdict-panel {
   /* After Reanalyse, the section rhythm; as a step's first block, .step-body zeroes it. */
@@ -7935,13 +7941,9 @@ textarea#details-titles {
   max-width: 46em;
 }
 
-/* Hoy on one column: what is waiting for you comes before the box for a
-   new posting — what needs action is seen first. */
-@media (max-width: 999px) {
-  .today-cols > .today-side:has(.today-section) {
-    order: -1;
-  }
-}
+/* Hoy on one column keeps the page's own order (2026-11-23): the box for a
+   new posting first, the reason people open the app, then what waits on
+   you, led by the dark "Tu siguiente paso" card. */
 
 /* The status chip, and beside it a discarded application's one move. */
 .status-row {
@@ -8517,4 +8519,674 @@ textarea#details-titles {
   .work-beam { display: none; }
   .is-now .work-mark { animation: none; border-color: var(--fill-warm); }
   .work-seg-creep { animation: none; transform: scaleX(0.35); }
+}
+
+/* ============================================================
+   RUMBO VOICE (2026-11-23): the landing's design language, in the app.
+   One hero per screen, said in the headline face; the sentences that
+   speak to the person in the serif; section labels in the small mono.
+   Colour with a meaning: amber is "now / your move", green is "you have
+   this", ink is the main action. Tokens only (FRIENDLY block).
+   ============================================================ */
+
+/* Headlines: what each screen is about. */
+.page.today .today-greet,
+.page .story-title,
+.page .exp-title,
+.page .page-title,
+.page .pipeline-title,
+.page .settings-h1 {
+  font-family: var(--font-headline);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+.page.today .today-greet { font-size: clamp(44px, 6vw, 72px); }
+.page .story-title,
+.page .exp-title { font-size: clamp(42px, 4.4vw, 56px); }
+
+/* Labels that set a scene: small mono, amber, as on the landing. */
+.today-date,
+.verdict-panel .eyebrow,
+.strength-card-body > .eyebrow,
+.inbox-lead {
+  font-family: var(--font-kicker);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-accent);
+}
+
+/* The sentence that speaks to you: the serif. */
+.today-sentence,
+.verdict-say,
+.answer-detail {
+  font-family: var(--font-voice);
+  font-size: clamp(18px, 1.6vw, 21px);
+  line-height: 1.45;
+  color: var(--text-body);
+}
+.today-head { gap: 10px; }
+
+/* Section heads in the headline face, a notch quieter. */
+.today-section-head h2 {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+/* Hoy: the one move for today leads, in ink. */
+.inbox-card.is-lead {
+  background: var(--surface-inverse);
+  box-shadow: var(--shadow-lg);
+}
+.inbox-card.is-lead .inbox-link {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 16px;
+  padding: 22px 22px 20px;
+}
+.inbox-card.is-lead .inbox-lead {
+  grid-column: 1 / -1;
+  color: var(--fill-warm);
+}
+.inbox-card.is-lead .inbox-icon,
+.inbox-card.is-lead .inbox-age {
+  grid-row: 2 / span 2;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--fill-warm);
+  color: var(--ink);
+}
+.inbox-card.is-lead .inbox-title {
+  grid-column: 2;
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--on-ink);
+}
+.inbox-card.is-lead .inbox-why {
+  grid-column: 2;
+  color: var(--on-ink-muted);
+}
+.inbox-card.is-lead .inbox-action {
+  grid-column: 1 / -1;
+  grid-row: auto;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--fill-warm);
+  color: var(--ink);
+}
+@media (hover: hover) {
+  .inbox-card.is-lead .inbox-link:hover .inbox-action { background: var(--fill-warm-hover); }
+}
+
+/* The verdict: the word is the answer, biggest on the page. */
+.verdict-panel .verdict-word,
+.answer-card .answer-word {
+  font-family: var(--font-headline);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+.verdict-panel .verdict-word { font-size: clamp(48px, 7vw, 76px); }
+.answer-card .answer-word { font-size: clamp(34px, 4vw, 44px); }
+.verdict-worth-it .verdict-word,
+.verdict-strong .verdict-word { color: var(--tone-strong); }
+.verdict-panel .verdict-meter { height: 12px; gap: 4px; }
+.verdict-panel .verdict-meter .seg { border-radius: 999px; }
+.verdict-panel .verdict-legend { font-size: 15px; }
+.verdict-panel .verdict-legend .num {
+  font-family: var(--font-headline);
+  font-weight: 800;
+  font-size: 18px;
+}
+
+/* The application's stages read as a route: done in green, and an amber
+   marker where you are now. */
+.stage-track .stage-bar { height: 4px; border-radius: 999px; }
+.stage-seg.is-done .stage-bar { background: var(--tone-strong); }
+.stage-seg.is-done > .icon { color: var(--tone-strong); }
+.stage-track:not(.ends) .stage-seg.is-current .stage-bar {
+  position: relative;
+  overflow: visible;
+}
+.stage-track:not(.ends) .stage-seg.is-current .stage-bar::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--fill-warm);
+  box-shadow: 0 0 0 4px var(--surface-base), var(--glow-amber-md);
+  transform: translateY(-50%);
+}
+.stage-seg .stage-word { font-size: 14px; }
+
+/* Mi experiencia: the score is a number to be proud of. */
+.strength-card-number .strength-card-value,
+.strength-card-number {
+  font-family: var(--font-headline);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.strength-card-fix {
+  font-family: var(--font-voice);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.4;
+}
+
+/* Round 2 (fresh review): the answer in sight, one action, no slack. */
+
+/* Hoy: the greeting greets; the box is the work. The sentence is the
+   landing's second line: amber, in the headline face. */
+.page.today .today-greet { font-size: clamp(40px, 4.6vw, 56px); }
+.page.today .today-sentence {
+  margin-top: 0;
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: clamp(24px, 2.6vw, 32px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--text-accent);
+}
+/* A disabled primary still reads as the button it will become. */
+.intake-card .btn-primary:disabled {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-color: transparent;
+  opacity: 0.4;
+}
+/* Example postings: postings to pick, not empty fields. */
+.intake-demo-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.intake-demo-list > .btn {
+  justify-content: flex-start;
+  text-align: left;
+  width: 100%;
+  min-height: 52px;
+  border-color: transparent;
+  background: var(--surface-raised);
+  font-family: var(--font-headline);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+@media (hover: hover) {
+  .intake-demo-list > .btn:hover { background: var(--fill-warm-soft); }
+}
+/* The lead card's tile sits with the title, not floating beside the block. */
+.inbox-card.is-lead .inbox-icon,
+.inbox-card.is-lead .inbox-age { align-self: start; margin-top: 2px; }
+
+/* The application: the verdict band under the stages. */
+.verdict-band {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 24px;
+  margin-top: 8px;
+  padding: 18px 22px;
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-1);
+}
+.verdict-band-word {
+  margin: 0;
+  font: 800 30px/1 var(--font-headline);
+  letter-spacing: -0.035em;
+  color: var(--text-strong);
+}
+.verdict-band.verdict-worth-it .verdict-band-word,
+.verdict-band.verdict-strong .verdict-band-word { color: var(--tone-strong); }
+.verdict-band.verdict-skip .verdict-band-word { color: var(--tone-missing); }
+.verdict-band-bar { display: grid; gap: 8px; min-width: 0; }
+.verdict-band .verdict-meter { height: 8px; gap: 3px; }
+.verdict-band .verdict-meter .seg { border-radius: 999px; }
+.verdict-band-say { margin: 0; font: 400 18px/1.4 var(--font-voice); color: var(--text-body); }
+.verdict-band-link { white-space: nowrap; }
+@media (max-width: 640px) {
+  .verdict-band { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 16px 18px; }
+  .verdict-band-link { justify-self: start; min-height: 32px; }
+}
+/* Nothing left to detail (no gate, nothing unjudged): the band said it all,
+   and what the role is about takes the row. */
+.verdict-panel.is-headless:not(:has(.verdict-gates)) { display: none; }
+.decide-top.has-about:has(.verdict-panel.is-headless:not(:has(.verdict-gates))) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.decide-top.has-about:has(.verdict-panel.is-headless:not(:has(.verdict-gates))) > .story-about {
+  max-width: none;
+  width: 100%;
+}
+
+/* Below the band, the panel holds the details: no space kept for the word,
+   and no divider above the first of them. */
+.verdict-panel.is-headless { gap: 12px; padding-bottom: 0; }
+.verdict-panel.is-headless > :first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.verdict-panel.is-headless .verdict-explain { min-height: 44px; }
+
+/* Interview prep before it exists: the promise and the button share the
+   card's width instead of leaving its right half empty. */
+@media (min-width: 900px) {
+  .prep:not(.has-content) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    column-gap: 40px;
+  }
+  .prep:not(.has-content) > .prep-brief { grid-column: 1 / -1; }
+}
+.prep-intro { font-family: var(--font-voice); }
+
+/* Inside a card, the people list is a part of it, not a card in a card. */
+.story-card .people { padding: 0; background: none; }
+/* A subsection inside a card is a label, not a second title. */
+.people-h {
+  margin: 0;
+  font: 600 16px/1.3 var(--font-text);
+  color: var(--text-strong);
+}
+
+/* A footer with nothing to say leaves no strip behind. */
+.intake-footer:empty { display: none; }
+
+/* Motion that means something: the answer arrives, the bar fills. */
+@media (prefers-reduced-motion: no-preference) {
+  .verdict-panel .verdict-word,
+  .answer-card .answer-word {
+    animation: voice-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .verdict-panel .verdict-meter .seg {
+    transform-origin: left center;
+    animation: voice-fill 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .verdict-panel .verdict-meter .seg:nth-child(2) { animation-delay: 40ms; }
+  .verdict-panel .verdict-meter .seg:nth-child(3) { animation-delay: 80ms; }
+  .verdict-panel .verdict-meter .seg:nth-child(4) { animation-delay: 120ms; }
+  .verdict-panel .verdict-meter .seg:nth-child(5) { animation-delay: 160ms; }
+  .verdict-panel .verdict-meter .seg:nth-child(6) { animation-delay: 200ms; }
+  .verdict-panel .verdict-meter .seg:nth-child(7) { animation-delay: 240ms; }
+  .verdict-panel .verdict-meter .seg:nth-child(8) { animation-delay: 280ms; }
+  .verdict-panel .verdict-meter .seg:nth-child(n + 9) { animation-delay: 320ms; }
+  .inbox-card.is-lead { animation: voice-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+}
+@keyframes voice-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes voice-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ============================================================
+   RUMBO VOICE, round 4 (2026-11-23): the rest of the application page,
+   and the basics everywhere: 44px targets on touch, nothing under 14px.
+   ============================================================ */
+
+/* "Qué sigue": a story, not a form. */
+.seguimiento .meeting.is-prompt {
+  border: 0;
+  background: var(--fill-warm-soft);
+  box-shadow: none;
+}
+.seguimiento .meeting-ask-icon {
+  background: var(--fill-warm);
+  color: var(--ink);
+}
+.seguimiento .action-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.seguimiento .action-grid > .action-btn:last-child:nth-child(odd) { grid-column: auto; }
+.seguimiento .action-btn:not(.is-primary) {
+  min-height: 56px;
+  justify-content: flex-start;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  font: 600 16px/1.2 var(--font-headline);
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+}
+@media (hover: hover) {
+  .seguimiento .action-btn:not(.is-primary):hover { background: var(--fill-warm-soft); }
+}
+/* What happened: the day as a small label beside each event. (No dots:
+   one colour on every row meant nothing; see the history rows rule.) */
+.seguimiento .timeline-day {
+  font: 500 14px/1.2 var(--font-kicker);
+  color: var(--text-muted);
+}
+
+/* Documentos: the landing's pill switcher, and quiet buttons without outlines. */
+.doc-tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  max-width: 100%;
+}
+.doc-tab {
+  min-height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  font: 600 15px/1 var(--font-headline);
+  color: var(--text-muted);
+}
+.doc-tab[aria-selected="true"] {
+  background: var(--surface-card);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-xs);
+}
+.doc-actions > .btn-quiet {
+  border-color: transparent;
+  background: var(--surface-raised);
+}
+@media (hover: hover) {
+  .doc-actions > .btn-quiet:hover { background: var(--fill-warm-soft); }
+}
+
+/* Hoy, a waiting Analizar: warm and quiet, plainly not yet. */
+.intake-card .btn-primary:disabled {
+  background: var(--fill-warm-soft);
+  color: var(--text-accent);
+  opacity: 1;
+}
+
+/* Nothing a person must read under 14px. */
+.action,
+.action-quiet,
+.skip-link,
+.verify-ok,
+.bottomnav a,
+.req-chips .eyebrow,
+.evidence-ref,
+.demo-banner { font-size: 14px; }
+.evidence-ref * { font-size: max(14px, 1em); }
+
+/* Touch screens and phones: every target at least 44 x 44. */
+@media (pointer: coarse), (max-width: 760px) {
+  .action,
+  .action-quiet,
+  .skip-link,
+  .story-back,
+  button.fact-chip,
+  .verdict-band-link {
+    min-height: 44px;
+  }
+  .action,
+  .action-quiet,
+  .verdict-band-link {
+    display: inline-flex;
+    align-items: center;
+  }
+  .rec-edit-btn { min-width: 44px; min-height: 44px; }
+  .doc-tab { min-height: 44px; }
+  /* Older, more specific rules set 32-40px; inside a page these win. */
+  .page .fact-chip,
+  .page .req-chips .chips button,
+  .page .action.icon-label,
+  .page .role-open {
+    min-height: 44px;
+  }
+  .page .role-open { display: inline-flex; align-items: center; text-align: left; }
+}
+.story-back { min-height: 44px; }
+
+/* ============================================================
+   RUMBO VOICE, first run (2026-11-23): the first screens a person sees
+   speak like the landing they came from. The example's hero (promise and
+   button left, the answer right), the key beside how to get one.
+   ============================================================ */
+.welcome-title {
+  font: 800 clamp(38px, 4.4vw, 54px)/1.02 var(--font-headline);
+  letter-spacing: -0.04em;
+}
+.first-look .welcome-title {
+  font-size: clamp(42px, 5.4vw, 72px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+.welcome-title em {
+  display: block;
+  font-style: normal;
+  color: var(--text-accent);
+}
+.welcome-lede {
+  font: 400 clamp(18px, 1.5vw, 20px)/1.55 var(--font-voice);
+  color: var(--text-body);
+}
+.welcome-steps p,
+.first-look-heading {
+  font: 500 14px/1.3 var(--font-kicker);
+  letter-spacing: 0.04em;
+  color: var(--text-accent);
+}
+.welcome-bar span.is-done {
+  background: var(--accent);
+}
+.first-look-start .btn {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 10px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-2);
+}
+
+/* The three examples: the landing's switcher, one pill raised. */
+.first-look-picks {
+  gap: 4px;
+  padding: 4px;
+  border-radius: 18px;
+  background: var(--surface-sunken);
+}
+.first-look-pick {
+  min-height: 56px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+}
+.first-look-pick[aria-pressed="true"] {
+  background: var(--surface-card);
+  box-shadow: var(--shadow-1);
+}
+.first-look-pick-title {
+  font: 600 14px/1.3 var(--font-headline);
+}
+.first-look-example {
+  border-top: 0;
+  padding-top: 0;
+}
+.first-look-who {
+  font-size: 14px;
+}
+
+/* A primary that can't be pressed yet reads "not yet", warmly, everywhere
+   (the empty Analizar first, 2026-11-23): never the grey of "broken". */
+.btn-primary:disabled {
+  background: var(--fill-warm-soft);
+  color: var(--text-accent);
+  border-color: transparent;
+  box-shadow: none;
+  opacity: 1;
+}
+
+.welcome-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-content: start;
+}
+.first-look-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  align-content: start;
+}
+
+@media (min-width: 960px) {
+  .page.welcome.first-look,
+  .page.welcome.welcome-key {
+    max-width: 76rem;
+    column-gap: clamp(40px, 5vw, 80px);
+    align-items: start;
+  }
+  .page.welcome.first-look {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 36rem);
+    padding-top: 24px;
+  }
+  .page.welcome.welcome-key {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+  }
+  .first-look .first-look-example {
+    margin-top: 0;
+  }
+  /* The guide starts level with the field it explains; the way back stays
+     under the field, in the left column. */
+  .welcome-key > .welcome-links {
+    grid-column: 1;
+  }
+  .welcome-key > .key-guide {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+    align-self: start;
+    position: sticky;
+    top: 96px;
+  }
+}
+.import-drop-text {
+  font: 600 18px/1.3 var(--font-headline);
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   RUMBO VOICE, Postulaciones (2026-11-23): the list speaks like Hoy. The
+   title in the display face, the count as its amber line, the sections
+   headed by kickers, each job's name in the display face.
+   ============================================================ */
+.pipeline-page .pipeline-title {
+  font: 800 clamp(40px, 4.6vw, 56px)/1.02 var(--font-headline);
+  letter-spacing: -0.04em;
+  color: var(--text-strong);
+}
+.pipeline-page .pipeline-lede {
+  margin-top: 6px;
+  font: 700 clamp(22px, 2.2vw, 28px)/1.2 var(--font-headline);
+  letter-spacing: -0.02em;
+  color: var(--text-accent);
+}
+.pipeline-section-head .eyebrow,
+.pipeline-section-head .eyebrow.is-accent {
+  font: 500 14px/1.3 var(--font-kicker);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--text-accent);
+}
+.pipeline-page .row-title {
+  font-family: var(--font-headline);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.pipeline-page .row-state {
+  font-family: var(--font-voice);
+  font-weight: 400;
+  font-size: 18px;
+}
+.pipeline-links .btn {
+  border-radius: var(--radius-pill);
+}
+.pipeline-page .board-head {
+  font-family: var(--font-headline);
+}
+.pipeline-page .row-title {
+  font-size: 20px;
+}
+.pipeline-page .row-ask .seg-heading,
+.pipeline-page .rowcard .row-ask .action-prompt {
+  font: 400 19px/1.35 var(--font-voice);
+  color: var(--text-strong);
+}
+
+/* ============================================================
+   RUMBO VOICE, the remaining pages (2026-11-23): Tus CV base, the CV
+   re-import, Números, Ajustes, privacy, share. One system for all of
+   them: a kicker over a display title, a serif lede, card headings and
+   figures in the display face.
+   ============================================================ */
+.page-head .eyebrow,
+.page .eyebrow.page-kicker {
+  font: 500 14px/1.3 var(--font-kicker);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--text-accent);
+}
+.page .page-title,
+.page .settings-h1,
+.page .share-title {
+  font: 800 clamp(38px, 4.4vw, 54px)/1.04 var(--font-headline);
+  letter-spacing: -0.04em;
+  color: var(--text-strong);
+}
+.page-head .page-lede {
+  font: 400 clamp(18px, 1.5vw, 20px)/1.55 var(--font-voice);
+  color: var(--text-body);
+}
+.page-note {
+  margin: 0;
+  max-width: 56ch;
+  font: 400 14px/1.5 var(--font-text);
+  color: var(--text-muted);
+}
+.board-head h2,
+.settings-title {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.kpi-value {
+  font-family: var(--font-headline);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+/* "Missing" is a warm dot, not the grey of "nothing to say". */
+.status-dot.tone-warn {
+  background: var(--fill-warm);
+}
+.privacy .exp-lede {
+  font: 400 clamp(18px, 1.5vw, 20px)/1.55 var(--font-voice);
+  color: var(--text-body);
+}
+.flow-name {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.fact-label {
+  font-size: 14px;
+}
+@media (pointer: coarse), (max-width: 760px) {
+  .page .flag-select,
+  .page .locale-option,
+  .page .board-head .action {
+    min-height: 44px;
+  }
 }

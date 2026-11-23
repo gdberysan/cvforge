@@ -14,11 +14,11 @@ export function CvsView({ data, t }: { data: CvsData; t: Translate }) {
   return (
     <main id="main" tabIndex={-1} className="page">
       <BackLink href="/evidence" label={t('nav.evidence')} />
-      <p className="eyebrow">{t('variants.eyebrow')}</p>
-      <h1 style={{ font: 'var(--type-h1)', marginTop: 'var(--space-4)' }}>{t('variants.title')}</h1>
-      <p className="prose" style={{ marginTop: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
-        {t('variants.lede')}
-      </p>
+      <header className="page-head">
+        <p className="eyebrow">{t('variants.eyebrow')}</p>
+        <h1 className="page-title">{t('variants.title')}</h1>
+        <p className="page-lede">{t('variants.lede')}</p>
+      </header>
       <VariantsManager
         variants={data.variants}
         currentEvidenceHash={data.currentEvidenceHash}
@@ -35,23 +35,16 @@ export function ImportView({ data, t }: { data: ImportData; t: Translate }) {
       <BackLink href="/evidence" label={t('nav.evidence')} />
       <div className="hero">
         <div className="hero-intro">
-          <p className="eyebrow">{t('import.eyebrow')}</p>
-          <h1 style={{ font: 'var(--type-h1)', marginTop: 'var(--space-4)' }}>
-            {t('import.title')}
-          </h1>
-          <p className="prose" style={{ marginTop: 'var(--space-4)' }}>
-            {t('import.lede')}
-          </p>
-          {data.hasProfile && (
-            // The contract, stated before the parse is paid for — not only at
-            // the accept step's armed confirm.
-            <p
-              className="prose"
-              style={{ marginTop: 'var(--space-3)', font: 'var(--type-body-sm)' }}
-            >
-              {t('import.reimportNote')}
-            </p>
-          )}
+          <header className="page-head">
+            <p className="eyebrow">{t('import.eyebrow')}</p>
+            <h1 className="page-title">{t('import.title')}</h1>
+            <p className="page-lede">{t('import.lede')}</p>
+            {data.hasProfile && (
+              // The contract, stated before the parse is paid for — not only at
+              // the accept step's armed confirm.
+              <p className="page-note">{t('import.reimportNote')}</p>
+            )}
+          </header>
         </div>
         <ImportReview hasProfile={data.hasProfile} />
       </div>

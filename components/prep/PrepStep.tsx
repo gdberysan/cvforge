@@ -129,12 +129,16 @@ export function PrepStep({ view }: { view: PrepView }) {
   if (!prep) {
     return (
       <div className="prep">
-        <PrepBriefing
-          interview={view.interview}
-          people={view.people}
-          meetingUrl={view.meetingUrl}
-          note=""
-        />
+        {/* Nothing to brief yet (no date, nobody named): "Qué sigue" asks for
+            both, so an empty panel here would only repeat it. */}
+        {(view.interview?.state === 'scheduled' || view.people.length > 0 || view.meetingUrl) && (
+          <PrepBriefing
+            interview={view.interview}
+            people={view.people}
+            meetingUrl={view.meetingUrl}
+            note=""
+          />
+        )}
         <p className="prep-intro">{t('prep.intro')}</p>
         {controls}
       </div>
