@@ -17,6 +17,12 @@ All notable changes to this project are documented here. The format follows
 - **The extension follows you on LinkedIn:** the side panel swaps to the job
   you open, in place and without a flash, shows the job as a card, belongs
   to its tab and closes when the tab leaves LinkedIn.
+- **Ways in:** Hoy shows the one way to bring jobs in that fits the device
+  (the Chrome extension on a computer, install-and-share on Android, the
+  home screen on iPhone); Ajustes lists both; the landing explains them.
+- **The landing shows the tailored CV:** a real CV the demo produced for
+  one job, the job's words highlighted and each line's source named; the
+  example answers also show what is already met, and why.
 - **Web edition:** CVForge runs entirely in the browser. The database lives
   in the browser's private storage, your Anthropic key talks to Anthropic
   directly, and nothing passes through a server of ours. Export and import
