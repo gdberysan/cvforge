@@ -87,7 +87,7 @@ export function checkSections(args: {
   // title unless they held it: the specialty headline the composer writes.
   const title = cv.header.title.trim()
   const sought = args.soughtTitle?.trim() ?? ''
-  const heldSought = sought !== '' && heldTitles.some((t) => fold(t) === fold(sought))
+  const heldSought = sought !== '' && heldTitles.some((t) => sameJobTitle(t, sought))
   if (title && !claimsGap('title', title)) {
     checkNumbers('title', title, new Set())
     if (sought && !heldSought && hasPhrase(fold(title), sought)) {
@@ -126,6 +126,23 @@ export function checkSections(args: {
   }
 
   return found
+}
+
+/**
+ * One job title written two ways: case, accents, punctuation and the
+ * gender marker a posting adds ("Coordinador(a)", "Gerente/a") aside.
+ * "Coordinador(a) de Marketing Digital" is the title a person who was
+ * "Coordinador de Marketing Digital" has held.
+ */
+export function sameJobTitle(a: string, b: string): boolean {
+  const norm = (t: string) =>
+    fold(t)
+      .replace(/\((?:a|o|as|os|e|x)\)/g, '')
+      .replace(/\/(?:a|o|as|os)\b/g, '')
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .trim()
+  const x = norm(a)
+  return x !== '' && x === norm(b)
 }
 
 /** Lower-case, accents off, whitespace collapsed: "Análisis" and "analisis" are one word. */

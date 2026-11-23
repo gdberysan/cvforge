@@ -293,9 +293,42 @@ describe('the free trial', () => {
       c,
     )
     const res = await handleTrial(post('/api/trial?op=status', { key: token }), '1.1.1.1', c)
-    expect(await res.json()).toEqual({ state: 'ok', leftUsd: expect.closeTo(0.35, 6) })
+    expect(await res.json()).toEqual({
+      state: 'ok',
+      leftUsd: expect.closeTo(0.35, 6),
+      budgetUsd: 0.5,
+    })
     expect(
       (await handleTrial(post('/api/trial?op=status', { key: 'nope' }), '1.1.1.1', c)).status,
     ).toBe(401)
+  })
+
+  it('tells the owner once at half, 80% and all of the month, and never fails a call doing it', async () => {
+    const sent: string[] = []
+    const c = config({ monthlyUsd: 0.3, notify: async (text) => void sent.push(text) })
+    const token = await startTrial(c)
+    const small = () =>
+      handleTrial(
+        post('/trial/v1/messages', { body: body({ max_tokens: 2_000 }), key: token }),
+        '1.1.1.1',
+        c,
+      )
+    await small() // month $0.15: half
+    expect(sent).toHaveLength(1)
+    expect(sent[0]).toMatch(/50%/)
+    await small() // month $0.30: 80% and the cap, once each
+    expect(sent).toHaveLength(3)
+    expect(sent[2]).toMatch(/tope del mes/)
+    const failing = config({
+      notify: async () => Promise.reject(new Error('down')),
+      monthlyUsd: 0.1,
+    })
+    const t2 = await startTrial(failing)
+    const res = await handleTrial(
+      post('/trial/v1/messages', { body: body({ max_tokens: 2_000 }), key: t2 }),
+      '1.1.1.1',
+      failing,
+    )
+    expect(res.status).toBe(200)
   })
 })
