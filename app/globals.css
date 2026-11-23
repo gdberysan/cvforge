@@ -8058,6 +8058,65 @@ textarea#details-titles {
   border-color: var(--accent);
   background: var(--fill-warm-soft);
 }
+/* A file is in: the dashed invitation becomes a settled card with the file. */
+.import-drop.is-filled {
+  border-style: solid;
+  border-color: var(--border-default);
+  background: var(--surface-card);
+}
+.import-file {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: min(100%, 30rem);
+  padding-inline: 16px;
+}
+.import-file-icon {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--fill-warm-soft);
+  color: var(--accent);
+}
+.import-file-icon > .icon {
+  width: 26px;
+  height: 26px;
+}
+.import-file-check {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--tone-strong);
+  color: var(--surface-card);
+  box-shadow: 0 0 0 3px var(--surface-card);
+}
+.import-file-check .icon {
+  width: 14px;
+  height: 14px;
+}
+.import-file-text {
+  min-width: 0;
+}
+.import-file-name {
+  margin: 0;
+  font: 600 17px/1.35 var(--font-text);
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+.import-file-meta {
+  margin: 2px 0 0;
+  font: 400 14px/1.4 var(--font-text);
+  color: var(--text-muted);
+}
 .import-drop-icon {
   display: grid;
   place-items: center;

@@ -992,6 +992,8 @@ const en = {
   'import.aria': 'CV text',
   'import.drop': 'Drop your CV here',
   'import.choose': 'Choose a PDF',
+  'import.replace': 'Choose a different file',
+  'import.fileMeta': 'PDF · {size} · ready to read',
   'import.linkedin':
     'On LinkedIn, your profile → More → Save to PDF gives you a ready-made CV to upload here.',
   'import.fileAria': 'CV file (PDF)',
@@ -2710,6 +2712,8 @@ const es: Record<MessageKey, string> = {
   'import.aria': 'Texto del CV',
   'import.drop': 'Suelta tu CV aquí',
   'import.choose': 'Elegir un PDF',
+  'import.replace': 'Cambiar archivo',
+  'import.fileMeta': 'PDF · {size} · listo para leer',
   'import.linkedin':
     'En LinkedIn, tu perfil → Más → Guardar como PDF te da un CV listo para subir aquí.',
   'import.fileAria': 'Archivo del CV (PDF)',
