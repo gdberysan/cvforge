@@ -139,8 +139,10 @@ header.top {
   display: grid;
   grid-template-columns: var(--split);
   gap: var(--split-gap);
-  align-items: center;
-  padding-block: clamp(28px, 5vh, 56px) clamp(40px, 6vh, 64px);
+  /* Both columns start on one line, right under the header: centring the
+     promise against the taller demo left a gap above the headline. */
+  align-items: start;
+  padding-block: clamp(16px, 3vh, 32px) clamp(40px, 6vh, 64px);
 }
 .hero h1 {
   margin: 0;
@@ -166,6 +168,8 @@ header.top {
 
 /* The product: a live answer, three jobs one tap apart. */
 .demo { display: grid; gap: 12px; }
+/* The demo is a <section> for screen readers, not a page section: no section spacing. */
+.hero .demo { padding-block: 0; }
 .seg {
   margin: 0; border: 0; min-width: 0;
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
@@ -203,9 +207,14 @@ header.top {
 .bar i.m { background: var(--blocked); opacity: .5; }
 .counts span { white-space: nowrap; }
 .counts { margin: -4px 0 0; font: 500 16px/1.4 var(--display); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.met b { display: block; font: 600 14px/1.3 var(--display); color: var(--ink-faint); margin-bottom: 8px; }
+.met ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.met li.more { background: none; color: var(--ink-faint); padding-inline: 4px; }
+.met li { padding: 5px 10px; border-radius: 999px; background: var(--strong-wash); color: var(--strong); font: 500 14px/1.3 var(--display); }
 .missing { background: var(--well); border-radius: 14px; padding: 13px 16px; }
 .missing b { display: block; font: 600 14px/1.3 var(--display); color: var(--ink-faint); margin-bottom: 3px; }
 .missing span { font: 600 18px/1.4 var(--display); }
+.why span { font: 400 17px/1.5 var(--text); }
 .caption { margin: 2px 0 0; font: 400 14px/1.45 var(--display); color: var(--ink-faint); }
 
 /* Section rhythm: space, not rules. Each section opens with one line. */
@@ -438,14 +447,18 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
 const A = [
   { title: 'Growth Lead', company: 'Nuvei Pagos', verdict: 'Vale la pena',
     advice: 'Postúlate y habla con honestidad en la carta sobre lo que te falta.',
-    tone: 'strong', s: 6, p: 2, m: 0, total: 8, missing: 'SQL avanzado y Amplitude.' },
+    tone: 'strong', s: 6, p: 2, m: 0, total: 8, missing: 'SQL avanzado y Amplitude.',
+    met: ['5+ años en growth/marketing digital', '2 años en fintech', 'Presupuestos de performance', 'Inglés avanzado', 'Horario CDMX'], more: 1 },
   { title: 'Coordinador(a) de Marketing Digital', company: 'Grupo Andino Retail', verdict: 'Coincidencia fuerte',
     advice: 'Postúlate. Lo que has hecho cubre lo que piden.',
-    tone: 'strong', s: 8, p: 0, m: 0, total: 8, missing: '' },
+    tone: 'strong', s: 8, p: 0, m: 0, total: 8, missing: '',
+    met: ['3+ años en marketing digital', 'Meta Ads', 'Google Ads', 'CRM empresarial', 'GA4', 'Excel avanzado', 'Inglés', 'CDMX'],
+    why: ['Meta Ads', 'Operaste Meta Ads con presupuesto propio tanto en el ecommerce de Farmacias del Valle como en la adquisición de comercios de Pagolibre.'] },
   { title: 'Performance Marketing Specialist', company: 'Agencia Ruta Norte', verdict: 'No aplica',
     advice: 'Hay un requisito que ningún cambio al CV puede cumplir.',
     tone: 'blocked', s: 6, p: 1, m: 2, total: 9, missing: 'TikTok Ads, Monterrey y visitas a clientes.',
-    gate: 'Pide vivir en Monterrey; el puesto es 100% presencial en San Pedro Garza García.' },
+    gate: 'Pide vivir en Monterrey; el puesto es 100% presencial en San Pedro Garza García.',
+    met: ['Meta Ads', 'Google Ads', 'Looker Studio'], more: 3 },
 ];
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor"/></svg>';
 const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.5" stroke="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor"/></svg>';
@@ -467,6 +480,8 @@ function card(a) {
     <p class="advice">${a.advice}</p>
     <div class="bar" aria-hidden="true">${[...bars].map(c => `<i class="${c}"></i>`).join('')}</div>
     <p class="counts">${parts.map(x => `<span>${x}</span>`).join(' · ')}</p>
+    <div class="met"><b>Lo que ya cumples</b><ul>${a.met.map(x => `<li>${x}</li>`).join('')}${a.more ? `<li class="more">+${a.more} más</li>` : ''}</ul></div>
+    ${a.why ? `<div class="missing why"><b>Por qué cumples ${a.why[0]}</b><span>${a.why[1]}</span></div>` : ''}
     ${a.missing ? `<div class="missing"><b>${a.m ? 'Lo que te falta' : 'Lo que tienes a medias'}</b><span>${a.missing}</span></div>` : ''}`;
 }
 box.innerHTML = A.map((a, i) => `<div class="state" data-i="${i}">${card(a)}</div>`).join('');
