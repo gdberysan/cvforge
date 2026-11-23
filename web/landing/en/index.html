@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rumbo · your next job, without the guesswork</title>
+<meta name="description" content="Paste a job posting and Rumbo tells you whether it’s worth your time, what you meet and what you’re missing. Then it builds a CV tailored to that job, without making anything up about you. Free.">
+<meta property="og:title" content="Rumbo · your next job, without the guesswork">
+<meta property="og:description" content="It tells you whether a job is worth your time and helps you apply without making anything up about you. Free, and your data stays in your browser.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#F5F3EE">
+<link rel="alternate" hreflang="es" href="https://rumbo.korven.dev/">
+<link rel="alternate" hreflang="en" href="https://rumbo.korven.dev/en/">
+<link rel="alternate" hreflang="x-default" href="https://rumbo.korven.dev/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/app/icons/icon-192.png">
+<!-- The display and text faces load first: the headline is not drawn twice. -->
+<link rel="preload" href="/fonts/bricolage-grotesque-normal-500-f39ba9.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/source-serif-4-normal-400-91f1a3.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/landing.css">
+<!-- Someone who already uses the app goes straight to it (the app sets this; ?inicio shows this page anyway). -->
+<script>try{if(localStorage.getItem('rumbo:returning')&&!/[?&]inicio\b/.test(location.search))location.replace('/app/')}catch(e){}</script>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <a class="brand" href="/en/?inicio" aria-label="Rumbo, home">
+      <svg class="mark" viewBox="0 0 36 36" aria-hidden="true">
+        <rect class="tile" width="36" height="36" rx="10"/>
+        <g class="needle">
+          <path class="fore" d="M18 4.5 L21.6 18 L14.4 18 Z"/>
+          <path class="back" d="M14.4 18 L21.6 18 L18 31.5 Z"/>
+        </g>
+      </svg>
+      <span>rumbo</span>
+    </a>
+    <div class="top-end">
+      <nav class="lang" aria-label="Language"><a href="/" hreflang="es" lang="es">ES</a><a href="/en/" aria-current="page" lang="en">EN</a></nav>
+      <a class="top-link" href="/app/">Start</a>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1 class="rise">Your next job, <em>without the guesswork.</em></h1>
+      <p class="lede rise d1">Paste a job posting and Rumbo tells you whether it’s worth your time, what you meet and what you’re missing. Then it builds a CV tailored to that job, without making anything up about you.</p>
+      <div class="start rise d2">
+        <a class="btn" href="/app/">Try it with my CV
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <small class="hero-note">Rumbo is free. The AI costs a few cents per posting.</small>
+      </div>
+    </div>
+
+    <section class="demo rise d3" aria-label="An example answer">
+      <fieldset class="seg" aria-label="Example jobs">
+        <button type="button" data-i="0" aria-pressed="true"><b>Growth Lead</b><span>Nuvei</span></button>
+        <button type="button" data-i="1" aria-pressed="false"><b>Coordinator</b><span>Andino</span></button>
+        <button type="button" data-i="2" aria-pressed="false"><b>Performance</b><span>Ruta Norte</span></button>
+      </fieldset>
+      <div class="answer" id="answer" aria-live="polite"></div>
+      <p class="caption">This is Lucas, a made-up example looking for marketing work in Mexico City. Open the third one: sometimes the answer is no.</p>
+    </section>
+  </div>
+
+  <section aria-labelledby="h-cv">
+    <p class="kicker">A CV for every job</p>
+    <div class="cv-grid">
+      <div>
+        <h2 id="h-cv">A different CV for every job, without writing it yourself.</h2>
+        <p class="cv-lede">Rewriting your CV for every posting takes hours. Rumbo does it in minutes: it puts first what that job asks for, uses the job’s own words so screening filters find them, and every line comes from something you really did. If a sentence can’t be backed up, it doesn’t go in.</p>
+        <p class="cv-asks-label">What the job asks for</p>
+        <ul class="cv-asks"><li>Meta Ads</li><li>Google Ads</li><li>GA4</li><li>CRM</li><li>Looker Studio</li><li>Advanced Excel</li></ul>
+        <p class="cv-also">Also the cover letter, the answers to screening questions and the message to the recruiter. As PDF or Word.</p>
+      </div>
+      <figure class="cv-sheet" aria-label="Part of the CV Rumbo wrote for Lucas, the made-up example">
+        <p class="cv-name">Lucas Lara</p>
+        <p class="cv-role">Digital Marketing Coordinator</p>
+        <p class="cv-job">Farmacias del Valle · 2021 – 2025</p>
+        <ul class="cv-bullets">
+          <li>Ran <mark>Meta Ads</mark> and <mark>Google Ads</mark> campaigns for the online store on a monthly budget of MXN 450k; combined ROAS rose from 2.1 to 3.4 in six months after restructuring by category, with purchase conversions imported from <mark>GA4</mark>.<span class="cv-cite">From: your experience at Farmacias del Valle</span></li>
+          <li>Designed the loyalty program’s repurchase flows in HubSpot (<mark>CRM</mark>), lifting the 60-day repurchase rate from 18% to 27% in the chronic-conditions segment.<span class="cv-cite">From: your experience at Farmacias del Valle</span></li>
+        </ul>
+        <figcaption>The real CV Rumbo wrote for Lucas, the made-up example, in English for this page. Highlighted: the job’s own words.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="note-grid" aria-label="A note from the person who made it">
+    <div class="note-head">
+      <p class="kicker">A note</p>
+      <p class="open">I built Rumbo while looking for work myself.</p>
+    </div>
+    <div class="note">
+      <p>Applying to everything was wearing me out, and the tools I tried did exactly what I didn’t need: they made me sound impressive with things I had never done. A recruiter reads that as fact, and in the interview they ask you about it.</p>
+      <p>So I built it the other way round. Rumbo starts from what you really did and doesn’t write a single line you can’t back up. And before you write anything, it tells you whether a job is worth it. It told me no more often than I liked. It was almost always right.</p>
+      <p>It’s free because looking for work already costs enough. You only pay for the AI you use, a few cents, straight to the company that makes it. I don’t charge anything, I don’t see your data and I don’t sell it.</p>
+      <p>I hope it helps you as much as it helped me. :)</p>
+      <div class="sign">
+        <span class="name">Gerardo</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-ways">
+    <p class="kicker">Works where you look</p>
+    <h2 id="h-ways">Bring the job in from wherever you find it.</h2>
+    <div class="ways">
+      <article class="way-card">
+        <h3>On your computer, from LinkedIn</h3>
+        <p>With Rumbo’s Chrome extension, a button beside each job’s title opens it in Rumbo, right alongside, ready to analyse. Move to another job and it follows.</p>
+        <ol>
+          <li>Add Rumbo to Chrome.</li>
+          <li>Open a job on LinkedIn.</li>
+          <li>Press “Analyse in Rumbo” beside the title.</li>
+        </ol>
+        <!--EXTENSION--><p class="soon">Coming soon to the Chrome Web Store</p><!--/EXTENSION-->
+      </article>
+      <article class="way-card">
+        <h3>On your phone, from any app</h3>
+        <p>Open Rumbo on your phone and install it: it shows up in the Share menu. From LinkedIn or any app, share the job, or screenshots of it, and Rumbo opens it ready.</p>
+        <ol>
+          <li>Open rumbo.korven.dev and install it.</li>
+          <li>On LinkedIn, tap Share on the job.</li>
+          <li>Choose Rumbo.</li>
+        </ol>
+        <p class="soon">On iPhone, copy the job’s text and paste it in Analyse.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-nots">
+    <p class="kicker">What it won’t do</p>
+    <h2 id="h-nots">There are things Rumbo won’t&nbsp;do.</h2>
+    <ul class="nots">
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Make things up</h3><p>If you didn’t do it, it doesn’t appear on your CV, even when that makes it less impressive. Every figure is checked against what you told it.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Say yes to everything</h3><p>If a job requires living in another city or a work permit you don’t have, it tells you first, before you lose the afternoon.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Apply for you</h3><p>It helps you decide and prepare. Sending is yours.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Keep your data</h3><p>Your CV and your applications live in your browser. There’s no account and no server of ours that sees them.</p></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="h-costs">
+    <p class="kicker">What it costs, measured</p>
+    <div class="cost-grid">
+      <div>
+        <p class="zero" aria-hidden="true"><span>$0</span></p>
+        <h2 id="h-costs" class="zero-label">What Rumbo charges. Today and always.</h2>
+        <p class="zero-note">No subscription, no premium plan, no trial that runs out.</p>
+      </div>
+      <div>
+        <table class="costs">
+          <caption>What you pay for the AI · measured average, November 2026</caption>
+          <tbody>
+            <tr><td>Analysing a posting</td><td>$0.04 USD</td></tr>
+            <tr><td>CV, cover letter and answers</td><td>$0.50 USD</td></tr>
+            <tr><td>A whole job search</td><td>$3–6 USD</td></tr>
+          </tbody>
+        </table>
+        <div class="fine">
+          <p>You pay the company that makes the AI directly, with a key of your own; Rumbo walks you through getting it in 5 minutes and shows you what you’ve spent.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="last" id="empezar" aria-labelledby="h-last">
+    <h2 id="h-last">Shall we start with your&nbsp;CV?</h2>
+    <div class="start">
+      <a class="btn" href="/app/">Try it with my CV
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <small>Setting up your key takes about 5 minutes, once.</small>
+    </div>
+  </section>
+
+  <footer>
+    <a class="made-by" href="https://korven.dev">
+      <span>Made by</span>
+      <span class="vh">Korven</span>
+      <span class="korven" aria-hidden="true">K<svg viewBox="0 0 16 17" class="korven-hex"><title>O</title><polygon points="8,1 15,4.8 15,12.2 8,16 1,12.2 1,4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8" cy="8.5" r="2.8" fill="#FF8A2B"/></svg>RVEN</span>
+    </a>
+    <nav aria-label="Links"><a href="/app/privacidad/">How your privacy is kept</a><a href="https://github.com/gdberysan/cvforge">Open source</a></nav>
+  </footer>
+</div>
+
+<script>
+const A = [
+  { title: 'Growth Lead', company: 'Nuvei Pagos', verdict: 'Worth it',
+    advice: 'Apply, and be honest in the cover letter about what’s missing.',
+    tone: 'strong', s: 6, p: 2, m: 0, total: 8, missing: 'Advanced SQL and Amplitude.',
+    met: ['5+ years in growth/digital marketing', '2 years in fintech', 'Performance budgets', 'Advanced English', 'Mexico City hours'], more: 1 },
+  { title: 'Digital Marketing Coordinator', company: 'Grupo Andino Retail', verdict: 'Strong match',
+    advice: 'Apply. What you’ve done covers what they ask for.',
+    tone: 'strong', s: 8, p: 0, m: 0, total: 8, missing: '',
+    met: ['3+ years in digital marketing', 'Meta Ads', 'Google Ads', 'Enterprise CRM', 'GA4', 'Advanced Excel', 'English', 'Mexico City'],
+    why: ['Meta Ads', 'You ran Meta Ads with your own budget, both for Farmacias del Valle’s online store and for merchant acquisition at Pagolibre.'] },
+  { title: 'Performance Marketing Specialist', company: 'Agencia Ruta Norte', verdict: 'Not eligible',
+    advice: 'One requirement is something no change to your CV can meet.',
+    tone: 'blocked', s: 6, p: 1, m: 2, total: 9, missing: 'TikTok Ads, Monterrey and client visits.',
+    gate: 'It requires living in Monterrey; the role is fully on-site in San Pedro Garza García.',
+    met: ['Meta Ads', 'Google Ads', 'Looker Studio'], more: 3 },
+];
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor"/></svg>';
+const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.5" stroke="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor"/></svg>';
+const box = document.getElementById('answer');
+// All three answers are drawn once, in the same place: the card is always
+// as tall as the tallest, so switching never moves anything.
+function card(a) {
+  const bars = 's'.repeat(a.s) + 'p'.repeat(a.p) + 'm'.repeat(a.m);
+  const parts = [`You meet ${a.s} of ${a.total} key requirements`];
+  if (a.p) parts.push(`${a.p} half met`);
+  if (a.m) parts.push(`${a.m} not met`);
+  const ok = a.tone === 'strong';
+  return `
+    ${a.gate ? `<div class="gate"><b>Blocked by location</b>${a.gate}</div>` : ''}
+    <div class="verdict">
+      <div class="icon" style="background:var(${ok ? '--strong-wash' : '--blocked-wash'});color:var(${ok ? '--strong' : '--blocked'})">${ok ? CHECK : CROSS}</div>
+      <div><h3>${a.verdict}</h3><p>${a.title} · ${a.company}</p></div>
+    </div>
+    <p class="advice">${a.advice}</p>
+    <div class="bar" aria-hidden="true">${[...bars].map(c => `<i class="${c}"></i>`).join('')}</div>
+    <p class="counts">${parts.map(x => `<span>${x}</span>`).join(' · ')}</p>
+    <div class="met"><b>What you already meet</b><ul>${a.met.map(x => `<li>${x}</li>`).join('')}${a.more ? `<li class="more">+${a.more} more</li>` : ''}</ul></div>
+    ${a.why ? `<div class="missing why"><b>Why you meet ${a.why[0]}</b><span>${a.why[1]}</span></div>` : ''}
+    ${a.missing ? `<div class="missing"><b>${a.m ? 'What you’re missing' : 'What you half meet'}</b><span>${a.missing}</span></div>` : ''}`;
+}
+box.innerHTML = A.map((a, i) => `<div class="state" data-i="${i}">${card(a)}</div>`).join('');
+function show(i) {
+  for (const s of box.querySelectorAll('.state')) {
+    const on = s.dataset.i === String(i);
+    s.classList.toggle('is-on', on);
+    s.setAttribute('aria-hidden', String(!on));
+  }
+  for (const b of document.querySelectorAll('.seg button')) b.setAttribute('aria-pressed', String(b.dataset.i === String(i)));
+}
+for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => show(Number(b.dataset.i)));
+show(0);
+
+// The price joke: when the cost section comes into view, a big price rolls
+// down to $0, shrinking to fit while it is wide. Without motion it is $0.
+const zero = document.querySelector('.zero span');
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (zero && !calm && 'IntersectionObserver' in window) {
+  const START = 1999;
+  const fmt = (n) => '$' + n.toLocaleString('en-US');
+  const fit = () => {
+    zero.style.transform = '';
+    const scale = Math.min(1, zero.parentElement.clientWidth / zero.scrollWidth);
+    zero.style.transform = scale < 1 ? `scale(${scale})` : '';
+  };
+  const seen = new IntersectionObserver((entries) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    seen.disconnect();
+    zero.classList.add('counting');
+    zero.textContent = fmt(START);
+    fit();
+    const t0 = performance.now() + 350;
+    const step = (now) => {
+      const k = Math.max(0, Math.min(1, (now - t0) / 1900));
+      zero.textContent = fmt(Math.round(START * (1 - (1 - (1 - k) ** 3))));
+      fit();
+      if (k < 1) requestAnimationFrame(step);
+      else zero.classList.remove('counting');
+    };
+    requestAnimationFrame(step);
+  }, { threshold: 0.6 });
+  seen.observe(zero.parentElement);
+}
+
+// The app opens in this page's language: it reads the cookie first, then storage.
+for (const a of document.querySelectorAll('a[href^="/app/"]')) a.addEventListener('click', () => {
+  try { localStorage.setItem('cvforge-locale', document.documentElement.lang) } catch {}
+  document.cookie = `cvforge_locale=${document.documentElement.lang}; path=/; max-age=31536000; samesite=lax`;
+});
+</script>
+</body>
+</html>

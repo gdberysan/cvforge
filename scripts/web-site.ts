@@ -76,12 +76,19 @@ export function vercelSource(pattern: string): string {
  * The landing's extension button: the Chrome Web Store page once there is
  * one; until then, the "coming soon" line between the EXTENSION markers.
  */
-export function withStore(html: string, store: string): string {
+export function withStore(html: string, store: string, label = 'Agregar a Chrome'): string {
   return html.replace(/<!--EXTENSION-->[\s\S]*?<!--\/EXTENSION-->/, (soon) =>
     store
-      ? `<a class="btn" href="${store}" target="_blank" rel="noreferrer">Agregar a Chrome</a>`
+      ? `<a class="btn" href="${store}" target="_blank" rel="noreferrer">${label}</a>`
       : soon.replace(/<!--\/?EXTENSION-->/g, ''),
   )
+}
+
+/** A landing page as served: the store button filled in, its own CSP first in <head>. */
+function landingPage(file: string, store: string, label?: string): string {
+  const html = withStore(readFileSync(file, 'utf8'), store, label)
+  const meta = `<meta http-equiv="Content-Security-Policy" content="${landingPolicy(inlineHashes(html))}">`
+  return html.replace('<head>', `<head>\n${meta}`)
 }
 
 /** The retired address: everything to Rumbo, except the update notice. */
@@ -102,13 +109,19 @@ if (process.argv[1]?.endsWith('web-site.ts')) {
   mkdirSync(SITE, { recursive: true })
   cpSync(OUT, path.join(SITE, BASE.replace(/^\//, '')), { recursive: true })
 
-  // The extension's store page, once approved: until then the landing says it is coming.
-  const landing = withStore(
-    readFileSync(path.join('web', 'landing', 'index.html'), 'utf8'),
-    process.env.RUMBO_EXTENSION_URL ?? '',
+  // The landing in Spanish at the root and in English at /en/; one stylesheet.
+  // The extension's store page, once approved: until then each says it is coming.
+  const store = process.env.RUMBO_EXTENSION_URL ?? ''
+  writeFileSync(
+    path.join(SITE, 'index.html'),
+    landingPage(path.join('web', 'landing', 'index.html'), store),
   )
-  const meta = `<meta http-equiv="Content-Security-Policy" content="${landingPolicy(inlineHashes(landing))}">`
-  writeFileSync(path.join(SITE, 'index.html'), landing.replace('<head>', `<head>\n${meta}`))
+  mkdirSync(path.join(SITE, 'en'), { recursive: true })
+  writeFileSync(
+    path.join(SITE, 'en', 'index.html'),
+    landingPage(path.join('web', 'landing', 'en', 'index.html'), store, 'Add to Chrome'),
+  )
+  copyFileSync(path.join('web', 'landing', 'landing.css'), path.join(SITE, 'landing.css'))
   copyFileSync(path.join('web', 'app', 'icon.svg'), path.join(SITE, 'favicon.svg'))
   cpSync(path.join('web', 'landing', 'fonts'), path.join(SITE, 'fonts'), { recursive: true })
   copyFileSync(
