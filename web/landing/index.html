@@ -183,8 +183,11 @@ header.top {
 .answer {
   background: var(--sheet); border-radius: 24px; padding: 26px;
   box-shadow: var(--shadow);
-  display: grid; gap: 16px; align-content: start;
+  display: grid;
 }
+/* The three answers share one cell: the card keeps the tallest one's size. */
+.answer > .state { grid-area: 1 / 1; display: grid; gap: 16px; align-content: start; visibility: hidden; }
+.answer > .state.is-on { visibility: visible; }
 .gate { border: 1px solid var(--blocked); border-radius: 14px; background: var(--blocked-wash); padding: 13px 15px; font: 400 16px/1.45 var(--display); }
 .gate b { display: block; color: var(--blocked); font-weight: 700; margin-bottom: 3px; }
 .verdict { display: flex; gap: 14px; align-items: center; }
@@ -409,14 +412,15 @@ const A = [
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor"/></svg>';
 const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.5" stroke="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor"/></svg>';
 const box = document.getElementById('answer');
-function render(i) {
-  const a = A[i];
+// All three answers are drawn once, in the same place: the card is always
+// as tall as the tallest, so switching never moves anything.
+function card(a) {
   const bars = 's'.repeat(a.s) + 'p'.repeat(a.p) + 'm'.repeat(a.m);
   const parts = [`Cumples ${a.s} de ${a.total} requisitos clave`];
   if (a.p) parts.push(`${a.p} a medias`);
   if (a.m) parts.push(`${a.m} sin cubrir`);
   const ok = a.tone === 'strong';
-  box.innerHTML = `
+  return `
     ${a.gate ? `<div class="gate"><b>Bloqueado por ubicación</b>${a.gate}</div>` : ''}
     <div class="verdict">
       <div class="icon" style="background:var(${ok ? '--strong-wash' : '--blocked-wash'});color:var(${ok ? '--strong' : '--blocked'})">${ok ? CHECK : CROSS}</div>
@@ -426,29 +430,18 @@ function render(i) {
     <div class="bar" aria-hidden="true">${[...bars].map(c => `<i class="${c}"></i>`).join('')}</div>
     <p class="counts">${parts.map(x => `<span>${x}</span>`).join(' · ')}</p>
     ${a.missing ? `<div class="missing"><b>${a.m ? 'Lo que te falta' : 'Lo que tienes a medias'}</b><span>${a.missing}</span></div>` : ''}`;
+}
+box.innerHTML = A.map((a, i) => `<div class="state" data-i="${i}">${card(a)}</div>`).join('');
+function show(i) {
+  for (const s of box.querySelectorAll('.state')) {
+    const on = s.dataset.i === String(i);
+    s.classList.toggle('is-on', on);
+    s.setAttribute('aria-hidden', String(!on));
+  }
   for (const b of document.querySelectorAll('.seg button')) b.setAttribute('aria-pressed', String(b.dataset.i === String(i)));
 }
 for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => show(Number(b.dataset.i)));
-// Switching jobs: the card fits its answer, and its height glides to the
-// new one instead of jumping (a move you caused, under your finger).
-const still = matchMedia('(prefers-reduced-motion: reduce)');
-function show(i) {
-  const from = box.offsetHeight;
-  render(i);
-  if (still.matches || !from) return;
-  const to = box.offsetHeight;
-  if (from === to) return;
-  box.style.height = from + 'px';
-  box.style.overflow = 'hidden';
-  requestAnimationFrame(() => {
-    box.style.transition = 'height .28s cubic-bezier(.2,.8,.2,1)';
-    box.style.height = to + 'px';
-  });
-  box.addEventListener('transitionend', () => {
-    box.style.transition = ''; box.style.height = ''; box.style.overflow = '';
-  }, { once: true });
-}
-render(0);
+show(0);
 </script>
 </body>
 </html>

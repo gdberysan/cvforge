@@ -26,6 +26,7 @@ function Home() {
       discover={false}
       shotsHref="/share"
       privacyHref="/privacidad"
+      landingHref="/?inicio"
     />
   )
 }

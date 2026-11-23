@@ -19,14 +19,19 @@ export function FirstRun({
   needsKey,
   local,
   privacyHref,
+  landingHref,
 }: {
   needsKey: boolean
   local: boolean
   /** Where the privacy promises are written down, where there is a page for them. */
   privacyHref?: string
+  /** Where the example already lives (the web edition's landing page): the first
+   *  run then opens on the key, and "back to the example" goes there. */
+  landingHref?: string
 }) {
   const t = useT()
-  const [step, setStep] = useState<'look' | 'key'>('look')
+  // Whoever arrives from the landing page has seen the example: one press, not two.
+  const [step, setStep] = useState<'look' | 'key'>(landingHref ? 'key' : 'look')
 
   if (!needsKey) {
     return (
@@ -59,9 +64,16 @@ export function FirstRun({
       </div>
       <KeyGuide open />
       <div className="welcome-links">
-        <button type="button" className="welcome-link" onClick={() => setStep('look')}>
-          {t('start.back')}
-        </button>
+        {landingHref ? (
+          // The landing page is outside the app (its own page at the site root).
+          <a href={landingHref} className="welcome-link">
+            {t('start.back')}
+          </a>
+        ) : (
+          <button type="button" className="welcome-link" onClick={() => setStep('look')}>
+            {t('start.back')}
+          </button>
+        )}
         {privacy}
       </div>
     </main>

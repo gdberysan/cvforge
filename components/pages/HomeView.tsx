@@ -35,6 +35,7 @@ export function HomeView({
   keyLocal = true,
   shotsHref,
   privacyHref,
+  landingHref,
 }: {
   data: HomeData
   t: Translate
@@ -48,9 +49,18 @@ export function HomeView({
   shotsHref?: string
   /** Where the privacy promises are written down (the web edition's page). */
   privacyHref?: string
+  /** The web edition's landing page, which already shows the example. */
+  landingHref?: string
 }) {
   if (data.kind === 'first-run')
-    return <FirstRun needsKey={data.needsKey} local={keyLocal} privacyHref={privacyHref} />
+    return (
+      <FirstRun
+        needsKey={data.needsKey}
+        local={keyLocal}
+        privacyHref={privacyHref}
+        landingHref={landingHref}
+      />
+    )
   const { sample, li, find } = search
   const useSample = sample === '1'
 
