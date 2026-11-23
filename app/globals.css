@@ -9329,3 +9329,10 @@ a.btn-primary:not(:has(svg))::after {
   font: 400 17px/1.5 var(--font-voice);
   color: var(--text-strong);
 }
+
+/* What is left of the free trial (web Ajustes): ten segments and a line. */
+.trial-left { display: grid; gap: 8px; margin: 4px 0 18px; }
+.trial-left-bar { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; max-width: 22rem; }
+.trial-left-bar i { height: 6px; border-radius: 3px; background: var(--surface-sunken); }
+.trial-left-bar i.is-on { background: var(--fill-warm); }
+.trial-left-text { margin: 0; font: 400 16px/1.45 var(--font-voice); color: var(--text-body); }

@@ -7,6 +7,7 @@ import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
 import { HapticsToggle } from '@/components/settings/HapticsToggle'
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsGroup'
 import { LocaleSwitch } from '@/components/ui/LocaleSwitch'
+import { workerApi } from '@/web/lib/actions-client'
 import { BuildInfo } from '@/web/lib/build-info'
 import { DataCard } from '@/web/lib/data-card'
 import { useDatabase } from '@/web/lib/database'
@@ -53,6 +54,7 @@ export default function Page() {
       }
       alert={!data.hasKey && !data.trial}
     >
+      {data.trial && <TrialLeft />}
       <ApiKeyForm hasSavedKey={data.hasKey} envManaged={false} local />
     </SettingsGroup>
   )
@@ -68,7 +70,10 @@ export default function Page() {
         {/* What blocks everything comes first (standard point 3). */}
         {!data.hasKey && keyGroup}
 
-        <SettingsGroup title={t('settings.group.status')} lede={t('web.settings.lede')}>
+        <SettingsGroup
+          title={t('settings.group.status')}
+          lede={t(data.trial ? 'web.settings.ledeTrial' : 'web.settings.lede')}
+        >
           {data.hasKey && (
             <SettingsRow
               label={<StatusLabel tone="ok">{t('settings.status.key')}</StatusLabel>}
@@ -144,5 +149,42 @@ function StatusLabel({ tone, children }: { tone: 'ok' | 'attn'; children: React.
       <span className={`status-dot tone-${tone}`} aria-hidden />
       {children}
     </span>
+  )
+}
+
+/**
+ * How much of the free trial is left, as the trial server counts it: so the
+ * end is not a surprise in the middle of a CV. Rounded to a tenth; nothing
+ * shown when the server cannot say.
+ */
+function TrialLeft() {
+  const t = useT()
+  const [share, setShare] = useState<number | null>(null)
+  useEffect(() => {
+    let live = true
+    workerApi()
+      .then((api) => api.trialStatus())
+      .then((s) => {
+        if (live && s && s.budgetUsd > 0)
+          setShare(Math.max(0, Math.min(1, s.leftUsd / s.budgetUsd)))
+      })
+      .catch(() => {})
+    return () => {
+      live = false
+    }
+  }, [])
+  if (share === null) return null
+  const pct = Math.round(share * 10) * 10
+  return (
+    <div className="trial-left">
+      {/* Ten segments, like the app's other bars: no inline width. */}
+      <div className="trial-left-bar" aria-hidden>
+        {Array.from({ length: 10 }, (_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: fixed decorative segments
+          <i key={i} className={i < pct / 10 ? 'is-on' : ''} />
+        ))}
+      </div>
+      <p className="trial-left-text">{t('settings.trial.left', { pct })}</p>
+    </div>
   )
 }

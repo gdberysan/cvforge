@@ -457,3 +457,16 @@ describe('a credential line still sends its other claims to the model', () => {
     expect(sent('Google Ads Search — usada para auditar cuentas Fortune 500')).toHaveLength(1)
   })
 })
+
+describe('sameJobTitle', () => {
+  it('reads one title through case, accents, punctuation and the gender marker', async () => {
+    const { sameJobTitle } = await import('@/lib/verify/sections')
+    expect(
+      sameJobTitle('Coordinador(a) de Marketing Digital', 'Coordinador de Marketing Digital'),
+    ).toBe(true)
+    expect(sameJobTitle('Gerente/a de Growth', 'gerente de growth')).toBe(true)
+    expect(sameJobTitle('Analista de Datos', 'Análisis de Datos')).toBe(false)
+    expect(sameJobTitle('Growth Lead', 'Head of Growth')).toBe(false)
+    expect(sameJobTitle('', '')).toBe(false)
+  })
+})

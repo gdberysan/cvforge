@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { callStructured } from '../client'
 
-const VerdictsSchema = z.object({
+export const VerdictsSchema = z.object({
   verdicts: z.array(
     z.object({
       bulletId: z.string(),

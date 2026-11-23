@@ -347,6 +347,7 @@ const en = {
   'settings.trial.title': "You're on the free trial",
   'settings.trial.lede':
     'This time CVForge pays. When it runs out, add your key here and pick up where you left off.',
+  'settings.trial.left': 'About {pct}% of your trial is left.',
   'settings.trial.endedLede':
     'Your free trial is over. Add your key and pick up where you left off: your CV and applications are still here.',
   'settings.group.data': 'Your data',
@@ -1694,6 +1695,8 @@ const en = {
     'That copy comes from a newer CVForge. Reload this page to update, then try again.',
   'web.data.storage': 'Storage',
   'web.settings.lede': 'Everything lives in this browser. The key goes only to Anthropic.',
+  'web.settings.ledeTrial':
+    'Everything lives in this browser. During the free trial your calls pass through our server on their way to Anthropic, and nothing is stored.',
   'web.data.saveCopy': 'Save a copy',
   'web.colophon': 'Printed by hand, in your browser.',
   'web.db.opening': 'Opening your data…',
@@ -2106,6 +2109,7 @@ const es: Record<MessageKey, string> = {
   'settings.trial.title': 'Estás en la prueba gratis',
   'settings.trial.lede':
     'Esta vez paga CVForge. Cuando se acabe, agrega aquí tu clave y sigues donde ibas.',
+  'settings.trial.left': 'Te queda cerca del {pct}% de tu prueba.',
   'settings.trial.endedLede':
     'Tu prueba gratis terminó. Agrega tu clave y sigues donde ibas: tu CV y tus postulaciones siguen aquí.',
   'settings.group.data': 'Tus datos',
@@ -3459,6 +3463,8 @@ const es: Record<MessageKey, string> = {
     'Esa copia viene de un CVForge más nuevo. Recarga esta página para actualizar y vuelve a intentarlo.',
   'web.data.storage': 'Almacenamiento',
   'web.settings.lede': 'Todo vive en este navegador. La clave va solo a Anthropic.',
+  'web.settings.ledeTrial':
+    'Todo vive en este navegador. Durante la prueba gratis tus llamadas pasan por nuestro servidor rumbo a Anthropic, sin guardarse.',
   'web.data.saveCopy': 'Guardar una copia',
   'web.colophon': 'Impreso a mano, en tu navegador.',
   'web.db.opening': 'Abriendo tus datos…',
