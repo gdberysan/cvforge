@@ -10,331 +10,15 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_MX">
 <meta name="theme-color" content="#F5F3EE">
+<link rel="alternate" hreflang="es" href="https://rumbo.korven.dev/">
+<link rel="alternate" hreflang="en" href="https://rumbo.korven.dev/en/">
+<link rel="alternate" hreflang="x-default" href="https://rumbo.korven.dev/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/app/icons/icon-192.png">
-<style>
-/* The type, served from this site: no visitor ever contacts Google. */
-@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/bricolage-grotesque-normal-500-f39ba9.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/bricolage-grotesque-normal-500-f39ba9.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/bricolage-grotesque-normal-500-f39ba9.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/bricolage-grotesque-normal-500-f39ba9.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/ibm-plex-mono-normal-400-acb0f0.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/ibm-plex-mono-normal-500-117e88.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Source Serif 4'; font-style: italic; font-weight: 400; font-display: swap; src: url('/fonts/source-serif-4-italic-400-324356.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Source Serif 4'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/source-serif-4-normal-400-91f1a3.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Source Serif 4'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/source-serif-4-normal-400-91f1a3.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-/* Layout: one shared left edge for everything. The hero splits in two: the
-   promise on the left, the product itself (a live answer) on the right.
-   Reading text keeps a letter's measure inside that same edge. */
-:root {
-  --paper: #F5F3EE;
-  --sheet: #FFFFFF;
-  --well: #EFECE5;
-  --ink: #17171A;
-  --ink-soft: #4E4C47;
-  --ink-faint: #6F6C66;
-  --rule: rgba(23, 23, 26, 0.10);
-  --amber: #F0A35E;
-  --amber-ink: #8A4310;
-  --strong: #1F6B4A;
-  --strong-wash: #E4F1E9;
-  --blocked: #A3261C;
-  --blocked-wash: #FBE9E6;
-  --track: #E4E0D7;
-  --partial-bar: #B9B4A9;
-  --needle-back: #F5F3EE;
-  --tile: #17171A;
-  --seg-on: #FFFFFF;
-  --seg-on-edge: transparent;
-  --shadow: 0 1px 2px rgba(23,23,26,.05), 0 8px 24px rgba(23,23,26,.06), 0 32px 64px -24px rgba(23,23,26,.14);
-
-  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --text: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-
-  --page: 76rem;
-  --split: minmax(0, 1fr) minmax(0, 1fr);
-  --split-gap: clamp(32px, 6vw, 96px);
-  --measure: 35rem;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --paper: #141412; --sheet: #1D1D1A; --well: #252521;
-    --ink: #EDEAE3; --ink-soft: #C2BEB5; --ink-faint: #9C988F;
-    --rule: rgba(237,234,227,.12);
-    --amber-ink: #F0A35E;
-    --strong: #6FC79A; --strong-wash: #1B2D24;
-    --blocked: #F08A7E; --blocked-wash: #33201C;
-    --track: #33322E; --partial-bar: #6A675F;
-    --needle-back: #2A2A27; --tile: #2A2A27; --seg-on: #3A3934; --seg-on-edge: rgba(237,234,227,.22);
-    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 24px 60px -20px rgba(0,0,0,.6);
-  }
-}
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --paper: #141412; --sheet: #1D1D1A; --well: #252521;
-  --ink: #EDEAE3; --ink-soft: #C2BEB5; --ink-faint: #9C988F;
-  --rule: rgba(237,234,227,.12);
-  --amber-ink: #F0A35E;
-  --strong: #6FC79A; --strong-wash: #1B2D24;
-  --blocked: #F08A7E; --blocked-wash: #33201C;
-  --track: #33322E; --partial-bar: #6A675F;
-  --needle-back: #2A2A27; --tile: #2A2A27; --seg-on: #3A3934; --seg-on-edge: rgba(237,234,227,.22);
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 24px 60px -20px rgba(0,0,0,.6);
-}
-
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font: 400 18px/1.65 var(--text);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-.page {
-  max-width: calc(var(--page) + 2 * 32px);
-  margin: 0 auto;
-  padding-left: max(24px, env(safe-area-inset-left, 0px));
-  padding-right: max(24px, env(safe-area-inset-right, 0px));
-}
-a { color: var(--amber-ink); text-underline-offset: 3px; text-decoration-thickness: 1px; }
-a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
-
-/* The mark: a compass needle on the ink tile, settling once on load. */
-.mark { width: 36px; height: 36px; flex: none; }
-.mark .tile { fill: var(--tile); }
-.mark .fore { fill: var(--amber); }
-.mark .back { fill: var(--needle-back); }
-:root[data-theme="dark"] .mark .back, :root[data-theme="dark"] .mark .tile {}
-.needle { transform-box: view-box; transform-origin: 50% 50%; transform: rotate(45deg); }
-@media (prefers-reduced-motion: no-preference) {
-  .needle { animation: settle 1.7s cubic-bezier(.2,.8,.2,1) .15s both; }
-  .rise { animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
-  .rise.d1 { animation-delay: .08s; } .rise.d2 { animation-delay: .16s; } .rise.d3 { animation-delay: .28s; }
-}
-@keyframes settle {
-  0% { transform: rotate(-70deg); } 45% { transform: rotate(62deg); }
-  70% { transform: rotate(38deg); } 86% { transform: rotate(48deg); } 100% { transform: rotate(45deg); }
-}
-/* Starts visible: only a short lift, never from transparent. */
-@keyframes rise { from { transform: translateY(10px); } to { transform: none; } }
-
-header.top {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding-block: 20px;
-}
-.brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: var(--ink); min-height: 44px; }
-.brand span { font: 800 26px/1 var(--display); letter-spacing: -0.035em; }
-.top-link {
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px;
-  border-radius: 999px; border: 1px solid var(--rule);
-  font: 600 16px/1 var(--display); color: var(--ink); text-decoration: none;
-}
-.top-link:hover { background: var(--sheet); }
-
-/* Hero: promise left, product right. */
-.hero {
-  display: grid;
-  grid-template-columns: var(--split);
-  gap: var(--split-gap);
-  /* Both columns start on one line, right under the header: centring the
-     promise against the taller demo left a gap above the headline. */
-  align-items: start;
-  padding-block: clamp(16px, 3vh, 32px) clamp(40px, 6vh, 64px);
-}
-.hero h1 {
-  margin: 0;
-  font: 800 clamp(48px, 7vw, 92px)/0.94 var(--display);
-  letter-spacing: -0.048em;
-}
-.hero h1 em { font-style: normal; color: var(--amber-ink); display: block; }
-.lede { margin: 30px 0 0; font-size: 22px; line-height: 1.55; color: var(--ink-soft); max-width: 28rem; }
-.start { margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 56px; padding: 0 30px;
-  border-radius: 999px; border: 0;
-  background: var(--ink); color: var(--paper);
-  font: 700 18px/1 var(--display); letter-spacing: -0.01em;
-  text-decoration: none; cursor: pointer;
-  box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 8px 20px -8px rgba(23,23,26,.45);
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-.btn:hover { transform: translateY(-1px); box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 12px 26px -10px rgba(23,23,26,.5); }
-.btn svg { width: 18px; height: 18px; }
-.start small { font: 400 16px/1.45 var(--display); color: var(--ink-faint); max-width: 28rem; }
-
-/* The product: a live answer, three jobs one tap apart. */
-.demo { display: grid; gap: 12px; }
-/* The demo is a <section> for screen readers, not a page section: no section spacing. */
-.hero .demo { padding-block: 0; }
-.seg {
-  margin: 0; border: 0; min-width: 0;
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
-  padding: 4px; border-radius: 16px; background: var(--well);
-}
-.seg button {
-  min-height: 48px; padding: 8px 10px 8px 22px; border: 0; border-radius: 12px;
-  background: transparent; color: var(--ink-soft); cursor: pointer; text-align: left;
-  font: 600 14px/1.2 var(--display);
-  display: grid; gap: 2px; align-content: center;
-}
-.seg button b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.seg button span { font: 400 14px/1.2 var(--display); color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.seg button[aria-pressed="true"] { background: var(--seg-on); outline: 1px solid var(--seg-on-edge); outline-offset: -1px; color: var(--ink); box-shadow: 0 1px 2px rgba(23,23,26,.08), 0 2px 8px rgba(23,23,26,.06); }
-.answer {
-  background: var(--sheet); border-radius: 24px; padding: 26px;
-  box-shadow: var(--shadow);
-  display: grid;
-}
-/* The three answers share one cell: the card keeps the tallest one's size. */
-.answer > .state { grid-area: 1 / 1; display: grid; gap: 16px; align-content: start; visibility: hidden; }
-.answer > .state.is-on { visibility: visible; }
-.gate { border: 1px solid var(--blocked); border-radius: 14px; background: var(--blocked-wash); padding: 13px 15px; font: 400 16px/1.45 var(--display); }
-.gate b { display: block; color: var(--blocked); font-weight: 700; margin-bottom: 3px; }
-.verdict { display: flex; gap: 14px; align-items: center; }
-.icon { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; flex: none; }
-.icon svg { width: 26px; height: 26px; }
-.verdict h3 { margin: 0; font: 800 34px/1 var(--display); letter-spacing: -0.035em; }
-.verdict p { margin: 6px 0 0; font: 400 14px/1.3 var(--display); color: var(--ink-faint); }
-.advice { margin: 0; font: 400 18px/1.45 var(--text); }
-.bar { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
-.bar i { height: 8px; border-radius: 999px; background: var(--track); }
-.bar i.s { background: var(--strong); }
-.bar i.p { background: var(--amber); }
-.bar i.m { background: var(--blocked); opacity: .5; }
-.counts span { white-space: nowrap; }
-.counts { margin: -4px 0 0; font: 500 16px/1.4 var(--display); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-.met b { display: block; font: 600 14px/1.3 var(--display); color: var(--ink-faint); margin-bottom: 8px; }
-.met ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.met li.more { background: none; color: var(--ink-faint); padding-inline: 4px; }
-.met li { padding: 5px 10px; border-radius: 999px; background: var(--strong-wash); color: var(--strong); font: 500 14px/1.3 var(--display); }
-.missing { background: var(--well); border-radius: 14px; padding: 13px 16px; }
-.missing b { display: block; font: 600 14px/1.3 var(--display); color: var(--ink-faint); margin-bottom: 3px; }
-.missing span { font: 600 18px/1.4 var(--display); }
-.why span { font: 400 17px/1.5 var(--text); }
-.caption { margin: 2px 0 0; font: 400 14px/1.45 var(--display); color: var(--ink-faint); }
-
-/* Section rhythm: space, not rules. Each section opens with one line. */
-section { padding-block: clamp(48px, 7vh, 72px); }
-.kicker { margin: 0 0 16px; font: 500 14px/1.3 var(--data); letter-spacing: .04em; color: var(--amber-ink); }
-h2 { margin: 0 0 26px; font: 700 clamp(34px, 4.6vw, 54px)/1.04 var(--display); letter-spacing: -0.035em; max-width: 18ch; }
-
-/* The tailored CV: the pitch and the job's words on the left, a real CV on paper on the right. */
-.cv-grid { display: grid; grid-template-columns: var(--split); gap: var(--split-gap); align-items: start; }
-.cv-grid h2 { margin-bottom: 18px; }
-.cv-lede { margin: 0 0 26px; color: var(--ink-soft); max-width: var(--measure); }
-.cv-asks-label { margin: 0 0 10px; font: 600 14px/1.3 var(--display); color: var(--ink-faint); }
-.cv-asks { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.cv-asks li { padding: 6px 12px; border-radius: 999px; background: var(--sheet); border: 1px solid var(--rule); font: 600 16px/1.3 var(--display); }
-.cv-also { margin: 24px 0 0; font: 400 16px/1.5 var(--display); color: var(--ink-faint); }
-.cv-sheet { margin: 0; background: var(--sheet); border-radius: 18px; padding: 32px 34px; box-shadow: var(--shadow); }
-.cv-name { margin: 0; font: 700 26px/1.15 var(--display); letter-spacing: -0.02em; }
-.cv-role { margin: 2px 0 0; font: 400 16px/1.4 var(--display); color: var(--ink-soft); }
-.cv-job { margin: 22px 0 10px; font: 600 16px/1.4 var(--display); }
-.cv-bullets { margin: 0; padding-left: 1.1em; display: grid; gap: 14px; font: 400 16px/1.55 var(--text); }
-.cv-bullets mark { background: color-mix(in srgb, var(--amber) 32%, transparent); color: inherit; border-radius: 4px; padding: 0 2px; }
-.cv-cite { display: block; margin-top: 4px; font: 500 14px/1.3 var(--display); color: var(--strong); }
-.cv-sheet figcaption { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--rule); font: 400 14px/1.45 var(--display); color: var(--ink-faint); }
-
-/* The note: a letter. Its first line is set large, like the start of a page. */
-.note-grid { display: block; }
-.note { columns: 2; column-gap: var(--split-gap); }
-.note p { break-inside: avoid; }
-.note .sign { break-inside: avoid; }
-.note-head { margin-bottom: 36px; }
-.note-head .open { margin: 0; font: 700 clamp(34px, 4.6vw, 54px)/1.06 var(--display); letter-spacing: -0.035em; max-width: 22ch; }
-.note p { margin: 0 0 1.05em; }
-.note p:last-child { margin-bottom: 0; }
-.sign { margin-top: 30px; display: flex; align-items: baseline; gap: 14px; }
-.sign .name { font: italic 400 34px/1 var(--text); }
-.sign .where { font: 400 14px/1.4 var(--data); color: var(--ink-faint); }
-
-/* Where it works: two white cards, the only cards on the page besides the demo. */
-.ways { display: grid; grid-template-columns: var(--split); gap: 24px var(--split-gap); }
-.way-card { background: var(--sheet); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); display: grid; gap: 12px; align-content: start; }
-.way-card h3 { margin: 0; font: 700 26px/1.15 var(--display); letter-spacing: -0.02em; }
-.way-card p { margin: 0; color: var(--ink-soft); }
-.way-card ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; font: 500 18px/1.45 var(--display); }
-.way-card ol li::marker { color: var(--amber-ink); font-weight: 700; }
-.way-card .btn { justify-self: start; margin-top: 8px; }
-.way-card .soon { font: 500 16px/1.45 var(--display); color: var(--ink-faint); margin-top: 4px; }
-
-/* What it refuses: statements, set large. */
-.nots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: var(--split); gap: 40px var(--split-gap); }
-.nots h3 { position: relative; }
-@media (min-width: 1240px) { .nots h3 svg { position: absolute; left: -32px; top: 50%; translate: 0 -50%; } .nots p { padding-left: 0 !important; } }
-.nots li { display: grid; gap: 8px; align-content: start; }
-.nots h3 { margin: 0; display: flex; align-items: center; gap: 12px; font: 700 26px/1.15 var(--display); letter-spacing: -0.02em; }
-.nots h3 svg { width: 20px; height: 20px; flex: none; stroke: var(--blocked); }
-.nots p { margin: 0; color: var(--ink-soft); font-size: 18px; line-height: 1.55; padding-left: 32px; }
-
-/* Costs: the $0 is the peak of the page. */
-.cost-grid { display: grid; grid-template-columns: var(--split); gap: var(--split-gap); align-items: start; }
-.zero span { display: inline-block; transform-origin: left bottom; white-space: nowrap; transition: color .5s ease; }
-/* Counting down it is just a number; the green is for landing on $0. */
-.zero span.counting { color: var(--ink); }
-.zero { margin: 24px 0 0; font: 800 clamp(120px, 20vw, 240px)/0.82 var(--display); letter-spacing: -0.06em; color: var(--strong); }
-.zero-label { margin: 18px 0 0; font: 600 22px/1.3 var(--display); max-width: none; letter-spacing: -0.01em; }
-.zero-note { margin: 6px 0 0; font-size: 18px; color: var(--ink-faint); max-width: 22rem; }
-.costs { width: 100%; border-collapse: collapse; font: 500 18px/1.4 var(--display); }
-.costs caption { caption-side: bottom; text-align: left; padding-top: 12px; font: 400 14px/1.4 var(--display); color: var(--ink-faint); }
-.costs tr:first-child td { border-top: 0; }
-.costs td em { display: block; font: 400 14px/1.3 var(--display); font-style: normal; color: var(--ink-faint); }
-.costs td { padding: 16px 0; border-top: 1px solid var(--rule); vertical-align: baseline; }
-.costs td:last-child { text-align: right; font: 500 18px/1.4 var(--data); font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 16px; }
-.fine { margin-top: 26px; display: grid; gap: 14px; font-size: 18px; line-height: 1.6; color: var(--ink-soft); }
-.fine p { margin: 0; }
-.fine strong { color: var(--ink); font-weight: 600; }
-
-/* Last call */
-.last { padding-block: clamp(48px, 8vh, 88px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px 48px; }
-.last h2 { margin: 0; max-width: none; }
-.last .start { margin-top: 0; flex-direction: column; align-items: flex-start; gap: 12px; }
-footer {
-  padding-block: 24px 40px;
-  display: flex; flex-wrap: wrap; gap: 4px 20px; justify-content: space-between; align-items: center;
-  font: 400 14px/1.5 var(--display); color: var(--ink-faint);
-  border-top: 1px solid var(--rule);
-}
-footer nav { display: flex; flex-wrap: wrap; gap: 0 20px; }
-/* Korven's wordmark (as on korven.dev): K, the hexagon with its amber node, RVEN. */
-.made-by { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: var(--ink-faint); text-decoration: none; }
-.made-by:hover .korven { color: var(--ink); }
-.korven { display: inline-flex; align-items: center; font: 700 18px/1 var(--display); letter-spacing: 0.04em; color: var(--ink-soft); transition: color .15s ease; }
-.korven-hex { width: 15px; height: 16px; margin: 0 1px; }
-.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-footer a { color: var(--ink-faint); display: inline-flex; align-items: center; min-height: 44px; }
-
-@media (max-width: 900px) {
-  .hero, .cv-grid { grid-template-columns: minmax(0, 1fr); }
-  .note { columns: 1; }
-  .cost-grid { grid-template-columns: minmax(0, 1fr); }
-}
-@media (max-width: 640px) {
-  section { padding-block: 36px; }
-  .hero { padding-block: 20px 40px; gap: 40px; }
-  .lede { font-size: 18px; line-height: 1.5; margin-top: 18px; }
-  .hero h1 { font-size: 46px; }
-  .start { margin-top: 24px; }
-  .btn { width: 100%; }
-  .start small { max-width: none; }
-  .seg button { padding: 8px 6px; text-align: center; justify-items: center; }
-  .seg button b { display: none; }
-  .seg button span { font: 600 16px/1.2 var(--display); color: inherit; }
-  .answer { padding: 20px; }
-  .verdict h3 { font-size: 34px; }
-  .nots, .ways { grid-template-columns: minmax(0, 1fr); gap: 32px; }
-  .cv-sheet { padding: 22px; }
-  .way-card { padding: 22px; }
-  .last .start { width: 100%; }
-  .nots h3 { font-size: 26px; }
-  .nots p { padding-left: 32px; }
-  .last h2 { font-size: 34px; }
-}
-</style>
+<!-- The display and text faces load first: the headline is not drawn twice. -->
+<link rel="preload" href="/fonts/bricolage-grotesque-normal-500-f39ba9.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/source-serif-4-normal-400-91f1a3.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/landing.css">
 <!-- Someone who already uses the app goes straight to it (the app sets this; ?inicio shows this page anyway). -->
 <script>try{if(localStorage.getItem('rumbo:returning')&&!/[?&]inicio\b/.test(location.search))location.replace('/app/')}catch(e){}</script>
 </head>
@@ -351,7 +35,10 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
       </svg>
       <span>rumbo</span>
     </a>
-    <a class="top-link" href="/app/">Empezar</a>
+    <div class="top-end">
+      <nav class="lang" aria-label="Idioma"><a href="/" aria-current="page" lang="es">ES</a><a href="/en/" hreflang="en" lang="en">EN</a></nav>
+      <a class="top-link" href="/app/">Empezar</a>
+    </div>
   </header>
 
   <div class="hero">
@@ -579,6 +266,12 @@ if (zero && !calm && 'IntersectionObserver' in window) {
   }, { threshold: 0.6 });
   seen.observe(zero.parentElement);
 }
+
+// The app opens in this page's language: it reads the cookie first, then storage.
+for (const a of document.querySelectorAll('a[href^="/app/"]')) a.addEventListener('click', () => {
+  try { localStorage.setItem('cvforge-locale', document.documentElement.lang) } catch {}
+  document.cookie = `cvforge_locale=${document.documentElement.lang}; path=/; max-age=31536000; samesite=lax`;
+});
 </script>
 </body>
 </html>
