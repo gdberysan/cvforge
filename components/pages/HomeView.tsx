@@ -36,6 +36,7 @@ export function HomeView({
   shotsHref,
   privacyHref,
   landingHref,
+  extras,
 }: {
   data: HomeData
   t: Translate
@@ -51,6 +52,8 @@ export function HomeView({
   privacyHref?: string
   /** The web edition's landing page, which already shows the example. */
   landingHref?: string
+  /** The web edition's own cards for the side column (ways to bring jobs in). */
+  extras?: React.ReactNode
 }) {
   if (data.kind === 'first-run')
     return (
@@ -154,7 +157,9 @@ export function HomeView({
               footer={
                 <>
                   {useSample && <p className="intake-note">{t('home.sampleLoaded')}</p>}
-                  {shotsHref ? <p className="intake-hint">{t('today.shotsHint')}</p> : null}
+                  {shotsHref ? (
+                    <p className="intake-hint only-touch">{t('today.shotsHint')}</p>
+                  ) : null}
                   {!useSample && !data.demo && (
                     <Link href="/?sample=1" className="action intake-sample-link">
                       {t('home.sample')}
@@ -175,6 +180,7 @@ export function HomeView({
 
         <div className="today-side">
           {mailSection}
+          {extras}
 
           {inboxItems.length > 0 && (
             <section className="today-section">

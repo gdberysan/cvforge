@@ -5,6 +5,7 @@ import {
   parseHeaders,
   underBase,
   vercelSource,
+  withStore,
 } from '@/scripts/web-site'
 
 describe('the host rules for rumbo.korven.dev', () => {
@@ -38,5 +39,13 @@ describe('the host rules for rumbo.korven.dev', () => {
     expect(re.test('/pipeline')).toBe(true)
     expect(re.test('/version.json')).toBe(false)
     expect(LEGACY_REDIRECT.has).toEqual([{ type: 'host', value: 'cvforge.korven.dev' }])
+  })
+
+  it('link the extension only once the store has it', () => {
+    const html = '<p>x</p><!--EXTENSION--><p class="soon">Muy pronto</p><!--/EXTENSION-->'
+    expect(withStore(html, '')).toBe('<p>x</p><p class="soon">Muy pronto</p>')
+    const live = withStore(html, 'https://chromewebstore.google.com/detail/rumbo/abc')
+    expect(live).toContain('href="https://chromewebstore.google.com/detail/rumbo/abc"')
+    expect(live).not.toContain('Muy pronto')
   })
 })

@@ -1333,6 +1333,30 @@ const en = {
   'share.setupFirst':
     'To analyse this job, CVForge first needs your AI key and your CV. About 5 minutes, only once.',
   'share.setupCta': 'Set up CVForge',
+  'waysIn.title': 'Bring jobs in from where you look',
+  'waysIn.extension.title': 'Analyse straight from LinkedIn',
+  'waysIn.extension.body':
+    "With CVForge's Chrome extension, a button beside each job's title brings it here, ready to analyse.",
+  'waysIn.extension.step1': 'Add CVForge to Chrome.',
+  'waysIn.extension.step2': 'Open a job on LinkedIn.',
+  'waysIn.extension.step3': 'Press “Analyse in CVForge” beside the title.',
+  'waysIn.extension.add': 'Add to Chrome',
+  'waysIn.extension.soon': 'Coming soon to the Chrome Web Store',
+  'waysIn.phone.title': 'Share jobs from your phone',
+  'waysIn.phone.body':
+    'Install CVForge and it appears in your phone’s Share menu: from LinkedIn or any app, share the job (or screenshots of it) and it opens here, ready.',
+  'waysIn.phone.step1': 'Install CVForge on your phone.',
+  'waysIn.phone.step2': 'On LinkedIn, open a job and tap Share.',
+  'waysIn.phone.step3': 'Choose CVForge.',
+  'waysIn.phone.install': 'Install CVForge',
+  'waysIn.phone.manual': 'In Chrome’s menu (⋮), tap “Install app”.',
+  'waysIn.ios.title': 'Keep CVForge on your phone',
+  'waysIn.ios.body':
+    'In Safari, tap Share, then “Add to Home Screen”. To analyse a job, copy its text and paste it in Analyse.',
+  'waysIn.dismiss': 'Not now',
+  'waysIn.settings': 'Ways to bring jobs in',
+  'waysIn.settingsLede':
+    'From your computer, the Chrome extension. From your phone, install CVForge and share jobs to it.',
   'share.titleShared': 'Analyse this posting',
   'share.noReader': "This version can't read LinkedIn links. Paste the posting text below.",
   'share.fetchFailed':
@@ -3027,6 +3051,30 @@ const es: Record<MessageKey, string> = {
   'share.setupFirst':
     'Para analizar esta vacante, CVForge necesita primero tu clave de IA y tu CV. Son unos 5 minutos, una sola vez.',
   'share.setupCta': 'Configurar CVForge',
+  'waysIn.title': 'Trae vacantes desde donde buscas',
+  'waysIn.extension.title': 'Analiza directo desde LinkedIn',
+  'waysIn.extension.body':
+    'Con la extensión de CVForge para Chrome, un botón junto al título de cada vacante la trae aquí, lista para analizar.',
+  'waysIn.extension.step1': 'Agrega CVForge a Chrome.',
+  'waysIn.extension.step2': 'Abre una vacante en LinkedIn.',
+  'waysIn.extension.step3': 'Pulsa «Analizar en CVForge» junto al título.',
+  'waysIn.extension.add': 'Agregar a Chrome',
+  'waysIn.extension.soon': 'Muy pronto en Chrome Web Store',
+  'waysIn.phone.title': 'Compártele vacantes desde tu teléfono',
+  'waysIn.phone.body':
+    'Instala CVForge y aparecerá en el menú Compartir de tu teléfono: desde LinkedIn o cualquier app, comparte la vacante (o capturas) y se abre aquí, lista.',
+  'waysIn.phone.step1': 'Instala CVForge en tu teléfono.',
+  'waysIn.phone.step2': 'En LinkedIn, abre una vacante y toca Compartir.',
+  'waysIn.phone.step3': 'Elige CVForge.',
+  'waysIn.phone.install': 'Instalar CVForge',
+  'waysIn.phone.manual': 'En el menú de Chrome (⋮), toca «Instalar app».',
+  'waysIn.ios.title': 'Ten CVForge en tu teléfono',
+  'waysIn.ios.body':
+    'En Safari, toca Compartir y luego «Agregar a inicio». Para analizar una vacante, copia su texto y pégalo en Analizar.',
+  'waysIn.dismiss': 'Ahora no',
+  'waysIn.settings': 'Formas de traer vacantes',
+  'waysIn.settingsLede':
+    'Desde tu computadora, la extensión de Chrome. Desde tu teléfono, instala CVForge y compártele vacantes.',
   'share.titleShared': 'Analiza esta vacante',
   'share.noReader': 'Esta versión no lee enlaces de LinkedIn. Pega abajo el texto de la vacante.',
   'share.fetchFailed':
