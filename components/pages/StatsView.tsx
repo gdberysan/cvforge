@@ -136,6 +136,7 @@ export function StatsView({ data, t }: { data: StatsData; t: Translate }) {
       <header className="page-head">
         <p className="eyebrow">{t('stats.eyebrow')}</p>
         <h1 className="page-title">{t('stats.title')}</h1>
+        <p className="page-lede">{t('stats.lede')}</p>
       </header>
 
       <section aria-label={t('stats.eyebrow')} className="kpi-row">

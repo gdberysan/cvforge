@@ -41,18 +41,19 @@
     </div>
   </header>
 
-  <div class="hero">
+  <div class="hero" id="top">
     <div>
       <h1 class="rise">Tu siguiente trabajo, <em>sin adivinar.</em></h1>
       <p class="lede rise d1">Pega una vacante y Rumbo te dice si vale tu tiempo, qué cumples y qué te falta. Luego te arma un CV a la medida de esa vacante, sin inventar nada de ti.</p>
       <div class="start rise d2">
         <a class="btn" href="/app/">Probarlo con mi CV
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <small class="hero-note">Rumbo es gratis. La IA cuesta unos centavos por vacante.</small>
       </div>
+      <ul class="promises rise d3" aria-label="Lo que te prometemos"><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>No inventa nada.</b> Cada línea sale de algo que de verdad hiciste.</span></li><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span><b>Tu CV se queda contigo.</b> Vive en tu navegador; no hay cuenta que crear.</span></li><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.2 0-2.1-.4-2.6-1.2M12 6.5V8m0 8v1.5"/></svg></span><span><b>Rumbo es gratis.</b> La IA cuesta unos centavos por vacante.</span></li></ul>
     </div>
 
     <section class="demo rise d3" aria-label="Una respuesta de ejemplo">
+      <p class="sample-tag">Ejemplo · Lucas es inventado</p>
       <fieldset class="seg" aria-label="Vacantes de ejemplo">
         <button type="button" data-i="0" aria-pressed="true"><b>Growth Lead</b><span>Nuvei</span></button>
         <button type="button" data-i="1" aria-pressed="false"><b>Coordinador(a)</b><span>Andino</span></button>
@@ -63,27 +64,87 @@
     </section>
   </div>
 
-  <section aria-labelledby="h-cv">
-    <p class="kicker">Un CV para cada vacante</p>
-    <div class="cv-grid">
-      <div>
-        <h2 id="h-cv">Un CV distinto para cada vacante, sin escribirlo tú.</h2>
-        <p class="cv-lede">Rehacer tu CV para cada vacante toma horas. Rumbo lo arma en minutos: pone primero lo que esa vacante pide, usa sus mismas palabras para que los filtros lo encuentren, y cada línea sale de algo que de verdad hiciste. Si una frase no se puede respaldar, no entra.</p>
-        <p class="cv-asks-label">Lo que pide la vacante</p>
+  <section class="how" aria-labelledby="h-how">
+    <p class="kicker">Cómo funciona</p>
+    <h2 id="h-how" class="how-h">Tres pasos, en este orden.</h2>
+    <p class="how-sub">Con Lucas, el mismo ejemplo inventado de arriba.</p>
+    <ol class="how-steps">
+      <li class="how-step">
+        <div class="how-text">
+          <span class="how-n" aria-hidden="true">1</span>
+          <h3>Trae tu CV</h3>
+          <p class="how-lede">Una sola vez. Rumbo lo lee y lo convierte en tu historial: puestos, fechas y lo que lograste, con tus propias palabras y tus cifras. Nada se guarda hasta que lo revisas.</p>
+        </div>
+        <figure class="how-ex flow" aria-label="Ejemplo: el CV de Lucas convertido en su historial">
+          <p class="file-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span>lucas-lara-cv.pdf</span></p>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+          <div class="record">
+            <p class="record-title">Su historial</p>
+            <ol class="record-roles"><li><b>Coordinador de Marketing Digital</b><span>Farmacias del Valle</span><time>mar 2021 – jun 2025</time></li><li><b>Especialista de Growth</b><span>Pagolibre</span><time>ago 2018 – feb 2021</time></li><li><b>Ejecutivo de Cuentas Digitales</b><span>Agencia Brisa</span><time>jun 2016 – jul 2018</time></li></ol>
+            <div class="record-ach">
+              <p class="record-ach-label">Un logro, con sus cifras</p>
+              <p class="record-ach-text">Operé campañas de Meta Ads y Google Ads con un presupuesto mensual de $450 mil MXN; el ROAS combinado pasó de 2.1 a 3.4 en seis meses.</p>
+              <ul class="record-chips"><li>$450 mil MXN al mes</li><li>ROAS 2.1 → 3.4</li></ul>
+            </div>
+          </div>
+        </figure>
+      </li>
+      <li class="how-step">
+        <div class="how-text">
+          <span class="how-n" aria-hidden="true">2</span>
+          <h3>Pega una vacante</h3>
+          <p class="how-lede">En un minuto te dice si vale tu tiempo: qué cumples, qué tienes a medias, qué te falta y por qué. Si algo no tiene arreglo, como vivir en otra ciudad, te lo dice primero.</p>
+          <a class="how-see" href="#top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Las tres respuestas completas, arriba</a>
+        </div>
+        <figure class="how-ex flow" aria-label="Ejemplo: una vacante y la respuesta para Lucas">
+          <div class="posting">
+            <p class="posting-title">Growth Lead · Nuvei Pagos</p>
+            <p class="posting-label">La vacante pide</p>
+            <ul class="posting-reqs"><li class="req is-ok"><span class="req-mark" title="Lo cumples"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">Lo cumples: </span>5+ años en marketing digital o growth</li><li class="req is-ok"><span class="req-mark" title="Lo cumples"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">Lo cumples: </span>Al menos 2 años en fintech</li><li class="req is-half"><span class="req-mark" title="A medias"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></span><span class="vh">A medias: </span>SQL avanzado (CTEs, window functions)</li><li class="req is-half"><span class="req-mark" title="A medias"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></span><span class="vh">A medias: </span>Amplitude o Mixpanel</li></ul>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+          <div class="mini-verdict">
+            <span class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+            <div><p class="mini-word">Vale la pena</p><p class="mini-counts">Cumples 6 de 8 requisitos clave · 2 a medias</p></div>
+            <div class="mini-bar" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i class="p"></i><i class="p"></i></div>
+          </div>
+        </figure>
+      </li>
+      <li class="how-step">
+        <div class="how-text">
+          <span class="how-n" aria-hidden="true">3</span>
+          <h3 id="h-cv">Postúlate con un CV a su medida</h3>
+          <p class="how-lede">Rehacer tu CV para cada vacante toma horas. Rumbo lo arma en minutos: pone primero lo que esa vacante pide, usa sus mismas palabras para que los filtros lo encuentren, y cada línea sale de algo que de verdad hiciste. Si una frase no se puede respaldar, no entra.</p>
+          <p class="cv-asks-label">Lo que pide la vacante</p>
         <ul class="cv-asks"><li>Meta Ads</li><li>Google Ads</li><li>GA4</li><li>CRM</li><li>Looker Studio</li><li>Excel avanzado</li></ul>
-        <p class="cv-also">También la carta, las respuestas a las preguntas de filtro y el mensaje al reclutador. En PDF o Word.</p>
-      </div>
-      <figure class="cv-sheet" aria-label="Fragmento del CV que Rumbo escribió para Lucas, el ejemplo inventado">
-        <p class="cv-name">Lucas Lara</p>
-        <p class="cv-role">Coordinador de Marketing Digital</p>
-        <p class="cv-job">Farmacias del Valle · 2021 – 2025</p>
+          <p class="cv-also">También la carta, las respuestas a las preguntas de filtro y el mensaje al reclutador. En PDF o Word.</p>
+        </div>
+        <div class="how-ex">
+        <figure class="cv-sheet" aria-label="Fragmento del CV que Rumbo escribió para Lucas, el ejemplo inventado">
+        <p class="cv-sample">Ejemplo · Lucas es inventado</p>
+        <header class="cv-top">
+          <p class="cv-name">Lucas Lara</p>
+          <p class="cv-role">Coordinador de Marketing Digital</p>
+          <p class="cv-contact">Ciudad de México · lucas.lara@example.com · linkedin.com/in/lucaslara-demo</p>
+        </header>
+        <p class="cv-section">Experiencia</p>
+        <div class="cv-job"><b>Coordinador de Marketing Digital · Farmacias del Valle</b><span>2021 – 2025</span></div>
         <ul class="cv-bullets">
           <li>Operé campañas de <mark>Meta Ads</mark> y <mark>Google Ads</mark> para la tienda en línea con un presupuesto mensual de $450 mil MXN; el ROAS combinado pasó de 2.1 a 3.4 en seis meses al reestructurar por categoría, con conversiones de compra importadas desde <mark>GA4</mark>.<span class="cv-cite">Sale de: tu experiencia en Farmacias del Valle</span></li>
           <li>Diseñé en HubSpot (<mark>CRM</mark>) los flujos de recompra del programa de lealtad, con lo que la tasa de recompra a 60 días subió de 18% a 27% en el segmento de enfermedades crónicas.<span class="cv-cite">Sale de: tu experiencia en Farmacias del Valle</span></li>
         </ul>
-        <figcaption>El CV real que Rumbo escribió para Lucas, el ejemplo inventado. Resaltado: las palabras de la vacante.</figcaption>
+        <div class="cv-job"><b>Especialista de Growth · Pagolibre</b><span>2018 – 2021</span></div>
+        <ul class="cv-bullets">
+          <li>Lideré como único responsable la adquisición digital de comercios nuevos (Meta, Google y afiliados); el CAC bajó de $1,450 a $890 MXN por comercio activado en un año.<span class="cv-cite">Sale de: tu experiencia en Pagolibre</span></li>
+        </ul>
+        <p class="cv-section">Habilidades</p>
+        <p class="cv-skills"><mark>Meta Ads</mark> · <mark>Google Ads</mark> · <mark>GA4</mark> · <mark>Looker Studio</mark> · HubSpot · <mark>Excel avanzado</mark></p>
+        <p class="cv-done"><span class="cv-done-word"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Listo · 0 líneas sin respaldo</span><button type="button" class="cv-replay" hidden>Verlo otra vez</button></p>
+        <figcaption>Un fragmento del CV real que Rumbo escribió para Lucas. Resaltado: las palabras de la vacante. Debajo de cada línea, de dónde sale.</figcaption>
       </figure>
-    </div>
+        </div>
+      </li>
+    </ol>
   </section>
 
   <section class="note-grid" aria-label="Una nota de quien lo hizo">
@@ -92,12 +153,16 @@
       <p class="open">Hice Rumbo mientras buscaba trabajo yo mismo.</p>
     </div>
     <div class="note">
-      <p>Postularme a todo me estaba agotando, y las herramientas que probé hacían justo lo que no necesitaba: me hacían sonar impresionante con cosas que yo no había hecho. Un reclutador lee eso como un hecho, y en la entrevista te lo preguntan.</p>
-      <p>Así que la hice al revés. Rumbo parte de lo que de verdad hiciste y no escribe una sola línea que no puedas respaldar. Y antes de que escribas nada, te dice si una vacante vale la pena. A mí me dijo que no más veces de las que me gustaba. Casi siempre tenía razón.</p>
-      <p>Es gratis porque buscar trabajo ya cuesta bastante. Solo pagas la IA que usas, unos centavos, directo a quien la hace. Yo no cobro nada, no veo tus datos y no los vendo.</p>
-      <p>Ojalá te sirva tanto como a mí. :)</p>
-      <div class="sign">
-        <span class="name">Gerardo</span>
+      <div class="note-col">
+        <p>Postularme a todo me estaba agotando, y las herramientas que probé hacían justo lo que no necesitaba: me hacían sonar impresionante con cosas que yo no había hecho. Un reclutador lee eso como un hecho, y en la entrevista te lo preguntan.</p>
+        <p>Así que la hice al revés. Rumbo parte de lo que de verdad hiciste y no escribe una sola línea que no puedas respaldar. Y antes de que escribas nada, te dice si una vacante vale la pena. A mí me dijo que no más veces de las que me gustaba. Casi siempre tenía razón.</p>
+      </div>
+      <div class="note-col">
+        <p>Es gratis porque buscar trabajo ya cuesta bastante. Solo pagas la IA que usas, unos centavos, directo a quien la hace. Yo no cobro nada, no veo tus datos y no los vendo.</p>
+        <p>Ojalá te sirva tanto como a mí. :)</p>
+        <div class="sign">
+          <span class="name">Gerardo</span>
+        </div>
       </div>
     </div>
   </section>
@@ -188,15 +253,17 @@ const A = [
   { title: 'Growth Lead', company: 'Nuvei Pagos', verdict: 'Vale la pena',
     advice: 'Postúlate y habla con honestidad en la carta sobre lo que te falta.',
     tone: 'strong', s: 6, p: 2, m: 0, total: 8, missing: 'SQL avanzado y Amplitude.',
+    gaps: [['SQL avanzado', 'Lo usaste para cohortes (joins y agregados), pero los modelos complejos los hacía el equipo de datos. Piden CTEs y window functions.'], ['Amplitude', 'Dominas GA4 y Looker Studio, pero no hay nada tuyo con Amplitude ni Mixpanel.']],
     met: ['5+ años en growth/marketing digital', '2 años en fintech', 'Presupuestos de performance', 'Inglés avanzado', 'Horario CDMX'], more: 1 },
   { title: 'Coordinador(a) de Marketing Digital', company: 'Grupo Andino Retail', verdict: 'Coincidencia fuerte',
     advice: 'Postúlate. Lo que has hecho cubre lo que piden.',
     tone: 'strong', s: 8, p: 0, m: 0, total: 8, missing: '',
     met: ['3+ años en marketing digital', 'Meta Ads', 'Google Ads', 'CRM empresarial', 'GA4', 'Excel avanzado', 'Inglés', 'CDMX'],
-    why: ['Meta Ads', 'Operaste Meta Ads con presupuesto propio tanto en el ecommerce de Farmacias del Valle como en la adquisición de comercios de Pagolibre.'] },
+    whys: [['Meta Ads', 'Operaste Meta Ads con presupuesto propio tanto en el ecommerce de Farmacias del Valle como en la adquisición de comercios de Pagolibre.'], ['CRM empresarial', 'Diseñaste en HubSpot flujos de automatización y segmentación que subieron la recompra, y tienes la certificación de HubSpot Marketing Software.']] },
   { title: 'Performance Marketing Specialist', company: 'Agencia Ruta Norte', verdict: 'No aplica',
     advice: 'Hay un requisito que ningún cambio al CV puede cumplir.',
     tone: 'blocked', s: 6, p: 1, m: 2, total: 9, missing: 'TikTok Ads, Monterrey y visitas a clientes.',
+    gaps: [['TikTok Ads', 'Está en tu lista de habilidades, pero ningún logro tuyo muestra campañas operadas ahí.'], ['Visitas a clientes', 'Tratas directo con clientes y agencias, pero las visitas serían en Monterrey, donde no vives.']],
     gate: 'Pide vivir en Monterrey; el puesto es 100% presencial en San Pedro Garza García.',
     met: ['Meta Ads', 'Google Ads', 'Looker Studio'], more: 3 },
 ];
@@ -221,8 +288,8 @@ function card(a) {
     <div class="bar" aria-hidden="true">${[...bars].map(c => `<i class="${c}"></i>`).join('')}</div>
     <p class="counts">${parts.map(x => `<span>${x}</span>`).join(' · ')}</p>
     <div class="met"><b>Lo que ya cumples</b><ul>${a.met.map(x => `<li>${x}</li>`).join('')}${a.more ? `<li class="more">+${a.more} más</li>` : ''}</ul></div>
-    ${a.why ? `<div class="missing why"><b>Por qué cumples ${a.why[0]}</b><span>${a.why[1]}</span></div>` : ''}
-    ${a.missing ? `<div class="missing"><b>${a.m ? 'Lo que te falta' : 'Lo que tienes a medias'}</b><span>${a.missing}</span></div>` : ''}`;
+    ${a.whys ? `<div class="missing gaps why"><b>Por qué cumples, dos ejemplos</b><ul>${a.whys.map(([n, w]) => `<li><strong>${n}</strong><span>${w}</span></li>`).join('')}</ul></div>` : ''}
+    ${a.gaps ? `<div class="missing gaps"><b>${a.m ? 'Lo que te falta, y por qué' : 'Lo que tienes a medias, y por qué'}</b><ul>${a.gaps.map(([n, w]) => `<li><strong>${n}</strong><span>${w}</span></li>`).join('')}</ul></div>` : a.missing ? `<div class="missing"><b>${a.m ? 'Lo que te falta' : 'Lo que tienes a medias'}</b><span>${a.missing}</span></div>` : ''}`;
 }
 box.innerHTML = A.map((a, i) => `<div class="state" data-i="${i}">${card(a)}</div>`).join('');
 function show(i) {
@@ -235,6 +302,74 @@ function show(i) {
 }
 for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => show(Number(b.dataset.i)));
 show(0);
+
+// The CV writes itself (2026-11-23): when the page is in view, each line is
+// written in, the posting's words light up in it and tick off the chips they
+// answer, and each line's source appears under it, ending on "0 unbacked
+// lines". The text is in the page from the start (screen readers, search,
+// no layout shift); only its showing is staged. Reduced motion or no script:
+// the finished CV, still.
+(() => {
+  const step = document.querySelector('.how-step:last-child');
+  const sheet = step && step.querySelector('.cv-sheet');
+  if (!sheet || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const pace = matchMedia('(max-width: 640px)').matches ? 0.72 : 1;
+  const key = (s) => s.trim().toLowerCase();
+  const chips = new Map([...step.querySelectorAll('.cv-asks li')].map((li) => [key(li.textContent), li]));
+  const replay = sheet.querySelector('.cv-replay');
+  const hits = [];
+  let end = 0;
+  const at = (el, ms) => el.style.setProperty('--d', `${Math.round(ms * pace)}ms`);
+  // The timeline, in the order Rumbo works: rules, then each line with its
+  // words and its source, then the skills, then the verdict on the whole.
+  (function plan() {
+    let t = 120;
+    for (const rule of sheet.querySelectorAll('.cv-section')) at(rule, t);
+    t += 260;
+    const lines = [...sheet.querySelectorAll('.cv-bullets li')];
+    for (const li of lines) {
+      at(li, t);
+      [...li.querySelectorAll('mark')].forEach((m, i) => {
+        const when = t + 380 + i * 140;
+        at(m, when);
+        const chip = chips.get(key(m.textContent));
+        if (chip) hits.push([chip, when * pace]);
+      });
+      const cite = li.querySelector('.cv-cite');
+      if (cite) at(cite, t + 720);
+      t += 560;
+    }
+    t += 320;
+    [...sheet.querySelectorAll('.cv-skills mark')].forEach((m, i) => {
+      const when = t + i * 110;
+      at(m, when);
+      const chip = chips.get(key(m.textContent));
+      if (chip) hits.push([chip, when * pace]);
+    });
+    const done = sheet.querySelector('.cv-done');
+    t += 900;
+    if (done) at(done, t);
+    end = (t + 600) * pace;
+  })();
+  let timers = [];
+  function run() {
+    for (const id of timers) clearTimeout(id);
+    timers = [];
+    step.classList.remove('cv-run');
+    for (const chip of chips.values()) chip.classList.remove('is-hit');
+    if (replay) replay.hidden = true;
+    void step.offsetWidth; // restart from the empty page
+    step.classList.add('cv-run');
+    for (const [chip, ms] of hits) timers.push(setTimeout(() => chip.classList.add('is-hit'), ms));
+    timers.push(setTimeout(() => { if (replay) replay.hidden = false; }, end));
+  }
+  step.classList.add('cv-pre');
+  const seen = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) { seen.disconnect(); run(); }
+  }, { threshold: 0.4 });
+  seen.observe(sheet);
+  if (replay) replay.addEventListener('click', run);
+})();
 
 // The price joke: when the cost section comes into view, a big price rolls
 // down to $0, shrinking to fit while it is wide. Without motion it is $0.

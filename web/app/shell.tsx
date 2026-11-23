@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { BottomNav } from '@/components/ui/BottomNav'
+import { BrandWord } from '@/components/ui/BrandWord'
 import { HapticsListener } from '@/components/ui/HapticsListener'
 import { IconMark } from '@/components/ui/icons'
 import { MomentHost } from '@/components/ui/MomentHost'
 import { Nav } from '@/components/ui/Nav'
 import { ToastHost } from '@/components/ui/ToastHost'
-import { BRAND } from '@/lib/brand'
 import { useDatabase } from '@/web/lib/database'
 import { onJobs } from '@/web/lib/jobs'
 import { UnlockScreen } from '@/web/lib/unlock-screen'
@@ -46,7 +46,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <span aria-hidden className="brand-mark">
               <IconMark />
             </span>
-            {BRAND}
+            <BrandWord />
           </span>
         </nav>
         <main id="main" className="page">
