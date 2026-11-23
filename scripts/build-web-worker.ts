@@ -35,6 +35,9 @@ await build({
     '@/lib/settings': './web/lib/settings.ts',
     'better-sqlite3': './web/lib/better-sqlite3-stub.ts',
     '#discover': './lib/discover/stub.ts',
+    // The job agent lives on a Mac; a browser never has one.
+    '#satellite': './lib/satellite-stub.ts',
+    '#satellite-ui': './components/satellite-ui-stub.ts',
     '@': '.',
   },
   // Desktop code reads process.env (demo mode, model overrides); in the

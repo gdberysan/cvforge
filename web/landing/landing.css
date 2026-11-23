@@ -522,7 +522,7 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
 }
 
 /* ==========================================================================
-   Polish (2026-11-23, from Gerardo's marked screenshots): no blank space.
+   No blank space (2026-11-23): every column and card ends where its row does.
    ========================================================================== */
 
 /* The hero's left column ends where the right one does: its three promises

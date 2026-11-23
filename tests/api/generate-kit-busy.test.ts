@@ -2,11 +2,10 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { chaseFind } from '@/lib/agent/chase'
 import { type Db, openDb, runMigrations } from '@/lib/db/client'
 import { saveProfile } from '@/lib/db/queries/profile'
 import { enqueueKit, finishKit } from '@/lib/kit/queue'
-import { find } from '../agent/fixtures'
+import { seedApp } from '../support/db-app'
 
 let dir: string
 let handle: { db: Db; close: () => void }
@@ -82,15 +81,13 @@ const post = async (route: 'compose' | 'companion', body: object) => {
 }
 
 /**
- * A documents page opened before a Telegram chase still shows Generar. While
+ * A documents page opened before an agent's chase still shows Generar. While
  * the background kit is writing that application's CV and letter, a tap on
  * it must not pay for the same documents a second time.
  */
 describe('Generar while the kit is being written', () => {
   it('refuses the CV and the cover letter, and lets a screening answer through', async () => {
-    const out = chaseFind(handle.db, '4460829599', find())
-    if (out.kind === 'repost') throw new Error('fixture')
-    const id = out.applicationId
+    const id = seedApp(handle.db)
     enqueueKit(handle.db, id)
 
     const cv = await post('compose', { applicationId: id })
@@ -109,12 +106,7 @@ describe('Generar while the kit is being written', () => {
   })
 
   it('a kit waiting for its night retry does not hold Generar', async () => {
-    const out = chaseFind(
-      handle.db,
-      '4460829600',
-      find({ postingHash: 'h_retry', sourceUrl: 'https://www.linkedin.com/jobs/view/4460829600/' }),
-    )
-    if (out.kind === 'repost') throw new Error('fixture')
+    const out = { applicationId: seedApp(handle.db, 'Retry Co') }
     const kit = enqueueKit(handle.db, out.applicationId)
     if (!kit.ok) throw new Error('fixture')
     finishKit(handle.db, kit.jobId, { ok: false, code: 'overloaded' })

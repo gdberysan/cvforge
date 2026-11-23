@@ -37,16 +37,7 @@ export type TrialConfig = {
   now: () => number
   upstream: typeof fetch
   randomId: () => string
-  /**
-   * Tells the owner when the month's spend first crosses half, 80% and all of
-   * its budget. Optional and unwired today: the monthly cap closes the trial
-   * on its own; a channel the owner reads can be plugged in here.
-   */
-  notify?: (text: string) => Promise<void>
 }
-
-/** The shares of the month's budget the owner hears about, once each. */
-export const ALERT_SHARES = [0.5, 0.8, 1] as const
 
 export const ALLOWED_MODELS = new Set(['claude-opus-5', 'claude-sonnet-5-5'])
 export const MAX_TOKENS_ALLOWED = 21_000
@@ -111,7 +102,6 @@ async function start(address: string, c: TrialConfig): Promise<Response> {
   }
   const starts = await c.store.add(`start:${address}:${day(now)}`, 1, 86_400)
   if (starts > c.startsPerAddressPerDay) return json(429, { state: 'limit' })
-  await c.store.add(`starts:${month(now)}`, 1, 40 * 86_400)
   const id = c.randomId()
   const token = await issueToken(c.secret, id, now + TRIAL_DAYS * 86_400_000)
   return json(200, { state: 'started', token, budgetUsd: c.budgetUsd })
@@ -201,8 +191,7 @@ async function forward(request: Request, address: string, c: TrialConfig): Promi
   const usage = readUsage(reply)
   const cost = usage ? computeCostUsd(usage, model) : 0
   const total = await c.store.add(trialKey, cost - reserve, trialTtl)
-  const monthTotal = await c.store.add(monthKey, cost - reserve, monthTtl)
-  await alertOwner(c, now, monthTotal)
+  await c.store.add(monthKey, cost - reserve, monthTtl)
   const left = c.budgetUsd - total
   return new Response(reply, {
     status: res.status,
@@ -229,25 +218,6 @@ export function worstCaseUsd(text: string, model: string, maxTokens: number): nu
   })
   const rate = rateFor(model)
   return (plain.length / 3 + media) * rate.input + maxTokens * rate.output
-}
-
-/**
- * Each share of the month's budget is announced once, the first time a
- * settled call crosses it. Never fails a call: a message that cannot be sent
- * is a message not sent.
- */
-async function alertOwner(c: TrialConfig & { store: TrialStore }, now: number, monthTotal: number) {
-  if (!c.notify) return
-  for (const share of ALERT_SHARES) {
-    if (monthTotal < c.monthlyUsd * share) continue
-    if (!(await c.store.claim(`alerted:${month(now)}:${share}`, 40 * 86_400))) continue
-    const starts = await c.store.get(`starts:${month(now)}`)
-    const text =
-      share >= 1
-        ? `Rumbo · prueba gratis: se llegó al tope del mes ($${monthTotal.toFixed(2)} de $${c.monthlyUsd}). Las pruebas quedan cerradas hasta el día 1; la app pide la clave propia. Pruebas empezadas este mes: ${starts}.`
-        : `Rumbo · prueba gratis: este mes van $${monthTotal.toFixed(2)} de $${c.monthlyUsd} (${Math.round(share * 100)}%). Pruebas empezadas: ${starts}. Al llegar a $${c.monthlyUsd} se cierran solas.`
-    await c.notify(text).catch(() => {})
-  }
 }
 
 /** Why a body is not one the app sends, or null when it is. */

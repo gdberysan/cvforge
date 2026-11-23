@@ -6,7 +6,7 @@ import {
   senderOf,
   type ThreadOutcome,
 } from '@/lib/mail-thread'
-import type { MailThreadItem } from '@/lib/satellite/mail'
+import type { MailThreadItem } from '@/lib/satellite-types'
 
 const NOW = Date.parse('2026-10-16T15:00:00.000Z') // 09:00 in Mexico City (UTC-6, no DST)
 const TZ = 'America/Mexico_City'

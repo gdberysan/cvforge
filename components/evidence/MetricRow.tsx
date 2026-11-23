@@ -45,7 +45,6 @@ export function MetricRow({
         <MetricField
           // The waiting field has its own key: when it becomes a real metric
           // the input mounts anew, so "Add a number" lands the cursor in it.
-          // biome-ignore lint/suspicious/noArrayIndexKey: metrics carry no stable id
           key={waiting ? 'waiting' : i}
           metric={metric}
           autoFocus={metric.raw === '' && (!waiting || focusWaiting)}
@@ -108,7 +107,6 @@ function MetricField({
             meaning, so Enter does not break it. */}
         <AutoTextarea
           value={metric.raw}
-          // biome-ignore lint/a11y/noAutofocus: the field exists only because it was just asked for
           autoFocus={autoFocus}
           onChange={(e) => sync(e.target.value.replace(/\n/g, ' '))}
           onKeyDown={(e) => {
