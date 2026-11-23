@@ -56,9 +56,6 @@
   "components/evidence/TagRow.tsx": {
     "inline-style": 5
   },
-  "components/pages/SmallViews.tsx": {
-    "inline-style": 5
-  },
   "components/stats/KpiViz.tsx": {
     "inline-style": 4
   },

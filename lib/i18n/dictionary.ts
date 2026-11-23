@@ -303,7 +303,8 @@ const en = {
   'start.keyTitle': 'First, your AI key.',
   'start.keyLede':
     'CVForge uses Claude, the AI made by Anthropic, to read postings and write your CVs. With a key of your own you pay only for what you use, straight to Anthropic: about $0.04 USD per posting. The key stays on this device.',
-  'start.lookTitle': "Worth applying? You'll know in a minute.",
+  'start.lookTitle': 'Worth applying?',
+  'start.lookTitleEnd': "You'll know in a minute.",
   'start.lookLede':
     "Paste a job posting and CVForge compares it with your real experience: whether it's worth it, what you meet and what you're missing. It never makes anything up about you, and your data stays in your browser.",
   'start.lookCta': 'Try it with my CV',
@@ -490,7 +491,7 @@ const en = {
   'guide.title': 'How to get your key (5 minutes)',
   'guide.step1': 'Create an account at console.anthropic.com (it opens in a new tab).',
   'guide.step2': 'Under “Plans & Billing”, add about $5 USD of credit.',
-  'guide.step3': 'Under “API Keys”, create a key, copy it and paste it above.',
+  'guide.step3': 'Under “API Keys”, create a key, copy it and paste it into the key field.',
   'guide.cost':
     'Measured in real use: about $0.04 USD to analyse a posting and $0.50 USD for a full kit. A whole job search usually comes to $3–6 USD. Once you start, the top bar shows what you have spent.',
   'guide.open': 'Open console.anthropic.com →',
@@ -637,6 +638,8 @@ const en = {
   'today.fixIt': 'Fix it →',
   'today.analyse': 'Analyse a posting',
   'today.waitingTitle': 'Waiting on you',
+  'today.nextStep': 'Your next step',
+  'verdictBand.see': 'See the analysis',
   'today.seeAll': 'See all',
   'today.shotsHint':
     'On LinkedIn, take screenshots of the posting and share them with CVForge. They show up here on their own.',
@@ -1120,7 +1123,7 @@ const en = {
   'send.letterOptional': "No cover letter. It's optional unless the posting asks for one.",
   'send.applyAt': 'Apply on the posting:',
   'send.applyNoLink': 'Apply wherever you found it. No link was saved with this posting.',
-  'send.alreadySent': 'Already sent. What happens next is in Follow-up.',
+  'send.alreadySent': 'Already sent. What happens next is in “What comes next”, below.',
   'moment.close': 'Close',
   'moment.sent.stamp': 'Sent',
   'moment.sent.title': 'Sent.',
@@ -1234,7 +1237,7 @@ const en = {
   'prep.roleUnknown': 'Role not confirmed',
   'prep.roleSource': 'From the email',
   'prep.join': 'Join the meeting',
-  'prep.noPeople': 'Nobody named yet. Add who you are meeting in Follow-up.',
+  'prep.noPeople': 'Nobody named yet. Add who you are meeting in “What comes next”, below.',
   'prep.ready.title': 'How ready you are',
   'prep.ready.aria':
     "{total} questions: {story} with a story, {gap} with an honest answer about what's missing, {none} not covered",
@@ -2026,7 +2029,8 @@ const es: Record<MessageKey, string> = {
   'start.keyTitle': 'Primero, tu clave de IA.',
   'start.keyLede':
     'CVForge usa Claude, la IA de Anthropic, para leer vacantes y escribir tus CV. Con una clave tuya pagas solo lo que usas, directo a Anthropic: unos $0.04 USD por vacante. La clave se queda en este dispositivo.',
-  'start.lookTitle': '¿Vale la pena postularte? Lo sabrás en un minuto.',
+  'start.lookTitle': '¿Vale la pena postularte?',
+  'start.lookTitleEnd': 'Lo sabrás en un minuto.',
   'start.lookLede':
     'Pega una vacante y CVForge la compara con tu experiencia real: si vale la pena, qué cumples y qué te falta. Nunca inventa nada de ti, y tus datos se quedan en tu navegador.',
   'start.lookCta': 'Probarlo con mi CV',
@@ -2212,7 +2216,7 @@ const es: Record<MessageKey, string> = {
   'guide.title': 'Cómo conseguir tu clave (5 minutos)',
   'guide.step1': 'Crea una cuenta en console.anthropic.com (se abre en otra pestaña).',
   'guide.step2': 'En «Plans & Billing», agrega unos $5 USD de crédito.',
-  'guide.step3': 'En «API Keys», crea una clave, cópiala y pégala arriba.',
+  'guide.step3': 'En «API Keys», crea una clave, cópiala y pégala en el campo de la clave.',
   'guide.cost':
     'Medido en uso real: analizar una vacante cuesta unos $0.04 USD y un kit completo unos $0.50 USD. Una búsqueda completa suele costar entre $3 y $6 USD. En cuanto empieces, la barra superior muestra lo que llevas gastado.',
   'guide.open': 'Abrir console.anthropic.com →',
@@ -2361,6 +2365,8 @@ const es: Record<MessageKey, string> = {
   'today.fixIt': 'Arréglalo →',
   'today.analyse': 'Analiza una vacante',
   'today.waitingTitle': 'Te esperan',
+  'today.nextStep': 'Tu siguiente paso',
+  'verdictBand.see': 'Ver el análisis',
   'today.seeAll': 'Ver todas',
   'today.shotsHint':
     'En LinkedIn, toma capturas de la vacante y compártelas con CVForge. Aparecen aquí solas.',
@@ -2845,7 +2851,7 @@ const es: Record<MessageKey, string> = {
   'send.letterOptional': 'Sin carta. Es opcional, salvo que la vacante la pida.',
   'send.applyAt': 'Postúlate en la vacante:',
   'send.applyNoLink': 'Postúlate donde la encontraste. No se guardó el enlace de esta vacante.',
-  'send.alreadySent': 'Ya la enviaste. Lo que sigue está en Seguimiento.',
+  'send.alreadySent': 'Ya la enviaste. Lo que sigue está en «Qué sigue», más abajo.',
   'moment.close': 'Cerrar',
   'moment.sent.stamp': 'Enviada',
   'moment.sent.title': 'Enviada.',
@@ -2960,7 +2966,7 @@ const es: Record<MessageKey, string> = {
   'prep.roleUnknown': 'Cargo sin confirmar',
   'prep.roleSource': 'Según el correo',
   'prep.join': 'Unirme a la reunión',
-  'prep.noPeople': 'Todavía no hay nadie. Agrega con quién te reúnes en Seguimiento.',
+  'prep.noPeople': 'Todavía no hay nadie. Agrega con quién te reúnes en «Qué sigue», más abajo.',
   'prep.ready.title': 'Cómo vas',
   'prep.ready.aria':
     '{total} preguntas: {story} con historia, {gap} con una respuesta honesta sobre lo que falta, {none} sin cubrir',

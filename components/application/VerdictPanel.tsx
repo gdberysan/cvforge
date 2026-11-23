@@ -15,7 +15,16 @@ import type { Coverage, Requirement } from '@/lib/schemas'
  * any gate. A gate is never folded away — skip is a gate, not a low score.
  * The generic "what this verdict means" paragraph waits behind a tap.
  */
-export function VerdictPanel({ coverage, sentence }: { coverage: Coverage; sentence: string }) {
+export function VerdictPanel({
+  coverage,
+  sentence,
+  headless = false,
+}: {
+  coverage: Coverage
+  sentence: string
+  /** The answer is already said above (the band under the stages): only the details. */
+  headless?: boolean
+}) {
   const t = useT()
   const [explain, setExplain] = useState(false)
   // A gate is the one thing on this page that ends the decision; its full
@@ -30,14 +39,22 @@ export function VerdictPanel({ coverage, sentence }: { coverage: Coverage; sente
   ] as const
 
   return (
-    <section className={`verdict-panel verdict-${coverage.verdict}`} aria-labelledby="verdict-word">
-      <p className="eyebrow">{t('verdict.eyebrow')}</p>
-      <p id="verdict-word" className="verdict-word">
-        {t(copy.label)}
-      </p>
-      <p className="verdict-say">{sentence}</p>
+    <section
+      className={`verdict-panel verdict-${coverage.verdict}${headless ? ' is-headless' : ''}`}
+      aria-labelledby={headless ? undefined : 'verdict-word'}
+      aria-label={headless ? t('verdict.eyebrow') : undefined}
+    >
+      {!headless && (
+        <>
+          <p className="eyebrow">{t('verdict.eyebrow')}</p>
+          <p id="verdict-word" className="verdict-word">
+            {t(copy.label)}
+          </p>
+          <p className="verdict-say">{sentence}</p>
+        </>
+      )}
 
-      {coverage.mandatoryTotal > 0 && (
+      {!headless && coverage.mandatoryTotal > 0 && (
         <>
           {/* One segment per requirement, as on the triage card: the bar is
               read left to right in the same order as its legend. */}

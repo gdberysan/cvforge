@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { ServiceWorker } from '@/components/pwa/ServiceWorker'
-import { geist, marker, stamp } from '@/lib/fonts'
+import { geist, headline, kicker, marker, stamp, voice } from '@/lib/fonts'
 import { getLocale, getTranslate } from '@/lib/i18n/server'
 import './globals.css'
 
@@ -24,7 +24,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getLocale()
 
   return (
-    <html lang={locale} className={`${geist.variable} ${stamp.variable} ${marker.variable}`}>
+    <html
+      lang={locale}
+      className={`${geist.variable} ${headline.variable} ${voice.variable} ${kicker.variable} ${stamp.variable} ${marker.variable}`}
+    >
       <body>
         <ServiceWorker buildId={process.env.NEXT_PUBLIC_BUILD_ID ?? 'dev'} />
         {children}
