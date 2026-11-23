@@ -1,4 +1,4 @@
-import type { Step } from '@/lib/application-steps'
+import type { WorkStep } from '@/lib/application-steps'
 import type { Translate } from '@/lib/i18n'
 import type { AttentionItem } from '@/lib/stats'
 
@@ -17,7 +17,7 @@ export function attentionWhy(t: Translate, item: AttentionItem): string {
 }
 
 /** Where each reason's next move lives on the application page. */
-export const ATTENTION_STEP: Record<AttentionItem['reason'], Step> = {
+export const ATTENTION_STEP: Record<AttentionItem['reason'], WorkStep> = {
   interviewing: 'track',
   stale: 'track',
   decide: 'decide',

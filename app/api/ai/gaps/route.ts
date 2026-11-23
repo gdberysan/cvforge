@@ -74,26 +74,37 @@ export async function POST(request: Request) {
   try {
     const evidence: EvidenceItem[] = []
     const dropped: { evidenceId: string; raw: string }[] = []
+    // A role whose call failed is named, not fatal: the roles before it are
+    // finished and paid for, and a failure used to throw them away too.
+    const unfinished: string[] = []
+    let firstError: unknown
 
     // Sequential, not parallel: every call is paid, and a failure on the second
     // group should not leave the first group's spend unexplained in the counter.
     for (const { group, role } of withRoles) {
       if (!role) continue
-      const result = await structureAnswers({
-        role,
-        stubs: [],
-        existing: allEvidence.filter(
-          (e) => e.sourceRef.type === 'experience' && e.sourceRef.id === role.id,
-        ),
-        answers: group.answers,
-      })
-      // Origin is ours, not the stage's: these records were written against a
-      // demanded requirement, and that provenance is the audit trail.
-      evidence.push(...result.evidence.map((item) => ({ ...item, origin: 'gap-fill' as const })))
-      dropped.push(...result.dropped)
+      try {
+        const result = await structureAnswers({
+          role,
+          stubs: [],
+          existing: allEvidence.filter(
+            (e) => e.sourceRef.type === 'experience' && e.sourceRef.id === role.id,
+          ),
+          answers: group.answers,
+        })
+        // Origin is ours, not the stage's: these records were written against a
+        // demanded requirement, and that provenance is the audit trail.
+        evidence.push(...result.evidence.map((item) => ({ ...item, origin: 'gap-fill' as const })))
+        dropped.push(...result.dropped)
+      } catch (error) {
+        firstError ??= error
+        unfinished.push(`${role.title} — ${role.company}`)
+      }
     }
 
-    return NextResponse.json({ evidence, dropped })
+    // Nothing finished: fail exactly as before.
+    if (unfinished.length === withRoles.length) throw firstError
+    return NextResponse.json({ evidence, dropped, unfinished })
   } catch (error) {
     if (error instanceof AiError) {
       return NextResponse.json({ error: error.userMessage, code: error.kind }, { status: 502 })

@@ -1,4 +1,5 @@
 import type { EvidenceItem, Metric } from '@/lib/schemas'
+import { extractQuantities } from '@/lib/verify/quantities'
 
 /**
  * Magnitude words a person types after a number. "mil" is Spanish for a
@@ -131,13 +132,24 @@ export function stripUngroundedMetrics(
   const sourceValues = valuesOf(sourceText, 'source')
   const dropped: { evidenceId: string; raw: string }[] = []
 
-  const cleaned = evidence.map((item) => {
+  const cleaned = evidence.flatMap((item) => {
+    // The text grounds a CV's figures once saved (`allowedQuantityForms`), so
+    // a quantity in it the user never said is the same poison as an invented
+    // metric. Text cannot be half-kept, so the whole line is left out and
+    // listed, and the user can add it back in their own words.
+    const invented = extractQuantities(item.text).find(
+      (token) => !isGrounded({ raw: token }, sourceValues),
+    )
+    if (invented) {
+      dropped.push({ evidenceId: item.id, raw: `${invented} — ${item.text}` })
+      return []
+    }
     const kept = item.metrics.filter((metric) => {
       const ok = isGrounded(metric, sourceValues)
       if (!ok) dropped.push({ evidenceId: item.id, raw: metric.raw })
       return ok
     })
-    return kept.length === item.metrics.length ? item : { ...item, metrics: kept }
+    return [kept.length === item.metrics.length ? item : { ...item, metrics: kept }]
   })
 
   return { evidence: cleaned, dropped }

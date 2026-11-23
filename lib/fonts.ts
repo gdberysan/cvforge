@@ -1,27 +1,34 @@
-import { Inter, JetBrains_Mono, Space_Grotesk } from 'next/font/google'
+// lib/fonts.ts
+import { Archivo_Black, Geist, Permanent_Marker } from 'next/font/google'
 
 /**
- * The Korven typefaces, self-hosted at build time. The brand handoff loads
- * these from the Google Fonts CDN; next/font inlines them instead, so the app
- * makes no external requests (see spec §11).
+ * CVForge's one typeface, self-hosted at build time by next/font, so the app
+ * makes no external requests (spec §11). One modern sans for everything a
+ * person reads or operates (friendly redesign 2026-11-21): the serif headings
+ * and monospace facts made the app read as an instrument, not a helper.
  */
-export const spaceGrotesk = Space_Grotesk({
+export const geist = Geist({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-display-loaded',
-  display: 'swap',
-})
-
-export const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
   variable: '--font-text-loaded',
   display: 'swap',
 })
 
-export const jetbrainsMono = JetBrains_Mono({
+/**
+ * The print-shop layer (Imprenta rebelde): a heavy grotesque for rubber
+ * stamps and a felt marker for the hand-drawn notes. Both self-hosted by
+ * next/font like Geist; used only for those marks, never for reading.
+ */
+export const stamp = Archivo_Black({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-mono-loaded',
+  weight: '400',
+  variable: '--font-stamp-loaded',
+  display: 'swap',
+})
+
+export const marker = Permanent_Marker({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-marker-loaded',
   display: 'swap',
 })

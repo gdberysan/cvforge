@@ -20,6 +20,11 @@ export const GroundingReportSchema = z.object({
       }),
     )
     .default([]),
+  /** A statement outside the bullets — header title, a skill, an education
+   *  entry, an extras line — that nothing on file supports. bulletId names
+   *  the section ('title', 'skills', 'education', 'extras'), text the
+   *  statement itself. Hard fail. Defaults so older reports still parse. */
+  unsupportedClaims: z.array(z.object({ bulletId: z.string(), text: z.string() })).default([]),
   passed: z.boolean(),
 })
 export type GroundingReport = z.infer<typeof GroundingReportSchema>

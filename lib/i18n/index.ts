@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand'
 import { dictionary, type MessageKey } from './dictionary'
 import { DEFAULT_LOCALE, type Locale } from './locale'
 
@@ -11,7 +12,9 @@ export type Translate = (key: MessageKey, params?: Params) => string
 
 export function translate(locale: Locale, key: MessageKey, params?: Params): string {
   const table = dictionary[locale] ?? dictionary[DEFAULT_LOCALE]
-  const raw = table[key] ?? dictionary[DEFAULT_LOCALE][key] ?? key
+  const found = table[key] ?? dictionary[DEFAULT_LOCALE][key] ?? key
+  // The dictionary names the product CVForge; a build under another name says that one.
+  const raw = BRAND === 'CVForge' ? found : found.replaceAll('CVForge', BRAND)
   if (!params) return raw
   return raw.replace(/\{(\w+)\}/g, (whole, name: string) =>
     name in params ? String(params[name]) : whole,

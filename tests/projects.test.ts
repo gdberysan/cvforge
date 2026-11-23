@@ -12,7 +12,7 @@ const input = { name: 'Shelf Tracker', description: 'd', stack: ['n8n'], start: 
 describe('projects', () => {
   it('adds with a random id that cannot collide with import ids, ongoing when no end', () => {
     const { profile: next, projectId } = addProject(profile, input)
-    expect(projectId).toMatch(/^proj_[0-9a-f]{8}$/)
+    expect(projectId).toMatch(/^proj_[a-f][0-9a-f]{7}$/)
     expect(next.projects[0]).toEqual({
       id: projectId,
       name: 'Shelf Tracker',

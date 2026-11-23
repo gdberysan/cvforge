@@ -1,0 +1,64 @@
+# Builds the web edition from this repository and publishes it, so what the
+# site serves is provably this code at this commit:
+#   1. build: web/out plus a receipt (every file's sha256 + the commit), and
+#      sign the receipt (GitHub artifact attestation, Sigstore). Only
+#      GitHub's own actions run in this job: it is the one that can sign.
+#   2. deploy: takes the built files and uploads them to Cloudflare Pages,
+#      with no permission to sign anything — a compromised deploy step
+#      cannot forge the provenance. Runs only once the project is set up.
+# Anyone can then run `npm run web:verify -- <site>` and
+# `gh attestation verify build.json --repo <this repo>` (docs/verify-web.md).
+name: web-deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: web-deploy
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run web:build
+        env:
+          CVFORGE_SOURCE_URL: ${{ github.server_url }}/${{ github.repository }}
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: web/out/build.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: web/out
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: ${{ vars.CLOUDFLARE_PAGES_PROJECT != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: site
+      # Wrangler pinned to an exact release (bump on purpose, never by range).
+      - run: npx --yes wrangler@4.156.0 pages deploy site --project-name="$PROJECT" --branch=main
+        env:
+          PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

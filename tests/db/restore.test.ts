@@ -19,6 +19,7 @@ const profile = {
     links: [],
   },
   summary: '',
+  summaryCitedEvidenceIds: [],
   experience: [],
   education: [],
   skills: [],

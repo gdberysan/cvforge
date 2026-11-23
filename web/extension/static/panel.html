@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Rumbo</title>
+<style>
+html,body{margin:0;height:100%;background:#F6F4EF}
+body{display:flex;flex-direction:column}
+iframe{flex:1;width:100%;border:0;background:#F6F4EF}
+#next{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#17171A;color:#fff;
+  font:500 13px/1.35 system-ui,sans-serif}
+#next[hidden]{display:none}
+#next span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#next button{all:unset;cursor:pointer;flex:none;padding:6px 12px;border-radius:999px;
+  background:#F0A35E;color:#17171A;font-weight:600}
+#next button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="next" role="status" hidden><span></span><button type="button"></button></div>
+<iframe id="site" title="Rumbo" allow="clipboard-write"></iframe>
+<script src="panel.js" type="module"></script>
+</body>
+</html>

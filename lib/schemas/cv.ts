@@ -59,6 +59,10 @@ export const CVContentSchema = z.object({
     contactLines: z.array(z.string()),
   }),
   summary: z.string(),
+  /** The summary's citations: it is checked like a bullet, under the id
+   *  'summary'. Defaulted so CVs stored before it existed still parse; their
+   *  summary then reads as uncited, which is the truth — it never was. */
+  summaryCitedEvidenceIds: z.array(z.string()).default([]),
   experience: z.array(CVRoleSchema),
   /** Defaulted so every CV stored before projects existed still parses. */
   projects: z.array(CVProjectSchema).default([]),
@@ -69,12 +73,33 @@ export const CVContentSchema = z.object({
 export type CVContent = z.infer<typeof CVContentSchema>
 
 /**
- * The model-facing CV. Identical except for projects, where the model returns
- * only the project id and its bullets; everything else about a project is a
- * fact the code already holds. Required (not defaulted) so the grammar always
- * asks for the array — an empty one is a valid answer every time.
+ * The model-facing CV. Identical except where the code already holds the
+ * facts: for projects the model returns only the project id and its bullets,
+ * for roles the role id, its title and its bullets, and of the header only
+ * the title — name, contact lines, employers, locations and dates are copied
+ * from the profile, so they cannot be misspelled, stretched or invented
+ * (2026-11-19 audit: a model-written heading was printed unchecked). The role
+ * title stays the model's because a Spanish CV may translate it; a title that
+ * differs from the record is judged against it (`verifiableLines`). Arrays
+ * are required (not defaulted) so the grammar always asks for them; an empty
+ * one is a valid answer every time. No min/regex here: the grammar cannot
+ * carry them, and the code resolves what they used to demand.
  */
-export const CVDraftSchema = CVContentSchema.omit({ projects: true }).extend({
+export const CVDraftSchema = CVContentSchema.omit({
+  header: true,
+  experience: true,
+  projects: true,
+  summaryCitedEvidenceIds: true,
+}).extend({
+  header: z.object({ title: z.string() }),
+  summaryCitedEvidenceIds: z.array(z.string()),
+  experience: z.array(
+    z.object({
+      experienceId: z.string(),
+      title: z.string(),
+      bullets: z.array(GeneratedBulletSchema),
+    }),
+  ),
   projects: z.array(z.object({ projectId: z.string(), bullets: z.array(GeneratedBulletSchema) })),
 })
 export type CVDraft = z.infer<typeof CVDraftSchema>

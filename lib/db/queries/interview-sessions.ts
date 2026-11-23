@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { desc, eq } from 'drizzle-orm'
 import type { Db } from '../client'
 import { interviewSessions } from '../schema'
@@ -23,7 +22,7 @@ export function saveInterviewSession(
 ): void {
   if (answers.length === 0) return
   db.insert(interviewSessions)
-    .values({ id: `int_${randomUUID().slice(0, 8)}`, roleId, answers })
+    .values({ id: `int_${crypto.randomUUID().slice(0, 8)}`, roleId, answers })
     .run()
 }
 

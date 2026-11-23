@@ -4,11 +4,20 @@ import { useEffect, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import type { ComposeStage } from '@/lib/ai/compose'
 
-const ORDER: ComposeStage[] = ['writing', 'checking', 'repairing', 'verifying']
+const ORDER: ComposeStage[] = [
+  'writing',
+  'checking',
+  'repairing',
+  'verifying',
+  'refining',
+  'rechecking',
+]
+/** Steps that appear only when the run actually took them. */
+const OPTIONAL: ComposeStage[] = ['repairing', 'refining', 'rechecking']
 
 /**
  * The stages the server actually reported, in order, with the time spent.
- * "Repairing" appears only if it happened — the list never promises a step
+ * The repair steps appear only if they happened — the list never promises a step
  * the run did not take.
  */
 export function ComposeProgress({
@@ -27,7 +36,7 @@ export function ComposeProgress({
     return () => clearInterval(timer)
   }, [])
 
-  const steps = ORDER.filter((s) => s !== 'repairing' || seen.includes('repairing'))
+  const steps = ORDER.filter((s) => !OPTIONAL.includes(s) || seen.includes(s))
   return (
     <div className="compose-progress">
       <ol aria-live="polite">

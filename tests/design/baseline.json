@@ -1,0 +1,102 @@
+{
+  "app/(app)/discover/page.tsx": {
+    "typed-arrow": 3,
+    "inline-style": 28
+  },
+  "app/(app)/error.tsx": {
+    "inline-style": 4
+  },
+  "app/(app)/not-found.tsx": {
+    "inline-style": 3
+  },
+  "app/globals.css": {
+    "uppercase": 10,
+    "bare-hover": 3
+  },
+  "app/layout.tsx": {
+    "raw-colour": 1
+  },
+  "app/manifest.ts": {
+    "raw-colour": 1
+  },
+  "app/not-found.tsx": {
+    "inline-style": 3
+  },
+  "components/application/GapDelta.tsx": {
+    "typed-arrow": 2,
+    "inline-style": 7
+  },
+  "components/application/GapEntry.tsx": {
+    "inline-style": 1
+  },
+  "components/demo/DemoBanner.tsx": {
+    "typed-arrow": 2,
+    "inline-style": 1
+  },
+  "components/discover/ResultCard.tsx": {
+    "typed-arrow": 1,
+    "inline-style": 9
+  },
+  "components/evidence/AddRole.tsx": {
+    "inline-style": 7
+  },
+  "components/evidence/ImportReview.tsx": {
+    "typed-arrow": 1,
+    "inline-style": 29
+  },
+  "components/evidence/InterviewHistory.tsx": {
+    "inline-style": 3
+  },
+  "components/evidence/InterviewPanel.tsx": {
+    "inline-style": 20
+  },
+  "components/evidence/ProjectCard.tsx": {
+    "inline-style": 17
+  },
+  "components/evidence/TagRow.tsx": {
+    "inline-style": 5
+  },
+  "components/pages/SmallViews.tsx": {
+    "inline-style": 5
+  },
+  "components/stats/KpiViz.tsx": {
+    "inline-style": 4
+  },
+  "components/studio/CompanionPanel.tsx": {
+    "typed-arrow": 1,
+    "inline-style": 21
+  },
+  "components/studio/ComposeProgress.tsx": {
+    "inline-style": 1
+  },
+  "components/studio/VariantPicker.tsx": {
+    "inline-style": 1
+  },
+  "components/triage/CoverageBar.tsx": {
+    "inline-style": 5
+  },
+  "components/triage/GateList.tsx": {
+    "inline-style": 5
+  },
+  "components/triage/TriageConsole.tsx": {
+    "inline-style": 1
+  },
+  "components/ui/AutoTextarea.tsx": {
+    "inline-style": 1
+  },
+  "components/ui/Meter.tsx": {
+    "inline-style": 1
+  },
+  "components/ui/MomentHost.tsx": {
+    "inline-style": 1
+  },
+  "components/ui/ScoreChange.tsx": {
+    "typed-arrow": 1
+  },
+  "components/variants/VariantsManager.tsx": {
+    "inline-style": 12
+  },
+  "lib/i18n/dictionary.ts": {
+    "typed-arrow": 26
+  }
+}

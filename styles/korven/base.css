@@ -37,7 +37,12 @@ a {
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out);
 }
-a:hover { color: var(--accent-hover); }
+/* Never on a link styled as a button (it outranked .btn-primary and painted
+   the text the fill's own colour), and only where hover exists: a tap on a
+   phone leaves :hover stuck. */
+@media (hover: hover) {
+  a:not(.btn):hover { color: var(--accent-hover); }
+}
 
 code, pre, kbd {
   font-family: var(--font-mono);

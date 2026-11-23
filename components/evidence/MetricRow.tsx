@@ -2,11 +2,14 @@
 
 import { useMemo } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { AutoTextarea } from '@/components/ui/AutoTextarea'
+import { IconClose, IconPlus } from '@/components/ui/icons'
 import { type ParsedMetric, parseMetric } from '@/lib/metrics/parse'
 import type { Metric } from '@/lib/schemas'
+import { CURRENCY_CODES } from '@/lib/schemas/metric'
 
 /**
- * One field, not four.
+ * One field per figure, not four.
  *
  * You type the metric the way you would say it — "cut checkout abandonment
  * 18%" — and the value, unit and direction are parsed out and shown back as a
@@ -19,34 +22,50 @@ import type { Metric } from '@/lib/schemas'
  */
 export function MetricRow({
   metrics,
+  ask = false,
+  focusWaiting = false,
   onChange,
 }: {
   metrics: Metric[]
+  /** A result with no number yet: its field is already there to type in. */
+  ask?: boolean
+  /** That waiting field takes the cursor (the first entry you came to fill). */
+  focusWaiting?: boolean
   onChange: (m: Metric[]) => void
 }) {
   const t = useT()
+  // The waiting field is not a metric until something is typed in it; an
+  // empty one is never sent (EvidenceEditor's `sendable`).
+  const rows = metrics.length === 0 && ask ? [{ raw: '' }] : metrics
+  const waiting = metrics.length === 0
 
   return (
-    <div className="stack" style={{ gap: 'var(--space-3)' }}>
-      {metrics.map((metric, i) => (
+    <div className="metric-list">
+      {rows.map((metric, i) => (
         <MetricField
+          // The waiting field has its own key: when it becomes a real metric
+          // the input mounts anew, so "Add a number" lands the cursor in it.
           // biome-ignore lint/suspicious/noArrayIndexKey: metrics carry no stable id
-          key={i}
+          key={waiting ? 'waiting' : i}
           metric={metric}
-          autoFocus={metric.raw === ''}
-          onChange={(patch) => onChange(metrics.map((m, j) => (j === i ? { ...m, ...patch } : m)))}
-          onRemove={() => onChange(metrics.filter((_, j) => j !== i))}
+          autoFocus={metric.raw === '' && (!waiting || focusWaiting)}
+          onChange={(patch) =>
+            onChange(rows.map((m, j) => (j === i ? { ...m, ...patch } : m)) as Metric[])
+          }
+          onRemove={waiting ? undefined : () => onChange(metrics.filter((_, j) => j !== i))}
         />
       ))}
 
-      <button
-        type="button"
-        className="action-quiet"
-        onClick={() => onChange([...metrics, { raw: '' }])}
-        style={{ justifySelf: 'start' }}
-      >
-        {t('metric.add')}
-      </button>
+      {!(waiting && ask) && (
+        <button
+          type="button"
+          className="action icon-label metric-add"
+          onClick={() => onChange([...metrics, { raw: '' }])}
+        >
+          <IconPlus />
+          {t(waiting ? 'metric.addFirst' : 'metric.add')}
+        </button>
+      )}
     </div>
   )
 }
@@ -60,14 +79,12 @@ function MetricField({
   metric: Metric
   autoFocus: boolean
   onChange: (patch: Partial<Metric>) => void
-  onRemove: () => void
+  /** Absent on the waiting field: there is nothing to remove yet. */
+  onRemove?: () => void
 }) {
   const t = useT()
-  const placeholder = t('metric.placeholder')
   const parsed = useMemo(() => parseMetric(metric.raw), [metric.raw])
 
-  // Keep the stored record in step with what the text now says, without
-  // clobbering a currency the user picked by hand.
   const sync = (raw: string) => {
     const next = parseMetric(raw)
     onChange({
@@ -82,92 +99,64 @@ function MetricField({
   const reading = formatReading(parsed, metric.currency)
 
   return (
-    <div className="stack" style={{ gap: 'var(--space-2)' }}>
-      <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
-        {/* Sigil grammar: `$` is a command you issued, `>` is what the system
-            made of it. The pair is the whole interaction, so it needs no label. */}
-        <span aria-hidden className="fact" style={{ color: 'var(--text-faint)' }}>
-          $
-        </span>
-        <input
+    <div className="metric-field">
+      <div className="metric-input">
+        {/* You type the figure the way you would say it; what CVForge read
+            from it shows underneath, so a misread is caught before it ships. */}
+        {/* Grows to fit: the figure is the one thing to check before it
+            ships, so it is never cut off at the field's edge. One line of
+            meaning, so Enter does not break it. */}
+        <AutoTextarea
           value={metric.raw}
-          // biome-ignore lint/a11y/noAutofocus: a metric added by hand is added to be typed into
+          // biome-ignore lint/a11y/noAutofocus: the field exists only because it was just asked for
           autoFocus={autoFocus}
-          onChange={(e) => sync(e.target.value)}
-          placeholder={placeholder}
-          aria-label={t('metric.aria')}
-          className="field-line"
-          // The field is sized to what it holds, so the hover underline hugs
-          // the sentence and the remove control stays beside it instead of
-          // stranded at the far edge of the card.
-          style={{
-            width: `${Math.max(metric.raw.length, placeholder.length) + 1}ch`,
-            // minWidth:0 lets it shrink inside the flex row instead of forcing
-            // the card wider than the viewport, which is what put a phone into
-            // a horizontal scroll.
-            minWidth: 0,
-            maxWidth: '100%',
-            color: 'var(--accent)',
+          onChange={(e) => sync(e.target.value.replace(/\n/g, ' '))}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.preventDefault()
           }}
+          placeholder={t('metric.placeholder')}
+          aria-label={t('metric.aria')}
+          className="field"
         />
-        <button
-          type="button"
-          className="action-quiet"
-          onClick={onRemove}
-          aria-label={t('metric.remove')}
-        >
-          ×
-        </button>
+        {onRemove && (
+          <button
+            type="button"
+            className="metric-remove"
+            onClick={onRemove}
+            aria-label={t('metric.remove')}
+          >
+            <IconClose />
+          </button>
+        )}
       </div>
 
       {(reading || parsed.needsCurrency) && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+        <div className="metric-reading">
           {reading && (
-            <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 'var(--space-2)' }}>
-              <span aria-hidden className="fact" style={{ color: 'var(--text-faint)' }}>
-                &gt;
-              </span>
-              <span className="sr-only">{t('metric.readsAs')}</span>
-              {/* The unit is data, so it keeps the casing it was typed in —
-                  no label class may reach it. */}
+            <span>
+              {t('metric.readsAs')}{' '}
+              {/* The unit is data, so it keeps the casing it was typed in. */}
               <span className="datum">{reading}</span>
             </span>
           )}
 
           {parsed.needsCurrency && (
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                borderLeft: '1px solid var(--border-subtle)',
-                paddingLeft: 'var(--space-3)',
-              }}
-            >
-              <span
-                style={{
-                  font: 'var(--type-mono)',
-                  color: metric.currency ? 'var(--text-muted)' : 'var(--signal-error)',
-                }}
-              >
-                {t('metric.currency')}
-              </span>
+            <label className={`metric-currency${metric.currency ? '' : ' is-missing'}`}>
+              <span>{t('metric.currency')}</span>
               <select
                 value={metric.currency ?? ''}
                 onChange={(e) =>
                   onChange({ currency: (e.target.value || undefined) as Metric['currency'] })
                 }
                 aria-label={t('metric.currencyAria')}
-                className="field-mono"
-                style={{
-                  padding: '2px 6px',
-                  borderColor: metric.currency ? 'var(--border-subtle)' : 'var(--signal-error)',
-                }}
+                className="field"
               >
                 <option value="">—</option>
-                <option value="MXN">MXN</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
+                {CURRENCY_CODES.map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
               </select>
             </label>
           )}

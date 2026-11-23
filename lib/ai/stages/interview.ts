@@ -1,13 +1,14 @@
-import { randomUUID } from 'node:crypto'
 import { stripUngroundedMetrics } from '@/lib/interview/ground'
 import {
-  deriveCurrency,
   type EvidenceItem,
   type Experience,
   type InterviewAnswer,
   InterviewPlanSchema,
   type InterviewQuestion,
   InterviewResultSchema,
+  readInterviewPlan,
+  readModelEvidence,
+  readMonth,
 } from '@/lib/schemas'
 import { callStructured } from '../client'
 
@@ -19,7 +20,7 @@ A CV bullet is compressed and trimmed. Your questions recover what it lost: what
 
 Rules:
 1. Ask at most ${MAX_QUESTIONS} questions for this role. Fewer is fine. Respect their time — they have many roles to get through.
-2. Prefer questions attached to a specific stub (set targetStubId). Use a role-level question (targetStubId: null) only for work the stubs do not mention at all. "What else did you do here that never made it onto your CV?" is often the single most valuable question you can ask.
+2. Prefer questions attached to a specific stub (set targetStubId). Use a role-level question (targetStubId: "") only for work the stubs do not mention at all. "What else did you do here that never made it onto your CV?" is often the single most valuable question you can ask.
 3. Ask ONE thing per question. Never stack "what did you do and what was the result?" into one.
 4. Ask plainly, as a curious colleague would. No jargon, no leading, no flattery.
 5. Never ask something the stub already answers. When an <already-recorded> block is present, those records exist in full — never re-ask about work they already cover; recover only what is still missing.
@@ -34,7 +35,7 @@ Use only what the person actually said, plus the original stubs. Never add scope
 NUMBERS — the rule that matters most:
 Only record a metric when they stated an actual figure. A vague answer produces NO metric. "It got a lot faster" is not 40%. "We roughly doubled it" is not 100%. If they gave a range, record the range as they said it. If they said they do not remember, record no metric. An invented number here is worse than no number: everything downstream treats recorded metrics as verified truth.
 
-MONEY: when a figure is money, set both unit and currency (MXN, USD, or EUR). If they did not say which, infer from context — a Mexican employer implies MXN — and keep their exact phrasing in "raw" so they can correct it.
+MONEY: when a figure is money, set both unit and currency to the ISO 4217 code of the currency they used (MXN, USD, EUR, COP, ARS, CLP, PEN, BRL…). If they did not say which, use the currency of the country the role was in when that is clear; otherwise leave currency out. Never change a currency, and keep their exact phrasing in "raw" so they can correct it.
 
 WRITING THE EVIDENCE:
 - "text" is the full, unabridged record: what they did, in their own register, with the detail they gave. This is NOT a CV bullet. Do not compress it, do not bolt on an action verb, do not make it sound impressive. A later stage writes the CV; this is the raw material.
@@ -87,7 +88,7 @@ export async function planInterview(args: {
     stage: 'interview-plan',
   })
 
-  return result.questions.slice(0, MAX_QUESTIONS)
+  return readInterviewPlan(result).slice(0, MAX_QUESTIONS)
 }
 
 export async function structureAnswers(args: {
@@ -133,16 +134,27 @@ export async function structureAnswers(args: {
   // Ownership and ids are ours, not the model's: evidence produced by this
   // interview belongs to this role, and fresh ids mean re-running an interview
   // can never overwrite records the user already has.
-  const owned = result.evidence.map((item) => ({
-    ...item,
-    id: `ev_${randomUUID().slice(0, 8)}`,
-    sourceRef: { type: 'experience' as const, id: args.role.id },
-    period: item.period ?? args.role.period,
-    origin: 'interview' as const,
-    // A unit that names a currency IS the currency; filled here so the
-    // review screen shows what will actually be stored.
-    metrics: item.metrics.map(deriveCurrency),
-  }))
+  // The model's item is read into the stored shape first (an empty line is
+  // dropped, closed lists normalised, metrics read with their currency), and
+  // a date it could not shape as a month falls back to the role's own dates
+  // — the honest answer when the answers do not date the work.
+  const owned: EvidenceItem[] = result.evidence.flatMap((item) => {
+    const read = readModelEvidence({
+      ...item,
+      sourceRef: { type: 'experience', id: args.role.id },
+    })
+    if (!read.ok) return []
+    const start = readMonth(item.period?.start)
+    const end = readMonth(item.period?.end)
+    return [
+      {
+        ...read.fields,
+        id: `ev_${crypto.randomUUID().slice(0, 8)}`,
+        period: start ? { start, ...(end ? { end } : {}) } : args.role.period,
+        origin: 'interview' as const,
+      },
+    ]
+  })
 
   // The user's own words are the only source a metric may come from — the
   // ANSWERS, never the questions. "Was it around 30%?" / "roughly, yes" must

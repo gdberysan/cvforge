@@ -4,7 +4,7 @@ import { runCompanionChecks } from '@/lib/verify/companion'
 
 const profile: MasterProfile = {
   basics: {
-    fullName: 'Alex',
+    fullName: 'Ana',
     headline: '',
     email: 'g@b.com',
     location: 'CDMX',
@@ -135,5 +135,19 @@ describe('runCompanionChecks', () => {
     ])
     expect(report.unverifiedNumbers[0]).toMatchObject({ bulletId: 'p1', token: '30%' })
     expect(report.passed).toBe(false)
+  })
+})
+
+describe('counts and years in companions', () => {
+  it('flags a bare count in an uncited paragraph, and years beyond the career', () => {
+    const report = check([
+      { id: 'p1', text: 'Lideré a un equipo de 12 personas.', citedEvidenceIds: [] },
+      { id: 'p2', text: 'Con 9 años de experiencia en ecommerce.', citedEvidenceIds: [] },
+      { id: 'p3', text: 'Con 2 años en ecommerce.', citedEvidenceIds: [] },
+    ])
+    expect(report.unverifiedNumbers).toEqual([
+      { bulletId: 'p1', token: '12' },
+      { bulletId: 'p2', token: '9' },
+    ])
   })
 })

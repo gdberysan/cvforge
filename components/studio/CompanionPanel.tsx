@@ -1,9 +1,11 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { saveScreeningAnswerAction } from '@/app/(app)/application/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { AutoTextarea } from '@/components/ui/AutoTextarea'
+import { IconCopy, IconRegenerate } from '@/components/ui/icons'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText } from '@/lib/i18n'
 import type {
@@ -13,13 +15,14 @@ import type {
   RecruiterMessage,
   ScreeningSet,
 } from '@/lib/schemas'
+import { haptic } from '@/lib/ui/haptics'
 import { GroundingFlags } from './GroundingFlags'
 
 type AnyDocument = CoverLetter | ScreeningSet | RecruiterMessage
 
 const PAGE: React.CSSProperties = {
-  background: '#ffffff',
-  color: '#14181d',
+  background: 'var(--doc-paper)',
+  color: 'var(--doc-ink)',
   borderRadius: 'var(--radius-md)',
   padding: '12mm',
   fontFamily: 'Helvetica, Arial, sans-serif',
@@ -65,6 +68,7 @@ export function CompanionPanel({
   initialReport: GroundingReport | null
 }) {
   const t = useT()
+  const router = useRouter()
   const [document, setDocument] = useState(initialDocument)
   const [report, setReport] = useState(initialReport)
   const [running, setRunning] = useState(false)
@@ -99,6 +103,8 @@ export function CompanionPanel({
       setReport(data.report)
       setDrafts({})
     } catch (e) {
+      // The background kit is writing this one: the page swaps to its progress.
+      if (e instanceof ApiFailure && e.code === 'kit-busy') router.refresh()
       setError(
         e instanceof ApiFailure
           ? errorText(t, e.code, e.message)
@@ -114,6 +120,7 @@ export function CompanionPanel({
   async function copy() {
     if (!document) return
     await navigator.clipboard.writeText(plaintextOf(kind, document))
+    haptic('confirm')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -192,6 +199,7 @@ export function CompanionPanel({
         </p>
       )}
 
+      {!document && !running && <p className="companion-lede">{t(`companion.lede.${kind}`)}</p>}
       {kind === 'recruiterMessage' && (
         <div style={{ marginBottom: 'var(--space-4)', maxWidth: '24em' }}>
           <label htmlFor="recruiter-name" className="fact-label" style={{ display: 'block' }}>
@@ -213,7 +221,11 @@ export function CompanionPanel({
           {running ? (
             <span className="fact">
               {t('studio.generating')}
-              <span className="cursor" aria-hidden style={{ marginLeft: 'var(--space-2)' }} />
+              <span
+                className="intake-spinner"
+                aria-hidden
+                style={{ marginLeft: 'var(--space-2)' }}
+              />
             </span>
           ) : (
             <button type="button" onClick={generate} className="btn btn-primary">
@@ -223,27 +235,25 @@ export function CompanionPanel({
         </p>
       ) : (
         <>
-          <div
-            aria-live="polite"
-            style={{
-              display: 'flex',
-              gap: 'var(--space-3)',
-              marginBottom: 'var(--space-4)',
-              alignItems: 'baseline',
-              flexWrap: 'wrap',
-            }}
-          >
-            <button type="button" onClick={copy} className="btn btn-primary">
+          <div aria-live="polite" className="doc-actions">
+            <button type="button" onClick={copy} className="btn btn-primary icon-label">
+              <IconCopy />
               {copied ? t('studio.copied') : t('companion.copy')}
             </button>
-            <button type="button" onClick={generate} disabled={running} className="btn btn-quiet">
+            <button
+              type="button"
+              onClick={generate}
+              disabled={running}
+              className="btn btn-quiet icon-label"
+            >
+              <IconRegenerate />
               {running ? t('studio.generating') : t('studio.regenerate')}
             </button>
-            {running && <span className="cursor" aria-hidden />}
+            {running && <span className="intake-spinner" aria-hidden />}
           </div>
 
           {kind === 'coverLetter' && (
-            <article style={PAGE}>
+            <article style={PAGE} className="doc-paper">
               {(document as CoverLetter).paragraphs.map((p) => (
                 <p key={p.id} style={{ margin: '0 0 4mm' }}>
                   {p.text}
@@ -254,7 +264,7 @@ export function CompanionPanel({
 
           {kind === 'recruiterMessage' && (
             <>
-              <article style={PAGE}>
+              <article style={PAGE} className="doc-paper">
                 <p style={{ margin: 0 }}>{(document as RecruiterMessage).text}</p>
               </article>
               <p

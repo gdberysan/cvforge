@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rumbo · tu siguiente trabajo, sin adivinar</title>
+<meta name="description" content="Pega una vacante y Rumbo te dice si vale tu tiempo, qué cumples y qué te falta. Luego te ayuda a postularte sin inventar nada de ti. Gratis.">
+<meta property="og:title" content="Rumbo · tu siguiente trabajo, sin adivinar">
+<meta property="og:description" content="Te dice si una vacante vale tu tiempo y te ayuda a postularte sin inventar nada de ti. Gratis, y tus datos se quedan en tu navegador.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_MX">
+<meta name="theme-color" content="#F5F3EE">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/app/icons/icon-192.png">
+<style>
+/* The type, served from this site: no visitor ever contacts Google. */
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/bricolage-grotesque-normal-500-f39ba9.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/bricolage-grotesque-normal-500-f39ba9.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/bricolage-grotesque-normal-500-f39ba9.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/bricolage-grotesque-normal-500-f39ba9.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/ibm-plex-mono-normal-400-acb0f0.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/ibm-plex-mono-normal-500-117e88.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Source Serif 4'; font-style: italic; font-weight: 400; font-display: swap; src: url('/fonts/source-serif-4-italic-400-324356.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Source Serif 4'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/source-serif-4-normal-400-91f1a3.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Source Serif 4'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/source-serif-4-normal-400-91f1a3.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+/* Layout: one shared left edge for everything. The hero splits in two: the
+   promise on the left, the product itself (a live answer) on the right.
+   Reading text keeps a letter's measure inside that same edge. */
+:root {
+  --paper: #F5F3EE;
+  --sheet: #FFFFFF;
+  --well: #EFECE5;
+  --ink: #17171A;
+  --ink-soft: #4E4C47;
+  --ink-faint: #6F6C66;
+  --rule: rgba(23, 23, 26, 0.10);
+  --amber: #F0A35E;
+  --amber-ink: #8A4310;
+  --strong: #1F6B4A;
+  --strong-wash: #E4F1E9;
+  --blocked: #A3261C;
+  --blocked-wash: #FBE9E6;
+  --track: #E4E0D7;
+  --partial-bar: #B9B4A9;
+  --needle-back: #F5F3EE;
+  --tile: #17171A;
+  --seg-on: #FFFFFF;
+  --seg-on-edge: transparent;
+  --shadow: 0 1px 2px rgba(23,23,26,.05), 0 8px 24px rgba(23,23,26,.06), 0 32px 64px -24px rgba(23,23,26,.14);
+
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --text: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --page: 76rem;
+  --split: minmax(0, 1fr) minmax(0, 1fr);
+  --split-gap: clamp(32px, 6vw, 96px);
+  --measure: 35rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #141412; --sheet: #1D1D1A; --well: #252521;
+    --ink: #EDEAE3; --ink-soft: #C2BEB5; --ink-faint: #9C988F;
+    --rule: rgba(237,234,227,.12);
+    --amber-ink: #F0A35E;
+    --strong: #6FC79A; --strong-wash: #1B2D24;
+    --blocked: #F08A7E; --blocked-wash: #33201C;
+    --track: #33322E; --partial-bar: #6A675F;
+    --needle-back: #2A2A27; --tile: #2A2A27; --seg-on: #3A3934; --seg-on-edge: rgba(237,234,227,.22);
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 24px 60px -20px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #141412; --sheet: #1D1D1A; --well: #252521;
+  --ink: #EDEAE3; --ink-soft: #C2BEB5; --ink-faint: #9C988F;
+  --rule: rgba(237,234,227,.12);
+  --amber-ink: #F0A35E;
+  --strong: #6FC79A; --strong-wash: #1B2D24;
+  --blocked: #F08A7E; --blocked-wash: #33201C;
+  --track: #33322E; --partial-bar: #6A675F;
+  --needle-back: #2A2A27; --tile: #2A2A27; --seg-on: #3A3934; --seg-on-edge: rgba(237,234,227,.22);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 24px 60px -20px rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 18px/1.65 var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.page {
+  max-width: calc(var(--page) + 2 * 32px);
+  margin: 0 auto;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--amber-ink); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
+
+/* The mark: a compass needle on the ink tile, settling once on load. */
+.mark { width: 36px; height: 36px; flex: none; }
+.mark .tile { fill: var(--tile); }
+.mark .fore { fill: var(--amber); }
+.mark .back { fill: var(--needle-back); }
+:root[data-theme="dark"] .mark .back, :root[data-theme="dark"] .mark .tile {}
+.needle { transform-box: view-box; transform-origin: 50% 50%; transform: rotate(45deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .needle { animation: settle 1.7s cubic-bezier(.2,.8,.2,1) .15s both; }
+  .rise { animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
+  .rise.d1 { animation-delay: .08s; } .rise.d2 { animation-delay: .16s; } .rise.d3 { animation-delay: .28s; }
+}
+@keyframes settle {
+  0% { transform: rotate(-70deg); } 45% { transform: rotate(62deg); }
+  70% { transform: rotate(38deg); } 86% { transform: rotate(48deg); } 100% { transform: rotate(45deg); }
+}
+/* Starts visible: only a short lift, never from transparent. */
+@keyframes rise { from { transform: translateY(10px); } to { transform: none; } }
+
+header.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-block: 20px;
+}
+.brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: var(--ink); min-height: 44px; }
+.brand span { font: 800 26px/1 var(--display); letter-spacing: -0.035em; }
+.top-link {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px;
+  border-radius: 999px; border: 1px solid var(--rule);
+  font: 600 16px/1 var(--display); color: var(--ink); text-decoration: none;
+}
+.top-link:hover { background: var(--sheet); }
+
+/* Hero: promise left, product right. */
+.hero {
+  display: grid;
+  grid-template-columns: var(--split);
+  gap: var(--split-gap);
+  align-items: center;
+  padding-block: clamp(32px, 7vh, 72px) clamp(40px, 6vh, 72px);
+}
+.hero h1 {
+  margin: 0;
+  font: 800 clamp(48px, 7vw, 92px)/0.94 var(--display);
+  letter-spacing: -0.048em;
+}
+.hero h1 em { font-style: normal; color: var(--amber-ink); display: block; }
+.lede { margin: 30px 0 0; font-size: 22px; line-height: 1.55; color: var(--ink-soft); max-width: 28rem; }
+.start { margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 56px; padding: 0 30px;
+  border-radius: 999px; border: 0;
+  background: var(--ink); color: var(--paper);
+  font: 700 18px/1 var(--display); letter-spacing: -0.01em;
+  text-decoration: none; cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 8px 20px -8px rgba(23,23,26,.45);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 12px 26px -10px rgba(23,23,26,.5); }
+.btn svg { width: 18px; height: 18px; }
+.start small { font: 400 16px/1.45 var(--display); color: var(--ink-faint); max-width: 28rem; }
+
+/* The product: a live answer, three jobs one tap apart. */
+.demo { display: grid; gap: 12px; }
+.seg {
+  margin: 0; border: 0; min-width: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
+  padding: 4px; border-radius: 16px; background: var(--well);
+}
+.seg button {
+  min-height: 48px; padding: 8px 10px 8px 22px; border: 0; border-radius: 12px;
+  background: transparent; color: var(--ink-soft); cursor: pointer; text-align: left;
+  font: 600 14px/1.2 var(--display);
+  display: grid; gap: 2px; align-content: center;
+}
+.seg button b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seg button span { font: 400 14px/1.2 var(--display); color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seg button[aria-pressed="true"] { background: var(--seg-on); outline: 1px solid var(--seg-on-edge); outline-offset: -1px; color: var(--ink); box-shadow: 0 1px 2px rgba(23,23,26,.08), 0 2px 8px rgba(23,23,26,.06); }
+.answer {
+  background: var(--sheet); border-radius: 24px; padding: 26px;
+  box-shadow: var(--shadow);
+  display: grid;
+}
+/* The three answers share one cell: the card keeps the tallest one's size. */
+.answer > .state { grid-area: 1 / 1; display: grid; gap: 16px; align-content: start; visibility: hidden; }
+.answer > .state.is-on { visibility: visible; }
+.gate { border: 1px solid var(--blocked); border-radius: 14px; background: var(--blocked-wash); padding: 13px 15px; font: 400 16px/1.45 var(--display); }
+.gate b { display: block; color: var(--blocked); font-weight: 700; margin-bottom: 3px; }
+.verdict { display: flex; gap: 14px; align-items: center; }
+.icon { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; flex: none; }
+.icon svg { width: 26px; height: 26px; }
+.verdict h3 { margin: 0; font: 800 34px/1 var(--display); letter-spacing: -0.035em; }
+.verdict p { margin: 6px 0 0; font: 400 14px/1.3 var(--display); color: var(--ink-faint); }
+.advice { margin: 0; font: 400 18px/1.45 var(--text); }
+.bar { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
+.bar i { height: 8px; border-radius: 999px; background: var(--track); }
+.bar i.s { background: var(--strong); }
+.bar i.p { background: var(--amber); }
+.bar i.m { background: var(--blocked); opacity: .5; }
+.counts span { white-space: nowrap; }
+.counts { margin: -4px 0 0; font: 500 16px/1.4 var(--display); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.missing { background: var(--well); border-radius: 14px; padding: 13px 16px; }
+.missing b { display: block; font: 600 14px/1.3 var(--display); color: var(--ink-faint); margin-bottom: 3px; }
+.missing span { font: 600 18px/1.4 var(--display); }
+.caption { margin: 2px 0 0; font: 400 14px/1.45 var(--display); color: var(--ink-faint); }
+
+/* Section rhythm: space, not rules. Each section opens with one line. */
+section { padding-block: clamp(48px, 8vh, 88px); }
+.kicker { margin: 0 0 16px; font: 500 14px/1.3 var(--data); letter-spacing: .04em; color: var(--amber-ink); }
+h2 { margin: 0 0 26px; font: 700 clamp(34px, 4.6vw, 54px)/1.04 var(--display); letter-spacing: -0.035em; max-width: 18ch; }
+
+/* The note: a letter. Its first line is set large, like the start of a page. */
+.note-grid { display: block; }
+.note { columns: 2; column-gap: var(--split-gap); }
+.note p { break-inside: avoid; }
+.note .sign { break-inside: avoid; }
+.note-head { margin-bottom: 36px; }
+.note-head .open { margin: 0; font: 700 clamp(34px, 4.6vw, 54px)/1.06 var(--display); letter-spacing: -0.035em; max-width: 22ch; }
+.note p { margin: 0 0 1.05em; }
+.note p:last-child { margin-bottom: 0; }
+.sign { margin-top: 30px; display: flex; align-items: baseline; gap: 14px; }
+.sign .name { font: italic 400 34px/1 var(--text); }
+.sign .where { font: 400 14px/1.4 var(--data); color: var(--ink-faint); }
+
+/* What it refuses: statements, set large. */
+.nots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: var(--split); gap: 40px var(--split-gap); }
+.nots h3 { position: relative; }
+@media (min-width: 1240px) { .nots h3 svg { position: absolute; left: -32px; top: 50%; translate: 0 -50%; } .nots p { padding-left: 0 !important; } }
+.nots li { display: grid; gap: 8px; align-content: start; }
+.nots h3 { margin: 0; display: flex; align-items: center; gap: 12px; font: 700 26px/1.15 var(--display); letter-spacing: -0.02em; }
+.nots h3 svg { width: 20px; height: 20px; flex: none; stroke: var(--blocked); }
+.nots p { margin: 0; color: var(--ink-soft); font-size: 18px; line-height: 1.55; padding-left: 32px; }
+
+/* Costs: the $0 is the peak of the page. */
+.cost-grid { display: grid; grid-template-columns: var(--split); gap: var(--split-gap); align-items: start; }
+.zero { margin: 24px 0 0; font: 800 clamp(120px, 20vw, 240px)/0.82 var(--display); letter-spacing: -0.06em; color: var(--strong); }
+.zero-label { margin: 18px 0 0; font: 600 22px/1.3 var(--display); max-width: none; letter-spacing: -0.01em; }
+.zero-note { margin: 6px 0 0; font-size: 18px; color: var(--ink-faint); max-width: 22rem; }
+.costs { width: 100%; border-collapse: collapse; font: 500 18px/1.4 var(--display); }
+.costs caption { caption-side: bottom; text-align: left; padding-top: 12px; font: 400 14px/1.4 var(--display); color: var(--ink-faint); }
+.costs tr:first-child td { border-top: 0; }
+.costs td em { display: block; font: 400 14px/1.3 var(--display); font-style: normal; color: var(--ink-faint); }
+.costs td { padding: 16px 0; border-top: 1px solid var(--rule); vertical-align: baseline; }
+.costs td:last-child { text-align: right; font: 500 18px/1.4 var(--data); font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 16px; }
+.fine { margin-top: 26px; display: grid; gap: 14px; font-size: 18px; line-height: 1.6; color: var(--ink-soft); }
+.fine p { margin: 0; }
+.fine strong { color: var(--ink); font-weight: 600; }
+
+/* Last call */
+.last { padding-block: clamp(48px, 8vh, 88px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px 48px; }
+.last h2 { margin: 0; max-width: none; }
+.last .start { margin-top: 0; flex-direction: column; align-items: flex-start; gap: 12px; }
+footer {
+  padding-block: 24px 40px;
+  display: flex; flex-wrap: wrap; gap: 4px 20px; justify-content: space-between; align-items: center;
+  font: 400 14px/1.5 var(--display); color: var(--ink-faint);
+  border-top: 1px solid var(--rule);
+}
+footer nav { display: flex; flex-wrap: wrap; gap: 0 20px; }
+footer a { color: var(--ink-faint); display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .note { columns: 1; }
+  .cost-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  section { padding-block: 36px; }
+  .hero { padding-block: 20px 40px; gap: 40px; }
+  .lede { font-size: 18px; line-height: 1.5; margin-top: 18px; }
+  .hero h1 { font-size: 46px; }
+  .start { margin-top: 24px; }
+  .btn { width: 100%; }
+  .start small { max-width: none; }
+  .seg button { padding: 8px 6px; text-align: center; justify-items: center; }
+  .seg button b { display: none; }
+  .seg button span { font: 600 16px/1.2 var(--display); color: inherit; }
+  .answer { padding: 20px; }
+  .verdict h3 { font-size: 34px; }
+  .nots { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .last .start { width: 100%; }
+  .nots h3 { font-size: 26px; }
+  .nots p { padding-left: 32px; }
+  .last h2 { font-size: 34px; }
+}
+</style>
+<!-- Someone who already uses the app goes straight to it (the app sets this; ?inicio shows this page anyway). -->
+<script>try{if(localStorage.getItem('rumbo:returning')&&!/[?&]inicio\b/.test(location.search))location.replace('/app/')}catch(e){}</script>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <a class="brand" href="/?inicio" aria-label="Rumbo, inicio">
+      <svg class="mark" viewBox="0 0 36 36" aria-hidden="true">
+        <rect class="tile" width="36" height="36" rx="10"/>
+        <g class="needle">
+          <path class="fore" d="M18 4.5 L21.6 18 L14.4 18 Z"/>
+          <path class="back" d="M14.4 18 L21.6 18 L18 31.5 Z"/>
+        </g>
+      </svg>
+      <span>rumbo</span>
+    </a>
+    <a class="top-link" href="/app/">Empezar</a>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1 class="rise">Tu siguiente trabajo, <em>sin adivinar.</em></h1>
+      <p class="lede rise d1">Pega una vacante y Rumbo te dice si vale tu tiempo, qué cumples y qué te falta. Luego te ayuda a postularte sin inventar nada de ti.</p>
+      <div class="start rise d2">
+        <a class="btn" href="/app/">Probarlo con mi CV
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <small class="hero-note">Rumbo es gratis. La IA cuesta unos centavos por vacante.</small>
+      </div>
+    </div>
+
+    <section class="demo rise d3" aria-label="Una respuesta de ejemplo">
+      <fieldset class="seg" aria-label="Vacantes de ejemplo">
+        <button type="button" data-i="0" aria-pressed="true"><b>Growth Lead</b><span>Nuvei</span></button>
+        <button type="button" data-i="1" aria-pressed="false"><b>Coordinador(a)</b><span>Andino</span></button>
+        <button type="button" data-i="2" aria-pressed="false"><b>Performance</b><span>Ruta Norte</span></button>
+      </fieldset>
+      <div class="answer" id="answer" aria-live="polite"></div>
+      <p class="caption">Así se ve con Lucas, un ejemplo inventado que busca trabajo de marketing en CDMX. Abre la tercera: a veces la respuesta es no.</p>
+    </section>
+  </div>
+
+  <section class="note-grid" aria-label="Una nota de quien lo hizo">
+    <div class="note-head">
+      <p class="kicker">Una nota</p>
+      <p class="open">Hice Rumbo mientras buscaba trabajo yo mismo.</p>
+    </div>
+    <div class="note">
+      <p>Postularme a todo me estaba agotando, y las herramientas que probé hacían justo lo que no necesitaba: me hacían sonar impresionante con cosas que yo no había hecho. Un reclutador lee eso como un hecho, y en la entrevista te lo preguntan.</p>
+      <p>Así que la hice al revés. Rumbo parte de lo que de verdad hiciste y no escribe una sola línea que no puedas respaldar. Y antes de que escribas nada, te dice si una vacante vale la pena. A mí me dijo que no más veces de las que me gustaba. Casi siempre tenía razón.</p>
+      <p>Es gratis porque buscar trabajo ya cuesta bastante. Solo pagas la IA que usas, unos centavos, directo a quien la hace. Yo no cobro nada, no veo tus datos y no los vendo.</p>
+      <p>Ojalá te sirva.</p>
+      <div class="sign">
+        <span class="name">Gerardo</span>
+        <span class="where">México</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-nots">
+    <p class="kicker">Lo que no hace</p>
+    <h2 id="h-nots">Hay cosas que Rumbo no va a&nbsp;hacer.</h2>
+    <ul class="nots">
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Inventar</h3><p>Si no lo hiciste, no aparece en tu CV, aunque eso lo haga menos impresionante. Cada cifra se revisa contra lo que tú contaste.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Decirte que sí a todo</h3><p>Si una vacante pide vivir en otra ciudad o un permiso que no tienes, te lo dice primero, antes de que pierdas la tarde.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Postularse por ti</h3><p>Te ayuda a decidir y a prepararte. Enviar es tuyo.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Guardar tus datos</h3><p>Tu CV y tus postulaciones viven en tu navegador. No hay cuenta ni servidor nuestro que los vea.</p></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="h-costs">
+    <p class="kicker">Lo que cuesta, medido</p>
+    <div class="cost-grid">
+      <div>
+        <p class="zero" aria-hidden="true">$0</p>
+        <h2 id="h-costs" class="zero-label">Lo que cobra Rumbo. Hoy y siempre.</h2>
+        <p class="zero-note">Sin suscripción, sin plan premium, sin prueba que se vence.</p>
+      </div>
+      <div>
+        <table class="costs">
+          <caption>Lo que pagas a la IA · promedio medido, noviembre de 2026 · pesos aproximados</caption>
+          <tbody>
+            <tr><td>Analizar una vacante</td><td>$0.04 USD<em>≈ 75 centavos</em></td></tr>
+            <tr><td>CV, carta y respuestas</td><td>$0.50 USD<em>≈ $9 MXN</em></td></tr>
+            <tr><td>Una búsqueda completa</td><td>$3–6 USD<em>≈ $55–110 MXN</em></td></tr>
+          </tbody>
+        </table>
+        <div class="fine">
+          <p>Pagas directo a la empresa que hace la IA, con una clave tuya; Rumbo te guía para sacarla en 5 minutos y te muestra cuánto llevas gastado.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="last" id="empezar" aria-labelledby="h-last">
+    <h2 id="h-last">¿Empezamos con tu&nbsp;CV?</h2>
+    <div class="start">
+      <a class="btn" href="/app/">Probarlo con mi CV
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <small>Preparar tu clave toma unos 5 minutos, una sola vez.</small>
+    </div>
+  </section>
+
+  <footer>
+    <span>Rumbo · hecho en México por Gerardo</span>
+    <nav aria-label="Enlaces"><a href="/app/privacidad/">Cómo se cuida tu privacidad</a><a href="https://github.com/gdberysan/cvforge">Código abierto</a></nav>
+  </footer>
+</div>
+
+<script>
+const A = [
+  { title: 'Growth Lead', company: 'Nuvei Pagos', verdict: 'Vale la pena',
+    advice: 'Postúlate y habla con honestidad en la carta sobre lo que te falta.',
+    tone: 'strong', s: 6, p: 2, m: 0, total: 8, missing: 'SQL avanzado y Amplitude.' },
+  { title: 'Coordinador(a) de Marketing Digital', company: 'Grupo Andino Retail', verdict: 'Coincidencia fuerte',
+    advice: 'Postúlate. Lo que has hecho cubre lo que piden.',
+    tone: 'strong', s: 8, p: 0, m: 0, total: 8, missing: '' },
+  { title: 'Performance Marketing Specialist', company: 'Agencia Ruta Norte', verdict: 'No aplica',
+    advice: 'Hay un requisito que ningún cambio al CV puede cumplir.',
+    tone: 'blocked', s: 6, p: 1, m: 2, total: 9, missing: 'TikTok Ads, Monterrey y visitas a clientes.',
+    gate: 'Pide vivir en Monterrey; el puesto es 100% presencial en San Pedro Garza García.' },
+];
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor"/></svg>';
+const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.5" stroke="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor"/></svg>';
+const box = document.getElementById('answer');
+// All three answers are drawn once, in the same place: the card is always
+// as tall as the tallest, so switching never moves anything.
+function card(a) {
+  const bars = 's'.repeat(a.s) + 'p'.repeat(a.p) + 'm'.repeat(a.m);
+  const parts = [`Cumples ${a.s} de ${a.total} requisitos clave`];
+  if (a.p) parts.push(`${a.p} a medias`);
+  if (a.m) parts.push(`${a.m} sin cubrir`);
+  const ok = a.tone === 'strong';
+  return `
+    ${a.gate ? `<div class="gate"><b>Bloqueado por ubicación</b>${a.gate}</div>` : ''}
+    <div class="verdict">
+      <div class="icon" style="background:var(${ok ? '--strong-wash' : '--blocked-wash'});color:var(${ok ? '--strong' : '--blocked'})">${ok ? CHECK : CROSS}</div>
+      <div><h3>${a.verdict}</h3><p>${a.title} · ${a.company}</p></div>
+    </div>
+    <p class="advice">${a.advice}</p>
+    <div class="bar" aria-hidden="true">${[...bars].map(c => `<i class="${c}"></i>`).join('')}</div>
+    <p class="counts">${parts.map(x => `<span>${x}</span>`).join(' · ')}</p>
+    ${a.missing ? `<div class="missing"><b>${a.m ? 'Lo que te falta' : 'Lo que tienes a medias'}</b><span>${a.missing}</span></div>` : ''}`;
+}
+box.innerHTML = A.map((a, i) => `<div class="state" data-i="${i}">${card(a)}</div>`).join('');
+function show(i) {
+  for (const s of box.querySelectorAll('.state')) {
+    const on = s.dataset.i === String(i);
+    s.classList.toggle('is-on', on);
+    s.setAttribute('aria-hidden', String(!on));
+  }
+  for (const b of document.querySelectorAll('.seg button')) b.setAttribute('aria-pressed', String(b.dataset.i === String(i)));
+}
+for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => show(Number(b.dataset.i)));
+show(0);
+</script>
+</body>
+</html>

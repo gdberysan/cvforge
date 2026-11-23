@@ -7,9 +7,11 @@ import { deleteEvidence, listEvidence, upsertEvidence } from '@/lib/db/queries/e
 import { deleteInterviewSessions } from '@/lib/db/queries/interview-sessions'
 import { getProfile, saveProfile } from '@/lib/db/queries/profile'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
+import { MarketSchema } from '@/lib/markets'
 import { addProject, removeProject, updateProject } from '@/lib/projects'
 import { addRole, removeRole, updateRole } from '@/lib/roles'
 import { type EvidenceItem, EvidenceItemSchema } from '@/lib/schemas'
+import { safeZone } from '@/lib/time'
 
 type Result = { ok: true } | { ok: false; error: string }
 
@@ -193,4 +195,66 @@ export async function deleteEvidenceAction(id: string): Promise<DeleteResult> {
   const sortOrder = deleteEvidence(db, id)
   revalidatePath('/evidence')
   return { ok: true, sortOrder }
+}
+
+const DetailsSchema = z.object({
+  location: z.string().trim().max(120),
+  timezone: z
+    .string()
+    .trim()
+    .refine((zone) => zone !== '' && safeZone(zone) === zone, 'unknown time zone'),
+  markets: z
+    .array(MarketSchema)
+    .max(8)
+    .transform((list) => [...new Set(list)]),
+  workAuthorization: z
+    .array(
+      z.object({ country: z.string().trim().min(1).max(80), status: z.string().trim().max(120) }),
+    )
+    .max(10),
+  // What only you can say, and until 2026-11-21 only a CV import could set:
+  // the summary a CV is rewritten from, your skill groups, and the titles
+  // you aim at. Optional, so a save that does not touch them keeps them.
+  summary: z.string().trim().max(1500).optional(),
+  skills: z
+    .array(
+      z.object({
+        category: z.string().trim().max(60),
+        items: z.array(z.string().trim().min(1).max(60)).max(40),
+      }),
+    )
+    .max(20)
+    .optional(),
+  targetTitles: z.array(z.string().trim().min(1).max(80)).max(10).optional(),
+})
+
+/**
+ * The facts a posting's location, timezone and authorization lines are
+ * judged against, and the markets a CV can aim at. Until 2026-11 only a CV
+ * import could set them, and the time zone was always Mexico City's.
+ */
+export async function saveDetailsAction(
+  input: unknown,
+): Promise<{ ok: true } | { ok: false; error: string; code: string }> {
+  if (isDemo()) return demoBlock()
+  const parsed = DetailsSchema.safeParse(input)
+  if (!parsed.success) return { ok: false, error: 'Check your details.', code: 'invalid-details' }
+  const profile = getProfile(db)
+  if (!profile) return { ok: false, error: 'No profile yet.', code: 'no-profile' }
+  const d = parsed.data
+  saveProfile(db, {
+    ...profile,
+    basics: { ...profile.basics, location: d.location, timezone: d.timezone },
+    workAuthorization: d.workAuthorization,
+    ...(d.summary !== undefined ? { summary: d.summary } : {}),
+    ...(d.skills !== undefined ? { skills: d.skills.filter((g) => g.items.length > 0) } : {}),
+    preferences: {
+      ...profile.preferences,
+      markets: d.markets,
+      ...(d.targetTitles !== undefined ? { targetTitles: [...new Set(d.targetTitles)] } : {}),
+    },
+    updatedAt: new Date().toISOString(),
+  })
+  revalidatePath('/', 'layout')
+  return { ok: true }
 }

@@ -9,8 +9,7 @@ import {
   TextRun,
 } from 'docx'
 import type { CVContent } from '@/lib/schemas'
-import { HEADINGS } from './cv-html'
-import { educationLine, formatDate, projectDates, projectTitle } from './format'
+import { cvOutline } from './outline'
 
 type DocxOpts = { language: 'en' | 'es-MX' }
 
@@ -39,8 +38,8 @@ function clean(text: string): string {
  * every parser expect; same single-column, conventional-headings discipline
  * as the HTML template.
  */
-export async function renderDocx(content: CVContent, opts: DocxOpts): Promise<Buffer> {
-  const h = HEADINGS[opts.language]
+export async function renderDocx(content: CVContent, opts: DocxOpts): Promise<Uint8Array> {
+  const outline = cvOutline(content, opts.language)
 
   const heading = (text: string) =>
     new Paragraph({
@@ -79,74 +78,32 @@ export async function renderDocx(content: CVContent, opts: DocxOpts): Promise<Bu
   const children: Paragraph[] = [
     new Paragraph({
       alignment: AlignmentType.LEFT,
-      children: [
-        new TextRun({ text: clean(content.header.fullName), bold: true, color: INK, size: 40 }),
-      ],
+      children: [new TextRun({ text: clean(outline.name), bold: true, color: INK, size: 40 })],
     }),
-    new Paragraph({
-      spacing: { after: 40 },
-      children: [new TextRun({ text: clean(content.header.title), color: MUTED, size: 23 })],
-    }),
+    ...(outline.title
+      ? [
+          new Paragraph({
+            spacing: { after: 40 },
+            children: [new TextRun({ text: clean(outline.title), color: MUTED, size: 23 })],
+          }),
+        ]
+      : []),
     new Paragraph({
       spacing: { after: 120 },
-      children: [
-        new TextRun({
-          text: clean(content.header.contactLines.join(' · ')),
-          color: MUTED,
-          size: 19,
-        }),
-      ],
+      children: [new TextRun({ text: clean(outline.contact), color: MUTED, size: 19 })],
     }),
   ]
 
-  if (content.summary) {
-    children.push(heading(h.summary), body(content.summary))
-  }
-
-  if (content.experience.length > 0) {
-    children.push(heading(h.experience))
-    for (const role of content.experience) {
-      children.push(
-        roleLine(
-          `${role.title} — ${role.company}`,
-          `${formatDate(role.startDate, opts.language)} – ${role.endDate ? formatDate(role.endDate, opts.language) : h.present}`,
-        ),
-      )
-      for (const bullet of role.bullets) {
-        children.push(body(bullet.text, { bullet: true }))
+  for (const section of outline.sections) {
+    children.push(heading(section.heading))
+    for (const it of section.items) {
+      if (it.kind === 'para') children.push(body(it.text))
+      else if (it.kind === 'skills') children.push(body(`${it.category}: ${it.items.join(', ')}`))
+      else {
+        children.push(roleLine(it.left, it.right))
+        for (const bullet of it.bullets) children.push(body(bullet, { bullet: true }))
       }
     }
-  }
-
-  if (content.projects.length > 0) {
-    children.push(heading(h.projects))
-    for (const project of content.projects) {
-      children.push(
-        roleLine(projectTitle(project), projectDates(project, opts.language, h.present)),
-      )
-      for (const bullet of project.bullets) {
-        children.push(body(bullet.text, { bullet: true }))
-      }
-    }
-  }
-
-  if (content.education.length > 0) {
-    children.push(heading(h.education))
-    for (const ed of content.education) {
-      children.push(roleLine(educationLine(ed), ed.period))
-    }
-  }
-
-  if (content.skills.length > 0) {
-    children.push(heading(h.skills))
-    for (const group of content.skills) {
-      children.push(body(`${group.category}: ${group.items.join(', ')}`))
-    }
-  }
-
-  for (const extra of content.extras) {
-    children.push(heading(extra.heading))
-    for (const line of extra.lines) children.push(body(line))
   }
 
   const doc = new Document({
@@ -165,5 +122,7 @@ export async function renderDocx(content: CVContent, opts: DocxOpts): Promise<Bu
     ],
   })
 
-  return Packer.toBuffer(doc)
+  // Bytes, not a Node Buffer: toBuffer is Node-only, and the browser edition
+  // renders the same file in its Worker.
+  return new Uint8Array(await Packer.toArrayBuffer(doc))
 }

@@ -1,7 +1,14 @@
 import { buildEntityIndex } from '@/lib/ai/projection'
 import type { EvidenceItem, GroundingReport, MasterProfile } from '@/lib/schemas'
 import { allowedQuantityForms } from './checks'
-import { extractQuantities, normaliseQuantity } from './quantities'
+import {
+  extractCounts,
+  extractQuantities,
+  extractYearSpans,
+  normaliseQuantity,
+  numbersIn,
+} from './quantities'
+import { recordedYears } from './sections'
 
 /**
  * The companion variant of the deterministic checks. Unlike CV bullets, a
@@ -28,8 +35,10 @@ export function runCompanionChecks(args: {
     // Companions may name a gap honestly ("I have not worked with X directly"),
     // so the claimed-gap check is a CV-only rule; the distortion pass covers them.
     claimedGaps: [],
+    unsupportedClaims: [],
     passed: true,
   }
+  const careerYears = recordedYears(args.profile.experience.map((r) => r.period))
 
   const evidenceById = new Map(args.evidence.map((e) => [e.id, e]))
   const entityIndex = buildEntityIndex(args.profile, args.evidence)
@@ -65,6 +74,25 @@ export function runCompanionChecks(args: {
       if (!allowed.has(normaliseQuantity(token))) {
         report.unverifiedNumbers.push({ bulletId: paragraph.id, token })
       }
+    }
+    // Bare counts and spans of years, as on the CV: a count must be stated in
+    // what the paragraph cites; years may not exceed the career on record.
+    const stated = numbersIn(
+      [
+        ...citedItems.flatMap((item) => [
+          item.text,
+          ...item.metrics.map((m) => `${m.raw} ${m.value ?? ''}`),
+        ]),
+        ...citedCredentials,
+      ].join('\n'),
+    )
+    for (const count of extractCounts(paragraph.text)) {
+      if (!stated.has(count))
+        report.unverifiedNumbers.push({ bulletId: paragraph.id, token: `${count}` })
+    }
+    for (const years of extractYearSpans(paragraph.text)) {
+      if (years > Math.round(careerYears) && !stated.has(years))
+        report.unverifiedNumbers.push({ bulletId: paragraph.id, token: `${years}` })
     }
 
     for (const word of paragraph.text.split(/\s+/).slice(1)) {

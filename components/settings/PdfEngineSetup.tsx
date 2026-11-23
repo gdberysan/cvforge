@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { installPdfEngineAction } from '@/app/(app)/settings/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { errorText } from '@/lib/i18n'
+import { SettingsRow } from './SettingsGroup'
 
 /**
  * Rendered only when the engine ladder found nothing — no Chrome, no Edge,
@@ -32,40 +33,22 @@ export function PdfEngineSetup() {
   }
 
   return (
-    <section style={{ display: 'grid', gap: 'var(--space-3)', maxWidth: '36em' }}>
-      <p className="fact-label">{t('settings.pdf.title')}</p>
-      {state === 'done' ? (
-        <p style={{ font: 'var(--type-body-sm)', color: 'var(--signal-ok)' }}>
-          {t('settings.pdf.done')}
+    <>
+      <SettingsRow
+        label={t('settings.pdf.title')}
+        hint={state === 'done' ? t('settings.pdf.done') : t('settings.pdf.missing')}
+      >
+        {state !== 'done' && (
+          <button type="button" className="btn btn-quiet" onClick={install} disabled={isPending}>
+            {isPending ? t('settings.pdf.installing') : t('settings.pdf.install')}
+          </button>
+        )}
+      </SettingsRow>
+      {error && (
+        <p role="alert" className="settings-feedback">
+          <span className="is-error">{error}</span>
         </p>
-      ) : (
-        <>
-          <p style={{ font: 'var(--type-body-sm)', color: 'var(--text-muted)' }}>
-            {t('settings.pdf.missing')}
-          </p>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)' }}>
-            <button
-              type="button"
-              className="btn btn-quiet"
-              disabled={isPending}
-              onClick={install}
-              style={{ justifySelf: 'start' }}
-            >
-              {t('settings.pdf.install')}
-            </button>
-            {isPending && (
-              <span className="fact" style={{ color: 'var(--text-muted)' }} aria-live="polite">
-                {t('settings.pdf.installing')}
-              </span>
-            )}
-          </div>
-          {error && (
-            <p role="alert" style={{ color: 'var(--signal-error)', font: 'var(--type-body-sm)' }}>
-              {error}
-            </p>
-          )}
-        </>
       )}
-    </section>
+    </>
   )
 }

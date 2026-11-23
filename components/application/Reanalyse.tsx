@@ -42,27 +42,18 @@ export function Reanalyse({ postingRaw, market }: { postingRaw: string; market: 
   }
 
   return (
-    <div
-      style={{
-        marginTop: 'var(--space-5)',
-        borderLeft: '2px solid var(--accent)',
-        paddingLeft: 'var(--space-3)',
-        maxWidth: '38em',
-      }}
-    >
-      <p style={{ color: 'var(--text-muted)', font: 'var(--type-body-sm)' }}>
-        {t('application.stale')}
-      </p>
+    <div className="note note-action">
+      <p>{t('application.stale')}</p>
       {error && (
-        <p role="alert" style={{ color: 'var(--signal-error)', marginTop: 'var(--space-2)' }}>
+        <p role="alert" className="form-error">
           {error}
         </p>
       )}
-      <p style={{ marginTop: 'var(--space-3)' }} aria-live="polite">
+      <p className="note-actions" aria-live="polite">
         {running ? (
-          <span className="fact">
+          <span className="intake-status">
+            <span className="intake-spinner" aria-hidden />
             {stage === 'mapping' ? t('triage.stage.mapping') : t('triage.stage.starting')}
-            <span className="cursor" aria-hidden style={{ marginLeft: 'var(--space-2)' }} />
           </span>
         ) : (
           <button type="button" className="btn btn-quiet" onClick={run}>

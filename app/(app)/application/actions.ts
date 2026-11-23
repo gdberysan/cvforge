@@ -1,9 +1,15 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { normalizeAliases } from '@/lib/company-aliases'
 import { db } from '@/lib/db/client'
 import { upsertAnswer } from '@/lib/db/queries/answers'
-import { deleteApplication, getApplication, mergeDocuments } from '@/lib/db/queries/applications'
+import {
+  deleteApplication,
+  getApplication,
+  mergeDocuments,
+  setCompanyAliases,
+} from '@/lib/db/queries/applications'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
 import { type ScreeningSet, ScreeningSetSchema } from '@/lib/schemas'
 
@@ -67,4 +73,25 @@ export async function deleteApplicationAction(applicationId: string): Promise<Re
   revalidatePath('/pipeline')
   revalidatePath('/')
   return { ok: true }
+}
+
+/**
+ * "También escribe como" (spec 2026-10-17 mail accuracy §5): the other names
+ * or email domains this employer writes under, so the agent's mail pass can
+ * tie its replies. Replaced wholesale with the normalised list; refused, not
+ * trimmed, when over the limits.
+ */
+export async function saveCompanyAliasesAction(
+  applicationId: string,
+  aliases: unknown,
+): Promise<{ ok: true; aliases: string[] } | { ok: false; error: string; code: string }> {
+  if (isDemo()) return demoBlock()
+  const normal = normalizeAliases(aliases)
+  if (!normal.ok) return { ok: false, error: 'Invalid aliases.', code: normal.code }
+  if (typeof applicationId !== 'string' || !getApplication(db, applicationId)) {
+    return { ok: false, error: 'That application no longer exists.', code: 'not-found' }
+  }
+  setCompanyAliases(db, applicationId, normal.aliases)
+  revalidatePath(`/application/${applicationId}`)
+  return { ok: true, aliases: normal.aliases }
 }

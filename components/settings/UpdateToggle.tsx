@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react'
 import { setUpdateCheckAction } from '@/app/(app)/settings/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { Switch } from '@/components/ui/Switch'
+import { SettingsRow } from './SettingsGroup'
 
 /** Opt-in, default off, and the note says exactly what gets fetched. */
 export function UpdateToggle({ enabled }: { enabled: boolean }) {
@@ -19,24 +21,8 @@ export function UpdateToggle({ enabled }: { enabled: boolean }) {
   }
 
   return (
-    <section style={{ display: 'grid', gap: 'var(--space-3)', maxWidth: '36em' }}>
-      <p className="fact-label">{t('settings.updates.title')}</p>
-      <label
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 'var(--space-3)',
-          font: 'var(--type-body-sm)',
-          color: 'var(--text-body)',
-          cursor: 'pointer',
-        }}
-      >
-        <input type="checkbox" checked={on} onChange={(e) => toggle(e.target.checked)} />
-        {t('settings.updates.toggle')}
-      </label>
-      <p style={{ font: 'var(--type-body-sm)', color: 'var(--text-faint)' }}>
-        {t('settings.updates.note')}
-      </p>
-    </section>
+    <SettingsRow label={t('settings.updates.toggle')} hint={t('settings.updates.note')}>
+      <Switch checked={on} onChange={toggle} label={t('settings.updates.toggle')} />
+    </SettingsRow>
   )
 }

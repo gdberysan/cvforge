@@ -33,6 +33,7 @@ const emptyCoverage = {
   desirablePartial: 0,
   desirableMissing: 0,
   hardBlockers: [],
+  unjudgedGates: [],
 }
 
 const seed: Seed = {
@@ -113,6 +114,7 @@ const seed: Seed = {
         cv: {
           header: { fullName: 'Lucas Lara', title: 'x', contactLines: [] },
           summary: '',
+          summaryCitedEvidenceIds: [],
           experience: [],
           education: [],
           skills: [],
@@ -126,6 +128,7 @@ const seed: Seed = {
         unknownEntities: [],
         distortions: [],
         claimedGaps: [],
+        unsupportedClaims: [],
         passed: true,
       },
       outcomes: [

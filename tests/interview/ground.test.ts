@@ -59,6 +59,28 @@ describe('stripUngroundedMetrics', () => {
     expect(evidence[0].text).toBe('Rebuilt the checkout flow')
   })
 
+  it('keeps a line whose text states a figure the user gave', () => {
+    const { evidence, dropped } = stripUngroundedMetrics(
+      [{ ...ev([]), text: 'Automaticé el 100% de la logística' }],
+      'la logística era 100 por ciento automática',
+    )
+    expect(evidence).toHaveLength(1)
+    expect(dropped).toEqual([])
+  })
+
+  it('leaves out a line whose text states a figure the user never gave', () => {
+    // The text grounds a CV's figures once it is saved, so an invented one
+    // there would pass every later check, exactly like an invented metric.
+    const { evidence, dropped } = stripUngroundedMetrics(
+      [{ ...ev([]), text: 'Cut costs by 40% across the region' }, ev([])],
+      'we cut costs a lot across the region',
+    )
+    expect(evidence.map((e) => e.text)).toEqual(['Rebuilt the checkout flow'])
+    expect(dropped).toEqual([
+      { evidenceId: 'ev_1', raw: '40% — Cut costs by 40% across the region' },
+    ])
+  })
+
   it('drops a metric that inflates a number the user did state', () => {
     // The user said 18; the model wrote 80. Digits must actually match.
     const { evidence, dropped } = stripUngroundedMetrics(

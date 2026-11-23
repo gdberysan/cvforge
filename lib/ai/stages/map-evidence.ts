@@ -34,9 +34,7 @@ export async function mapEvidence(args: {
       ? '\n\nWrite every "rationale" in English.'
       : '\n\nWrite every "rationale" in Mexican Spanish (es-MX), whatever the language of the requirements; keep tool and skill names as written.'
 
-  const requirementBlock = args.requirements
-    .map((r) => `${r.id} | ${r.kind} | mandatory=${r.mandatory} | ${r.keyword} — ${r.text}`)
-    .join('\n')
+  const requirementBlock = requirementLines(args.requirements)
 
   const ask = (extra = '') =>
     callStructured({
@@ -70,7 +68,33 @@ export async function mapEvidence(args: {
     }
   }
 
+  // A requirement the answer skipped is asked about once more, on its own.
+  // Left unanswered, a location or authorization line would otherwise read
+  // as unmet and gate the posting on a judgement the model never made.
+  const answered = new Set(result.mappings.map((m) => m.requirementId))
+  const skipped = args.requirements.filter((r) => !answered.has(r.id))
+  if (skipped.length > 0) {
+    const retry = await callStructured({
+      schema: MappingResultSchema,
+      system: [{ text: SYSTEM }, { text: args.projection, cache: true }],
+      user: `<requirements>\n${requirementLines(skipped)}\n</requirements>${languageLine}\n\nThese requirements were left out of your previous answer. Return one mapping for each.`,
+      effort: 'high',
+      stage: 'map-evidence',
+    })
+    const wanted = new Set(skipped.map((r) => r.id))
+    const valid = retry.mappings.filter(
+      (m) => wanted.has(m.requirementId) && findUnknownIds([m], args.validEvidenceIds).length === 0,
+    )
+    result = { mappings: [...result.mappings, ...valid] }
+  }
+
   return normalise(result.mappings, args.requirements)
+}
+
+function requirementLines(requirements: Requirement[]): string {
+  return requirements
+    .map((r) => `${r.id} | ${r.kind} | mandatory=${r.mandatory} | ${r.keyword} — ${r.text}`)
+    .join('\n')
 }
 
 function findUnknownIds(mappings: EvidenceMapping[], valid: Set<string>): string[] {
@@ -84,8 +108,15 @@ function findUnknownIds(mappings: EvidenceMapping[], valid: Set<string>): string
 /** Requirement kinds judged against profile facts, not evidence records. */
 const PROFILE_JUDGED = new Set(['location', 'timezone', 'authorization'])
 
-/** Guarantees one mapping per requirement, and that "no evidence" means "none". */
-function normalise(mappings: EvidenceMapping[], requirements: Requirement[]): EvidenceMapping[] {
+/**
+ * Guarantees one mapping per requirement, and that "no evidence" means "none".
+ * A requirement still missing after the re-ask reads 'none' and is marked
+ * unjudged, so coverage can tell "found unmet" from "never answered".
+ */
+export function normalise(
+  mappings: EvidenceMapping[],
+  requirements: Requirement[],
+): EvidenceMapping[] {
   const byRequirement = new Map(mappings.map((m) => [m.requirementId, m]))
 
   return requirements.map((req) => {
@@ -95,7 +126,8 @@ function normalise(mappings: EvidenceMapping[], requirements: Requirement[]): Ev
         requirementId: req.id,
         evidenceIds: [],
         strength: 'none' as const,
-        rationale: 'No mapping returned.',
+        rationale: '',
+        unjudged: true,
       }
     }
     // The model cannot claim skill coverage it did not cite. Gating kinds are

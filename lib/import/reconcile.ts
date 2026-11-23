@@ -1,5 +1,5 @@
-import { randomUUID } from 'node:crypto'
-import type { Experience, ParsedCV } from '@/lib/schemas'
+import { manualId } from '@/lib/manual-id'
+import type { EvidenceItem, Experience, MasterProfile, ParsedCV } from '@/lib/schemas'
 
 /**
  * Re-imports must not shuffle evidence between roles. The parser numbers
@@ -46,7 +46,7 @@ export function reconcileImport(existing: Experience[], parsed: ParsedCV): Parse
   const taken = new Set([...consumed, ...existing.map((r) => r.id)])
   for (const incoming of parsed.profile.experience) {
     if (idMap.has(incoming.id)) continue
-    if (taken.has(incoming.id)) idMap.set(incoming.id, `exp_${randomUUID().slice(0, 8)}`)
+    if (taken.has(incoming.id)) idMap.set(incoming.id, manualId('exp'))
   }
 
   const mapped = (id: string) => idMap.get(id) ?? id
@@ -94,4 +94,119 @@ function overlaps(a: Experience, b: Experience): boolean {
   const aEnd = a.period.end ?? '9999-12'
   const bEnd = b.period.end ?? '9999-12'
   return a.period.start <= bEnd && b.period.start <= aEnd
+}
+
+/**
+ * A re-import merged into what the person already has, never laid over it
+ * (2026-11-19 audit). The CV is the authority for what a CV states; it is no
+ * authority for what it never states, nor for what the person built here:
+ *
+ * - work authorization, preferences and time zone are always the person's;
+ * - roles are matched as reconcileImport does; projects, degrees and
+ *   certificates by name, so kept evidence stays on its own record when the
+ *   new CV numbers them differently;
+ * - every project the new CV leaves out is kept (projects are made by hand
+ *   on /evidence), and so is any role, degree or certificate the person's
+ *   own evidence (interview, gap-fill, manual) points at — a CV dropping it
+ *   must not orphan that evidence, which compose would then silently drop;
+ * - what is left of the previous import (records nothing kept points at) is
+ *   replaced, as before.
+ *
+ * `kept` is the evidence that survives the import: everything not imported.
+ */
+export function mergeImport(
+  current: MasterProfile,
+  kept: EvidenceItem[],
+  parsed: ParsedCV,
+): ParsedCV {
+  const roles = reconcileImport(current.experience, parsed)
+  const claimed = (type: EvidenceItem['sourceRef']['type']) =>
+    new Set(kept.filter((e) => e.sourceRef.type === type).map((e) => e.sourceRef.id))
+
+  const projects = matchByName(current.projects, roles.profile.projects, (p) => p.name, 'proj')
+  const education = matchByName(
+    current.education,
+    roles.profile.education,
+    (e) => `${e.institution} ${e.degree}`,
+    'edu',
+  )
+  const certifications = matchByName(
+    current.certifications,
+    roles.profile.certifications,
+    (c) => c.name,
+    'cert',
+  )
+
+  const keptRoles = claimed('experience')
+  const matchedRoles = new Set(roles.profile.experience.map((r) => r.id))
+  const keptEducation = claimed('education')
+  const keptCerts = claimed('certification')
+
+  const remap = (type: EvidenceItem['sourceRef']['type'], id: string) =>
+    type === 'project'
+      ? (projects.idMap.get(id) ?? id)
+      : type === 'education'
+        ? (education.idMap.get(id) ?? id)
+        : type === 'certification'
+          ? (certifications.idMap.get(id) ?? id)
+          : id
+
+  return {
+    profile: {
+      ...roles.profile,
+      basics: { ...roles.profile.basics, timezone: current.basics.timezone },
+      workAuthorization: current.workAuthorization,
+      preferences: current.preferences,
+      experience: [
+        ...roles.profile.experience,
+        ...current.experience.filter((r) => !matchedRoles.has(r.id) && keptRoles.has(r.id)),
+      ],
+      projects: [...projects.merged, ...projects.unmatched],
+      education: [
+        ...education.merged,
+        ...education.unmatched.filter((e) => keptEducation.has(e.id)),
+      ],
+      certifications: [
+        ...certifications.merged,
+        ...certifications.unmatched.filter((c) => keptCerts.has(c.id)),
+      ],
+    },
+    evidence: roles.evidence.map((e) => ({
+      ...e,
+      sourceRef: { ...e.sourceRef, id: remap(e.sourceRef.type, e.sourceRef.id) },
+    })),
+  }
+}
+
+/**
+ * Incoming records matched to existing ones by normalised name: a match
+ * takes the existing id; an unmatched one keeps its parsed id unless an
+ * existing record owns it (evidence under that id means the other record).
+ * `unmatched` is the existing records the new CV does not name.
+ */
+function matchByName<T extends { id: string }>(
+  existing: T[],
+  incoming: T[],
+  name: (r: T) => string,
+  prefix: string,
+): { merged: T[]; unmatched: T[]; idMap: Map<string, string> } {
+  const key = (r: T) => normalizeCompany(name(r))
+  const consumed = new Set<string>()
+  const idMap = new Map<string, string>()
+  for (const r of incoming) {
+    const match = existing.find((e) => !consumed.has(e.id) && key(e) === key(r))
+    if (match) {
+      consumed.add(match.id)
+      idMap.set(r.id, match.id)
+    }
+  }
+  const taken = new Set(existing.map((e) => e.id))
+  for (const r of incoming) {
+    if (!idMap.has(r.id) && taken.has(r.id)) idMap.set(r.id, manualId(prefix))
+  }
+  return {
+    merged: incoming.map((r) => ({ ...r, id: idMap.get(r.id) ?? r.id })),
+    unmatched: existing.filter((e) => !consumed.has(e.id)),
+    idMap,
+  }
 }

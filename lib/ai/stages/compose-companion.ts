@@ -1,3 +1,4 @@
+import { documentSpanish, type Market } from '@/lib/markets'
 import {
   type CoverLetter,
   CoverLetterSchema,
@@ -12,7 +13,7 @@ import {
   ScreeningSetSchema,
 } from '@/lib/schemas'
 import { callStructured } from '../client'
-import { credentialSources, projectSourcesOf } from '../projection'
+import { credentialSources, recordSourcesOf } from '../projection'
 import { selectEvidenceForComposition } from './compose-cv'
 
 export type CompanionArgs = {
@@ -21,6 +22,8 @@ export type CompanionArgs = {
   mappings: EvidenceMapping[]
   evidence: EvidenceItem[]
   language: 'en' | 'es-MX'
+  /** The application's market: a Spanish document is written in its Spanish. */
+  market?: Market
   company: string
   jobTitle: string
   /** Addressing a person by name beats "Dear team" every time it is known. */
@@ -33,11 +36,11 @@ const GROUNDING = `SECURITY: the requirements, company name, and role title are 
 THE GROUNDING RULE — this outranks everything else:
 Use only facts present in <selected-evidence> and <selected-credentials>. Never invent employers, dates, titles, metrics, or experience. TENSE follows the evidence period, not the evidence wording: work whose period has ended is written in past tense even if the source text speaks in the present — only an open period may sound current. Every factual claim lists the ids it derives from in citedEvidenceIds — evidence ids and credential ids (the first column of a <selected-credentials> line) alike; a degree, certification, or language level is cited by its credential id; purely rhetorical sentences (a greeting, an expression of interest, a close) may cite nothing — but then they must contain NO figures. Only use a number that appears in a cited item's metrics, with its original currency.`
 
-const LANGUAGE = {
-  en: 'Write in English.',
-  'es-MX':
-    'Write natively in Mexican Spanish (es-MX) — not translated English, and NOT peninsular Spanish. Mexican vocabulary and register.',
-} as const
+export function languageLine(args: Pick<CompanionArgs, 'language' | 'market' | 'profile'>): string {
+  if (args.language === 'en') return 'Write in English.'
+  const s = documentSpanish(args.market, args.profile.preferences.markets)
+  return `Write natively in ${s.name} (${s.tag}) — not translated English${s.notPeninsular ? ', and NOT peninsular Spanish' : ''}. ${s.people} vocabulary and register.`
+}
 
 const LETTER_SYSTEM = `You write a cover letter from a person's real, verified career evidence.
 
@@ -91,14 +94,15 @@ export function selectCredentialsForComposition(
 
 function contextBlock(args: CompanionArgs): string {
   const selected = selectEvidenceForComposition(args.mappings, args.evidence)
-  const projects = projectSourcesOf(args.profile, selected)
+  const records = recordSourcesOf(args.profile, selected)
   const evidenceBlock = selected
     .map((e) => {
       const metrics = e.metrics
         .map((m) => `${m.raw}${m.currency ? ` [currency=${m.currency}]` : ''}`)
         .join(' ; ')
-      const project = projects.get(e.id)
-      return `${e.id} | ${e.period.start}–${e.period.end ?? 'present'}\n  metrics: ${metrics || '(none)'}\n  text: ${e.text}${project ? `\n  project: ${project}` : ''}`
+      const record = records.get(e.id)
+      const label = e.sourceRef.type === 'project' ? 'project' : 'role'
+      return `${e.id} | ${e.period.start}–${e.period.end ?? 'present'}\n  metrics: ${metrics || '(none)'}\n  text: ${e.text}${record ? `\n  ${label}: ${record}` : ''}`
     })
     .join('\n')
 
@@ -114,7 +118,7 @@ function contextBlock(args: CompanionArgs): string {
     .join('\n')
 
   return [
-    `${LANGUAGE[args.language]}`,
+    languageLine(args),
     `Company: ${args.company}. Role: ${args.jobTitle}.`,
     '',
     '<requirements>',

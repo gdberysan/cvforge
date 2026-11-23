@@ -17,6 +17,8 @@ const perMillion = (input: number, output: number): Rate => ({
 const OPUS = perMillion(5, 25)
 const RATES: [RegExp, Rate][] = [
   [/haiku-4-5/, perMillion(1, 5)],
+  // Sonnet 5.5 reads its cache at $0.10, half the usual tenth of input.
+  [/sonnet-5-5/, { ...perMillion(2, 10), cacheRead: 0.1 / 1_000_000 }],
   [/sonnet-5/, perMillion(2, 10)],
   [/opus-5|opus-4-[678]/, OPUS],
 ]

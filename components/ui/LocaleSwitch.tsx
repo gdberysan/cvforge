@@ -27,30 +27,17 @@ export function LocaleSwitch() {
 
   return (
     // biome-ignore lint/a11y/useSemanticElements: role="group" with a label is the right semantics; a fieldset exists for form inputs and would need its browser chrome reset for no reader benefit
-    <div
-      role="group"
-      aria-label={t('nav.language')}
-      style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}
-    >
-      {LOCALES.map((locale, i) => (
-        <span key={locale} style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-          {i > 0 && (
-            <span aria-hidden style={{ color: 'var(--border-default)' }}>
-              /
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={() => choose(locale)}
-            aria-current={locale === current ? 'true' : undefined}
-            className="action-quiet"
-            style={
-              locale === current ? { color: 'var(--text-strong)', cursor: 'default' } : undefined
-            }
-          >
-            {LABEL[locale]}
-          </button>
-        </span>
+    <div role="group" aria-label={t('nav.language')} className="locale-toggle">
+      {LOCALES.map((locale) => (
+        <button
+          key={locale}
+          type="button"
+          onClick={() => choose(locale)}
+          aria-current={locale === current ? 'true' : undefined}
+          className="locale-option"
+        >
+          {LABEL[locale]}
+        </button>
       ))}
     </div>
   )

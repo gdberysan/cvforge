@@ -35,9 +35,9 @@ const profile: MasterProfile = {
   experience: [
     {
       id: 'exp_7',
-      title: 'Operations Intern',
-      company: 'Initech Pharma',
-      period: { start: '2013-02', end: '2013-09' },
+      title: 'Compensation & Benefits Intern',
+      company: 'Halvorsen Pharma',
+      period: { start: '2012-04', end: '2012-11' },
       summary: '',
     },
   ],
@@ -58,7 +58,7 @@ describe('EvidenceEditor — manual add', () => {
     render(<EvidenceEditor profile={profile} evidence={[]} />)
     expect(screen.queryByLabelText('What you did, in full')).toBeNull()
 
-    fireEvent.click(screen.getByRole('button', { name: '+ add a record yourself' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add an entry' }))
 
     const textarea = screen.getByLabelText('What you did, in full')
     expect(textarea).toBeTruthy()
