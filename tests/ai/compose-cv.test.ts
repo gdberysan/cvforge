@@ -239,6 +239,23 @@ describe('composeCv', () => {
     )
   })
 
+  it('opens the summary with a held title instead of "Candidate for" the same title', async () => {
+    const { heldTitleRule } = await import('@/lib/ai/stages/compose-cv')
+    const held = {
+      ...profile,
+      experience: profile.experience.map((r) => ({
+        ...r,
+        title: 'Coordinador de Marketing Digital',
+      })),
+    }
+    expect(heldTitleRule(held, 'Coordinador(a) de Marketing Digital', true).join(' ')).toMatch(
+      /has held this exact role title/,
+    )
+    expect(heldTitleRule(held, 'Growth Lead', true)).toEqual([])
+    // A base CV names a kind of role, not a posting: no rule.
+    expect(heldTitleRule(held, 'Coordinador de Marketing Digital', false)).toEqual([])
+  })
+
   it('names its stage for the spend counter', async () => {
     callStructuredMock.mockResolvedValue(emptyContent)
     await composeCv({
