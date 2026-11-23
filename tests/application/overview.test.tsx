@@ -102,7 +102,12 @@ describe('application overview', () => {
     expect(items.slice(0, 3)).toEqual(['Pinecrest Studio', 'México', 'CV en inglés'])
     expect(items[3]).toMatch('Ver vacante')
     expect(items).toHaveLength(4)
-    expect(screen.getByText('Vale la pena')).toBeTruthy()
+    // Sent: the answer is said once, in the band under the stages; the panel
+    // further down keeps only the details.
+    expect(screen.getAllByText('Vale la pena')).toHaveLength(1)
+    expect(document.querySelector('.story-head .verdict-band-word')?.textContent).toBe(
+      'Vale la pena',
+    )
     // The posting's own words on the role, not the company section above it.
     expect(screen.getByRole('heading', { name: 'De qué trata el puesto' })).toBeTruthy()
     expect(screen.getByText(/^As an Account Strategist/)).toBeTruthy()
