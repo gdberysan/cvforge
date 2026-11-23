@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { acceptImportAction } from '@/app/(app)/evidence/import/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
-import { IconDocument } from '@/components/ui/icons'
+import { IconCheck, IconDocument } from '@/components/ui/icons'
 import { Meta } from '@/components/ui/Meta'
+import { WorkProgress } from '@/components/ui/WorkProgress'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText, plural } from '@/lib/i18n'
 import { formatSpan } from '@/lib/import/dates'
@@ -16,6 +17,14 @@ import { readEventStream } from '@/lib/sse-client'
 import { haptic } from '@/lib/ui/haptics'
 
 const MAX_PDF_BYTES = 10 * 1024 * 1024
+
+/** A file's size from its base64 (4 characters carry 3 bytes), the way people read it. */
+function fileSize(base64: string): string {
+  const bytes = Math.round((base64.length * 3) / 4)
+  return bytes < 1024 * 1024
+    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
 
 export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
   const t = useT()
@@ -144,25 +153,44 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
         >
           {mode === 'pdf' ? (
             <>
-              <div className={`import-drop${dragOver ? ' is-over' : ''}`}>
+              <div
+                className={`import-drop${dragOver ? ' is-over' : ''}${file && !loading ? ' is-filled' : ''}`}
+              >
                 {loading ? (
-                  // The drop zone becomes the waiting screen: the two lines are
+                  // The drop zone becomes the waiting screen: the two steps are
                   // the two real model calls, so this is progress, not theatre.
-                  <p
-                    className="fact"
-                    style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' }}
-                  >
-                    <span style={{ color: stage === 'evidence' ? 'var(--accent)' : undefined }}>
-                      {stageCopy}
-                    </span>
-                    <span className="intake-spinner" aria-hidden />
-                  </p>
+                  <WorkProgress
+                    steps={[t('progress.cv.roles'), t('progress.cv.achievements')]}
+                    current={stage === 'evidence' ? 1 : 0}
+                    title={stageCopy}
+                    note={t('progress.note')}
+                  />
                 ) : (
                   <>
-                    <span className="import-drop-icon" aria-hidden>
-                      <IconDocument />
-                    </span>
-                    <p className="import-drop-text">{t('import.drop')}</p>
+                    {file ? (
+                      // Chosen: the file itself, so nobody wonders whether it took.
+                      <div className="import-file">
+                        <span className="import-file-icon" aria-hidden>
+                          <IconDocument />
+                          <span className="import-file-check">
+                            <IconCheck />
+                          </span>
+                        </span>
+                        <div className="import-file-text">
+                          <p className="import-file-name">{file.name}</p>
+                          <p className="import-file-meta">
+                            {t('import.fileMeta', { size: fileSize(file.base64) })}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="import-drop-icon" aria-hidden>
+                          <IconDocument />
+                        </span>
+                        <p className="import-drop-text">{t('import.drop')}</p>
+                      </>
+                    )}
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -181,7 +209,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
                       className="btn btn-quiet"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      {t('import.choose')}
+                      {file ? t('import.replace') : t('import.choose')}
                     </button>
                   </>
                 )}
@@ -217,7 +245,12 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
           )}
 
           {/* Muted, not faint: live feedback must clear the contrast floor. */}
-          <p className="intake-status" aria-live="polite">
+          {/* With a file chosen the drop zone itself says so; this line stays
+              for screen readers. */}
+          <p
+            className={`intake-status${file && !loading && mode === 'pdf' ? ' is-empty' : ''}`}
+            aria-live="polite"
+          >
             {loading && <span className="intake-spinner" aria-hidden />}
             <span>
               {loading && stageCopy}
