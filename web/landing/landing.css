@@ -208,9 +208,6 @@ section { padding-block: clamp(48px, 7vh, 72px); }
 h2 { margin: 0 0 26px; font: 700 clamp(34px, 4.6vw, 54px)/1.04 var(--display); letter-spacing: -0.035em; max-width: 18ch; }
 
 /* The tailored CV: the pitch and the job's words on the left, a real CV on paper on the right. */
-.cv-grid { display: grid; grid-template-columns: var(--split); gap: var(--split-gap); align-items: start; }
-.cv-grid h2 { margin-bottom: 18px; }
-.cv-lede { margin: 0 0 26px; color: var(--ink-soft); max-width: var(--measure); }
 .cv-asks-label { margin: 0 0 10px; font: 600 14px/1.3 var(--display); color: var(--ink-faint); }
 .cv-asks { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .cv-asks li { padding: 6px 12px; border-radius: 999px; background: var(--sheet); border: 1px solid var(--rule); font: 600 16px/1.3 var(--display); }
@@ -294,7 +291,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 0 20px; }
 footer a { color: var(--ink-faint); display: inline-flex; align-items: center; min-height: 44px; }
 
 @media (max-width: 900px) {
-  .hero, .cv-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero { grid-template-columns: minmax(0, 1fr); }
   .note { columns: 1; }
   .cost-grid { grid-template-columns: minmax(0, 1fr); }
 }
@@ -326,3 +323,306 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
 .lang a[aria-current="page"] { background: var(--sheet); color: var(--ink); box-shadow: 0 1px 2px rgba(23,23,26,.08); }
 .top-end { display: flex; align-items: center; gap: 12px; }
 
+
+/* An example says it is one, on the card itself (2026-11-23). */
+.sample-tag, .cv-sample {
+  justify-self: start; margin: 0;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 11px; border-radius: 999px;
+  font: 500 13px/1.2 var(--data); letter-spacing: .03em;
+  background: var(--well); color: var(--amber-ink);
+}
+.sample-tag::before, .cv-sample::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--amber);
+}
+
+/* Each gap with its reason: the honest part of the answer, spelled out. */
+.gaps ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 12px; }
+.gaps li { display: grid; gap: 2px; }
+.gaps strong { font: 600 17px/1.35 var(--display); }
+.gaps li span { font: 400 16px/1.5 var(--text); color: var(--ink-soft); }
+
+/* The CV is a printed page in either theme: white paper, dark ink, the
+   sections a recruiter expects. Its colours are the page's own. */
+:root {
+  --page-paper: #FFFFFF;
+  --page-ink: #1B1B1E;
+  --page-soft: #55534E;
+  --page-faint: #74716A;
+  --page-rule: rgba(27, 27, 30, 0.14);
+  --page-cite: #1F6B4A;
+  --page-mark: rgba(240, 163, 94, 0.32);
+  --page-tag: #F3EFE7;
+  --page-tag-ink: #8A4310;
+}
+.cv-sheet {
+  position: relative;
+  background: var(--page-paper); color: var(--page-ink);
+  border-radius: 6px; padding: 40px 42px 30px;
+  border: 1px solid var(--page-rule);
+  display: grid; gap: 0;
+}
+.cv-sheet .cv-sample { position: absolute; top: -14px; right: 22px; background: var(--page-tag); color: var(--page-tag-ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.cv-top { text-align: center; padding-bottom: 14px; }
+.cv-name { font: 700 30px/1.1 var(--display); letter-spacing: -0.02em; }
+.cv-role { margin: 4px 0 0; font: 500 16px/1.35 var(--display); color: var(--page-soft); }
+.cv-contact { margin: 8px 0 0; font: 400 13px/1.4 var(--display); color: var(--page-faint); }
+.cv-section {
+  margin: 18px 0 10px; padding-bottom: 5px; border-bottom: 1px solid var(--page-rule);
+  font: 700 13px/1.2 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--page-ink);
+}
+.cv-job { margin: 4px 0 8px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.cv-job b { font: 600 16px/1.35 var(--display); }
+.cv-job span { font: 400 14px/1.3 var(--display); color: var(--page-faint); white-space: nowrap; }
+.cv-sheet .cv-bullets { margin-bottom: 12px; font-size: 15.5px; color: var(--page-ink); }
+.cv-sheet .cv-bullets mark, .cv-skills mark { background: var(--page-mark); color: inherit; border-radius: 3px; padding: 0 2px; }
+.cv-sheet .cv-cite { color: var(--page-cite); font-size: 13px; }
+.cv-skills { margin: 0; font: 400 15px/1.6 var(--text); }
+.cv-sheet figcaption { margin-top: 22px; border-top-color: var(--page-rule); color: var(--page-faint); }
+.cv-sheet { box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 18px 40px -18px rgba(0,0,0,.35); }
+
+@media (max-width: 640px) {
+  .cv-sheet { padding: 30px 20px 22px; }
+  .cv-name { font-size: 26px; }
+  .cv-job span { font-size: 13px; }
+}
+.cv-job { flex-wrap: nowrap; }
+.cv-job b { min-width: 0; }
+
+/* ==========================================================================
+   How it works (2026-11-23): the page's spine. The top shows the payoff;
+   from here the three steps run in order, each beside its own example, the
+   examples on the same column as the answer card above. A line joins the
+   numbers and, where the browser can, fills as you read down; with reduced
+   motion (or no support) it is simply drawn, step one already lit.
+   ========================================================================== */
+.how { --rail: 48px; --how-gap: clamp(80px, 10vw, 132px); }
+.how h2 { margin-bottom: 14px; }
+.how-sub { margin: 0 0 clamp(44px, 5vw, 68px); color: var(--ink-soft); }
+.how-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--how-gap); }
+.how-step {
+  position: relative;
+  display: grid; grid-template-columns: var(--split); gap: var(--split-gap); align-items: start;
+  view-timeline: --how block;
+}
+/* The rail: from under this number to the next one. */
+.how-step:not(:last-child)::before,
+.how-step:not(:last-child)::after {
+  content: ''; position: absolute; left: calc(var(--rail) / 2 - 1px); top: var(--rail);
+  bottom: calc(-1 * var(--how-gap)); width: 2px; border-radius: 1px;
+}
+.how-step:not(:last-child)::before { background: var(--track); }
+.how-step:not(:last-child)::after { background: var(--amber); transform-origin: top; transform: scaleY(0); }
+.how-step:first-child::after { transform: scaleY(.35); }
+
+/* The text keeps its place while a tall example scrolls past it. */
+.how-text {
+  position: sticky; top: 40px; z-index: 1;
+  display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); column-gap: 22px; align-content: start;
+}
+.how-text > :not(.how-n) { grid-column: 2; }
+.how-n {
+  grid-row: 1 / span 8; position: relative; z-index: 1;
+  width: var(--rail); height: var(--rail); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 800 22px/1 var(--display);
+  background: var(--paper); border: 2px solid var(--amber); color: var(--amber-ink);
+}
+.how-step:first-child .how-n { background: var(--amber); color: var(--ink); }
+.how-text h3 { margin: 6px 0 14px; font: 800 clamp(28px, 3vw, 38px)/1.06 var(--display); letter-spacing: -0.03em; }
+.how-lede { margin: 0; color: var(--ink-soft); max-width: var(--measure); }
+.how .cv-asks-label { margin-top: 28px; }
+.how-see {
+  margin-top: 16px; justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
+  font: 600 16px/1.3 var(--display); color: var(--amber-ink); text-underline-offset: 4px;
+}
+.how-see svg { width: 18px; height: 18px; }
+
+.how-ex { margin: 0; min-width: 0; display: grid; gap: 14px; }
+.flow .sample-tag { justify-self: start; }
+.flow-arrow { width: 26px; height: 26px; justify-self: center; color: var(--amber); }
+
+/* Step 1: a file becomes a record. */
+.file-chip {
+  margin: 0; justify-self: center; display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 18px; border-radius: 14px; background: var(--sheet); box-shadow: var(--shadow);
+  font: 600 16px/1 var(--display);
+}
+.file-chip svg { width: 22px; height: 22px; color: var(--amber-ink); flex: none; }
+.record, .posting, .mini-verdict { background: var(--sheet); border-radius: 22px; box-shadow: var(--shadow); }
+.record { padding: 24px 26px; display: grid; gap: 16px; }
+.record-title { margin: 0; font: 500 13px/1.2 var(--data); letter-spacing: .04em; color: var(--amber-ink); }
+.record-roles { list-style: none; margin: 0; padding: 0; display: grid; }
+.record-roles li {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; row-gap: 2px;
+  padding: 12px 0; border-top: 1px solid var(--rule);
+}
+.record-roles li:first-child { padding-top: 0; border-top: 0; }
+.record-roles b { font: 600 17px/1.3 var(--display); }
+.record-roles span { grid-column: 1; font: 400 15px/1.35 var(--display); color: var(--ink-soft); }
+.record-roles time { grid-column: 2; grid-row: 1 / span 2; align-self: center; font: 400 14px/1.3 var(--display); color: var(--ink-faint); white-space: nowrap; }
+.record-ach { background: var(--well); border-radius: 14px; padding: 14px 16px; display: grid; gap: 8px; }
+.record-ach-label { margin: 0; font: 600 14px/1.3 var(--display); color: var(--ink-faint); }
+.record-ach-text { margin: 0; font: 400 16px/1.5 var(--text); }
+.record-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.record-chips li { padding: 4px 11px; border-radius: 999px; background: var(--strong-wash); color: var(--strong); font: 600 14px/1.3 var(--display); }
+
+/* Step 2: a posting becomes an answer. */
+.posting { padding: 22px 26px; display: grid; gap: 10px; }
+.posting-title { margin: 0; font: 700 20px/1.2 var(--display); letter-spacing: -0.01em; }
+.posting-label { margin: 0; font: 600 14px/1.3 var(--display); color: var(--ink-faint); }
+.posting-reqs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.req { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; font: 400 16px/1.45 var(--text); }
+.req-mark { width: 24px; height: 24px; margin-top: 1px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+.req-mark svg { width: 14px; height: 14px; }
+.is-ok .req-mark { background: var(--strong-wash); color: var(--strong); }
+.is-half .req-mark { background: color-mix(in srgb, var(--amber) 24%, transparent); color: var(--amber-ink); }
+.mini-verdict { padding: 18px 22px 20px; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 0 14px; align-items: center; }
+.mini-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--strong-wash); color: var(--strong); display: inline-flex; align-items: center; justify-content: center; }
+.mini-icon svg { width: 22px; height: 22px; }
+.mini-word { margin: 0; font: 800 26px/1.1 var(--display); letter-spacing: -0.02em; }
+.mini-counts { margin: 3px 0 0; font: 400 14px/1.35 var(--display); color: var(--ink-soft); }
+.mini-bar { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin-top: 14px; }
+.mini-bar i { height: 6px; border-radius: 3px; background: var(--strong); }
+.mini-bar i.p { background: var(--amber); }
+
+/* Reading down lights the way: the rail fills, each number turns on. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .how-step:not(:last-child)::after {
+      transform: scaleY(0);
+      animation: how-fill linear both; animation-timeline: --how; animation-range: cover 25% cover 75%;
+    }
+    .how-n { animation: how-on linear both; animation-timeline: --how; animation-range: entry 60% cover 30%; }
+  }
+}
+@keyframes how-fill { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes how-on {
+  from { background: var(--paper); color: var(--amber-ink); }
+  to { background: var(--amber); color: var(--ink); }
+}
+
+@media (max-width: 900px) {
+  .how-step { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .how-text { position: static; }
+  /* The example sits under its step, on the text's edge, beside the rail. */
+  .how-ex { margin-left: calc(var(--rail) + 22px); }
+}
+@media (max-width: 640px) {
+  .how { --rail: 40px; --how-gap: 64px; }
+  .how-n { font-size: 19px; }
+  .how-text { column-gap: 16px; }
+  /* Too narrow for a rail beside a CV: the examples take the full width,
+     and the numbers alone keep the order. */
+  .how-ex { margin-left: 0; }
+  .how-step::before, .how-step::after { display: none; }
+  .record, .posting { padding: 20px; }
+  .record-roles li { grid-template-columns: minmax(0, 1fr); }
+  .record-roles time { grid-column: 1; grid-row: auto; }
+}
+
+/* ==========================================================================
+   Polish (2026-11-23, from Gerardo's marked screenshots): no blank space.
+   ========================================================================== */
+
+/* The hero's left column ends where the right one does: its three promises
+   sit at the bottom, level with the end of the example, wherever that is. */
+.hero > div:first-child { display: flex; flex-direction: column; align-self: stretch; }
+.promises {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 16px; max-width: 30rem;
+}
+.hero > div:first-child > .promises { margin-top: auto; padding-top: 40px; }
+.promises li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px; align-items: start; }
+.promise-icon {
+  width: 36px; height: 36px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--well); color: var(--amber-ink);
+}
+.promise-icon svg { width: 18px; height: 18px; }
+.promises li > span:last-child { font: 400 17px/1.45 var(--text); color: var(--ink-soft); padding-top: 6px; }
+.promises b { font: 600 17px/1.3 var(--display); color: var(--ink); }
+
+/* Every answer fills the card. The tallest sets the size (so switching
+   never moves the page); a shorter one spreads the difference across the
+   spaces between its blocks, a few pixels each, instead of leaving a blank
+   strip at the bottom or an empty box. */
+.answer > .state { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; }
+
+/* The note in two columns of its own; the signature sits at the foot of the
+   second, on the line where the first one ends. */
+.note { columns: auto; display: grid; grid-template-columns: var(--split); column-gap: var(--split-gap); }
+.note-col { display: flex; flex-direction: column; }
+.note-col p:last-of-type { margin-bottom: 0; }
+.note-col .sign { margin-top: auto; padding-top: 30px; margin-bottom: 3.7px; }
+
+@media (max-width: 900px) {
+  .note { grid-template-columns: minmax(0, 1fr); row-gap: 1.05em; }
+  .note-col .sign { margin-bottom: 0; }
+  .hero > div:first-child > .promises { margin-top: 0; padding-top: 32px; }
+}
+
+/* ==========================================================================
+   The CV writes itself (2026-11-23). The finished page is the default; the
+   script adds .cv-pre (the empty page) and then .cv-run, and every piece
+   moves only after its own --d. Masks, fades and colour only: nothing that
+   reflows. Without the script, or with reduced motion, nothing here applies.
+   ========================================================================== */
+.cv-section { position: relative; border-bottom-color: transparent; }
+.cv-section::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: var(--page-rule); transform-origin: left;
+}
+.cv-sheet .cv-bullets mark, .cv-skills mark { transition: background-color .45s ease; }
+.cv-done {
+  margin: 18px 0 0; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.cv-done-word { display: inline-flex; align-items: center; gap: 8px; font: 600 15px/1.3 var(--display); color: var(--page-cite); }
+.cv-done-word svg { width: 18px; height: 18px; padding: 3px; border-radius: 50%; background: color-mix(in srgb, var(--page-cite) 14%, transparent); }
+.cv-replay {
+  min-height: 44px; padding: 0 4px; border: 0; background: none; cursor: pointer;
+  font: 600 14px/1 var(--display); color: var(--page-faint); text-decoration: underline; text-underline-offset: 3px;
+}
+.cv-replay:hover { color: var(--page-ink); }
+/* The chips the CV answers carry a tick once their word is in it. */
+.cv-asks li { display: inline-flex; align-items: center; gap: 6px; }
+.cv-asks li::before {
+  content: ''; width: 14px; height: 14px; flex: none; background: var(--strong);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), opacity .2s ease;
+}
+.cv-asks li { transition: border-color .3s ease, background-color .3s ease; }
+
+/* The empty page, before it is written. */
+.cv-pre .cv-section::after { transform: scaleX(0); }
+.cv-pre .cv-bullets li {
+  -webkit-mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+  mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+  -webkit-mask-size: 260% 100%; mask-size: 260% 100%;
+  -webkit-mask-position: 100% 0; mask-position: 100% 0;
+}
+.cv-pre .cv-sheet .cv-bullets mark, .cv-pre .cv-skills mark { background-color: transparent; }
+.cv-pre .cv-cite, .cv-pre .cv-done { opacity: 0; transform: translateY(4px); }
+.cv-pre .cv-asks li:not(.is-hit)::before { transform: scale(0); opacity: 0; }
+.cv-pre .cv-asks li.is-hit { border-color: color-mix(in srgb, var(--strong) 45%, transparent); }
+
+/* Writing it. */
+.cv-run .cv-section::after { transform: scaleX(1); transition: transform .6s cubic-bezier(.2, .7, .2, 1) var(--d, 0ms); }
+.cv-run .cv-bullets li {
+  -webkit-mask-position: 0 0; mask-position: 0 0;
+  transition: -webkit-mask-position .9s cubic-bezier(.3, .6, .2, 1) var(--d, 0ms), mask-position .9s cubic-bezier(.3, .6, .2, 1) var(--d, 0ms);
+}
+.cv-run .cv-sheet .cv-bullets mark, .cv-run .cv-skills mark {
+  background-color: var(--page-mark); transition: background-color .45s ease var(--d, 0ms);
+}
+.cv-run .cv-cite, .cv-run .cv-done {
+  opacity: 1; transform: none; transition: opacity .5s ease var(--d, 0ms), transform .5s ease var(--d, 0ms);
+}
+/* The bullet is drawn inside its line, so the line's wipe writes it in too
+   (a browser marker sits outside the box and a mask would clip it away). */
+.cv-sheet .cv-bullets { list-style: none; padding-left: 0; }
+.cv-sheet .cv-bullets li { position: relative; padding-left: 1.15em; }
+.cv-sheet .cv-bullets li::before {
+  content: ''; position: absolute; left: .25em; top: .66em;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--page-ink);
+}

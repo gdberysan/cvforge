@@ -3,12 +3,6 @@
     "typed-arrow": 3,
     "inline-style": 28
   },
-  "app/(app)/error.tsx": {
-    "inline-style": 4
-  },
-  "app/(app)/not-found.tsx": {
-    "inline-style": 3
-  },
   "app/globals.css": {
     "uppercase": 10,
     "bare-hover": 3
@@ -18,9 +12,6 @@
   },
   "app/manifest.ts": {
     "raw-colour": 1
-  },
-  "app/not-found.tsx": {
-    "inline-style": 3
   },
   "components/application/GapDelta.tsx": {
     "typed-arrow": 2,
