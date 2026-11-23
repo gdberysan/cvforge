@@ -3,6 +3,14 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule: { interval: weekly }
+    ignore:
+      # Pinned on purpose (CLAUDE.md, "Four dependencies are held back"):
+      # the PDF ladder launches only the Chromium revision this exact
+      # Playwright installs; a bump silently drops buyers to the print fallback.
+      - dependency-name: playwright
+      # Each zod minor can change the request grammar zodOutputFormat sends
+      # to the model; bump only after diffing that output for every schema.
+      - dependency-name: zod
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
