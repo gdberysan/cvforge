@@ -72,3 +72,7 @@ web/.next/
 web/extension/dist/
 web/extension/dist-store/
 web/extension/*.zip
+
+# Review screenshots never belong in the repo root (a script run from here once committed some).
+/*.png
+/*.jpg

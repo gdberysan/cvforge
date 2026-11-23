@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { skipApplicationAction } from '@/app/(app)/triage/actions'
 import { useLocale, useT } from '@/components/i18n/LocaleProvider'
 import { MarketOptions } from '@/components/ui/MarketOptions'
+import { WorkProgress } from '@/components/ui/WorkProgress'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText, plural } from '@/lib/i18n'
 import { marketLabel } from '@/lib/markets'
@@ -331,8 +332,25 @@ export function TriageConsole({
           </details>
         )}
 
-        {/* Live feedback during a 30-second run; muted, never faint. */}
-        <p className={status ? 'intake-status' : 'intake-status is-empty'} aria-live="polite">
+        {/* The run itself: its real stages, visible (components/ui/WorkProgress). */}
+        {running && (
+          <WorkProgress
+            steps={[
+              t('progress.triage.read'),
+              t('progress.triage.compare'),
+              t('progress.triage.save'),
+            ]}
+            current={stage?.name === 'mapping' ? 1 : stage?.name === 'saving' ? 2 : 0}
+            title={`${stageCopy(stage?.name)}${stage?.detail ? `  ·  ${stage.detail}` : ''}`}
+            note={t('progress.note')}
+          />
+        )}
+
+        {/* Live feedback after a run (and for screen readers); muted, never faint. */}
+        <p
+          className={status && !running ? 'intake-status' : 'intake-status is-empty'}
+          aria-live="polite"
+        >
           {running && <span className="intake-spinner" aria-hidden />}
           <span>{status}</span>
           {result?.cached && <span> {t('triage.cached')}</span>}
