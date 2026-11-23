@@ -86,7 +86,9 @@ export function cvOutline(content: CVContent, language: RenderLanguage): Outline
         .map((ed) => ({
           kind: 'entry',
           left: educationLine(ed),
-          right: text(ed.period),
+          // Free text, often built from stored dates ("2011-08 – 2016-01"):
+          // any year-month in it is written like the jobs' ("ago 2011").
+          right: text(ed.period).replace(/\b\d{4}-\d{2}\b/g, (d) => formatDate(d, language)),
           bullets: [],
         })),
     },

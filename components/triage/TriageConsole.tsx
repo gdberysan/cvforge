@@ -8,7 +8,7 @@ import { MarketOptions } from '@/components/ui/MarketOptions'
 import { WorkProgress } from '@/components/ui/WorkProgress'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText, plural } from '@/lib/i18n'
-import { marketLabel } from '@/lib/markets'
+import { marketLabel, marketOfPosting } from '@/lib/markets'
 import { sourceFromUrl } from '@/lib/posting-source'
 import type { Coverage, EvidenceMapping, Market, Requirement, Source } from '@/lib/schemas'
 import { readEventStream } from '@/lib/sse-client'
@@ -77,11 +77,19 @@ export function TriageConsole({
   const locale = useLocale()
   const router = useRouter()
   const [market, setMarket] = useState<Market>(defaultMarket)
+  // Until the person picks a market, the posting's own location line decides
+  // it ("Ciudad de México (híbrido)" is Mexico): the market sets the label,
+  // the currency a bare "$" reads as, and the CV's spelling and length.
+  const [marketPicked, setMarketPicked] = useState(false)
   const [url, setUrl] = useState(initialSourceUrl ?? '')
   // The discover handoff names the source once; the next posting pasted
   // into this same box must not inherit it (nor the previous link).
   const [source, setSource] = useState(initialSource)
-  const [text, setText] = useState(initialText)
+  const [text, setTextState] = useState(initialText)
+  const setText = (next: string) => {
+    setTextState(next)
+    if (!marketPicked) setMarket(marketOfPosting(next) ?? defaultMarket)
+  }
   const [result, setResult] = useState<Result | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [running, setRunning] = useState(false)
@@ -307,7 +315,10 @@ export function TriageConsole({
                 <span>{t('triage.market.label')}</span>
                 <select
                   value={market}
-                  onChange={(e) => setMarket(e.target.value as Market)}
+                  onChange={(e) => {
+                    setMarketPicked(true)
+                    setMarket(e.target.value as Market)
+                  }}
                   disabled={running}
                   className="field"
                 >

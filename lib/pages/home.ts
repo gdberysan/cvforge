@@ -14,6 +14,7 @@ import { listEvidence } from '@/lib/db/queries/evidence'
 import { getProfile } from '@/lib/db/queries/profile'
 import { demoPostings } from '@/lib/demo/postings'
 import type { Market } from '@/lib/markets'
+import { effectiveMarkets } from '@/lib/markets'
 import { hasCredentials } from '@/lib/settings'
 import {
   type AttentionItem,
@@ -75,7 +76,7 @@ export function loadHome(
   return {
     kind: 'home',
     firstName: profile.basics.fullName.trim().split(/\s+/)[0] ?? '',
-    markets: profile.preferences.markets,
+    markets: effectiveMarkets(profile.preferences.markets, profile.basics.location),
     demo: opts.demo ? { postings: demoPostings(db) } : null,
     finds: agent?.finds() ?? [],
     mail: { cards: agent?.mail(waitingApps) ?? [], waiting: waitingApps },

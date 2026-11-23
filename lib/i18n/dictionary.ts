@@ -68,6 +68,8 @@ const en = {
   'error.invalid-output':
     "The answer came back in an unexpected format. Try again. If it keeps happening, it's a bug in CVForge.",
   'error.unknown': 'Something went wrong talking to Anthropic.',
+  'error.trial-ended':
+    'Your free trial is used up. To keep going, add your own key in Settings: it takes about 5 minutes, and everything of yours stays here.',
   'error.network':
     "Couldn't reach Anthropic. Check your connection and try again. Your text is still here.",
   'error.invalid-url': "That link doesn't look right. Fix it or clear the field and try again.",
@@ -295,6 +297,7 @@ const en = {
   'meta.description': "Job applications backed by what you've really done",
   'nav.spend': 'Spent on the API so far',
   'nav.spendWord': 'spent',
+  'nav.trial': 'Free trial',
   'nav.stats': 'Numbers',
   'nav.settings': 'Settings',
   'home.sample': 'Try a sample posting →',
@@ -303,6 +306,19 @@ const en = {
   'start.keyTitle': 'First, your AI key.',
   'start.keyLede':
     'CVForge uses Claude, the AI made by Anthropic, to read postings and write your CVs. With a key of your own you pay only for what you use, straight to Anthropic: about $0.04 USD per posting. The key stays on this device.',
+  'start.trialTitle': 'Try it free.',
+  'start.trialTitleEnd': 'With your own CV.',
+  'start.trialLede':
+    'CVForge reads your CV, analyses a posting and writes you a CV for it. This first time is on us; to keep going afterwards, you use your own AI key.',
+  'start.trialKeyHeading': 'Already have an AI key?',
+  'trial.cta': 'Try it free with my CV',
+  'trial.starting': 'Starting…',
+  'trial.note':
+    'Your trial goes through our server so it can use our key. It keeps nothing: not your CV, not the posting, not the answers. With your own key, nothing goes through us.',
+  'trial.closed': 'The free trial is closed for now. You can keep going with your own key below.',
+  'trial.limit':
+    'Several trials already started from this network today. Come back tomorrow, or use your own key below.',
+  'trial.failed': 'The trial could not start. Check your connection and try again.',
   'start.lookTitle': 'Worth applying?',
   'start.lookTitleEnd': "You'll know in a minute.",
   'start.lookLede':
@@ -328,6 +344,11 @@ const en = {
   'settings.group.keyMissing': 'Your Anthropic key is missing',
   'settings.group.keyMissingLede':
     'Nothing can be analysed without it. It is sent only to Anthropic.',
+  'settings.trial.title': "You're on the free trial",
+  'settings.trial.lede':
+    'This time CVForge pays. When it runs out, add your key here and pick up where you left off.',
+  'settings.trial.endedLede':
+    'Your free trial is over. Add your key and pick up where you left off: your CV and applications are still here.',
   'settings.group.data': 'Your data',
   'settings.group.dataLede':
     'Everything lives on this computer. Backups, restoring, and checking for updates.',
@@ -1122,6 +1143,7 @@ const en = {
   'send.title': 'Before you send it',
   'send.cvReady': 'Your CV is ready:',
   'send.cvMissing': 'No CV yet. Write it first in',
+  'send.cvMissingLink': 'Documents',
   'send.letterReady':
     'Your cover letter is written. Copy it from Documents if the form asks for one.',
   'send.letterOptional': "No cover letter. It's optional unless the posting asks for one.",
@@ -1545,12 +1567,13 @@ const en = {
   'privacy.flow.anthropicBody':
     "Reads it to answer. Doesn't train on it; deletes it within 30 days.",
   'privacy.flow.us': 'CVForge',
-  'privacy.flow.usBody': 'No server, no accounts, no analytics. Receives nothing.',
+  'privacy.flow.usBody':
+    'No accounts, no analytics, stores nothing. Only the free trial passes your calls through it, untouched.',
   'privacy.group.stays': 'What stays with you',
   'privacy.group.leaves': 'What leaves, and where it goes',
   'privacy.group.trust': "What isn't there, and what you trust",
   'privacy.lede':
-    'CVForge has no server of its own and no accounts. Here is what happens to your data, with no fine print.',
+    'CVForge has no accounts, and nothing of yours is stored on a server of ours. This is what happens to your data, no fine print.',
   'privacy.more': 'More detail',
   'privacy.where.title': 'Where it is kept',
   'privacy.where.short': 'Only in this browser, on this device. We keep no copy.',
@@ -1559,12 +1582,16 @@ const en = {
   'privacy.out.title': 'What leaves your device',
   'privacy.out.short': 'Only your CV, your answers and each posting, and only to Anthropic.',
   'privacy.out.body':
-    "Only what is needed to analyse and write: your CV, your answers and each posting go to Anthropic, with your own key. The browser blocks anything else from leaving. That isn't a promise, it's a rule built into the site that anyone can check.",
+    'Only what it takes to analyse and write: your CV, your answers and each posting go to Anthropic, with your own key. During the free trial they go through our server first, which forwards them with our key and keeps nothing. The browser blocks any other way out. That is not a promise, it is a rule of the site anyone can check.',
   'privacy.anthropic.title': 'What Anthropic does with it',
   'privacy.anthropic.short': "It doesn't train on it and deletes it within 30 days.",
   'privacy.anthropic.body':
     "Under its API terms, Anthropic doesn't use what you send to train its models and deletes it within 30 days, except for legal or safety reasons. If the details matter to you, read its policy directly.",
   'privacy.anthropic.link': "Anthropic's data policy",
+  'privacy.trial.title': 'The free trial',
+  'privacy.trial.short': 'Passes through our server with our key. Stores nothing.',
+  'privacy.trial.body':
+    'Without a key of your own, the trial uses ours: each call goes from your browser to our server, which checks it is one the app makes and forwards it to Anthropic. It keeps only numbers (how much your trial has spent, how often your network asks), never your CV, the posting or the answers. Once you add your key, nothing goes through us again.',
   'privacy.shots.title': 'Screenshots',
   'privacy.shots.short': 'The whole image goes to Anthropic: crop anything private first.',
   'privacy.shots.body':
@@ -1576,7 +1603,7 @@ const en = {
   'privacy.host.title': 'What the website sees',
   'privacy.host.short': 'That the page was opened, like any website. Never your data.',
   'privacy.host.body':
-    'The service that hosts this page sees your IP address when you open it, like any website. It never sees your data.',
+    'The service that hosts this page sees your IP address when you open it, as with any site. It never sees your data, except during the free trial, when your calls pass through it on their way to Anthropic without being stored.',
   'privacy.trust.title': 'What you have to trust',
   'privacy.trust.short': 'That this page runs the public code, which anyone can check.',
   'privacy.trust.body':
@@ -1797,6 +1824,8 @@ const es: Record<MessageKey, string> = {
   'error.invalid-output':
     'La respuesta llegó con un formato inesperado. Vuelve a intentarlo. Si se repite, es un error de CVForge.',
   'error.unknown': 'Algo falló al conectar con Anthropic.',
+  'error.trial-ended':
+    'Tu prueba gratis se terminó. Para seguir, agrega tu propia clave en Ajustes: toma unos 5 minutos y todo lo tuyo sigue aquí.',
   'error.network':
     'No se pudo conectar con Anthropic. Revisa tu conexión y vuelve a intentarlo. Tu texto sigue aquí.',
   'error.invalid-url':
@@ -2027,6 +2056,7 @@ const es: Record<MessageKey, string> = {
   'meta.description': 'Postulaciones respaldadas por lo que de verdad has hecho',
   'nav.spend': 'Gastado en la API hasta ahora',
   'nav.spendWord': 'gastado',
+  'nav.trial': 'Prueba gratis',
   'nav.stats': 'Números',
   'nav.settings': 'Ajustes',
   'home.sample': 'Probar con una vacante de ejemplo →',
@@ -2035,6 +2065,20 @@ const es: Record<MessageKey, string> = {
   'start.keyTitle': 'Primero, tu clave de IA.',
   'start.keyLede':
     'CVForge usa Claude, la IA de Anthropic, para leer vacantes y escribir tus CV. Con una clave tuya pagas solo lo que usas, directo a Anthropic: unos $0.04 USD por vacante. La clave se queda en este dispositivo.',
+  'start.trialTitle': 'Pruébalo gratis.',
+  'start.trialTitleEnd': 'Con tu propio CV.',
+  'start.trialLede':
+    'CVForge lee tu CV, analiza una vacante y te arma un CV a su medida. Esta primera vez va por nuestra cuenta; para seguir después, usas tu propia clave de IA.',
+  'start.trialKeyHeading': '¿Ya tienes clave de IA?',
+  'trial.cta': 'Probar gratis con mi CV',
+  'trial.starting': 'Empezando…',
+  'trial.note':
+    'Tu prueba pasa por nuestro servidor para usar nuestra clave. No guarda nada: ni tu CV, ni la vacante, ni las respuestas. Con tu propia clave, nada pasa por nosotros.',
+  'trial.closed':
+    'La prueba gratis está cerrada por ahora. Puedes seguir con tu propia clave, aquí abajo.',
+  'trial.limit':
+    'Hoy ya empezaron varias pruebas desde esta red. Vuelve mañana o usa tu propia clave, aquí abajo.',
+  'trial.failed': 'No se pudo empezar la prueba. Revisa tu conexión y vuelve a intentarlo.',
   'start.lookTitle': '¿Vale la pena postularte?',
   'start.lookTitleEnd': 'Lo sabrás en un minuto.',
   'start.lookLede':
@@ -2059,6 +2103,11 @@ const es: Record<MessageKey, string> = {
   'settings.group.prefs': 'Preferencias',
   'settings.group.keyMissing': 'Falta tu clave de Anthropic',
   'settings.group.keyMissingLede': 'Sin ella no se puede analizar nada. Solo se envía a Anthropic.',
+  'settings.trial.title': 'Estás en la prueba gratis',
+  'settings.trial.lede':
+    'Esta vez paga CVForge. Cuando se acabe, agrega aquí tu clave y sigues donde ibas.',
+  'settings.trial.endedLede':
+    'Tu prueba gratis terminó. Agrega tu clave y sigues donde ibas: tu CV y tus postulaciones siguen aquí.',
   'settings.group.data': 'Tus datos',
   'settings.group.dataLede':
     'Todo vive en esta computadora. Respaldos, restauración y avisos de versiones nuevas.',
@@ -2855,6 +2904,7 @@ const es: Record<MessageKey, string> = {
   'send.title': 'Antes de enviarla',
   'send.cvReady': 'Tu CV está listo:',
   'send.cvMissing': 'Aún no hay CV. Escríbelo primero en',
+  'send.cvMissingLink': 'Documentos',
   'send.letterReady':
     'La carta ya está escrita. Cópiala desde Documentos si el formulario la pide.',
   'send.letterOptional': 'Sin carta. Es opcional, salvo que la vacante la pida.',
@@ -3281,12 +3331,13 @@ const es: Record<MessageKey, string> = {
   'privacy.flow.anthropic': 'Anthropic',
   'privacy.flow.anthropicBody': 'Lo lee para responder. No entrena con ello; lo borra en 30 días.',
   'privacy.flow.us': 'CVForge',
-  'privacy.flow.usBody': 'Sin servidor, sin cuentas, sin analítica. No recibe nada.',
+  'privacy.flow.usBody':
+    'Sin cuentas, sin analítica, no guarda nada. Solo la prueba gratis pasa tus llamadas por ahí, sin tocarlas.',
   'privacy.group.stays': 'Lo que se queda contigo',
   'privacy.group.leaves': 'Lo que sale, y a dónde va',
   'privacy.group.trust': 'Lo que no hay, y en qué confías',
   'privacy.lede':
-    'CVForge no tiene servidor propio ni cuentas. Esto es lo que pasa con tus datos, sin letra chiquita.',
+    'CVForge no tiene cuentas, y nada tuyo se guarda en un servidor nuestro. Esto es lo que pasa con tus datos, sin letra chiquita.',
   'privacy.more': 'Más detalle',
   'privacy.where.title': 'Dónde se guardan',
   'privacy.where.short': 'Solo en este navegador, en este dispositivo. No tenemos copia.',
@@ -3295,12 +3346,16 @@ const es: Record<MessageKey, string> = {
   'privacy.out.title': 'Qué sale de tu dispositivo',
   'privacy.out.short': 'Solo tu CV, tus respuestas y cada vacante, y solo hacia Anthropic.',
   'privacy.out.body':
-    'Solo lo que hace falta para analizar y escribir: tu CV, tus respuestas y cada vacante van a Anthropic, con tu propia clave. El navegador bloquea cualquier otra salida. No es una promesa, es una regla del sitio que cualquiera puede revisar.',
+    'Solo lo que hace falta para analizar y escribir: tu CV, tus respuestas y cada vacante van a Anthropic, con tu propia clave. Durante la prueba gratis pasan antes por nuestro servidor, que las reenvía con nuestra clave y no guarda nada. El navegador bloquea cualquier otra salida. No es una promesa, es una regla del sitio que cualquiera puede revisar.',
   'privacy.anthropic.title': 'Qué hace Anthropic con eso',
   'privacy.anthropic.short': 'No lo usa para entrenar y lo borra en un máximo de 30 días.',
   'privacy.anthropic.body':
     'Según sus términos para la API, Anthropic no usa lo que envías para entrenar sus modelos y lo borra en un máximo de 30 días, salvo excepciones legales o de seguridad. Si te importa el detalle, lee su política directamente.',
   'privacy.anthropic.link': 'Política de datos de Anthropic',
+  'privacy.trial.title': 'La prueba gratis',
+  'privacy.trial.short': 'Pasa por nuestro servidor, con nuestra clave. No guarda nada.',
+  'privacy.trial.body':
+    'Sin una clave tuya, la prueba usa la nuestra: cada llamada va de tu navegador a nuestro servidor, que comprueba que es una de las que hace la app y la reenvía a Anthropic. Solo guarda números (cuánto lleva gastado tu prueba, cuántas veces pregunta tu red), nunca tu CV, la vacante ni las respuestas. En cuanto agregas tu clave, nada vuelve a pasar por nosotros.',
   'privacy.shots.title': 'Capturas de pantalla',
   'privacy.shots.short': 'La imagen completa va a Anthropic: recorta antes lo privado.',
   'privacy.shots.body':
@@ -3312,7 +3367,7 @@ const es: Record<MessageKey, string> = {
   'privacy.host.title': 'Lo que ve el sitio',
   'privacy.host.short': 'Que se abrió la página, como en cualquier sitio. Nunca tus datos.',
   'privacy.host.body':
-    'El servicio que aloja esta página ve tu dirección IP cuando la abres, como pasa con cualquier sitio. Nunca ve tus datos.',
+    'El servicio que aloja esta página ve tu dirección IP cuando la abres, como pasa con cualquier sitio. Nunca ve tus datos, salvo en la prueba gratis, cuando tus llamadas pasan por ahí rumbo a Anthropic sin guardarse.',
   'privacy.trust.title': 'En qué tienes que confiar',
   'privacy.trust.short': 'Que esta página corre el código público, que cualquiera puede revisar.',
   'privacy.trust.body':

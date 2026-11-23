@@ -8,7 +8,7 @@ vi.mock('#discover', () => ({
 }))
 vi.mock('@/lib/db/client', () => ({ db: {} }))
 vi.mock('@/lib/db/queries/profile', () => ({
-  getProfile: () => ({ preferences: { markets: ['mx'] } }),
+  getProfile: () => ({ basics: { location: '' }, preferences: { markets: ['mx'] } }),
 }))
 const demo = { value: false }
 vi.mock('@/lib/demo/mode', () => ({

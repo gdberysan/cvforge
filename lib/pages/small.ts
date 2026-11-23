@@ -2,6 +2,7 @@
  * What the smaller screens read (see lib/pages/home.ts): Base CVs, CV
  * re-import, a role's interview, and gap-fill for one application.
  */
+
 import { currentStep } from '@/lib/application-steps'
 import type { Db } from '@/lib/db/client'
 import { getApplication } from '@/lib/db/queries/applications'
@@ -10,6 +11,7 @@ import { listEvidence } from '@/lib/db/queries/evidence'
 import { getProfile } from '@/lib/db/queries/profile'
 import { selectGaps } from '@/lib/gaps/select'
 import { splitEvidenceForInterview } from '@/lib/interview/split'
+import { effectiveMarkets } from '@/lib/markets'
 import { CVContentSchema } from '@/lib/schemas'
 import { evidenceHashOf } from '@/lib/variants'
 
@@ -20,7 +22,7 @@ export function loadCvs(db: Db) {
   return {
     variants: listVariants(db),
     currentEvidenceHash: evidenceHashOf(profile, listEvidence(db)),
-    ownMarkets: profile.preferences.markets,
+    ownMarkets: effectiveMarkets(profile.preferences.markets, profile.basics.location),
   }
 }
 export type CvsData = NonNullable<ReturnType<typeof loadCvs>>

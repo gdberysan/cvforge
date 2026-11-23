@@ -21,7 +21,7 @@ const ANTHROPIC_POLICY =
 /** The ten facts, in three groups: what stays, what leaves, what you trust. */
 const GROUPS = [
   { id: 'stays', sections: ['where', 'device', 'erase', 'extension'] },
-  { id: 'leaves', sections: ['out', 'anthropic', 'shots'] },
+  { id: 'leaves', sections: ['out', 'trial', 'anthropic', 'shots'] },
   { id: 'trust', sections: ['none', 'host', 'trust'] },
 ] as const
 

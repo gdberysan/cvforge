@@ -83,6 +83,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <Nav
         started={started}
         spendUsd={shell?.spendUsd ?? 0}
+        trial={shell?.trial ?? false}
         demo={false}
         updateTo={null}
         discover={false}

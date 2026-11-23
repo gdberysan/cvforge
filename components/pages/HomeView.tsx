@@ -37,6 +37,7 @@ export function HomeView({
   privacyHref,
   landingHref,
   extras,
+  trial,
 }: {
   data: HomeData
   t: Translate
@@ -54,6 +55,8 @@ export function HomeView({
   landingHref?: string
   /** The web edition's own cards for the side column (ways to bring jobs in). */
   extras?: React.ReactNode
+  /** The web edition's free trial, offered where the key is asked for. */
+  trial?: React.ReactNode
 }) {
   if (data.kind === 'first-run')
     return (
@@ -62,6 +65,7 @@ export function HomeView({
         local={keyLocal}
         privacyHref={privacyHref}
         landingHref={landingHref}
+        trial={trial}
       />
     )
   const { sample, li, find } = search

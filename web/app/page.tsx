@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useLocale, useT } from '@/components/i18n/LocaleProvider'
 import { HomeView } from '@/components/pages/HomeView'
+import { TrialCard } from '@/web/lib/trial-card'
 import { useLoader } from '@/web/lib/use-loader'
 import { WaysInCard } from '@/web/lib/ways-in'
 
@@ -13,6 +14,7 @@ function Home() {
   const locale = useLocale()
   const params = useSearchParams()
   const data = useLoader('home')
+  const settings = useLoader('settings')
   if (!data) return null
   return (
     <HomeView
@@ -29,6 +31,8 @@ function Home() {
       privacyHref="/privacidad"
       landingHref="/?inicio"
       extras={<WaysInCard />}
+      // A used-up trial is not offered again: the key screen as it always was.
+      trial={settings?.trialEnded ? undefined : <TrialCard />}
     />
   )
 }
