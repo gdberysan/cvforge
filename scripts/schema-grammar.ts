@@ -1,0 +1,58 @@
+/**
+ * The request grammar the model is sent for every model-facing schema,
+ * as zodOutputFormat builds it. zod is pinned because a minor release can
+ * change that grammar: before any zod bump, dump it for every model-facing
+ * schema and diff it. Prints stable JSON:
+ *
+ *   npx tsx scripts/schema-grammar.ts > before.json   # on the current zod
+ *   (bump)                                            # then again, and diff
+ *
+ * The list is every `schema:` handed to callStructured; a new one belongs here.
+ */
+import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
+import type { ZodType } from 'zod'
+import { PostingTranscriptSchema } from '@/lib/ai/stages/transcribe-posting'
+import { CVTranslationSchema } from '@/lib/ai/stages/translate-cv'
+import { VerdictsSchema } from '@/lib/ai/stages/verify-distortion'
+import { FollowUpDraftSchema } from '@/lib/followup/draft'
+import { MailOutcomeSchema } from '@/lib/mail/classify-outcome'
+import {
+  CoverLetterSchema,
+  RecruiterMessageSchema,
+  ScreeningAnswerSchema,
+  ScreeningSetSchema,
+} from '@/lib/schemas/companion'
+import { CVDraftSchema } from '@/lib/schemas/cv'
+import { CvEvidenceSkeletonSchema, CvProfileSkeletonSchema } from '@/lib/schemas/import'
+import { InterviewPlanSchema, InterviewResultSchema } from '@/lib/schemas/interview'
+import { MappingResultSchema } from '@/lib/schemas/mapping'
+import { ModelPrepSchema } from '@/lib/schemas/prep'
+import { ModelExtractionSchema } from '@/lib/schemas/requirement'
+
+const SCHEMAS: Record<string, ZodType> = {
+  CVDraftSchema,
+  CVTranslationSchema,
+  CoverLetterSchema,
+  CvEvidenceSkeletonSchema,
+  CvProfileSkeletonSchema,
+  FollowUpDraftSchema,
+  InterviewPlanSchema,
+  InterviewResultSchema,
+  MailOutcomeSchema,
+  MappingResultSchema,
+  ModelExtractionSchema,
+  ModelPrepSchema,
+  PostingTranscriptSchema,
+  RecruiterMessageSchema,
+  ScreeningAnswerSchema,
+  ScreeningSetSchema,
+  VerdictsSchema,
+}
+
+const grammar = Object.fromEntries(
+  Object.keys(SCHEMAS)
+    .sort()
+    .map((name) => [name, zodOutputFormat(SCHEMAS[name] as never)]),
+)
+// Functions (the local parser) are not part of what is sent.
+console.log(JSON.stringify(grammar, (_k, v) => (typeof v === 'function' ? undefined : v), 2))

@@ -11,6 +11,7 @@ import {
   type MasterProfile,
   type Requirement,
 } from '@/lib/schemas'
+import { sameJobTitle } from '@/lib/verify/sections'
 import { callStructured } from '../client'
 import { buildCredentialLines, buildProjectLines } from '../projection'
 
@@ -33,7 +34,7 @@ WRITING:
 - Select the most relevant evidence per role for THIS job — typically 3–5 bullets for recent roles, fewer and more compressed for older ones. Order each role's bullets, each skills row and the summary's sentences most relevant first: a CV over its page limit is cut in code from the ends — older roles' bullets first, then the last skills, then the summary's last sentences, then the recent roles' last bullets.
 - Order skills so the ones this posting requires (and that the evidence supports) come first. List only skills named in the evidence, a project's stack, a credential or a requirement the evidence supports — in the wording they have there. A skill appearing nowhere in those is invented.
 - header.title is a specialty headline, not a job title: 2–4 areas joined by " · " (e.g. "eCommerce Operations · Retail Media · PPC"), each one a requirement keyword the evidence supports, a skill the person listed, or one of their own role titles from <roles>, in that wording. At the top of a CV a title reads as one the person holds, so the target role's title never goes here unless it is one of their own titles in <roles>.
-- The summary is 3–4 lines written for this specific role, in whole sentences that each stand on their own. When the target parameters give a role title (a CV for a posting, not a base CV), the first sentence names it exactly as given in the target parameters, as the role being sought (e.g. "Candidate for <title>: …" / "Candidato a <title>: …"), so an applicant-tracking system finds the exact title; after that it describes the person only by titles they have held (see <roles>): never write as if they already hold the target title ("As Head of X, I bring…"). Include two or three top matched keywords, only where truthful.
+- The summary is 3–4 lines written for this specific role, in whole sentences that each stand on their own. When the target parameters give a role title (a CV for a posting, not a base CV), the first sentence names it exactly as given in the target parameters, as the role being sought (e.g. "Candidate for <title>: …" / "Candidato a <title>: …"), so an applicant-tracking system finds the exact title (unless the parameters say the person has held that very title: then follow that line instead); after that it describes the person only by titles they have held (see <roles>): never write as if they already hold the target title ("As Head of X, I bring…"). Include two or three top matched keywords, only where truthful.
 - Mirror the posting's exact keyword variants where the underlying fact exists. Use each once, naturally. Never keyword-stuff.
 - TENSE follows the evidence period, not the evidence wording: work whose period has ended is written in past tense even if the source text speaks in the present. Only an open period ("present") may sound current. Implying an ended engagement is ongoing misrepresents the person.
 
@@ -256,6 +257,7 @@ async function draftCv(args: ComposeArgs): Promise<CVDraft> {
           args.focus === undefined
             ? `Company: ${args.company}. Role: ${args.jobTitle}.`
             : `No company: a reusable base CV. Role: ${args.jobTitle}.`,
+          ...heldTitleRule(args.profile, args.jobTitle, args.focus === undefined),
           '',
           '<roles>',
           roleBlock,
@@ -290,6 +292,26 @@ async function draftCv(args: ComposeArgs): Promise<CVDraft> {
     effort: 'high',
     stage: 'compose-cv',
   })
+}
+
+/**
+ * When the person has held the very title a posting asks for, "Candidate for
+ * <title>: <the same title> in…" opened their summary twice over (2026-11-23,
+ * live trial). Their own title already is the posting's, for a reader and an
+ * applicant-tracking system alike: the summary opens with it, as held.
+ * Decided in code (sameJobTitle), not left to the model's reading.
+ */
+export function heldTitleRule(
+  profile: MasterProfile,
+  jobTitle: string,
+  forPosting: boolean,
+): string[] {
+  if (!forPosting) return []
+  const held = profile.experience.find((r) => sameJobTitle(r.title, jobTitle))
+  if (!held) return []
+  return [
+    `The person has held this exact role title ("${held.title}" at ${held.company}). Open the summary with it as their own title, worded as they held it, followed by what they did; do not write "Candidate for" / "Candidato a" before it, and do not state the title twice.`,
+  ]
 }
 
 /**

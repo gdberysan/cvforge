@@ -117,6 +117,24 @@ export const api = {
     }
   },
 
+  /** What this browser's trial has left, as the trial server counts it; null off a trial. */
+  trialStatus: async (): Promise<{ leftUsd: number; budgetUsd: number } | null> => {
+    const token = readSettings().trialToken
+    if (!token || readSettings().trialEnded || readSettings().anthropicApiKey) return null
+    try {
+      const res = await fetch(`${self.location.origin}/trial/status/`, {
+        method: 'POST',
+        headers: { 'x-api-key': token },
+      })
+      const body = (await res.json()) as { leftUsd?: number; budgetUsd?: number }
+      return res.ok && typeof body.leftUsd === 'number' && typeof body.budgetUsd === 'number'
+        ? { leftUsd: body.leftUsd, budgetUsd: body.budgetUsd }
+        : null
+    } catch {
+      return null
+    }
+  },
+
   setApiKey: async (key: string) => {
     writeSettings({ ...readSettings(), anthropicApiKey: key.trim() })
     await settingsSaved()
