@@ -2,13 +2,13 @@
 
 import { type FormEvent, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
-import { IconMark } from '@/components/ui/icons'
 /**
  * The password prompt, when the lock is on. Nothing else of CVForge renders
  * until the vault opens. Forgetting the password is answered honestly: there
  * is no recovery, and the way forward is to erase and import a copy.
  */
-import { BRAND } from '@/lib/brand'
+import { BrandWord } from '@/components/ui/BrandWord'
+import { IconMark } from '@/components/ui/icons'
 import { BASE } from './base'
 import { useDatabase } from './database'
 
@@ -51,7 +51,7 @@ export function UnlockScreen() {
         <span aria-hidden className="brand-mark">
           <IconMark />
         </span>
-        {BRAND}
+        <BrandWord />
       </p>
       <h1 className="welcome-title">{t('web.lock.unlockTitle')}</h1>
       <p className="welcome-lede">{t('web.lock.unlockLede')}</p>

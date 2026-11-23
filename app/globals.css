@@ -9190,3 +9190,107 @@ textarea#details-titles {
     min-height: 44px;
   }
 }
+
+/* ==========================================================================
+   RUMBO VOICE, alignment (2026-11-23): the app reads like the landing, not
+   only looks like it. Three rules the landing follows everywhere:
+   - What you operate (buttons, chips, labels, nav, fields) is set in the
+     landing's grotesque; sentences that speak to the person are in its serif.
+   - One button: a pill. The main one is ink; a link that takes you somewhere
+     carries the landing's arrow.
+   - The wordmark is the landing's: heavy, tight, lowercase.
+   ========================================================================== */
+:root {
+  --font-text: var(--font-headline-loaded), "Avenir Next", system-ui, -apple-system, sans-serif;
+}
+
+/* Sentences are serif. A class that sets its own face (titles, labels,
+   kickers, meta lines) still wins: this only reaches plain paragraphs. */
+main p {
+  font-family: var(--font-voice);
+}
+
+/* One button shape. */
+.btn,
+.page .btn,
+.pipeline-page .btn {
+  border-radius: 999px;
+  font-family: var(--font-headline);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.btn-primary:not(:disabled) {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-color: transparent;
+}
+@media (hover: hover) {
+  .btn-primary:not(:disabled):hover {
+    background: var(--ink-hover);
+  }
+}
+.btn-quiet,
+.btn-ghost {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-strong);
+}
+/* A link that takes you somewhere says so, as on the landing. */
+a.btn-primary:not(:has(svg)) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+a.btn-primary:not(:has(svg))::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  flex: none;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* The landing's wordmark. */
+.brand-word {
+  font: 800 23px/1 var(--font-headline);
+  letter-spacing: -0.035em;
+}
+.brand-word.is-lower {
+  text-transform: lowercase;
+}
+
+/* The way out of a page that only says something (not found, an error). */
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+/* Sentences inside cards are serif too, as on the landing's cards: a
+   status line, a card's explanation, a line of the person's own CV, the
+   reason behind a flag. Labels, meta lines, steps and captions stay in
+   the grotesque. */
+.page .board-head > p,
+.page .settings-row-hint,
+.page .settings-lede,
+.page .rec-text,
+.page .leader-full,
+.page .verify-reason,
+.page .flag-quote,
+.page .checklist li,
+.page .companion-lede,
+.page .story-lede,
+.page .gap-why,
+.page .doc-block details > summary,
+.page .flow-body {
+  font-family: var(--font-voice);
+}
+.page .rec-text,
+.page .leader-full,
+.page .settings-lede,
+.page .board-head > p {
+  font-size: 16px;
+  line-height: 1.55;
+}

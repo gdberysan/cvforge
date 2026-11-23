@@ -12,9 +12,10 @@ export function EvidenceView({ data, t }: { data: EvidenceData; t: Translate }) 
       {/* Mi experiencia (friendly redesign 2026-11-21): what this place is in
           one sentence, then the two things you reach from here — another CV
           to import, and the base CVs made from all of this. */}
-      <header className="exp-head">
-        <h1 className="exp-title">{t('nav.evidence')}</h1>
-        <p className="exp-lede">{t('evidence.lede')}</p>
+      <header className="page-head exp-head">
+        <p className="eyebrow">{t('evidence.eyebrow')}</p>
+        <h1 className="page-title">{t('nav.evidence')}</h1>
+        <p className="page-lede">{t('evidence.lede')}</p>
         {/* Secondary doors, so they read as links, not as the first thing
             to press: the strength card below is that. */}
         <p className="exp-links">

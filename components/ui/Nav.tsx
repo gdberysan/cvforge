@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { BrandWord } from '@/components/ui/BrandWord'
 import { BRAND } from '@/lib/brand'
 import { formatUsd } from '@/lib/spend/cost'
 import { IconMark } from './icons'
@@ -82,7 +83,7 @@ export function Nav({
         <span aria-hidden className="brand-mark">
           <IconMark />
         </span>
-        {BRAND}
+        <BrandWord />
       </Link>
 
       <div className="topnav-links">

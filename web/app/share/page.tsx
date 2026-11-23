@@ -75,7 +75,10 @@ function Share() {
   if (!shell.started) {
     return (
       <main id="main" tabIndex={-1} className="page share-page">
-        <h1 className="share-title">{t('share.titleShared')}</h1>
+        <header className="page-head">
+          <p className="eyebrow">{t('share.eyebrow')}</p>
+          <h1 className="share-title">{t('share.titleShared')}</h1>
+        </header>
         <div className="intake-card">
           {posting && (
             <article className="posting-card">
@@ -97,7 +100,10 @@ function Share() {
   return (
     <main id="main" tabIndex={-1} className="page share-page">
       <BackLink href="/" label={t('nav.today')} />
-      <h1 className="share-title">{t(fromShare ? 'share.titleShared' : 'share.title')}</h1>
+      <header className="page-head">
+        <p className="eyebrow">{t('share.eyebrow')}</p>
+        <h1 className="share-title">{t(fromShare ? 'share.titleShared' : 'share.title')}</h1>
+      </header>
       {/* What you get, before the box asks for anything. */}
       <p className="exp-lede share-lede">{t(ready ? 'share.ledeReady' : 'share.lede')}</p>
       <ScreenshotIntake

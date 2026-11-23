@@ -78,8 +78,10 @@ export default async function SettingsPage() {
   return (
     <main id="main" tabIndex={-1} className="page">
       <div className="settings-page">
-        <header className="settings-head">
+        <header className="page-head settings-head">
+          <p className="eyebrow">{t('settings.page.eyebrow')}</p>
           <h1 className="settings-h1">{t('settings.page.title')}</h1>
+          <p className="page-lede">{t('settings.page.lede')}</p>
         </header>
 
         <SettingsGroup title={t('settings.group.status')}>
