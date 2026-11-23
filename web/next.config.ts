@@ -37,6 +37,9 @@ const config: NextConfig = {
       'better-sqlite3': './lib/better-sqlite3-stub.ts',
       // The LinkedIn scraper never ships publicly.
       '#discover': '../lib/discover/stub.ts',
+      // The job agent lives on a Mac; a browser never has one.
+      '#satellite': '../lib/satellite-stub.ts',
+      '#satellite-ui': '../components/satellite-ui-stub.ts',
     },
   },
   env: {

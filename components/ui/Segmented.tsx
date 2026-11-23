@@ -2,7 +2,7 @@
 
 import { useId } from 'react'
 
-/** Equal-width choices, no "All" (Mordue's filter norm). Real radios underneath. */
+/** Equal-width choices, no "All": every option is a real filter. Real radios underneath. */
 export function Segmented<T extends string>({
   label,
   options,

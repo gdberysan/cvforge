@@ -25,7 +25,7 @@ export async function register() {
     g.__cvforgePushFlush.unref?.()
   }
 
-  // Kits chased from the phone or Telegram are written here, in the server
+  // Kits chased from the phone or the job agent are written here, in the server
   // process, where spend is recorded. It guards itself on globalThis too.
   const { startKitRunner } = await import('@/lib/kit/runner')
   startKitRunner(db)

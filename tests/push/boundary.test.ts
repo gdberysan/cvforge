@@ -16,11 +16,3 @@ describe('lib/push/notify import boundary', () => {
     await expect(import('@/lib/push/notify')).resolves.toHaveProperty('notify')
   })
 })
-
-describe('what the satellite imports for stage A', () => {
-  it('the kit queue and the push messages import with no Next.js module in their graph', async () => {
-    await expect(import('@/lib/kit/queue')).resolves.toHaveProperty('enqueueKit')
-    await expect(import('@/lib/push/messages')).resolves.toHaveProperty('findMessage')
-    await expect(import('@/lib/agent/chase')).resolves.toHaveProperty('chaseFind')
-  })
-})

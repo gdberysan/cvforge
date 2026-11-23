@@ -8,8 +8,6 @@ export type TrialStore = {
   /** Adds `by` to a counter and returns the new value; `ttlSeconds` on first write. */
   add(key: string, by: number, ttlSeconds: number): Promise<number>
   get(key: string): Promise<number>
-  /** True the first time a key is claimed (until it expires), false after. */
-  claim(key: string, ttlSeconds: number): Promise<boolean>
 }
 
 export function memoryStore(): TrialStore {
@@ -22,11 +20,6 @@ export function memoryStore(): TrialStore {
     },
     async get(key) {
       return values.get(key) ?? 0
-    },
-    async claim(key) {
-      if (values.has(key)) return false
-      values.set(key, 1)
-      return true
     },
   }
 }
@@ -61,10 +54,6 @@ export function upstashStore(
     async get(key) {
       const [value] = await run([['GET', key]])
       return value == null ? 0 : Number(value)
-    },
-    async claim(key, ttlSeconds) {
-      const [ok] = await run([['SET', key, 1, 'NX', 'EX', ttlSeconds]])
-      return ok === 'OK'
     },
   }
 }

@@ -61,10 +61,10 @@ export function removeOutbox(db: Db, id: string): void {
 const TWO_DAYS_MS = 48 * 3_600_000
 
 /**
- * Where the phone stands, for the job agent's Telegram backup (spec
- * 2026-10-15 agent stage A §4): no phone subscribed, a phone that has never
- * taken a push, one silent for two days, or one that works. Telegram says
- * which, so its header is never a claim about two days that never happened.
+ * Where the phone stands, for anything that falls back when pushes fail:
+ * no phone subscribed, a phone that has never taken a push, one silent for
+ * two days, or one that works, so a fallback never claims two days of
+ * silence that never happened.
  */
 export type PushState = 'none' | 'unconfirmed' | 'stale' | 'reachable'
 
@@ -77,9 +77,8 @@ export function pushState(db: Db, now: Date = new Date(), windowMs = TWO_DAYS_MS
   return delivered.some((at) => at >= since) ? 'reachable' : 'stale'
 }
 
-/** Has any phone taken a push in the last two days? When none has, the
- * agent's finds also go to Telegram, so a lost subscription never means
- * silence. */
+/** Has any phone taken a push in the last two days? When none has, a
+ * fallback channel can step in, so a lost subscription never means silence. */
 export function pushReachable(db: Db, now: Date = new Date(), windowMs = TWO_DAYS_MS): boolean {
   return pushState(db, now, windowMs) === 'reachable'
 }

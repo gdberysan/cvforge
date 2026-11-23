@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { recordChase } from '@/lib/agent/finds'
+import { recordFollowUpSent } from '#satellite'
 import { db } from '@/lib/db/client'
 import {
   getApplication,
@@ -13,7 +13,6 @@ import {
 } from '@/lib/db/queries/applications'
 import { getDraft, markDraftUsed } from '@/lib/db/queries/drafts'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
-import { satelliteDbPath } from '@/lib/settings'
 
 const OutcomeType = z.enum([
   'applied',
@@ -166,8 +165,7 @@ export async function markDraftUsedAction(
   const first = markDraftUsed(db, draftId)
   const usedAt = getDraft(db, draftId)?.usedAt ?? new Date().toISOString()
   // Once per draft: a second tap is not a second follow-up.
-  const file = satelliteDbPath()
-  if (first && file) recordChase(file, `follow-up:${draftId}`)
+  if (first) recordFollowUpSent(draftId)
   revalidatePath(`/application/${applicationId}`)
   return { ok: true, usedAt }
 }

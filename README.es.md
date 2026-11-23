@@ -40,7 +40,8 @@ Sacar tu clave toma unos cinco minutos; Rumbo te guía.
 
 - Sin cuenta, sin registro, sin rastreo.
 - Tu CV, tus postulaciones y tu clave viven solo en tu navegador, en tu dispositivo.
-- La única conexión que hace la app es a la API de Anthropic, con tu clave, para hacer el análisis. Rumbo no tiene un servidor que vea tus datos.
+- Con tu propia clave, la única conexión que hace la app es a la API de Anthropic, para hacer el análisis: nada pasa por un servidor nuestro.
+- La prueba gratis es la única excepción: sin una clave tuya, tus llamadas pasan por el servidor de Rumbo rumbo a Anthropic, con nuestra clave. Revisa cada llamada y solo guarda números (cuánto lleva gastado tu prueba), nunca tu CV, la vacante ni las respuestas.
 - La extensión lee una vacante solo cuando pulsas su botón.
 
 Todo el detalle, en palabras simples, está en la [página de privacidad](https://rumbo.korven.dev/app/privacidad/).
