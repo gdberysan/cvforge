@@ -36,12 +36,17 @@ const LONG_WAIT = 21
  * link, so the target is the card, and the move is named for what it gets
  * done (Decidir, Preparar, Dar seguimiento) rather than for where it goes.
  */
-export function TodayInbox({ items }: { items: InboxItem[] }) {
+export function TodayInbox({ items, lead }: { items: InboxItem[]; lead?: string }) {
   return (
     <ul className="inbox">
-      {items.map((i) => (
-        <li key={i.id} className={`inbox-card reason-${i.reason}`}>
+      {items.map((i, n) => (
+        // The first card is the one move for today: it leads, in ink.
+        <li
+          key={i.id}
+          className={`inbox-card reason-${i.reason}${n === 0 && lead ? ' is-lead' : ''}`}
+        >
           <Link href={i.href} className="inbox-link">
+            {n === 0 && lead && <span className="inbox-lead">{lead}</span>}
             {i.age !== undefined ? (
               <span className={`inbox-age${i.age >= LONG_WAIT ? ' is-long' : ''}`}>{i.age}</span>
             ) : (

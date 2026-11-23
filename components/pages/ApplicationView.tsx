@@ -14,6 +14,7 @@ import { PostingSheet } from '@/components/application/PostingSheet'
 import { Reanalyse } from '@/components/application/Reanalyse'
 import { RequirementChips } from '@/components/application/RequirementChips'
 import { Timeline } from '@/components/application/Timeline'
+import { VerdictBand } from '@/components/application/VerdictBand'
 import { VerdictPanel } from '@/components/application/VerdictPanel'
 import { YouList } from '@/components/application/YouList'
 import { ActionGrid } from '@/components/pipeline/ActionGrid'
@@ -85,6 +86,9 @@ export function ApplicationView({
               : 'open'
   const showGaps = working && !data.sent && !ended && hasGaps && profile !== null
   const showSend = working && !data.sent
+  // Once the verdict is no longer the first block, the band under the
+  // stages says it, and the panel further down keeps only its details.
+  const banded = ended || end === 'offer' || data.sent || data.savedCv !== null
 
   const decideBlock = (
     <>
@@ -94,7 +98,7 @@ export function ApplicationView({
         )}
         {/* The answer and what the role is about, side by side on a wide screen. */}
         <div className={data.summary ? 'decide-top has-about' : 'decide-top'}>
-          <VerdictPanel coverage={application.coverage} sentence={sentence} />
+          <VerdictPanel coverage={application.coverage} sentence={sentence} headless={banded} />
           {data.summary && (
             <div className="story-about">
               <h2>{t('overview.about')}</h2>
@@ -354,6 +358,16 @@ export function ApplicationView({
             hasCv: data.savedCv !== null,
           })}
         />
+        {/* Once the verdict is no longer the first block, its answer stays
+            in sight here. */}
+        {banded && (
+          <VerdictBand
+            coverage={application.coverage}
+            sentence={sentence}
+            href={nextHref('decide')}
+            t={t}
+          />
+        )}
       </header>
 
       {/* Where the application stands decides the order: the next thing

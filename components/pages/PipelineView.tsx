@@ -198,33 +198,37 @@ export function PipelineView({ data, t }: { data: PipelineData; t: Translate }) 
             </section>
           )}
 
-          <section className="pipeline-section">
-            <div className="pipeline-section-head is-split">
-              <p className="eyebrow">
-                {attention.length > 0 ? t('pipeline.rest') : t('pipeline.eyebrow')}
-              </p>
-              <span className="pipeline-section-note">
-                {t('pipeline.shown', { n: rest.length + attention.length, m: all.length })}
-              </span>
-            </div>
-            {rest.length + attention.length === 0 && filtering ? (
-              <div className="board-empty-panel">
-                <p>{q ? t('pipeline.noMatch', { q }) : t('pipeline.noMatchStatus')}</p>
-                <Link href="/pipeline" className="btn btn-quiet">
-                  {t('pipeline.clearSearch')}
-                </Link>
+          {/* When everything is already above, under "your move", an empty
+              "the rest" would be a heading over nothing. */}
+          {(rest.length > 0 || attention.length === 0 || filtering) && (
+            <section className="pipeline-section">
+              <div className="pipeline-section-head is-split">
+                <p className="eyebrow">
+                  {attention.length > 0 ? t('pipeline.rest') : t('pipeline.eyebrow')}
+                </p>
+                <span className="pipeline-section-note">
+                  {t('pipeline.shown', { n: rest.length + attention.length, m: all.length })}
+                </span>
               </div>
-            ) : (
-              <Rows
-                applications={rest}
-                t={t}
-                stateOf={stateOf}
-                latestOf={latestOf}
-                // With the "closed" tab on, the tab already says what these are.
-                settledTitle={status === 'closed' ? null : undefined}
-              />
-            )}
-          </section>
+              {rest.length + attention.length === 0 && filtering ? (
+                <div className="board-empty-panel">
+                  <p>{q ? t('pipeline.noMatch', { q }) : t('pipeline.noMatchStatus')}</p>
+                  <Link href="/pipeline" className="btn btn-quiet">
+                    {t('pipeline.clearSearch')}
+                  </Link>
+                </div>
+              ) : (
+                <Rows
+                  applications={rest}
+                  t={t}
+                  stateOf={stateOf}
+                  latestOf={latestOf}
+                  // With the "closed" tab on, the tab already says what these are.
+                  settledTitle={status === 'closed' ? null : undefined}
+                />
+              )}
+            </section>
+          )}
         </>
       )}
     </main>

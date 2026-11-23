@@ -117,6 +117,13 @@ export const IconChevron = ({ flip = false }: { flip?: boolean } = {}) => (
   </Icon>
 )
 
+/** The way in: the end of the first run's one button (the landing's arrow). */
+export const IconArrow = () => (
+  <Icon size={18}>
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </Icon>
+)
+
 /** Close a sheet. */
 export const IconClose = () => (
   <Icon size={18}>

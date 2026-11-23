@@ -190,7 +190,7 @@ export function HomeView({
                   {t('today.seeAll')}
                 </Link>
               </div>
-              <TodayInbox items={inboxItems} />
+              <TodayInbox items={inboxItems} lead={t('today.nextStep')} />
             </section>
           )}
 

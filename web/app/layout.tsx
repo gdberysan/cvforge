@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { BRAND } from '@/lib/brand'
-import { geist, marker, stamp } from '@/lib/fonts'
+import { geist, headline, kicker, marker, stamp, voice } from '@/lib/fonts'
 import { DatabaseProvider } from '@/web/lib/database'
 import { WebLocale } from '@/web/lib/locale'
 import { RegisterServiceWorker } from '@/web/lib/service-worker'
@@ -22,7 +22,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${geist.variable} ${stamp.variable} ${marker.variable}`}>
+    <html
+      lang="es"
+      className={`${geist.variable} ${headline.variable} ${voice.variable} ${kicker.variable} ${stamp.variable} ${marker.variable}`}
+    >
       <body>
         <RegisterServiceWorker />
         <WebLocale>
