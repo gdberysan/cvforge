@@ -28,7 +28,6 @@
       "**",
       "!.next",
       "!dist",
-      "!web/spike/dist",
       "!web/public/worker",
       "!web/actions",
       "!web/worker/registry.gen.ts",

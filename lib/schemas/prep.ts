@@ -86,5 +86,4 @@ export const PrepContentSchema = ModelPrepSchema.extend({
 })
 export type PrepContent = z.infer<typeof PrepContentSchema>
 export type PrepStory = PrepContent['stories'][number]
-export type Beat = PrepStory['situation']
 export const BEATS = ['situation', 'task', 'action', 'result'] as const

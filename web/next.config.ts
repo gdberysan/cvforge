@@ -44,6 +44,8 @@ const config: NextConfig = {
     // The web edition's name (lib/brand.ts); the desktop build keeps CVForge.
     NEXT_PUBLIC_BRAND: 'Rumbo',
     NEXT_PUBLIC_BASE: base,
+    // The extension's Chrome Web Store page, once approved (web/lib/ways-in.tsx).
+    NEXT_PUBLIC_EXTENSION_URL: process.env.RUMBO_EXTENSION_URL ?? '',
   },
 }
 
