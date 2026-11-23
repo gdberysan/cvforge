@@ -25,7 +25,13 @@ export type DbPool = {
   getFileNames(): string[]
 }
 
-export type ImportProblem = 'not-a-database' | 'corrupt' | 'not-cvforge' | 'database-too-new'
+export type ImportProblem =
+  | 'not-a-database'
+  | 'corrupt'
+  | 'not-cvforge'
+  | 'database-too-new'
+  // A paid run is still saving into the current database: wait for it.
+  | 'busy'
 
 const HEADER = 'SQLite format 3\u0000'
 

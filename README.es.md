@@ -21,7 +21,7 @@ Rumbo está hecho al revés. Parte de lo que de verdad hiciste, y cada línea qu
 - **Escribe la postulación** (CV, carta, respuestas, un mensaje al reclutador) solo con lo que hiciste, y revisa cada afirmación antes de que la veas.
 - **Llena huecos reales con honestidad.** Si una vacante pide algo que sí hiciste pero nunca escribiste, lo cuentas una vez y cuenta desde entonces. Lo que dejas en blanco, se queda en blanco.
 - **Junta tu búsqueda en un lugar:** a qué te postulaste, quién respondió, qué está esperando por ti.
-- **Funciona desde LinkedIn** con la extensión: un botón en la vacante abre Rumbo al lado y te sigue cuando cambias de vacante.
+- **Funciona desde LinkedIn** con la extensión (pronto en la Chrome Web Store; hoy puedes cargarla desde este repo): un botón en la vacante abre Rumbo al lado y, mientras ese panel está abierto, te sigue cuando cambias de vacante.
 - **Funciona desde tu teléfono:** instálalo y compártele capturas de una vacante.
 
 ## Lo que cuesta
@@ -34,15 +34,15 @@ Rumbo es gratis y lo seguirá siendo. Usa Claude, la IA de Anthropic, con una cl
 | Una postulación completa (CV, carta, respuestas) | unos $0.50 USD (≈ $9 MXN) |
 | Una búsqueda completa | unos $3–6 USD (≈ $55–110 MXN) |
 
-Sacar tu clave toma unos cinco minutos; Rumbo te guía.
+Tu primera prueba no necesita clave: una prueba gratis, con la clave de Rumbo, te deja leer tu CV, analizar una vacante y obtener un CV a la medida. Después, sacar tu clave toma unos cinco minutos; Rumbo te guía.
 
 ## Privacidad
 
 - Sin cuenta, sin registro, sin rastreo.
 - Tu CV, tus postulaciones y tu clave viven solo en tu navegador, en tu dispositivo.
 - Con tu propia clave, la única conexión que hace la app es a la API de Anthropic, para hacer el análisis: nada pasa por un servidor nuestro.
-- La prueba gratis es la única excepción: sin una clave tuya, tus llamadas pasan por el servidor de Rumbo rumbo a Anthropic, con nuestra clave. Revisa cada llamada y solo guarda números (cuánto lleva gastado tu prueba), nunca tu CV, la vacante ni las respuestas.
-- La extensión lee una vacante solo cuando pulsas su botón.
+- La prueba gratis es la única excepción: sin una clave tuya, tus llamadas pasan por el servidor de Rumbo rumbo a Anthropic, con nuestra clave. Revisa cada llamada y solo guarda cuentas (cuánto lleva gastado tu prueba, y cuántas veces pregunta una red, bajo un código de un solo sentido), nunca tu CV, la vacante ni las respuestas.
+- La extensión lee una vacante cuando pulsas su botón y, mientras su panel está abierto, la que abras después. No envía nada a ningún servidor.
 
 Todo el detalle, en palabras simples, está en la [página de privacidad](https://rumbo.korven.dev/app/privacidad/).
 

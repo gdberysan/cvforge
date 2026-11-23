@@ -24,14 +24,6 @@ const en = {
   'nav.language': 'Language',
 
   // ---- home: triage ----
-  'home.eyebrow': 'Analysis',
-  'home.title': 'Is this worth your time?',
-  'home.lede':
-    'Twenty seconds and about four cents. It checks location, time zone and work authorization first, because no change to your CV can fix those.',
-  'home.nudge.one':
-    "{n} role still has only its CV bullets, so you'll look like a weaker match than you are.",
-  'home.nudge.other':
-    "{n} roles still have only their CV bullets, so you'll look like a weaker match than you are.",
 
   // ---- home: first run ----
   'start.title': 'Now, your CV.',
@@ -49,7 +41,6 @@ const en = {
   'triage.stage.saving': 'saving…',
   'triage.stage.starting': 'starting…',
   'triage.ready': 'Ready to analyse.',
-  'triage.waiting': 'waiting for a posting',
   'triage.cached': '· saved earlier, no cost',
   'triage.more': 'For {market} · add the link',
   'triage.moreLinked': 'For {market} · link added',
@@ -70,6 +61,10 @@ const en = {
   'error.unknown': 'Something went wrong talking to Anthropic.',
   'error.trial-ended':
     'Your free trial is used up. To keep going, add your own key in Settings: it takes about 5 minutes, and everything of yours stays here.',
+  'error.trial-unavailable':
+    "The free trial can't run this step right now: what's left doesn't cover it, or today's trials are full. Your text is still here. To keep going now, add your own key in Settings.",
+  'error.too-large':
+    'That file is too large to send (on the free trial, about 3 MB). Use a smaller PDF or paste the text instead.',
   'error.network':
     "Couldn't reach Anthropic. Check your connection and try again. Your text is still here.",
   'error.invalid-url': "That link doesn't look right. Fix it or clear the field and try again.",
@@ -101,24 +96,7 @@ const en = {
   'error.alias-not-a-domain': "That isn't a company's domain. Write the whole one, like pavo.mx.",
   'error.alias-too-short': 'Names need at least 4 letters. For a short one, use its email domain.',
   'error.alias-generic': 'That word is too common to identify a company. Use the full name.',
-  'followup.title': 'Follow-up draft',
-  'followup.note': 'You send it yourself. CVForge never sends email.',
-  'followup.to': 'To {to}',
-  'followup.noTo': 'No recipient. Add one in Gmail.',
-  'followup.more': 'Read the whole email',
-  'followup.less': 'Show less',
-  'followup.subject': 'Subject',
-  'followup.copy': 'Copy',
-  'followup.copied': 'Copied.',
-  'followup.copyFailed': 'Could not copy. Select the text and copy it by hand.',
-  'followup.open': 'Open in Gmail',
-  'followup.bodyCopied':
-    'Too long for a link, so the text is on your clipboard. Paste it in Gmail.',
-  'followup.sent': 'I sent it',
-  'followup.sentOn': 'Sent on {date}',
-  'followup.failed': 'Could not save that. Try again.',
   'error.invalid': 'That application is not waiting on a reply.',
-  'kit.preparing': 'Preparing the kit… about 3 minutes',
   'kit.retry':
     "The kit couldn't be prepared. It will try again tonight at 3:00, or you can generate it now.",
   'kit.failed': "The kit couldn't be prepared. Generate it here.",
@@ -181,8 +159,6 @@ const en = {
   'details.noLocation': 'No location',
   'details.noMarkets': 'no markets',
   'details.noAuth': 'no work authorization',
-  'details.marketsLine': 'markets: {list}',
-  'details.authLine': 'may work in: {list}',
   'details.location': 'Where you live',
   'details.locationPlaceholder': 'City, country',
   'details.timezone': 'Your time zone',
@@ -230,7 +206,6 @@ const en = {
   'nav.spend': 'Spent on the API so far',
   'nav.spendWord': 'spent',
   'nav.trial': 'Free trial',
-  'nav.stats': 'Numbers',
   'nav.settings': 'Settings',
   'home.sample': 'Try a sample posting →',
   'home.sampleLoaded': 'A sample posting is loaded. Replace it with a real one any time.',
@@ -246,7 +221,7 @@ const en = {
   'trial.cta': 'Try it free with my CV',
   'trial.starting': 'Starting…',
   'trial.note':
-    'Your trial goes through our server so it can use our key. It keeps nothing: not your CV, not the posting, not the answers. With your own key, nothing goes through us.',
+    'Your trial goes through our server so it can use our key. It keeps none of your data: not your CV, not the posting, not the answers; only how much your trial has spent. With your own key, nothing goes through us.',
   'trial.closed': 'The free trial is closed for now. You can keep going with your own key below.',
   'trial.limit':
     'Several trials already started from this network today. Come back tomorrow, or use your own key below.',
@@ -288,14 +263,10 @@ const en = {
   'settings.status.key': 'Anthropic key',
   'settings.status.keyOk': 'Saved. You can analyse postings.',
   'settings.status.keyNone': 'Missing. Nothing can be analysed until you save it.',
-  'settings.status.agentOn': 'Active within its hours.',
-  'settings.status.agentPaused': 'Paused. No searching, no spending.',
   'settings.status.devices.one': '{n} device receives them.',
   'settings.status.devices.other': '{n} devices receive them.',
   'settings.status.backupOn': 'A copy is made every day. The last one was on {date}.',
   'settings.status.backupNone': 'No automatic copy yet. The first one is made within minutes.',
-  'settings.eyebrow': 'Settings',
-  'settings.title': 'Your Anthropic key',
   'settings.lede':
     "CVForge talks to Anthropic only, with a key that's yours. The key stays on this computer and only your user account can read it. Treat it like a password.",
   'settings.envManaged':
@@ -309,7 +280,6 @@ const en = {
   'settings.pdf.install': 'Install PDF engine (~150 MB)',
   'settings.pdf.installing': 'Installing… this can take a few minutes',
   'settings.pdf.done': 'Done. "Export PDF" now saves the file directly.',
-  'settings.updates.title': 'Updates',
   'settings.updates.toggle': "Tell me when there's a new version",
   'settings.haptics.toggle': 'Vibration on tap',
   'settings.haptics.note':
@@ -341,15 +311,12 @@ const en = {
   'settings.saving': 'Checking with Anthropic…',
   'settings.connected': '✓ connected',
   'settings.saved': 'Key saved on this machine.',
-  'settings.remove': 'remove the saved key',
   'settings.removed': 'Key removed.',
-  'settings.hasKey': 'A key is saved on this machine.',
   'settings.key.saved': 'Key saved',
   'settings.key.none': 'No key yet',
   'settings.key.change': 'Change',
   'settings.key.remove': 'Remove',
   'settings.key.fromMac': 'Change the key from the Mac, not from the phone.',
-  'settings.noKey': 'No key saved yet.',
   'guide.title': 'How to get your key (5 minutes)',
   'guide.step1': 'Create an account at console.anthropic.com (it opens in a new tab).',
   'guide.step2': 'Under “Plans & Billing”, add about $5 USD of credit.',
@@ -375,8 +342,6 @@ const en = {
   'demo.buy': 'Get it free',
   'demo.how': 'How it is built',
   'demo.choose': 'Pick a sample posting:',
-  'demo.readOnlyBox':
-    'In the demo, the box only accepts the sample postings above. The full version accepts anything you paste.',
   'outcome.applied': 'sent it',
   'outcome.acknowledged': 'they replied',
   'outcome.screen': 'screen call',
@@ -443,11 +408,7 @@ const en = {
   'stats.empty.title': 'No numbers yet, and that is fine',
   'stats.empty.lede':
     'Mark what happens with each application: sent, a call, a no. In a few weeks this page tells you what gets you replies, and what does not.',
-  'stats.appliedWeek.one': '{n} sent this week',
-  'stats.appliedWeek.other': '{n} sent this week',
-  'stats.median': 'median response: {n}d',
   'stats.noMedian': 'no reply times yet',
-  'stats.responseRate': 'responses: {r}/{a}',
   'stats.responded': '{r} of {a} got a response',
   'stats.notEnough': 'Too few to tell · {n}',
   'stats.kpi.week': 'Sent this week',
@@ -477,30 +438,10 @@ const en = {
   'stats.gaps.lede':
     "Must-haves that never match anything you've done. Do you have them and never wrote them down?",
   'stats.gaps.add': 'Add it to your experience',
-  'stats.gapCount.one': 'blocked {n} posting',
-  'stats.gapCount.other': 'blocked {n} postings',
   'stats.sources.title': 'By source',
   'stats.leaders.title': 'The experience that helps you most',
   'stats.leaders.lede': 'Achievements found in applications that got a reply. A hint, not a cause.',
-  'today.eyebrow': 'Today',
-  'today.needsTitle.one': '{n} thing needs you',
-  'today.needsTitle.other': '{n} things need you',
-  'today.calmTitle': 'Nothing needs you today',
-  'today.waitingCount.one': '{n} waiting for a reply',
-  'today.waitingCount.other': '{n} waiting for a reply',
-  'today.interviewingCount.one': '{n} in interviews',
-  'today.interviewingCount.other': '{n} in interviews',
   'today.allApplications': 'All applications →',
-  'today.needsYou': 'Needs you',
-  'today.nothingNeeded':
-    'Every open application is either sent and within its usual reply time, or settled.',
-  'today.go': 'Go to {step} →',
-  'today.waiting': 'Waiting for a reply',
-  'today.sentAgo': 'sent {n}d ago',
-  'today.sentToday': 'sent today',
-  'today.profile': 'Your experience',
-  'today.fixIt': 'Fix it →',
-  'today.analyse': 'Analyse a posting',
   'today.waitingTitle': 'Waiting on you',
   'today.nextStep': 'Your next step',
   'verdictBand.see': 'See the analysis',
@@ -569,62 +510,8 @@ const en = {
   'triage.run': 'Analyse',
   'triage.running': 'Analysing…',
   'triage.failed': 'Analysis failed.',
-  'triage.failedStart': "Analysis couldn't start.",
 
   // ---- discover (personal-only; never in a buyer build) ----
-  'discover.eyebrow': 'Discover',
-  'discover.title': 'Search without leaving',
-  'discover.lede':
-    "Public LinkedIn listings, marked if they're already in your pipeline. Pick one and it's ready to analyse.",
-  'discover.query': 'Keywords',
-  'discover.location': 'Location',
-  'discover.freshness': 'Posted within',
-  'discover.freshness.any': 'any time',
-  'discover.freshness.days.one': '{n} day',
-  'discover.freshness.days.other': '{n} days',
-  'discover.workplace': 'Workplace',
-  'discover.workplace.any': 'any',
-  'discover.workplace.remote': 'remote',
-  'discover.workplace.hybrid': 'hybrid',
-  'discover.workplace.onsite': 'on-site',
-  'discover.search': 'Search',
-  'discover.page': 'Page {n}',
-  'discover.nextPage': 'Next page',
-  'discover.prevPage': 'Previous page',
-  'discover.empty': 'No results for this search.',
-  'discover.dropped.one': "{n} result couldn't be read. LinkedIn may be changing its page.",
-  'discover.dropped.other': "{n} results couldn't be read. LinkedIn may be changing its page.",
-  'discover.seen.one': 'in your pipeline: {status}, {n} day ago',
-  'discover.seen.other': 'in your pipeline: {status}, {n} days ago',
-  'discover.triage': 'Analyse this',
-  'discover.open': 'View on LinkedIn',
-  'discover.error.rate-limited': 'LinkedIn is limiting searches. Wait a few minutes and try again.',
-  'discover.error.blocked': 'LinkedIn is blocking public access right now. Try again later.',
-  'discover.error.parse-drift': 'LinkedIn changed its page, so the search needs fixing.',
-  'discover.error.not-found': 'That posting is no longer published.',
-  'discover.error.network': "Couldn't reach LinkedIn. Check your connection and try again.",
-  'discover.error.unexpected':
-    'The search failed, and not because of LinkedIn. Details are in datos/cvforge.log.',
-  'discover.presets': 'Your usual sweeps',
-  'discover.dismiss': 'Hide',
-  'discover.restore': 'Restore',
-  'discover.hidden.one': '{n} hidden ·',
-  'discover.hidden.other': '{n} hidden ·',
-  'discover.showHidden': 'show',
-  'discover.hideHidden': 'hide again',
-  'discover.results': 'Results',
-  'discover.hiddenHeading': 'Hidden jobs',
-  'discover.summary': 'showing {shown}\u00A0· page {page}',
-  'discover.badge': 'in your pipeline',
-  'discover.age.today': 'today',
-  'discover.age.yesterday': 'yesterday',
-  'discover.age.days.one': '{n}d ago',
-  'discover.age.days.other': '{n}d ago',
-  'discover.footNote':
-    "Hiding a job doesn't use a request. It's saved, leaves the list, and comes back with one click.",
-  'discover.queryPlaceholder': 'paid media, growth…',
-  'discover.searchLabel': 'Search',
-  'discover.pageNav': 'Pagination',
 
   // ---- verdict ----
   'verdict.eyebrow': 'Is it worth it?',
@@ -711,7 +598,6 @@ const en = {
   'record.yes': 'Yes',
   'record.no': 'No',
   'record.aria': 'What you did, in full',
-  'record.edit': 'Edit',
   'record.done': 'Done',
   'record.addNumber': 'Add a number',
   'record.kindDef.achievement': 'A result that changed something, which you can measure.',
@@ -916,17 +802,11 @@ const en = {
   'pipeline.skippedLink.one': '{n} skipped',
   'pipeline.skippedLink.other': '{n} skipped',
   'pipeline.skipped.title': 'Skipped postings',
-  'pipeline.skipped.back': '← back to the pipeline',
 
   // ---- application ----
-  'steps.aria': 'Steps of this application',
-  'steps.overview': 'Overview',
-  'overview.back': 'Overview',
   'overview.cvLang.en': 'CV in English',
   'overview.cvLang.es-MX': 'CV in Spanish',
-  'overview.covered': '{strong} of {total}',
   'overview.about': 'What the role is about',
-  'overview.where': 'Where it stands',
   'overview.status.archived': 'You set it aside',
   'overview.status.sentToday': 'Sent today',
   'overview.status.sent.one': 'Sent {date} · {n} day without a reply',
@@ -944,24 +824,7 @@ const en = {
   'overview.next.track': 'Open the follow-up',
   'overview.next.draft': 'See the follow-up draft',
   'steps.decide': 'Decide',
-  'steps.gaps': "What's missing",
-  'steps.docs': 'Documents',
-  'steps.send': 'Send',
-  'steps.track': 'Follow-up',
   // Segment labels at phone width; the full name above is the accessible one.
-  'steps.short.decide': 'Decide',
-  'steps.short.gaps': 'Missing',
-  'steps.short.docs': 'Docs',
-  'steps.short.send': 'Send',
-  'steps.short.track': 'Track',
-  'steps.here': 'you are here',
-  'steps.openCount': '{n} still open',
-  'steps.done': 'done',
-  'steps.next': 'Next: {step} →',
-  'steps.noGaps':
-    'Every required item is already backed by your experience. Nothing to fill in here.',
-  'decide.pursueGaps': "Go for it: first, what's missing",
-  'decide.pursueDocs': 'Go for it: write the documents',
   'decide.skip': 'Skip it',
   'decide.pursue': 'Make my CV for this posting',
   'story.why': 'See why',
@@ -975,9 +838,6 @@ const en = {
   'market.group.yours': 'Your markets',
   'market.group.remote': 'Remote',
   'market.group.countries': 'Countries',
-  'docLang.en': 'documents in English',
-  'docLang.es-MX': 'documents in Spanish',
-  'send.title': 'Before you send it',
   'send.cvReady': 'Your CV is ready:',
   'send.cvMissing': 'No CV yet. Write it first in',
   'send.cvMissingLink': 'Documents',
@@ -986,7 +846,6 @@ const en = {
   'send.letterOptional': "No cover letter. It's optional unless the posting asks for one.",
   'send.applyAt': 'Apply on the posting:',
   'send.applyNoLink': 'Apply wherever you found it. No link was saved with this posting.',
-  'send.alreadySent': 'Already sent. What happens next is in “What comes next”, below.',
   'moment.close': 'Close',
   'moment.sent.stamp': 'Sent',
   'moment.sent.title': 'Sent.',
@@ -1012,7 +871,6 @@ const en = {
   'track.titleEnded': 'How it ended',
   'track.titleOffer': 'How you got here',
   'track.history': 'What has happened',
-  'track.empty': 'Nothing logged yet. When you apply, mark it as sent, then log each reply.',
   'track.ask': 'What happened?',
   'track.askLater': 'Log what happened',
   'call.line': '{kind} · {date} · {when}',
@@ -1027,14 +885,8 @@ const en = {
   'call.daysAgo.other': '{n}\u00a0days\u00a0ago',
   'track.askUnsent': 'Did you send it?',
   'track.askLate': 'Did they answer after all?',
-  'thread.count.one': '{n} email',
-  'thread.count.other': '{n} emails',
-  'thread.more.one': '+{n} more email about this',
-  'thread.more.other': '+{n} more emails about this',
   'you.title': 'What you logged',
-  'you.applied': 'You sent it',
   'you.followUp': 'You sent a follow-up',
-  'you.outcome': 'You logged: {outcome}',
   'meeting.fromInvite': 'Read from the calendar invite in the email',
   'meeting.edit': 'Edit',
   'meeting.noTime': 'no time set',
@@ -1063,8 +915,6 @@ const en = {
   'people.removed': 'Removed.',
   'people.empty': 'Nobody named yet.',
   'overview.next.prep': 'Prepare for the interview',
-  'steps.prep': 'Prepare',
-  'steps.short.prep': 'Prep',
   'prep.title': 'Interview prep',
   'prep.intro':
     "Questions this interviewer will likely ask, stories from your own experience that answer them, the lines of your CV they may dig into, and honest answers for what you haven't done. Read it before the call.",
@@ -1142,7 +992,6 @@ const en = {
   'application.stale':
     'Your experience changed since this analysis. Analysing again keeps the requirements already pulled from the posting and compares them with what you have now.',
   'application.reanalyse': 'Analyse again',
-  'studio.eyebrow': 'Studio',
   'studio.generate': 'Write my CV',
   'studio.generating': 'Writing and checking…',
   'studio.stage.writing': 'Writing the CV from your experience',
@@ -1296,7 +1145,6 @@ const en = {
   'undo.undo': 'Undo',
   'undo.dismiss': 'Dismiss',
   // ---- base CVs ----
-  'nav.cvs': 'Base CVs',
   'variants.eyebrow': 'Base CVs',
   'variants.title': 'CVs ready to send',
   'variants.lede':
@@ -1328,7 +1176,6 @@ const en = {
   'variants.composedOn': 'made {date}',
   'variants.notComposed': 'not made yet',
   'variants.briefLabel': 'What you asked for',
-  'variants.staleTag': 'Out of date',
   'variants.more': 'More options',
   'variants.stale': 'You added experience after these CVs were made. Update a CV to include it.',
   'variants.pickerLabel': 'Or use a base CV',
@@ -1415,9 +1262,10 @@ const en = {
     "Under its API terms, Anthropic doesn't use what you send to train its models and deletes it within 30 days, except for legal or safety reasons. If the details matter to you, read its policy directly.",
   'privacy.anthropic.link': "Anthropic's data policy",
   'privacy.trial.title': 'The free trial',
-  'privacy.trial.short': 'Passes through our server with our key. Stores nothing.',
+  'privacy.trial.short':
+    'Passes through our server with our key. Keeps none of your data, only counts.',
   'privacy.trial.body':
-    'Without a key of your own, the trial uses ours: each call goes from your browser to our server, which checks it is one the app makes and forwards it to Anthropic. It keeps only numbers (how much your trial has spent, how often your network asks), never your CV, the posting or the answers. Once you add your key, nothing goes through us again.',
+    'Without a key of your own, the trial uses ours: each call goes from your browser to our server, which checks it is one the app makes and forwards it to Anthropic. It keeps only counts (how much your trial has spent, and how often your network asks, under a one-way code that cannot be turned back into its address), never your CV, the posting or the answers. Once you add your key, nothing goes through us again.',
   'privacy.shots.title': 'Screenshots',
   'privacy.shots.short': 'The whole image goes to Anthropic: crop anything private first.',
   'privacy.shots.body':
@@ -1443,9 +1291,10 @@ const en = {
   'privacy.erase.body':
     'In Settings, «Erase everything from this browser» removes your data and your key from this device. You can export a copy first.',
   'privacy.extension.title': 'The Chrome extension',
-  'privacy.extension.short': 'It only reads a LinkedIn posting when you ask it to.',
+  'privacy.extension.short':
+    'It reads a LinkedIn posting when you ask, and follows the one on screen only while its panel is open.',
   'privacy.extension.body':
-    'It only works on LinkedIn and CVForge. It reads a posting when you press Analyse and hands it to your CVForge tab. It keeps it in memory only until then and sends nothing to any server.',
+    'It only works on LinkedIn and CVForge. It reads a posting when you press Analyse and hands it to CVForge in its side panel; while that panel is open, it follows the job you open next so the panel can show it. It keeps postings in memory only while the tab is open and sends nothing to any server.',
   'privacy.updated': 'Updated {date}.',
   'privacy.link': 'How your privacy is protected',
   'web.build.group': 'This version',
@@ -1489,6 +1338,7 @@ const en = {
   'web.lock.removed': 'Password removed.',
   'web.lock.changed': 'Password changed.',
   'web.lock.failed': "That didn't work. Your data is as it was.",
+  'web.lock.busy': 'An analysis is still running. Lock once it finishes, so what it cost is saved.',
   'web.erase.title': 'Erase everything from this browser',
   'web.erase.hint':
     'Your experience, applications, CVs and Anthropic key are removed from this device. Export a copy first if you want one.',
@@ -1513,6 +1363,8 @@ const en = {
   'web.data.importConfirm': 'Replace my data with {name}',
   'web.data.imported': 'Done. Your data is the copy you brought in.',
   'web.data.importFailed': 'The file could not be read.',
+  'web.data.problem.busy':
+    'An analysis is still running. Bring in the copy once it finishes, so what it cost is saved. Nothing was changed.',
   'web.data.problem.not-a-database': 'That file is not a CVForge copy.',
   'web.data.problem.corrupt': 'That copy is damaged. Nothing was changed.',
   'web.data.problem.not-cvforge': "That database isn't from CVForge. Nothing was changed.",
@@ -1530,9 +1382,14 @@ const en = {
   'web.db.moved': 'CVForge moved to another tab.',
   'web.db.unsupported':
     'This browser cannot keep CVForge’s data. Use a current Chrome, Edge, Safari or Firefox.',
-  'web.db.failed': 'Your data could not be opened: {message}',
-  'web.db.hello': 'Welcome back, {name}.',
-  'web.db.empty': 'Nothing here yet. What you add is kept in this browser only.',
+  'web.db.failed':
+    "Your data couldn't be opened. Nothing was deleted. Reload the page; if it happens again, close Rumbo's other tabs and update your browser.",
+  'web.db.reload': 'Reload',
+  'web.inApp.lede':
+    "You're in {app}'s own browser: what you save here may not be there later. Open {url} in Chrome or Safari so your data stays.",
+  'web.inApp.copy': 'Copy link',
+  'web.inApp.copied': 'Copied',
+  'web.db.failedDetail': 'Technical detail',
   'web.db.persisted': 'This browser has agreed to keep your data.',
   'web.db.notPersisted':
     'This browser may clear your data if it runs out of space. Keep a copy: export it or back it up to Google Drive.',
@@ -1590,9 +1447,6 @@ const en = {
   'todayWhy.staleShort.one': 'day without a reply',
   'todayWhy.staleShort.other': 'days without a reply',
   'todayWhy.unsent': 'CV ready',
-  'today.rateLabel':
-    'got a reply, of the applications old enough to have one · {responded} of {applied}',
-  'today.rateDelta': '{n} pts vs. the previous 30 days',
 } as const
 
 export type MessageKey = keyof typeof en
@@ -1608,14 +1462,6 @@ const es: Record<MessageKey, string> = {
   'nav.language': 'Idioma',
 
   // ---- home: triage ----
-  'home.eyebrow': 'Análisis',
-  'home.title': '¿Vale tu tiempo?',
-  'home.lede':
-    'Veinte segundos y unos cuatro centavos de dólar. Primero revisa ubicación, zona horaria y permiso de trabajo, porque eso no se arregla con ningún ajuste al CV.',
-  'home.nudge.one':
-    '{n} puesto todavía tiene solo las viñetas de tu CV, así que vas a parecer menos compatible de lo que eres.',
-  'home.nudge.other':
-    '{n} puestos todavía tienen solo las viñetas de tu CV, así que vas a parecer menos compatible de lo que eres.',
 
   // ---- home: first run ----
   'start.title': 'Ahora, tu CV.',
@@ -1633,7 +1479,6 @@ const es: Record<MessageKey, string> = {
   'triage.stage.saving': 'guardando…',
   'triage.stage.starting': 'iniciando…',
   'triage.ready': 'Lista para analizar.',
-  'triage.waiting': 'esperando una vacante',
   'triage.cached': '· ya estaba guardada, sin costo',
   'triage.more': 'Para {market} · agregar la liga',
   'triage.moreLinked': 'Para {market} · con su liga',
@@ -1654,6 +1499,10 @@ const es: Record<MessageKey, string> = {
   'error.unknown': 'Algo falló al conectar con Anthropic.',
   'error.trial-ended':
     'Tu prueba gratis se terminó. Para seguir, agrega tu propia clave en Ajustes: toma unos 5 minutos y todo lo tuyo sigue aquí.',
+  'error.trial-unavailable':
+    'La prueba gratis no puede hacer este paso ahora: lo que te queda no alcanza, o las pruebas de hoy están llenas. Tu texto sigue aquí. Para seguir ya, agrega tu propia clave en Ajustes.',
+  'error.too-large':
+    'Ese archivo es demasiado grande para enviarlo (en la prueba gratis, unos 3 MB). Usa un PDF más pequeño o pega el texto.',
   'error.network':
     'No se pudo conectar con Anthropic. Revisa tu conexión y vuelve a intentarlo. Tu texto sigue aquí.',
   'error.invalid-url':
@@ -1690,24 +1539,7 @@ const es: Record<MessageKey, string> = {
     'Los nombres necesitan al menos 4 letras. Si es corto, usa su dominio de correo.',
   'error.alias-generic':
     'Esa palabra es demasiado común para identificar a una empresa. Usa el nombre completo.',
-  'followup.title': 'Borrador de seguimiento',
-  'followup.note': 'Lo envías tú. CVForge nunca envía correos.',
-  'followup.to': 'Para {to}',
-  'followup.noTo': 'Sin destinatario. Agrégalo en Gmail.',
-  'followup.more': 'Leer el correo completo',
-  'followup.less': 'Mostrar menos',
-  'followup.subject': 'Asunto',
-  'followup.copy': 'Copiar',
-  'followup.copied': 'Copiado.',
-  'followup.copyFailed': 'No se pudo copiar. Selecciona el texto y cópialo a mano.',
-  'followup.open': 'Abrir en Gmail',
-  'followup.bodyCopied':
-    'Es muy largo para un enlace, así que el texto quedó en tu portapapeles. Pégalo en Gmail.',
-  'followup.sent': 'Ya lo envié',
-  'followup.sentOn': 'Enviado el {date}',
-  'followup.failed': 'No se pudo guardar. Inténtalo de nuevo.',
   'error.invalid': 'Esa postulación no está esperando respuesta.',
-  'kit.preparing': 'Preparando el kit… unos 3 minutos',
   'kit.retry':
     'No se pudo preparar el kit. Se reintenta esta noche a las 3:00, o puedes generarlo ahora.',
   'kit.failed': 'No se pudo preparar el kit. Genéralo aquí.',
@@ -1769,8 +1601,6 @@ const es: Record<MessageKey, string> = {
   'details.noLocation': 'Sin ubicación',
   'details.noMarkets': 'sin mercados',
   'details.noAuth': 'sin autorización de trabajo',
-  'details.marketsLine': 'mercados: {list}',
-  'details.authLine': 'puedes trabajar en: {list}',
   'details.location': 'Dónde vives',
   'details.locationPlaceholder': 'Ciudad, país',
   'details.timezone': 'Tu zona horaria',
@@ -1818,7 +1648,6 @@ const es: Record<MessageKey, string> = {
   'nav.spend': 'Gastado en la API hasta ahora',
   'nav.spendWord': 'gastado',
   'nav.trial': 'Prueba gratis',
-  'nav.stats': 'Números',
   'nav.settings': 'Ajustes',
   'home.sample': 'Probar con una vacante de ejemplo →',
   'home.sampleLoaded': 'Cargamos una vacante de ejemplo. Reemplázala por una real cuando quieras.',
@@ -1834,7 +1663,7 @@ const es: Record<MessageKey, string> = {
   'trial.cta': 'Probar gratis con mi CV',
   'trial.starting': 'Empezando…',
   'trial.note':
-    'Tu prueba pasa por nuestro servidor para usar nuestra clave. No guarda nada: ni tu CV, ni la vacante, ni las respuestas. Con tu propia clave, nada pasa por nosotros.',
+    'Tu prueba pasa por nuestro servidor para usar nuestra clave. No guarda nada tuyo: ni tu CV, ni la vacante, ni las respuestas; solo cuánto lleva gastado tu prueba. Con tu propia clave, nada pasa por nosotros.',
   'trial.closed':
     'La prueba gratis está cerrada por ahora. Puedes seguir con tu propia clave, aquí abajo.',
   'trial.limit':
@@ -1876,14 +1705,10 @@ const es: Record<MessageKey, string> = {
   'settings.status.key': 'Clave de Anthropic',
   'settings.status.keyOk': 'Guardada. Ya puedes analizar vacantes.',
   'settings.status.keyNone': 'Falta. No puedes analizar nada hasta guardarla.',
-  'settings.status.agentOn': 'Activo dentro de su horario.',
-  'settings.status.agentPaused': 'En pausa. No busca ni gasta.',
   'settings.status.devices.one': '{n} dispositivo las recibe.',
   'settings.status.devices.other': '{n} dispositivos las reciben.',
   'settings.status.backupOn': 'Se hace una copia cada día. La última fue el {date}.',
   'settings.status.backupNone': 'Aún no hay copia automática. La primera se hace en unos minutos.',
-  'settings.eyebrow': 'Ajustes',
-  'settings.title': 'Tu clave de Anthropic',
   'settings.lede':
     'CVForge solo habla con Anthropic, con una clave que es tuya. La clave se queda en esta computadora y solo tu usuario puede leerla. Trátala como una contraseña.',
   'settings.envManaged':
@@ -1897,7 +1722,6 @@ const es: Record<MessageKey, string> = {
   'settings.pdf.install': 'Instalar motor de PDF (~150 MB)',
   'settings.pdf.installing': 'Instalando… puede tardar varios minutos',
   'settings.pdf.done': 'Listo. «Exportar PDF» ya guarda el archivo directamente.',
-  'settings.updates.title': 'Actualizaciones',
   'settings.updates.toggle': 'Avisarme cuando haya una versión nueva',
   'settings.haptics.toggle': 'Vibración al tocar',
   'settings.haptics.note':
@@ -1929,15 +1753,12 @@ const es: Record<MessageKey, string> = {
   'settings.saving': 'Verificando con Anthropic…',
   'settings.connected': '✓ conectado',
   'settings.saved': 'Clave guardada en esta máquina.',
-  'settings.remove': 'quitar la clave guardada',
   'settings.removed': 'Clave eliminada.',
-  'settings.hasKey': 'Hay una clave guardada en esta máquina.',
   'settings.key.saved': 'Clave guardada',
   'settings.key.none': 'Aún no hay clave',
   'settings.key.change': 'Cambiar',
   'settings.key.remove': 'Quitar',
   'settings.key.fromMac': 'La clave se cambia desde la Mac, no desde el teléfono.',
-  'settings.noKey': 'Aún no hay clave guardada.',
   'guide.title': 'Cómo conseguir tu clave (5 minutos)',
   'guide.step1': 'Crea una cuenta en console.anthropic.com (se abre en otra pestaña).',
   'guide.step2': 'En «Plans & Billing», agrega unos $5 USD de crédito.',
@@ -1963,8 +1784,6 @@ const es: Record<MessageKey, string> = {
   'demo.buy': 'Consíguela gratis',
   'demo.how': 'Cómo está hecha',
   'demo.choose': 'Elige una vacante de ejemplo:',
-  'demo.readOnlyBox':
-    'En la demo, la caja solo acepta las vacantes de ejemplo de arriba. La versión completa acepta cualquier texto que pegues.',
   'outcome.applied': 'la envié',
   'outcome.acknowledged': 'respondieron',
   'outcome.screen': 'primera llamada',
@@ -2030,11 +1849,7 @@ const es: Record<MessageKey, string> = {
   'stats.empty.title': 'Todavía no hay números, y está bien',
   'stats.empty.lede':
     'Marca lo que pasa con cada postulación: enviada, llamada, rechazo. En unas semanas, esta página te dice qué te consigue respuestas y qué no.',
-  'stats.appliedWeek.one': '{n} enviada esta semana',
-  'stats.appliedWeek.other': '{n} enviadas esta semana',
-  'stats.median': 'respuesta mediana: {n}d',
   'stats.noMedian': 'aún no hay tiempos de respuesta',
-  'stats.responseRate': 'respuestas: {r}/{a}',
   'stats.responded': '{r} de {a} con respuesta',
   'stats.notEnough': 'Pocos datos · {n}',
   'stats.kpi.week': 'Enviadas esta semana',
@@ -2065,31 +1880,11 @@ const es: Record<MessageKey, string> = {
   'stats.gaps.lede':
     'Requisitos que nunca coinciden con lo que has hecho. ¿Los tienes y no los anotaste?',
   'stats.gaps.add': 'Agrégalo a tu experiencia',
-  'stats.gapCount.one': 'bloqueó {n} vacante',
-  'stats.gapCount.other': 'bloqueó {n} vacantes',
   'stats.sources.title': 'Por fuente',
   'stats.leaders.title': 'La experiencia que más te ayuda',
   'stats.leaders.lede':
     'Logros que aparecen en postulaciones con respuesta. Una pista, no una causa.',
-  'today.eyebrow': 'Hoy',
-  'today.needsTitle.one': '{n} cosa te necesita',
-  'today.needsTitle.other': '{n} cosas te necesitan',
-  'today.calmTitle': 'Nada te necesita hoy',
-  'today.waitingCount.one': '{n} esperando respuesta',
-  'today.waitingCount.other': '{n} esperando respuesta',
-  'today.interviewingCount.one': '{n} en entrevistas',
-  'today.interviewingCount.other': '{n} en entrevistas',
   'today.allApplications': 'Todas las postulaciones →',
-  'today.needsYou': 'Te necesita',
-  'today.nothingNeeded':
-    'Cada postulación abierta ya se envió y sigue dentro de su tiempo normal de respuesta, o ya se cerró.',
-  'today.go': 'Ir a {step} →',
-  'today.waiting': 'Esperando respuesta',
-  'today.sentAgo': 'enviada hace {n}d',
-  'today.sentToday': 'enviada hoy',
-  'today.profile': 'Tu experiencia',
-  'today.fixIt': 'Arréglalo →',
-  'today.analyse': 'Analiza una vacante',
   'today.waitingTitle': 'Te esperan',
   'today.nextStep': 'Tu siguiente paso',
   'verdictBand.see': 'Ver el análisis',
@@ -2158,67 +1953,8 @@ const es: Record<MessageKey, string> = {
   'triage.run': 'Analizar',
   'triage.running': 'Analizando…',
   'triage.failed': 'El análisis falló.',
-  'triage.failedStart': 'El análisis no pudo empezar.',
 
   // ---- discover (solo personal; nunca en un build de comprador) ----
-  'discover.eyebrow': 'Descubrir',
-  'discover.title': 'Busca sin salir',
-  'discover.lede':
-    'Vacantes públicas de LinkedIn, marcadas si ya están en tus postulaciones. Elige una y queda lista para analizar.',
-  'discover.query': 'Palabras clave',
-  'discover.location': 'Ubicación',
-  'discover.freshness': 'Publicado hace máximo',
-  'discover.freshness.any': 'cualquier fecha',
-  'discover.freshness.days.one': '{n} día',
-  'discover.freshness.days.other': '{n} días',
-  'discover.workplace': 'Modalidad',
-  'discover.workplace.any': 'cualquiera',
-  'discover.workplace.remote': 'remoto',
-  'discover.workplace.hybrid': 'híbrido',
-  'discover.workplace.onsite': 'presencial',
-  'discover.search': 'Buscar',
-  'discover.page': 'Página {n}',
-  'discover.nextPage': 'Página siguiente',
-  'discover.prevPage': 'Página anterior',
-  'discover.empty': 'Sin resultados para esta búsqueda.',
-  'discover.dropped.one':
-    'No se pudo leer {n} resultado. Puede que LinkedIn esté cambiando su página.',
-  'discover.dropped.other':
-    'No se pudieron leer {n} resultados. Puede que LinkedIn esté cambiando su página.',
-  'discover.seen.one': 'en tus postulaciones: {status}, hace {n} día',
-  'discover.seen.other': 'en tus postulaciones: {status}, hace {n} días',
-  'discover.triage': 'Analizar esta',
-  'discover.open': 'Ver en LinkedIn',
-  'discover.error.rate-limited':
-    'LinkedIn está limitando las búsquedas. Espera unos minutos y vuelve a intentarlo.',
-  'discover.error.blocked':
-    'LinkedIn está bloqueando el acceso público por ahora. Intenta más tarde.',
-  'discover.error.parse-drift': 'LinkedIn cambió su página y la búsqueda necesita un ajuste.',
-  'discover.error.not-found': 'Esa vacante ya no está publicada.',
-  'discover.error.network':
-    'No se pudo conectar con LinkedIn. Revisa tu conexión y vuelve a intentarlo.',
-  'discover.error.unexpected':
-    'La búsqueda falló por algo ajeno a LinkedIn. El detalle quedó en datos/cvforge.log.',
-  'discover.presets': 'Tus búsquedas de siempre',
-  'discover.dismiss': 'Ocultar',
-  'discover.restore': 'Restaurar',
-  'discover.hidden.one': '{n} oculta ·',
-  'discover.hidden.other': '{n} ocultas ·',
-  'discover.showHidden': 'mostrar',
-  'discover.hideHidden': 'volver a ocultar',
-  'discover.results': 'Resultados',
-  'discover.hiddenHeading': 'Vacantes ocultas',
-  'discover.summary': 'mostrando {shown}\u00A0· página {page}',
-  'discover.badge': 'en tus postulaciones',
-  'discover.age.today': 'hoy',
-  'discover.age.yesterday': 'ayer',
-  'discover.age.days.one': 'hace {n}d',
-  'discover.age.days.other': 'hace {n}d',
-  'discover.footNote':
-    'Ocultar una vacante no gasta una petición. Se guarda, sale de la lista y vuelve con un clic.',
-  'discover.queryPlaceholder': 'paid media, growth…',
-  'discover.searchLabel': 'Búsqueda',
-  'discover.pageNav': 'Paginación',
 
   // ---- verdict ----
   'verdict.eyebrow': '¿Vale la pena?',
@@ -2305,7 +2041,6 @@ const es: Record<MessageKey, string> = {
   'record.yes': 'Sí',
   'record.no': 'No',
   'record.aria': 'Lo que hiciste, completo',
-  'record.edit': 'Editar',
   'record.done': 'Listo',
   'record.addNumber': 'Agregar un número',
   'record.kindDef.achievement': 'Un resultado que cambió algo y que se puede medir.',
@@ -2507,17 +2242,11 @@ const es: Record<MessageKey, string> = {
   'pipeline.skippedLink.one': '{n} descartada',
   'pipeline.skippedLink.other': '{n} descartadas',
   'pipeline.skipped.title': 'Vacantes descartadas',
-  'pipeline.skipped.back': '← volver a postulaciones',
 
   // ---- application ----
-  'steps.aria': 'Pasos de esta postulación',
-  'steps.overview': 'Resumen',
-  'overview.back': 'Resumen',
   'overview.cvLang.en': 'CV en inglés',
   'overview.cvLang.es-MX': 'CV en español',
-  'overview.covered': '{strong} de {total}',
   'overview.about': 'De qué trata el puesto',
-  'overview.where': 'Dónde va',
   'overview.status.archived': 'La descartaste',
   'overview.status.sentToday': 'Enviada hoy',
   'overview.status.sent.one': 'Enviada el {date} · {n} día sin respuesta',
@@ -2535,23 +2264,6 @@ const es: Record<MessageKey, string> = {
   'overview.next.track': 'Ver el seguimiento',
   'overview.next.draft': 'Ver el borrador de seguimiento',
   'steps.decide': 'Decidir',
-  'steps.gaps': 'Lo que falta',
-  'steps.docs': 'Documentos',
-  'steps.send': 'Enviar',
-  'steps.track': 'Seguimiento',
-  'steps.short.decide': 'Decidir',
-  'steps.short.gaps': 'Lo que falta',
-  'steps.short.docs': 'Docs',
-  'steps.short.send': 'Enviar',
-  'steps.short.track': 'Seguim.',
-  'steps.here': 'estás aquí',
-  'steps.openCount': '{n} pendientes',
-  'steps.done': 'hecho',
-  'steps.next': 'Siguiente: {step} →',
-  'steps.noGaps':
-    'Todo lo obligatorio ya está respaldado por tu experiencia. No hay nada que llenar aquí.',
-  'decide.pursueGaps': 'Postularme: primero lo que falta',
-  'decide.pursueDocs': 'Postularme: escribir los documentos',
   'decide.skip': 'Descartar',
   'decide.pursue': 'Hacer mi CV para esta vacante',
   'story.why': 'Ver por qué',
@@ -2565,9 +2277,6 @@ const es: Record<MessageKey, string> = {
   'market.group.yours': 'Tus mercados',
   'market.group.remote': 'Remoto',
   'market.group.countries': 'Países',
-  'docLang.en': 'documentos en inglés',
-  'docLang.es-MX': 'documentos en español',
-  'send.title': 'Antes de enviarla',
   'send.cvReady': 'Tu CV está listo:',
   'send.cvMissing': 'Aún no hay CV. Escríbelo primero en',
   'send.cvMissingLink': 'Documentos',
@@ -2576,7 +2285,6 @@ const es: Record<MessageKey, string> = {
   'send.letterOptional': 'Sin carta. Es opcional, salvo que la vacante la pida.',
   'send.applyAt': 'Postúlate en la vacante:',
   'send.applyNoLink': 'Postúlate donde la encontraste. No se guardó el enlace de esta vacante.',
-  'send.alreadySent': 'Ya la enviaste. Lo que sigue está en «Qué sigue», más abajo.',
   'moment.close': 'Cerrar',
   'moment.sent.stamp': 'Enviada',
   'moment.sent.title': 'Enviada.',
@@ -2601,8 +2309,6 @@ const es: Record<MessageKey, string> = {
   'track.titleEnded': 'Cómo terminó',
   'track.titleOffer': 'Cómo llegaste aquí',
   'track.history': 'Lo que ha pasado',
-  'track.empty':
-    'Nada registrado todavía. Cuando te postules, márcala como enviada y luego anota cada respuesta.',
   'track.ask': '¿Qué pasó?',
   'track.askLater': 'Anotar qué pasó',
   'call.line': '{kind} · {date} · {when}',
@@ -2617,14 +2323,8 @@ const es: Record<MessageKey, string> = {
   'call.daysAgo.other': 'hace\u00a0{n}\u00a0días',
   'track.askUnsent': '¿Ya la enviaste?',
   'track.askLate': '¿Al final contestaron?',
-  'thread.count.one': '{n} correo',
-  'thread.count.other': '{n} correos',
-  'thread.more.one': '+{n} correo más sobre esto',
-  'thread.more.other': '+{n} correos más sobre esto',
   'you.title': 'Lo que registraste',
-  'you.applied': 'La enviaste',
   'you.followUp': 'Enviaste un seguimiento',
-  'you.outcome': 'Marcaste: {outcome}',
   'meeting.fromInvite': 'Leído de la invitación de calendario del correo',
   'meeting.edit': 'Editar',
   'meeting.noTime': 'sin hora',
@@ -2653,8 +2353,6 @@ const es: Record<MessageKey, string> = {
   'people.removed': 'Quitado.',
   'people.empty': 'Todavía no hay nadie.',
   'overview.next.prep': 'Prepárate para la entrevista',
-  'steps.prep': 'Prepárate',
-  'steps.short.prep': 'Prep.',
   'prep.title': 'Preparación de la entrevista',
   'prep.intro':
     'Las preguntas que esta persona probablemente te haga, las historias de tu experiencia que las responden, las líneas de tu CV donde puede insistir y respuestas honestas para lo que no has hecho. Léelo antes de la llamada.',
@@ -2732,7 +2430,6 @@ const es: Record<MessageKey, string> = {
   'application.stale':
     'Tu experiencia cambió desde este análisis. Volver a analizar conserva los requisitos que ya se sacaron de la vacante y los compara con lo que tienes ahora.',
   'application.reanalyse': 'Volver a analizar',
-  'studio.eyebrow': 'Estudio',
   'studio.generate': 'Escribir mi CV',
   'studio.generating': 'Escribiendo y revisando…',
   'studio.stage.writing': 'Escribiendo el CV con tu experiencia',
@@ -2888,7 +2585,6 @@ const es: Record<MessageKey, string> = {
   'undo.undo': 'Deshacer',
   'undo.dismiss': 'Descartar',
   // ---- base CVs ----
-  'nav.cvs': 'CV base',
   'variants.eyebrow': 'CV base',
   'variants.title': 'CV listos para enviar',
   'variants.lede':
@@ -2920,7 +2616,6 @@ const es: Record<MessageKey, string> = {
   'variants.composedOn': 'hecho el {date}',
   'variants.notComposed': 'aún sin armar',
   'variants.briefLabel': 'Lo que pediste',
-  'variants.staleTag': 'Desactualizado',
   'variants.more': 'Más opciones',
   'variants.stale':
     'Agregaste experiencia después de armar estos CV. Actualiza uno para incluirla.',
@@ -3008,9 +2703,10 @@ const es: Record<MessageKey, string> = {
     'Según sus términos para la API, Anthropic no usa lo que envías para entrenar sus modelos y lo borra en un máximo de 30 días, salvo excepciones legales o de seguridad. Si te importa el detalle, lee su política directamente.',
   'privacy.anthropic.link': 'Política de datos de Anthropic',
   'privacy.trial.title': 'La prueba gratis',
-  'privacy.trial.short': 'Pasa por nuestro servidor, con nuestra clave. No guarda nada.',
+  'privacy.trial.short':
+    'Pasa por nuestro servidor, con nuestra clave. No guarda nada tuyo, solo cuentas.',
   'privacy.trial.body':
-    'Sin una clave tuya, la prueba usa la nuestra: cada llamada va de tu navegador a nuestro servidor, que comprueba que es una de las que hace la app y la reenvía a Anthropic. Solo guarda números (cuánto lleva gastado tu prueba, cuántas veces pregunta tu red), nunca tu CV, la vacante ni las respuestas. En cuanto agregas tu clave, nada vuelve a pasar por nosotros.',
+    'Sin una clave tuya, la prueba usa la nuestra: cada llamada va de tu navegador a nuestro servidor, que comprueba que es una de las que hace la app y la reenvía a Anthropic. Solo guarda cuentas (cuánto lleva gastado tu prueba, y cuántas veces pregunta tu red, bajo un código de un solo sentido que no se puede convertir de vuelta en su dirección), nunca tu CV, la vacante ni las respuestas. En cuanto agregas tu clave, nada vuelve a pasar por nosotros.',
   'privacy.shots.title': 'Capturas de pantalla',
   'privacy.shots.short': 'La imagen completa va a Anthropic: recorta antes lo privado.',
   'privacy.shots.body':
@@ -3036,9 +2732,10 @@ const es: Record<MessageKey, string> = {
   'privacy.erase.body':
     'En Ajustes, «Borrar todo de este navegador» quita tus datos y tu clave de este dispositivo. Antes puedes exportar una copia.',
   'privacy.extension.title': 'La extensión de Chrome',
-  'privacy.extension.short': 'Solo lee una vacante de LinkedIn cuando se lo pides.',
+  'privacy.extension.short':
+    'Lee una vacante de LinkedIn cuando se lo pides, y sigue la que tienes en pantalla solo mientras su panel está abierto.',
   'privacy.extension.body':
-    'Solo actúa en LinkedIn y en CVForge. Lee una vacante cuando presionas Analizar y se la pasa a tu pestaña de CVForge. La guarda en memoria solo hasta entonces y no envía nada a ningún servidor.',
+    'Solo actúa en LinkedIn y en CVForge. Lee una vacante cuando presionas Analizar y se la pasa a CVForge en su panel lateral; mientras ese panel está abierto, sigue la vacante que abras después para mostrarla. Guarda las vacantes en memoria solo mientras la pestaña está abierta y no envía nada a ningún servidor.',
   'privacy.updated': 'Actualizado el {date}.',
   'privacy.link': 'Cómo se cuida tu privacidad',
   'web.build.group': 'Esta versión',
@@ -3082,6 +2779,8 @@ const es: Record<MessageKey, string> = {
   'web.lock.removed': 'Contraseña quitada.',
   'web.lock.changed': 'Contraseña cambiada.',
   'web.lock.failed': 'No se pudo. Tus datos siguen como estaban.',
+  'web.lock.busy':
+    'Todavía hay un análisis en curso. Bloquea cuando termine, para que se guarde lo que costó.',
   'web.erase.title': 'Borrar todo de este navegador',
   'web.erase.hint':
     'Tu experiencia, postulaciones, CV y clave de Anthropic se borran de este dispositivo. Exporta una copia antes si la quieres.',
@@ -3107,6 +2806,8 @@ const es: Record<MessageKey, string> = {
   'web.data.importConfirm': 'Reemplazar mis datos con {name}',
   'web.data.imported': 'Listo. Tus datos son la copia que trajiste.',
   'web.data.importFailed': 'No se pudo leer el archivo.',
+  'web.data.problem.busy':
+    'Todavía hay un análisis en curso. Trae la copia cuando termine, para que se guarde lo que costó. No se cambió nada.',
   'web.data.problem.not-a-database': 'Ese archivo no es una copia de CVForge.',
   'web.data.problem.corrupt': 'Esa copia está dañada. No se cambió nada.',
   'web.data.problem.not-cvforge': 'Esa base de datos no es de CVForge. No se cambió nada.',
@@ -3125,9 +2826,14 @@ const es: Record<MessageKey, string> = {
   'web.db.moved': 'CVForge pasó a otra pestaña.',
   'web.db.unsupported':
     'Este navegador no puede guardar los datos de CVForge. Usa un Chrome, Edge, Safari o Firefox actual.',
-  'web.db.failed': 'No se pudieron abrir tus datos: {message}',
-  'web.db.hello': 'Qué bueno verte de nuevo, {name}.',
-  'web.db.empty': 'Aún no hay nada. Lo que agregues se guarda solo en este navegador.',
+  'web.db.failed':
+    'No se pudieron abrir tus datos. No se borró nada. Recarga la página; si vuelve a pasar, cierra las otras pestañas de Rumbo y actualiza tu navegador.',
+  'web.db.reload': 'Recargar',
+  'web.inApp.lede':
+    'Estás en el navegador de {app}: lo que guardes aquí puede no estar después. Abre {url} en Chrome o Safari para que tus datos se queden.',
+  'web.inApp.copy': 'Copiar enlace',
+  'web.inApp.copied': 'Copiado',
+  'web.db.failedDetail': 'Detalle técnico',
   'web.db.persisted': 'Este navegador aceptó conservar tus datos.',
   'web.db.notPersisted':
     'Este navegador podría borrar tus datos si se queda sin espacio. Guarda una copia: expórtalos o respáldalos en Google Drive.',
@@ -3186,9 +2892,6 @@ const es: Record<MessageKey, string> = {
   'todayWhy.staleShort.one': 'día sin respuesta',
   'todayWhy.staleShort.other': 'días sin respuesta',
   'todayWhy.unsent': 'CV listo',
-  'today.rateLabel':
-    'recibieron respuesta, de las postulaciones con tiempo para tenerla · {responded} de {applied}',
-  'today.rateDelta': '{n} pts vs. los 30 días anteriores',
 }
 
 export const dictionary: Record<Locale, Record<MessageKey, string>> = { en, es }

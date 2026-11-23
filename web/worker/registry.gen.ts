@@ -22,7 +22,6 @@ import * as r7 from '@/app/api/ai/triage/route'
 import * as r8 from '@/app/api/ai/variant/route'
 import * as r9 from '@/app/api/ai/variant/translate/route'
 import * as r10 from '@/app/api/export/docx/route'
-import * as r11 from '@/app/api/kit/status/route'
 import * as wr0 from '@/web/worker/routes/export-pdf'
 
 // biome-ignore lint/suspicious/noExplicitAny: an action takes whatever its form sends
@@ -54,6 +53,5 @@ export const ROUTES: Record<string, Record<string, Fn>> = {
   '/api/ai/variant': r8 as unknown as Record<string, Fn>,
   '/api/ai/variant/translate': r9 as unknown as Record<string, Fn>,
   '/api/export/docx': r10 as unknown as Record<string, Fn>,
-  '/api/kit/status': r11 as unknown as Record<string, Fn>,
   '/api/export/pdf': wr0 as unknown as Record<string, Fn>,
 }

@@ -26,7 +26,8 @@ export async function register() {
   }
 
   // Kits chased from the phone or the job agent are written here, in the server
-  // process, where spend is recorded. It guards itself on globalThis too.
-  const { startKitRunner } = await import('@/lib/kit/runner')
+  // process, where spend is recorded. It guards itself on globalThis too. No
+  // agent in the build (#satellite is the stub): nothing to run.
+  const { startKitRunner } = await import('#satellite')
   startKitRunner(db)
 }

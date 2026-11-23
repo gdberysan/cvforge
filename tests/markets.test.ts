@@ -118,7 +118,29 @@ describe('markets beyond Mexico', () => {
     expect(marketFromLocation('Atlanta, Georgia, United States', mine)).toBe('us')
     expect(marketFromLocation('United States (Remote)', mine)).toBe('us-remote')
     expect(marketFromLocation('Remote', ['co', 'eu-remote'])).toBe('eu-remote')
-    expect(marketFromLocation('Indianapolis, Indiana', mine)).toBe('mx')
+    // A US state is the US; a place that names no country falls back.
+    expect(marketFromLocation('Indianapolis, Indiana', mine)).toBe('us')
+    expect(marketFromLocation('Springfield', mine)).toBe('mx')
     expect(marketFromLocation(null, [])).toBe('us-remote')
+  })
+})
+
+describe('marketNamedIn reads whole place names', () => {
+  it('never reads a country inside a longer name, and knows the usual short forms', async () => {
+    const { marketNamedIn } = await import('@/lib/markets')
+    // Launch audit 2026-11-23: "New Mexico" read as Mexico, "USA" as nothing.
+    expect(marketNamedIn('Albuquerque, New Mexico')).toBe('us')
+    expect(marketNamedIn('Newark, New Jersey')).toBe('us')
+    expect(marketNamedIn('Atlanta, Georgia')).toBe('us')
+    expect(marketNamedIn('Austin, TX, USA')).toBe('us')
+    expect(marketNamedIn('Remote - USA')).toBe('us-remote')
+    expect(marketNamedIn('Miami, EE. UU.')).toBe('us')
+    expect(marketNamedIn('London, UK')).toBe('gb')
+    // Still the country where it is the country.
+    expect(marketNamedIn('Ciudad de México, México')).toBe('mx')
+    expect(marketNamedIn('CDMX')).toBe('mx')
+    expect(marketNamedIn('Mexico (Remote)')).toBe('mx')
+    // A word that only contains a name is not it.
+    expect(marketNamedIn('Busan')).not.toBe('us')
   })
 })

@@ -21,9 +21,31 @@ import { ScreenshotIntake, ShotsPicker } from '@/web/lib/screenshot-intake'
 import { type SharedEntry, takeShared } from '@/web/lib/shared-shots'
 import { useLoader } from '@/web/lib/use-loader'
 
+/**
+ * What the extension hands over: it rides in the URL's fragment, which a
+ * browser never sends to a server, so the posting reaches this page without
+ * passing through the host or its logs. Read once on the first render.
+ */
+function handed(): URLSearchParams {
+  if (typeof window === 'undefined') return new URLSearchParams()
+  return new URLSearchParams(window.location.hash.replace(/^#/, ''))
+}
+
 function Share() {
   const t = useT()
-  const params = useSearchParams()
+  const query = useSearchParams()
+  const [fragment] = useState(handed)
+  // Taken: clear it from the address bar, so it is not kept in history or shared with the link.
+  useEffect(() => {
+    if (window.location.hash) {
+      window.history.replaceState(
+        window.history.state,
+        '',
+        window.location.pathname + window.location.search,
+      )
+    }
+  }, [])
+  const params = { get: (key: string) => fragment.get(key) ?? query.get(key) }
   const markets = useLoader('markets')
   const shell = useLoader('shell')
   const sharedId = params.get('shared')

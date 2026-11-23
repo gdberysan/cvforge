@@ -4,6 +4,7 @@
  * are held to, prop for prop.
  */
 import type { ReactNode } from 'react'
+import type { FollowUpDraftView } from '@/lib/db/queries/drafts'
 import type { FindCard, MailCard, WaitingApp } from '@/lib/satellite-types'
 import type { ThreadCardView } from '@/lib/seguimiento-view'
 
@@ -29,5 +30,18 @@ export function MailSuggestions(_props: { cards: MailCard[]; waiting: WaitingApp
 
 /** "Agente": marks what the agent read from the person's mail. */
 export function AgentMark(): ReactNode {
+  return null
+}
+
+/** The agent's chase kit being written for this application. */
+export function KitProgress(_props: { applicationId: string }): ReactNode {
+  return null
+}
+
+/** The newest follow-up draft the agent wrote for a quiet application. */
+export function FollowUpDraft(_props: {
+  applicationId: string
+  draft: FollowUpDraftView | null
+}): ReactNode {
   return null
 }

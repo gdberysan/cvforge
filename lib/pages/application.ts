@@ -6,6 +6,7 @@
  * personal desktop build, so this module never loads the agent.
  */
 import { z } from 'zod'
+import { kitPhaseFor } from '#satellite'
 import type { ChipRequirement } from '@/components/application/RequirementChips'
 import type { PrepView } from '@/components/prep/PrepStep'
 import { buildEvidenceProjection } from '@/lib/ai/projection'
@@ -35,7 +36,6 @@ import { selectGaps } from '@/lib/gaps/select'
 import { isGmailNote } from '@/lib/gmail-note'
 import { hashEvidenceProjection } from '@/lib/hash'
 import { type Locale, makeTranslate } from '@/lib/i18n'
-import { kitPhase, latestKitFor } from '@/lib/kit/queue'
 import { isMachineAddress } from '@/lib/machine-address'
 import { buildThread } from '@/lib/mail-thread'
 import { marketLabel } from '@/lib/markets'
@@ -203,7 +203,7 @@ export function loadApplication(
   const { gapdelta, step: stepParam } = opts.search
   const application = getApplication(db, opts.id)
   if (!application) return null
-  const kit = kitPhase(latestKitFor(db, application.id))
+  const kit = kitPhaseFor(db, application.id)
   const mail = opts.demo ? null : opts.mail
   const mailAgent = mail !== null
 

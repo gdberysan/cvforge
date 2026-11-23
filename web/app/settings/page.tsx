@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
 import { HapticsToggle } from '@/components/settings/HapticsToggle'
+import { KeyGuide } from '@/components/settings/KeyGuide'
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsGroup'
 import { LocaleSwitch } from '@/components/ui/LocaleSwitch'
 import { workerApi } from '@/web/lib/actions-client'
@@ -56,6 +57,8 @@ export default function Page() {
     >
       {data.trial && <TrialLeft />}
       <ApiKeyForm hasSavedKey={data.hasKey} envManaged={false} local />
+      {/* Past the trial, or never on one: how to get a key, opened. */}
+      {!data.hasKey && !data.trial && <KeyGuide open />}
     </SettingsGroup>
   )
   return (

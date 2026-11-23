@@ -15,6 +15,17 @@ type Pending = { posting: PagePosting; at: number }
 
 // Opened from LinkedIn's button: closed again when the tab leaves LinkedIn.
 const fromLinkedIn = new Set<number>()
+// Tabs whose side panel is open now, and each LinkedIn page's port: a page
+// follows the job on screen only while its tab's panel is open.
+const panelOpen = new Set<number>()
+const pages = new Map<number, chrome.runtime.Port>()
+function tellPage(tabId: number): void {
+  try {
+    pages.get(tabId)?.postMessage({ type: 'cvforge:follow', on: panelOpen.has(tabId) })
+  } catch {
+    // That page's port just closed.
+  }
+}
 const leaving = new Map<number, ReturnType<typeof setTimeout>>()
 
 /** Inside the person's click: enable this tab's panel and open it, no await between. */
@@ -34,9 +45,11 @@ chrome.runtime.onInstalled.addListener(() => void chrome.sidePanel.setOptions({ 
 chrome.runtime.onMessage.addListener((message, sender) => {
   const tabId = sender.tab?.id
   if (!tabId) return
-  // The job now on screen, announced without a click: the panel, if open,
-  // follows it only while nothing has been started there.
+  // The job now on screen, announced only while this tab's panel is open:
+  // the panel follows it only while nothing has been started there.
   if (message?.type === 'cvforge:seen') {
+    // Only a tab with its panel open is followed.
+    if (!panelOpen.has(tabId)) return
     void chrome.storage.session.set({
       [`seen:${tabId}`]: { posting: message.posting, at: Date.now() } satisfies Pending,
     })
@@ -57,11 +70,27 @@ chrome.runtime.onMessage.addListener((message, sender) => {
  * within a few seconds — a reload does — the panel goes too.
  */
 chrome.runtime.onConnect.addListener((port) => {
+  // The side panel says it is open (its port closes when it does).
+  if (port.name.startsWith('cvforge-panel:')) {
+    const panelTab = Number(port.name.slice('cvforge-panel:'.length))
+    if (!Number.isInteger(panelTab)) return
+    panelOpen.add(panelTab)
+    tellPage(panelTab)
+    port.onDisconnect.addListener(() => {
+      panelOpen.delete(panelTab)
+      tellPage(panelTab)
+      void chrome.storage.session.remove(`seen:${panelTab}`)
+    })
+    return
+  }
   const tabId = port.sender?.tab?.id
   if (port.name !== 'cvforge-page' || !tabId) return
   clearTimeout(leaving.get(tabId))
   leaving.delete(tabId)
+  pages.set(tabId, port)
+  tellPage(tabId)
   port.onDisconnect.addListener(() => {
+    if (pages.get(tabId) === port) pages.delete(tabId)
     if (!fromLinkedIn.has(tabId)) return
     leaving.set(
       tabId,
@@ -75,6 +104,8 @@ chrome.runtime.onConnect.addListener((port) => {
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   fromLinkedIn.delete(tabId)
+  panelOpen.delete(tabId)
+  pages.delete(tabId)
   void chrome.storage.session.remove([`pending:${tabId}`, `seen:${tabId}`])
 })
 
