@@ -6,6 +6,7 @@ import { acceptImportAction } from '@/app/(app)/evidence/import/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { IconCheck, IconDocument } from '@/components/ui/icons'
 import { Meta } from '@/components/ui/Meta'
+import { WorkProgress } from '@/components/ui/WorkProgress'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText, plural } from '@/lib/i18n'
 import { formatSpan } from '@/lib/import/dates'
@@ -156,17 +157,14 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
                 className={`import-drop${dragOver ? ' is-over' : ''}${file && !loading ? ' is-filled' : ''}`}
               >
                 {loading ? (
-                  // The drop zone becomes the waiting screen: the two lines are
+                  // The drop zone becomes the waiting screen: the two steps are
                   // the two real model calls, so this is progress, not theatre.
-                  <p
-                    className="fact"
-                    style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' }}
-                  >
-                    <span style={{ color: stage === 'evidence' ? 'var(--accent)' : undefined }}>
-                      {stageCopy}
-                    </span>
-                    <span className="intake-spinner" aria-hidden />
-                  </p>
+                  <WorkProgress
+                    steps={[t('progress.cv.roles'), t('progress.cv.achievements')]}
+                    current={stage === 'evidence' ? 1 : 0}
+                    title={stageCopy}
+                    note={t('progress.note')}
+                  />
                 ) : (
                   <>
                     {file ? (
