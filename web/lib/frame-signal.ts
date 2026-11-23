@@ -28,9 +28,17 @@ const isPosting = (p: unknown): p is FramedPosting =>
  * - the panel hands a new posting in, and the screen shows it in place —
  *   no reload, so nothing flashes.
  *
- * Only a flag goes out, so any parent may hear it. What comes in is shown
- * in the box and sent nowhere until the person presses Analizar.
+ * The flag goes only to an extension that frames this page (its origin,
+ * never "*"); any other parent hears nothing. What comes in is shown in
+ * the box and sent nowhere until the person presses Analizar.
  */
+
+/** The framing extension's origin, or null when the parent is not one. */
+function extensionParent(): string | null {
+  if (window.parent === window) return null
+  const origin = (location as Location & { ancestorOrigins?: DOMStringList }).ancestorOrigins?.[0]
+  return origin?.startsWith('chrome-extension://') ? origin : null
+}
 export function useFramedPosting(n: number, onPosting: (p: FramedPosting) => void): void {
   const [handler] = useState(() => ({ current: onPosting }))
   handler.current = onPosting
@@ -51,9 +59,10 @@ export function useFramedPosting(n: number, onPosting: (p: FramedPosting) => voi
   // Per posting shown (n): untouched until typed in or analysed.
   // biome-ignore lint/correctness/useExhaustiveDependencies: n is the reset — each new posting starts untouched
   useEffect(() => {
-    if (window.parent === window) return
+    const parent = extensionParent()
+    if (!parent) return
     const post = (untouched: boolean) =>
-      window.parent.postMessage({ type: 'cvforge:frame', share: true, untouched }, '*')
+      window.parent.postMessage({ type: 'cvforge:frame', share: true, untouched }, parent)
     let touched = false
     const touch = () => {
       if (touched) return
@@ -73,7 +82,8 @@ export function useFramedPosting(n: number, onPosting: (p: FramedPosting) => voi
 
   // Leaving the screen (to a result, Hoy…): the panel must reload to show a job.
   useEffect(() => {
-    if (window.parent === window) return
-    return () => window.parent.postMessage({ type: 'cvforge:frame', share: false }, '*')
+    const parent = extensionParent()
+    if (!parent) return
+    return () => window.parent.postMessage({ type: 'cvforge:frame', share: false }, parent)
   }, [])
 }

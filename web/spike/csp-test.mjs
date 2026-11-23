@@ -25,6 +25,7 @@ p.on('console', (m) => {
 p.on('pageerror', (e) => all.push(`PAGEERROR ${e.message.slice(0, 160)}`))
 await p.goto('http://127.0.0.1:4008/')
 await p.waitForFunction(() => window.cvforgeDebug, null, { timeout: 20000 })
+// nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request -- the local test server, on purpose
 const h = (await fetch('http://127.0.0.1:4008/')).headers
 console.log(
   'headers on / :',
@@ -36,6 +37,7 @@ console.log(
 )
 console.log(
   'worker policy:',
+  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request -- the local test server, on purpose
   (await fetch('http://127.0.0.1:4008/worker/cvforge-worker.js')).headers.get(
     'content-security-policy',
   ),
