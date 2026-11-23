@@ -38,7 +38,7 @@
     "@noble/hashes": "^2.4.0",
     "@sqlite.org/sqlite-wasm": "^3.54.1-build1",
     "better-sqlite3": "^13.0.3",
-    "docx": "^9.7.1",
+    "docx": "^9.16.0",
     "drizzle-orm": "^0.45.2",
     "next": "^16.4.6",
     "pdfjs-dist": "^6.3.289",
