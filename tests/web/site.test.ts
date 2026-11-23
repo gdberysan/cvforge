@@ -48,4 +48,9 @@ describe('the host rules for rumbo.korven.dev', () => {
     expect(live).toContain('href="https://chromewebstore.google.com/detail/rumbo/abc"')
     expect(live).not.toContain('Muy pronto')
   })
+
+  it('label the store button in the page language', () => {
+    const html = '<!--EXTENSION--><p>Coming soon</p><!--/EXTENSION-->'
+    expect(withStore(html, 'https://x', 'Add to Chrome')).toContain('>Add to Chrome</a>')
+  })
 })
