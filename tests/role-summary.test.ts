@@ -5,8 +5,8 @@ import { roleSummary } from '@/lib/role-summary'
 // one paragraph per line, headings on their own line or glued on.
 const HALDEN = `Regional Growth Programs Lead
 Job Type:  Full-Time
-Location Type:  Onsite
-Primary Location:  Mexico City, MX
+Location Type:  Hybrid
+Primary Location:  Guadalajara, MX
 
 The Regional Growth Lead shapes how Halden's online stores across LATAM win and keep customers. It is a senior individual contributor role for a hands-on planner: someone who turns customer research, store data and the regional teams' plans into campaigns, offers and site changes that ship every month and show up in the numbers.
 
@@ -24,7 +24,7 @@ Papelera Ejemplo (Papeles de Ejemplo del Centro, S.A. de C.V.) · Toluca, Méxic
 
 En Papelera Ejemplo somos fabricantes con presencia en Amazon, Mercado Norte y nuestra tienda propia en Shopify. Buscamos a la persona que tome el control total del canal digital: estrategia, operación, crecimiento y resultados.
 ¿Qué vas a hacer?
-Liderar la operación y el crecimiento de nuestras tiendas en Amazon, Mercado Norte y Shopify: catálogo, contenido, precios, inventario.`
+Liderar la operación y el crecimiento de nuestras tiendas en Amazon, Mercado Norte y Shopify: catálogo, contemarea, precios, inventario.`
 
 describe('roleSummary', () => {
   it('takes the first real paragraph, clipped at a sentence end', () => {
@@ -46,14 +46,14 @@ describe('roleSummary', () => {
   })
 
   it('skips a line with a heading glued on, whole — never trimmed, never garbled', () => {
-    const nido = `Acerca del empleo
+    const marea = `Acerca del empleo
 About Marea SocialMarea Social is a full-funnel eCommerce growth agency specializing in acquisition and retention for direct-to-consumer brands.
 Our partnership-first approach has earned us a 90% client retention rate and recognition as an Inc. 5000 honoree.
 The RoleAs a Paid Search Media Buyer at Marea Social, you will own the strategy, execution, and optimization of Google Ads accounts.
 You will launch and manage search, shopping, and Performance Max campaigns while testing to drive scalable growth.`
     // The company section (glued "About …") is skipped; the glued role line is
     // dropped rather than cut; the next whole role sentence is the summary.
-    expect(roleSummary(nido)).toBe(
+    expect(roleSummary(marea)).toBe(
       'You will launch and manage search, shopping, and Performance Max campaigns while testing to drive scalable growth.',
     )
   })

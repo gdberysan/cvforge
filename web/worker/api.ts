@@ -4,7 +4,7 @@
  * same results, the same lib/ code underneath.
  */
 import { resetClient } from '@/lib/ai/client'
-import { setPaidCallLedger } from '@/lib/ai/in-flight'
+import { paidRunInFlight, setPaidCallLedger } from '@/lib/ai/in-flight'
 import { setSpendRecorder } from '@/lib/ai/spend-hook'
 import { type Screenshot, transcribePosting } from '@/lib/ai/stages/transcribe-posting'
 import { getProfile } from '@/lib/db/queries/profile'
@@ -16,6 +16,7 @@ import {
   spendSummary,
 } from '@/lib/db/queries/spend'
 import { readSettings, writeSettings } from '@/lib/settings'
+import type { ImportResult } from '@/web/lib/db-file'
 import { forgetSettings, loadSettings, settingsSaved } from '@/web/lib/settings'
 import { action, route } from './bridge'
 import {
@@ -34,6 +35,7 @@ import {
   unprotect,
   vaultExists,
 } from './db'
+
 import { load } from './loaders'
 import { setWorkerLocale } from './shims/i18n-server'
 
@@ -65,7 +67,16 @@ export const api = {
   protect: (password: string) => protect(password),
   changePassword: (password: string) => changePassword(password),
   unprotect: () => unprotect(),
-  lockNow: () => lockNow(),
+  /**
+   * A run in progress saves what it bought into the open database when it
+   * ends; locking or replacing it first loses that paid result (the desktop's
+   * restore route waits the same way). Refused until the run is done.
+   */
+  lockNow: async (): Promise<'locked' | 'busy'> => {
+    if (paidRunInFlight()) return 'busy'
+    await lockNow()
+    return 'locked'
+  },
   isProtected: () => isProtected(),
   /** The page is being hidden: seal now rather than within the second. */
   flush: () => persist(),
@@ -77,7 +88,8 @@ export const api = {
     await eraseEverything()
   },
   exportDatabase,
-  importDatabase,
+  importDatabase: async (bytes: Uint8Array): Promise<ImportResult> =>
+    paidRunInFlight() ? { ok: false, problem: 'busy' } : importDatabase(bytes),
   action,
   route,
   load,
@@ -126,6 +138,13 @@ export const api = {
         method: 'POST',
         headers: { 'x-api-key': token },
       })
+      // Its seven days are over: the trial ended, and Ajustes shows how to get a key.
+      if (res.status === 410) {
+        writeSettings({ ...readSettings(), trialEnded: true })
+        await settingsSaved()
+        resetClient()
+        return null
+      }
       const body = (await res.json()) as { leftUsd?: number; budgetUsd?: number }
       return res.ok && typeof body.leftUsd === 'number' && typeof body.budgetUsd === 'number'
         ? { leftUsd: body.leftUsd, budgetUsd: body.budgetUsd }

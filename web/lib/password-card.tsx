@@ -75,7 +75,10 @@ export function PasswordCard() {
   }
 
   async function lockNow() {
-    await (await workerApi()).lockNow()
+    if ((await (await workerApi()).lockNow()) === 'busy') {
+      setMessage({ ok: false, text: t('web.lock.busy') })
+      return
+    }
     locked()
   }
 

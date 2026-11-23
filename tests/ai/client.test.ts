@@ -349,6 +349,17 @@ describe('classify', () => {
     expect(classify(error)).toBe('billing')
   })
 
+  it('ends a trial only when the trial server says it ended', async () => {
+    const { classify } = await import('@/lib/ai/errors')
+    const trial = (type: string) =>
+      Object.assign(new Error(type), { status: 402, error: { type: 'error', error: { type } } })
+    expect(classify(trial('trial_ended'))).toBe('trial-ended')
+    // Too little left for this step, or every trial full today: the trial goes on.
+    expect(classify(trial('trial_unavailable'))).toBe('trial-unavailable')
+    expect(classify(Object.assign(new Error('x'), { status: 402 }))).toBe('trial-unavailable')
+    expect(classify(Object.assign(new Error('too big'), { status: 413 }))).toBe('too-large')
+  })
+
   it('leaves other 400s as unknown', async () => {
     const { classify } = await import('@/lib/ai/errors')
     expect(classify(Object.assign(new Error('bad request'), { status: 400 }))).toBe('unknown')

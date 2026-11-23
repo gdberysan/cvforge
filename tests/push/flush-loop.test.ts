@@ -4,7 +4,8 @@ const flushOutbox = vi.fn(() => Promise.resolve(0))
 vi.mock('@/lib/db/client', () => ({ db: {} }))
 vi.mock('@/lib/push/notify', () => ({ flushOutbox }))
 const startKitRunner = vi.fn()
-vi.mock('@/lib/kit/runner', () => ({ startKitRunner }))
+// The runner comes through #satellite: the real one where the agent is, a no-op elsewhere.
+vi.mock('#satellite', () => ({ startKitRunner }))
 
 const { register } = await import('@/instrumentation')
 const g = globalThis as unknown as { __cvforgePushFlush?: ReturnType<typeof setInterval> }

@@ -1,6 +1,10 @@
 import { existsSync } from 'node:fs'
 import type { NextConfig } from 'next'
 
+// Discover is on only where the flag is set AND its real entry exists: in the
+// open-source tree (no lib/discover/index.ts) the flag changes nothing.
+const discover = process.env.CVFORGE_DISCOVER === '1' && existsSync('./lib/discover/index.ts')
+
 const config: NextConfig = {
   // The release ships this build: a self-contained server plus the traced
   // node_modules, so a buyer machine never runs npm or a compiler.
@@ -42,9 +46,7 @@ const config: NextConfig = {
   // forwards a loopback Host instead, Next would refuse every action. Only
   // personal builds ever sit behind the tailnet. The guard (lib/http/doors.ts)
   // is the real gate — this only stops Next refusing what the guard admitted.
-  ...(process.env.CVFORGE_DISCOVER === '1'
-    ? { experimental: { serverActions: { allowedOrigins: ['**.ts.net'] } } }
-    : {}),
+  ...(discover ? { experimental: { serverActions: { allowedOrigins: ['**.ts.net'] } } } : {}),
   // Discover (personal-only, spec 2026-08-26) is excluded from any build made
   // without the flag: '#discover' resolves to a stub with no scraper code.
   // The release builds without the flag and verifies the exclusion. This
@@ -52,8 +54,7 @@ const config: NextConfig = {
   // the release gate's grep is the backstop for any other build path.
   turbopack: {
     resolveAlias: {
-      '#discover':
-        process.env.CVFORGE_DISCOVER === '1' ? './lib/discover/index.ts' : './lib/discover/stub.ts',
+      '#discover': discover ? './lib/discover/index.ts' : './lib/discover/stub.ts',
       // The job agent (a personal satellite) is not in the open-source
       // edition: where its entry is absent, the screens get stubs that say
       // "no agent here" (lib/satellite/index.ts, components/satellite/).

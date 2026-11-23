@@ -3,8 +3,10 @@
  * tab (an extension page with host permission for the site is not storage-
  * partitioned — tested), the same screens.
  *
- * The first posting arrives in the URL (?job=&company=&location=&url=&text=,
- * so Analizar starts on the job's country). After that, while the framed
+ * The first posting arrives in the URL's fragment (#job=&company=&location=
+ * &url=&text=, so Analizar starts on the job's country). A fragment is never
+ * sent to a server, so the posting reaches the page without passing through
+ * the host or its logs. After that, while the framed
  * analyse screen is showing, a new posting is handed to it in place
  * (web/lib/frame-signal.ts): only the job changes, nothing reloads or
  * flashes. Two ways one arrives: the button (always shown), and moving to
@@ -24,6 +26,17 @@ const es = chrome.i18n.getUILanguage().toLowerCase().startsWith('es')
 const tab = new URLSearchParams(location.search).get('tab') ?? ''
 const PENDING = `pending:${tab}`
 const SEEN = `seen:${tab}`
+
+/** More than any posting needs; a whole page beyond it is cut, not carried. */
+const MAX_TEXT = 20_000
+
+// Open while this panel lives: the extension lets this tab's LinkedIn page
+// follow the job on screen only for as long as the panel is open.
+try {
+  chrome.runtime.connect({ name: `cvforge-panel:${tab}` })
+} catch {
+  // The extension was reloaded under this panel.
+}
 
 let shown: string | null = null
 // What the framed site last said; nothing until it speaks.
@@ -51,15 +64,17 @@ function show(posting: PagePosting | null): void {
   // Relative to the app's address, which carries its base path (/app/).
   const url = new URL('share/', CVFORGE_SITE)
   if (posting) {
+    const handed = new URLSearchParams()
     if (posting.source === 'linkedin' && posting.title) {
       for (const [k, v] of Object.entries({ ...parts(posting), job: posting.title })) {
-        if (v && k !== 'title') url.searchParams.set(k, v)
+        if (v && k !== 'title') handed.set(k, k === 'text' ? v.slice(0, MAX_TEXT) : v)
       }
     } else {
       // Not a job read in parts (a selection, a whole page): plain text.
-      if (posting.text.length >= 80) url.searchParams.set('text', posting.text)
-      if (posting.url) url.searchParams.set('url', posting.url)
+      if (posting.text.length >= 80) handed.set('text', posting.text.slice(0, MAX_TEXT))
+      if (posting.url) handed.set('url', posting.url)
     }
+    url.hash = handed.toString()
   }
   screen = { share: false, untouched: false }
   frame.src = url.toString()

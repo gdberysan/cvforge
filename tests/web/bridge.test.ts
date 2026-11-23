@@ -19,7 +19,10 @@ describe('the web bridge to the desktop’s actions and routes', () => {
       '/push/',
       'app/(app)/settings/actions',
       'agent/actions',
+      'agent-actions',
       'discover/actions',
+      '@/lib/satellite',
+      '@/lib/agent',
     ]) {
       expect(registry).not.toContain(gone)
     }

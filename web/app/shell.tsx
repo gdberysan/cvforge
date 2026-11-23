@@ -10,6 +10,7 @@ import { MomentHost } from '@/components/ui/MomentHost'
 import { Nav } from '@/components/ui/Nav'
 import { ToastHost } from '@/components/ui/ToastHost'
 import { useDatabase } from '@/web/lib/database'
+import { InAppBrowserBanner } from '@/web/lib/in-app-browser'
 import { onJobs } from '@/web/lib/jobs'
 import { UnlockScreen } from '@/web/lib/unlock-screen'
 import { useLoader } from '@/web/lib/use-loader'
@@ -66,9 +67,20 @@ export function Shell({ children }: { children: React.ReactNode }) {
           )}
           {state.kind === 'unsupported' && <p className="prose">{t('web.db.unsupported')}</p>}
           {state.kind === 'failed' && (
-            <p role="alert" className="form-error">
-              {t('web.db.failed', { message: state.message })}
-            </p>
+            <div className="stack">
+              {/* What to do in the person's words; the browser's own
+                  message (English, technical) only folded, for a report. */}
+              <p role="alert" className="form-error">
+                {t('web.db.failed')}
+              </p>
+              <button type="button" className="btn btn-primary" onClick={() => location.reload()}>
+                {t('web.db.reload')}
+              </button>
+              <details>
+                <summary>{t('web.db.failedDetail')}</summary>
+                <p className="prose">{state.message}</p>
+              </details>
+            </div>
           )}
         </main>
       </>
@@ -89,6 +101,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         discover={false}
         canQuit={false}
       />
+      <InAppBrowserBanner />
       {jobs > 0 && (
         <p className="job-banner" role="status">
           {t('web.job.keepOpen')}

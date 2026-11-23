@@ -188,6 +188,29 @@ describe('runDeterministicChecks', () => {
     expect(at('us-remote', 'Managed a $1.2M budget', dollars)).toEqual([])
     const unstated = [{ ...evidence[0], text: 'Managed a $1.2M budget', metrics: [] }]
     expect(at('us-remote', 'Managed a $1.2M budget', unstated)).toEqual([])
+
+    // "€" and "£" name their own currency, on any market (launch audit
+    // 2026-11-23: "€1.2M" passed against a 1.2M MXN record).
+    expect(at('mx', 'Gestioné un presupuesto de €1.2M')).toEqual([
+      { bulletId: 'b1', token: '€1.2M' },
+    ])
+    expect(at('us-remote', 'Managed a £1.2M budget')).toEqual([{ bulletId: 'b1', token: '£1.2M' }])
+    const euros = [
+      { ...evidence[0], metrics: [{ raw: '€1.2M', value: 1_200_000, currency: 'EUR' }] },
+    ]
+    expect(at('us-remote', 'Managed a €1.2M budget', euros)).toEqual([])
+    // A currency stated only in the record's text counts as much as a metric's.
+    const inText = (text: string) => [{ ...evidence[0], text, metrics: [] }]
+    expect(at('us-remote', 'Managed a $1.2M budget', inText('Managed a $1.2M MXN budget'))).toEqual(
+      [{ bulletId: 'b1', token: '$1.2M' }],
+    )
+    expect(
+      at('us-remote', 'Managed a $1.2M budget', inText('Manejé $1.2M de pesos en pauta')),
+    ).toEqual([{ bulletId: 'b1', token: '$1.2M' }])
+    expect(at('mx', 'Manejé $1.2M en pauta', inText('Manejé $1.2M de pesos en pauta'))).toEqual([])
+    expect(at('mx', 'Manejé $1.2M en pauta', inText('Managed a €1.2M budget'))).toEqual([
+      { bulletId: 'b1', token: '$1.2M' },
+    ])
   })
 
   it('flags an entity that appears nowhere in the profile', () => {

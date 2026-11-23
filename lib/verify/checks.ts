@@ -186,7 +186,7 @@ export function runDeterministicChecks(args: {
       for (const token of extractQuantities(bullet.text)) {
         if (
           !allowed.has(normaliseQuantity(token)) ||
-          (dollarSignSwapsCurrency(token, citedItems, args.market) &&
+          (symbolSwapsCurrency(token, citedItems, args.market) &&
             !explicit.has(normaliseQuantity(token)))
         ) {
           report.unverifiedNumbers.push({ bulletId: bullet.id, token })
@@ -471,30 +471,87 @@ function isCurrencyCode(code: string): boolean {
   return currencyCodes.has(code)
 }
 
+/** The currency a symbol names: "$" by the market (pesos on a Mexico CV). */
+function symbolCurrency(token: string, market: Market | undefined): string | null {
+  if (/US\$/.test(token)) return 'USD'
+  if (/€/.test(token)) return 'EUR'
+  if (/£/.test(token)) return 'GBP'
+  if (/\$/.test(token)) return market ? dollarSignCurrency(market) : null
+  return null
+}
+
+/** Pesos named as a word: any peso currency, never dollars or euros. */
+const PESOS = new Set(['MXN', 'COP', 'ARS', 'CLP', 'UYU', 'DOP', 'PHP', 'CUP'])
+const CURRENCY_WORDS: Record<string, string> = {
+  pesos: 'PESO',
+  dolares: 'USD',
+  dollars: 'USD',
+  euros: 'EUR',
+  libras: 'GBP',
+  pounds: 'GBP',
+}
+const STATED_FIGURE =
+  /(US\$|\$|€|£)?\s?(\d[\d.,]*\s?(?:millones|million|billion|mil|mm|mn|bn|k|m|b)?)(?![\p{L}\d])\s?(€|£|[A-Z]{3}(?![\p{L}])|pesos|d[oó]lares|dollars|euros|libras|pounds)?/giu
+
 /**
- * A bare "$" figure reads as the market's currency: pesos on a Mexico CV,
- * dollars on any other (2026-11-19 audit: "$1.2M" passed against a 1.2M MXN
- * record on a US CV, about 17 times the money). It swaps the currency when a
- * cited record states that value in another currency and none states it in
- * the market's. A figure whose currency was never recorded is the person's
- * own wording, and is not flagged.
+ * The currencies a record states a value in: its metrics' currency, and in
+ * its text a figure written with a code ("1.2M MXN"), a word ("1.2 millones
+ * de pesos" reads as "1.2 millones pesos" too) or a symbol that names one
+ * ("€1.2M"). A bare "$" in the record names nothing and adds nothing.
  */
-function dollarSignSwapsCurrency(
+function statedCurrencies(value: string, citedItems: EvidenceItem[]): string[] {
+  const found: string[] = []
+  for (const item of citedItems) {
+    for (const m of item.metrics) {
+      if (m.value !== undefined && m.currency && normaliseQuantity(`${m.value}`) === value) {
+        found.push(m.currency)
+      }
+    }
+    const text = item.text.replace(/\s+de\s+(?=pesos|d[oó]lares|euros|libras)/giu, ' ')
+    for (const m of text.matchAll(STATED_FIGURE)) {
+      if (normaliseQuantity(m[2] ?? '') !== value) continue
+      const after = (m[3] ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+      const named =
+        after === '€'
+          ? 'EUR'
+          : after === '£'
+            ? 'GBP'
+            : CURRENCY_WORDS[after]
+              ? CURRENCY_WORDS[after]
+              : after && isCurrencyCode(after.toUpperCase())
+                ? after.toUpperCase()
+                : m[1] && m[1] !== '$'
+                  ? symbolCurrency(m[1], undefined)
+                  : null
+      if (named) found.push(named)
+    }
+  }
+  return found
+}
+
+/**
+ * A symbol figure in a line names a currency: "€" and "£" their own, "US$"
+ * dollars, and a bare "$" the market's (pesos on a Mexico CV, dollars on any
+ * other; 2026-11-19 audit: "$1.2M" passed against a 1.2M MXN record on a US
+ * CV, about 17 times the money). It swaps the currency when a cited record
+ * states that value in another currency and none states it in the one the
+ * line names. A figure whose currency was never recorded is the person's own
+ * wording, and is not flagged.
+ */
+function symbolSwapsCurrency(
   token: string,
   citedItems: EvidenceItem[],
   market: Market | undefined,
 ): boolean {
-  if (!market || !/^\$/.test(token.trim()) || /[a-z]{3}/i.test(token)) return false
-  const readAs = dollarSignCurrency(market)
-  const value = normaliseQuantity(token)
-  const currencies = citedItems.flatMap((item) =>
-    item.metrics.flatMap((m) =>
-      m.value !== undefined && m.currency && normaliseQuantity(`${m.value}`) === value
-        ? [m.currency]
-        : [],
-    ),
-  )
-  return currencies.length > 0 && !currencies.includes(readAs)
+  if (/[a-z]{3}/i.test(token)) return false
+  const named = symbolCurrency(token, market)
+  if (!named) return false
+  const recorded = statedCurrencies(normaliseQuantity(token), citedItems)
+  const same = (c: string) => c === named || (c === 'PESO' && PESOS.has(named))
+  return recorded.length > 0 && !recorded.some(same)
 }
 
 /** Whole-word, case-insensitive, Unicode-aware — "SQLite" is not a claim of "SQL". */

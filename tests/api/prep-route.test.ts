@@ -5,7 +5,6 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { type Db, openDb, runMigrations } from '@/lib/db/client'
 import { latestPrep } from '@/lib/db/queries/prep'
 import { saveProfile } from '@/lib/db/queries/profile'
-import { enqueueKit } from '@/lib/kit/queue'
 import { profile } from '../prep/fixtures'
 import { rawPrep } from '../prep/raw'
 import { seedApp } from '../support/db-app'
@@ -68,14 +67,6 @@ describe('POST /api/ai/prep', () => {
   it('is 404 for an unknown application', async () => {
     const res = await post({ applicationId: 'nope' })
     expect(res.status).toBe(404)
-  })
-
-  it('is 409 while the kit is writing that application', async () => {
-    const a = seedApp(handle.db, 'Busy')
-    enqueueKit(handle.db, a)
-    const res = await post({ applicationId: a })
-    expect(res.status).toBe(409)
-    expect((await res.json()).code).toBe('kit-busy')
   })
 
   it('streams its stages, saves one prep with the evidence hash, and ends done', async () => {
