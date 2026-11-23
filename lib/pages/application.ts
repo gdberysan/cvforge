@@ -46,7 +46,7 @@ import { loadPrepInput } from '@/lib/prep/load'
 import type { PrepReport } from '@/lib/prep/verify'
 import { resolveSources } from '@/lib/requirement-sources'
 import { roleSummary } from '@/lib/role-summary'
-import type { MailStatus, MailThreadItem } from '@/lib/satellite/mail'
+import type { MailAgent } from '@/lib/satellite-types'
 import {
   CoverLetterSchema,
   CVContentSchema,
@@ -62,10 +62,7 @@ import { evidenceHashOf } from '@/lib/variants'
 import { verdictSentence } from '@/lib/verdict-sentence'
 
 /** The job agent's mail (personal desktop builds only), passed in by the page. */
-export type MailAgent = {
-  status: () => MailStatus
-  thread: (applicationId: string) => MailThreadItem[]
-}
+export type { MailAgent }
 
 /** Companions persist as { document, report }; either half failing to parse reads as absent. */
 function companionOf<S extends z.ZodTypeAny>(schema: S, raw: unknown) {

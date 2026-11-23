@@ -2,7 +2,6 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { chaseFind } from '@/lib/agent/chase'
 import type { Db } from '@/lib/db/client'
 import {
   claimNext,
@@ -12,7 +11,7 @@ import {
   openKitFor,
   resetStale,
 } from '@/lib/kit/queue'
-import { find, withDb } from '../agent/fixtures'
+import { seedApp, dbTest as withDb } from '../support/db-app'
 import { must } from '../support/must'
 
 // Local times: the server is the user's own Mac, so "today" and "03:00" are its clock.
@@ -32,16 +31,7 @@ afterEach(() => {
 })
 
 function app(db: Db, n = 1): string {
-  const out = chaseFind(
-    db,
-    String(4460000000 + n),
-    find({
-      postingHash: `h_${n}`,
-      sourceUrl: `https://www.linkedin.com/jobs/view/${4460000000 + n}/`,
-    }),
-  )
-  if (out.kind === 'repost') throw new Error('fixture')
-  return out.applicationId
+  return seedApp(db, `Acme ${n}`)
 }
 
 describe('kit queue', () => {
@@ -206,7 +196,7 @@ describe('kit queue — review fixes', () => {
   )
 
   it(
-    'lists kit failures since a time, with the job, for the Telegram error',
+    'lists kit failures since a time, with the job, for the agent to report',
     withDb(async (db) => {
       const { kitFailuresSince } = await import('@/lib/kit/queue')
       const a = app(db)
@@ -222,7 +212,7 @@ describe('kit queue — review fixes', () => {
         expect.objectContaining({
           applicationId: a,
           errorCode: 'billing',
-          jobTitle: 'Growth Marketing Manager',
+          jobTitle: 'Growth Lead',
         }),
       ])
       expect(kitFailuresSince(db, local(TODAY, 10, 5).toISOString())).toEqual([])

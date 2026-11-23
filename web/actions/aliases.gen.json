@@ -10,6 +10,5 @@
   "@/app/(app)/share/actions": "./actions/share.ts",
   "@/app/(app)/triage/actions": "./actions/triage.ts",
   "@/app/(app)/settings/actions": "./actions/settings.ts",
-  "@/app/(app)/agent/actions": "./actions/agent.ts",
   "@/app/(app)/discover/actions": "./actions/discover.ts"
 }

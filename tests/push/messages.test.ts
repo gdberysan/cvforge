@@ -75,7 +75,7 @@ describe('push messages', () => {
   })
 })
 
-describe('follow-up and weekly messages (Telegram, alerts only)', () => {
+describe('follow-up and weekly messages', () => {
   it('a follow-up asks about the company and opens the outcome step', () => {
     expect(
       followUpMessage('es', { jobTitle: 'Growth Lead', company: 'Acme', applicationId: 'a1' }),

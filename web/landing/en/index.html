@@ -311,7 +311,7 @@ show(0);
 // the finished CV, still.
 (() => {
   const step = document.querySelector('.how-step:last-child');
-  const sheet = step && step.querySelector('.cv-sheet');
+  const sheet = step?.querySelector('.cv-sheet');
   if (!sheet || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const pace = matchMedia('(max-width: 640px)').matches ? 0.72 : 1;
   const key = (s) => s.trim().toLowerCase();
@@ -377,8 +377,8 @@ const zero = document.querySelector('.zero span');
 const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (zero && !calm && 'IntersectionObserver' in window) {
   const START = 1999;
-  const fmt = (n) => '$' + n.toLocaleString('en-US');
-  const fit = () => {
+  const fmt = (n) => `$${n.toLocaleString('en-US')}`;
+  const fitToWidth = () => {
     zero.style.transform = '';
     const scale = Math.min(1, zero.parentElement.clientWidth / zero.scrollWidth);
     zero.style.transform = scale < 1 ? `scale(${scale})` : '';
@@ -388,12 +388,12 @@ if (zero && !calm && 'IntersectionObserver' in window) {
     seen.disconnect();
     zero.classList.add('counting');
     zero.textContent = fmt(START);
-    fit();
+    fitToWidth();
     const t0 = performance.now() + 350;
     const step = (now) => {
       const k = Math.max(0, Math.min(1, (now - t0) / 1900));
       zero.textContent = fmt(Math.round(START * (1 - (1 - (1 - k) ** 3))));
-      fit();
+      fitToWidth();
       if (k < 1) requestAnimationFrame(step);
       else zero.classList.remove('counting');
     };
@@ -405,6 +405,7 @@ if (zero && !calm && 'IntersectionObserver' in window) {
 // The app opens in this page's language: it reads the cookie first, then storage.
 for (const a of document.querySelectorAll('a[href^="/app/"]')) a.addEventListener('click', () => {
   try { localStorage.setItem('cvforge-locale', document.documentElement.lang) } catch {}
+  // biome-ignore lint/suspicious/noDocumentCookie: one non-secret preference the app reads on its first request, before any script; Cookie Store is not in every browser this page serves
   document.cookie = `cvforge_locale=${document.documentElement.lang}; path=/; max-age=31536000; samesite=lax`;
 });
 </script>

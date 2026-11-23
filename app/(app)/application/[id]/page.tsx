@@ -1,12 +1,10 @@
 import { notFound } from 'next/navigation'
+import { mailAgent } from '#satellite'
 import { ApplicationView } from '@/components/pages/ApplicationView'
 import { db } from '@/lib/db/client'
 import { isDemo } from '@/lib/demo/mode'
 import { getTranslate } from '@/lib/i18n/server'
-import { loadApplication, type MailAgent } from '@/lib/pages/application'
-import { listMailThread, readMailStatus } from '@/lib/satellite/mail'
-import { isAgentAvailable } from '@/lib/satellite/settings'
-import { satelliteDbPath } from '@/lib/settings'
+import { loadApplication } from '@/lib/pages/application'
 
 /** One application (components/pages/ApplicationView.tsx) on the desktop's own data. */
 export default async function ApplicationPage({
@@ -26,14 +24,4 @@ export default async function ApplicationPage({
   })
   if (!data) notFound()
   return <ApplicationView data={data} t={t} locale={locale} />
-}
-
-/** The job agent's mail, when this install has a reachable agent. */
-function mailAgent(): MailAgent | null {
-  const file = satelliteDbPath()
-  if (!isAgentAvailable(file)) return null
-  return {
-    status: () => readMailStatus(file),
-    thread: (applicationId) => listMailThread(file, applicationId),
-  }
 }

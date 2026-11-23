@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import type { NextConfig } from 'next'
 
 const config: NextConfig = {
@@ -53,6 +54,15 @@ const config: NextConfig = {
     resolveAlias: {
       '#discover':
         process.env.CVFORGE_DISCOVER === '1' ? './lib/discover/index.ts' : './lib/discover/stub.ts',
+      // The job agent (a personal satellite) is not in the open-source
+      // edition: where its entry is absent, the screens get stubs that say
+      // "no agent here" (lib/satellite/index.ts, components/satellite/).
+      '#satellite': existsSync('./lib/satellite/index.ts')
+        ? './lib/satellite/index.ts'
+        : './lib/satellite-stub.ts',
+      '#satellite-ui': existsSync('./components/satellite/index.ts')
+        ? './components/satellite/index.ts'
+        : './components/satellite-ui-stub.ts',
     },
   },
 }

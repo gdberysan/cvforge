@@ -2,10 +2,9 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { InterviewCard, toStoredTime } from '@/components/application/InterviewCard'
-import { MailThread } from '@/components/application/MailThread'
 import { YouList } from '@/components/application/YouList'
 import { LocaleProvider } from '@/components/i18n/LocaleProvider'
-import type { InterviewView, ThreadCardView } from '@/lib/seguimiento-view'
+import type { InterviewView } from '@/lib/seguimiento-view'
 
 const refresh = vi.fn()
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }))
@@ -26,96 +25,8 @@ beforeEach(() => {
 })
 afterEach(cleanup)
 
-const event: ThreadCardView = {
-  key: 'm1',
-  kind: 'event',
-  chip: 'interview',
-  date: '16 oct',
-  dateTime: '2026-10-16T18:00:00.000Z',
-  subject: 'Confirmación Entrevista',
-  from: 'Halden · haldenco.com',
-  quote: 'confirmo tu entrevista',
-  link: 'https://mail.google.com/mail/#all/m1',
-  outcomeId: 'out_1',
-  folded: [
-    {
-      key: 'm2',
-      date: '16 oct',
-      dateTime: '2026-10-16T19:00:00.000Z',
-      subject: 'Invitación: Entrevista',
-      from: null,
-      link: 'https://mail.google.com/mail/#all/m2',
-    },
-  ],
-}
-const plain: ThreadCardView = {
-  key: 'h1',
-  kind: 'mail',
-  chip: 'mail',
-  date: '7 oct',
-  dateTime: '2026-10-07T18:00:00.000Z',
-  subject: 'Welcome',
-  from: 'Halden · successfactors.com',
-  quote: '',
-  link: 'https://mail.google.com/mail/#all/h1',
-  outcomeId: null,
-  folded: [],
-}
-
 const show = (ui: React.ReactNode, locale: 'es' | 'en' = 'es') =>
   render(<LocaleProvider locale={locale}>{ui}</LocaleProvider>)
-
-describe('MailThread', () => {
-  it('shows each email with kind, subject, sender, quote, Gmail link; the agent mark only on events', () => {
-    show(<MailThread applicationId="app_1" cards={[event, plain]} count={3} empty="x" />)
-    expect(screen.getByRole('heading', { name: 'Correo' })).toBeTruthy()
-    expect(screen.getByText('3 correos')).toBeTruthy()
-    // One grouped list, one row per email.
-    expect(screen.getAllByRole('list')[0]?.children).toHaveLength(2)
-    expect(screen.getByText('Entrevista')).toBeTruthy()
-    // "Correo" is both the section heading and the plain email's kind.
-    expect(screen.getAllByText('Correo')).toHaveLength(2)
-    expect(screen.getByText('Halden · haldenco.com')).toBeTruthy()
-    expect(screen.getByText('«confirmo tu entrevista»')).toBeTruthy()
-    expect(screen.getAllByText('Agente')).toHaveLength(1)
-    const links = screen.getAllByRole('link', { name: /Abrir en Gmail/ })
-    // The row's own link (folded mails carry their subject instead).
-    const own = links.find((l) => l.textContent === 'Gmail')
-    expect(own?.getAttribute('rel')).toBe('noopener noreferrer')
-    expect(own?.getAttribute('target')).toBe('_blank')
-    expect(screen.getAllByRole('button', { name: 'Deshacer' })).toHaveLength(1)
-    // The link reads "Gmail" and is named for what it does.
-    expect(own).toBeTruthy()
-  })
-
-  it('folds the duplicates under "+N correos más", each with its date, subject and link', () => {
-    show(<MailThread applicationId="app_1" cards={[event]} count={2} empty="x" />)
-    expect(screen.getByText('+1 correo más sobre esto')).toBeTruthy()
-    const link = screen.getByRole('link', { name: /Invitación: Entrevista/ })
-    expect(link.getAttribute('href')).toBe('https://mail.google.com/mail/#all/m2')
-  })
-
-  it('Deshacer removes the agent event and refreshes; a refusal keeps it', async () => {
-    undo.mockResolvedValueOnce({ ok: false, code: 'not-found', error: 'x' })
-    show(<MailThread applicationId="app_1" cards={[event]} count={2} empty="x" />)
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Deshacer' }))
-    })
-    expect(screen.getByText('Confirmación Entrevista')).toBeTruthy()
-    undo.mockResolvedValueOnce({ ok: true })
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Deshacer' }))
-    })
-    expect(undo).toHaveBeenLastCalledWith('app_1', 'out_1')
-    expect(screen.queryByText('Confirmación Entrevista')).toBeNull()
-    expect(refresh).toHaveBeenCalled()
-  })
-
-  it('says why it is empty', () => {
-    show(<MailThread applicationId="app_1" cards={[]} count={0} empty="Nada aún." />)
-    expect(screen.getByText('Nada aún.')).toBeTruthy()
-  })
-})
 
 describe('YouList', () => {
   it('lists what the user did, and nothing when there is nothing', () => {
@@ -192,13 +103,12 @@ describe('InterviewCard', () => {
   }
   const dateOnly: InterviewView = { ...scheduled, time: null, source: null, inputTime: '' }
 
-  it('shows the tile, the time, its source and the agent mark', () => {
+  it('shows the tile, the time and its source', () => {
     show(<InterviewCard applicationId="app_1" view={scheduled} />)
     // The shared call line (lib/call-line), as on the overview and the card.
     expect(screen.getByText('Entrevista · mar 20 oct · en 4 días')).toBeTruthy()
     expect(screen.getByText('10:00 a.m.')).toBeTruthy()
     expect(screen.getByText('Leído de la invitación de calendario del correo')).toBeTruthy()
-    expect(screen.getByText('Agente')).toBeTruthy()
     // A time is known, so nothing says it is missing.
     expect(screen.queryByText(/sin hora/)).toBeNull()
   })
