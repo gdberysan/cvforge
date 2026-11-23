@@ -11,7 +11,6 @@ export const CompanionParagraphSchema = z.object({
   text: z.string().min(1),
   citedEvidenceIds: z.array(z.string()),
 })
-export type CompanionParagraph = z.infer<typeof CompanionParagraphSchema>
 
 export const CoverLetterSchema = z.object({
   paragraphs: z.array(CompanionParagraphSchema).min(1),
@@ -27,7 +26,6 @@ export const ScreeningAnswerSchema = z.object({
    *  documents stored before this field existed still parse. */
   source: z.enum(['ai', 'user']).default('ai'),
 })
-export type ScreeningAnswer = z.infer<typeof ScreeningAnswerSchema>
 
 export const ScreeningSetSchema = z.object({
   answers: z.array(ScreeningAnswerSchema).min(1),
