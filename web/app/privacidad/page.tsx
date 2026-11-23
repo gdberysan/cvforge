@@ -37,8 +37,11 @@ export default function Page() {
   return (
     <main id="main" tabIndex={-1} className="page privacy">
       <BackLink href="/settings" label={t('nav.settings')} />
-      <h1 className="exp-title">{t('privacy.title')}</h1>
-      <p className="exp-lede">{t('privacy.lede')}</p>
+      <header className="page-head">
+        <p className="eyebrow">{t('privacy.eyebrow')}</p>
+        <h1 className="page-title">{t('privacy.title')}</h1>
+        <p className="page-lede">{t('privacy.lede')}</p>
+      </header>
       <DataFlow />
       {GROUPS.map((g) => (
         <section key={g.id} className="board privacy-group" aria-labelledby={`pg-${g.id}`}>

@@ -19,26 +19,13 @@ export default function AppError({
 
   return (
     <main className="page page-narrow">
-      <p className="eyebrow">{t('errorPage.eyebrow')}</p>
-      <h1 style={{ font: 'var(--type-h2)', marginTop: 'var(--space-3)' }}>
-        {t('errorPage.title')}
-      </h1>
-      <p
-        style={{
-          color: 'var(--text-muted)',
-          marginTop: 'var(--space-4)',
-          maxWidth: '36em',
-          lineHeight: 'var(--leading-relaxed)',
-        }}
-      >
-        {t('errorPage.lede')}
-      </p>
-      {error.digest && (
-        <p className="fact" style={{ marginTop: 'var(--space-3)', color: 'var(--text-faint)' }}>
-          {error.digest}
-        </p>
-      )}
-      <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-6)' }}>
+      <header className="page-head">
+        <p className="eyebrow">{t('errorPage.eyebrow')}</p>
+        <h1 className="page-title">{t('errorPage.title')}</h1>
+        <p className="page-lede">{t('errorPage.lede')}</p>
+        {error.digest && <p className="page-note">{error.digest}</p>}
+      </header>
+      <div className="page-actions">
         <button type="button" className="btn btn-primary" onClick={reset}>
           {t('errorPage.retry')}
         </button>

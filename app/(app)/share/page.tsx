@@ -43,7 +43,10 @@ export default async function SharePage({
   return (
     <main id="main" tabIndex={-1} className="page share-page">
       <BackLink href="/" label={t('nav.today')} />
-      <h1 className="share-title">{t(fromShare ? 'share.titleShared' : 'share.title')}</h1>
+      <header className="page-head">
+        <p className="eyebrow">{t('share.eyebrow')}</p>
+        <h1 className="share-title">{t(fromShare ? 'share.titleShared' : 'share.title')}</h1>
+      </header>
       {shared.kind === 'linkedin' ? (
         <LinkedInIntake
           jobId={shared.jobId}

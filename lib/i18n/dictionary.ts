@@ -285,7 +285,7 @@ const en = {
   'errorPage.eyebrow': 'Error',
   'errorPage.title': 'Something went wrong on this screen',
   'errorPage.lede':
-    'Your data is fine. Your experience and applications live in the local database, not on this screen. Try again or go back to the start.',
+    'Your data is fine: it is saved separately, not in this screen. Try again; if it keeps failing, go back to the start.',
   'errorPage.retry': 'Try again',
   'errorPage.home': 'Back to start',
   'notFound.eyebrow': 'Not found',
@@ -319,6 +319,8 @@ const en = {
   'start.tryEyebrow': 'Step 3 of 3 · your first posting',
   'start.tryLede': 'Ready. Bring a posting you like, or try the sample one below.',
   'settings.page.title': 'Settings',
+  'settings.page.eyebrow': 'Your key and your data',
+  'settings.page.lede': 'What CVForge needs to work, and where your things live.',
   'settings.group.status': 'Where things stand',
   'settings.group.key': 'Your key',
   'settings.group.look': 'Language and vibration',
@@ -341,7 +343,7 @@ const en = {
   'settings.eyebrow': 'Settings',
   'settings.title': 'Your Anthropic key',
   'settings.lede':
-    "CVForge talks to one place only, api.anthropic.com, with a key that's yours. The key is stored on this machine, in config.json inside your data folder, and only your user account can read it. Treat that file like a password.",
+    "CVForge talks to Anthropic only, with a key that's yours. The key stays on this computer and only your user account can read it. Treat it like a password.",
   'settings.envManaged':
     'A key is set in the environment (ANTHROPIC_API_KEY). It takes precedence over anything saved here.',
   'settings.keyLabel': 'Anthropic key',
@@ -456,7 +458,7 @@ const en = {
     "When it's on, the app reads cvforge.korven.dev/version.json once a day. It's a static file, and the request carries nothing of yours: no data, no identifiers.",
   'settings.backup.title': 'Backup',
   'settings.backup.lede':
-    'Downloads one file with everything: your profile, your experience, applications and interview history. Keep it somewhere safe. To restore, replace datos/cvforge.db with this file.',
+    'Downloads one file with everything: your profile, your experience, applications and interview history. Keep it somewhere safe. To go back to it, use Restore, right below.',
   'settings.backup.download': 'Download a backup',
   'settings.backup.lastAuto': 'Last automatic copy: {date}.',
   'settings.restore.title': 'Restore',
@@ -576,9 +578,11 @@ const en = {
   'pipeline.allTab': 'all',
   'stats.eyebrow': 'Numbers',
   'stats.title': 'What your applications say',
-  'stats.empty.title': 'No outcomes to count yet',
+  'stats.lede':
+    'How many you sent, how many answer, and what they ask for that you do not have yet.',
+  'stats.empty.title': 'No numbers yet, and that is fine',
   'stats.empty.lede':
-    'Mark what happens with each application and this page shows what actually gets you replies.',
+    'Mark what happens with each application: sent, a call, a no. In a few weeks this page tells you what gets you replies, and what does not.',
   'stats.appliedWeek.one': '{n} sent this week',
   'stats.appliedWeek.other': '{n} sent this week',
   'stats.median': 'median response: {n}d',
@@ -798,8 +802,8 @@ const en = {
   'coverage.aria': '{strong} of {total} must-haves strongly backed by your experience',
 
   // ---- evidence ----
-  'evidence.eyebrow': 'Experience',
   'evidence.lede': 'Everything CVForge can say about you comes from here. Nothing else.',
+  'evidence.eyebrow': 'Your record',
   'evidence.save.saving': 'saving',
   'evidence.save.saved': 'saved',
   'evidence.save.error': 'save failed',
@@ -817,7 +821,7 @@ const en = {
   'evidence.nudge.stub':
     "Still your CV's own lines. Answer a few questions and CVForge adds what didn't fit.",
   'evidence.nudge.empty':
-    'Nothing here yet. Answer a few questions and CVForge writes up what you did.',
+    'Nothing here yet. Answer a few questions and CVForge writes up what you did: only what you tell it, nothing made up.',
   'evidence.addManual': 'Add an entry',
   'evidence.showing.unquantified': 'Only the results without a number',
   'evidence.showing.untagged': 'Only the entries without tags',
@@ -1038,9 +1042,9 @@ const en = {
 
   // ---- pipeline ----
   'pipeline.eyebrow': 'Pipeline',
-  'pipeline.empty.title': 'Nothing in the pipeline yet',
+  'pipeline.empty.title': 'Your applications will live here',
   'pipeline.empty.lede':
-    'Analyze a posting and it shows up here, with its answer and how much of it you cover.',
+    'Paste the first posting that catches your eye. Before you write a word, CVForge tells you whether it is worth your time.',
   'pipeline.worth.one': '{n} worth pursuing',
   'pipeline.worth.other': '{n} worth pursuing',
   'pipeline.none': 'Nothing open worth pursuing',
@@ -1337,6 +1341,7 @@ const en = {
   'studio.pdfPage': 'Page {n} of {total}',
   'share.reading': 'Reading the LinkedIn posting…',
   'share.title': 'Analyse a posting',
+  'share.eyebrow': 'A new posting',
   'share.lede':
     'Paste a posting. In under a minute you will know whether it is worth it, what you meet and what you lack.',
   'share.ledeReady':
@@ -1530,6 +1535,7 @@ const en = {
   'web.shots.unreadable': 'Could not read: {what}.',
   'web.shots.dropped': '{n} part(s) left out: at most {max} per posting.',
   'privacy.title': 'Your privacy',
+  'privacy.eyebrow': 'What happens to your data',
   'privacy.flow.aria':
     'Where your data goes: it stays in your browser; only what is needed goes to Anthropic, with your key; CVForge receives nothing.',
   'privacy.flow.you': 'Your browser',
@@ -1671,7 +1677,7 @@ const en = {
     'This browser cannot keep CVForge’s data. Use a current Chrome, Edge, Safari or Firefox.',
   'web.db.failed': 'Your data could not be opened: {message}',
   'web.db.hello': 'Welcome back, {name}.',
-  'web.db.empty': 'Nothing here yet. Your data will live in this browser only.',
+  'web.db.empty': 'Nothing here yet. What you add is kept in this browser only.',
   'web.db.persisted': 'This browser has agreed to keep your data.',
   'web.db.notPersisted':
     'This browser may clear your data if it runs out of space. Keep a copy: export it or back it up to Google Drive.',
@@ -2011,7 +2017,7 @@ const es: Record<MessageKey, string> = {
   'errorPage.eyebrow': 'Error',
   'errorPage.title': 'Algo falló en esta pantalla',
   'errorPage.lede':
-    'Tus datos están bien. Tu experiencia y tus postulaciones viven en la base de datos local, no en esta pantalla. Vuelve a intentarlo o regresa al inicio.',
+    'Tus datos están bien: se guardan aparte, no en esta pantalla. Vuelve a intentarlo; si sigue fallando, regresa al inicio.',
   'errorPage.retry': 'Reintentar',
   'errorPage.home': 'Volver al inicio',
   'notFound.eyebrow': 'No existe',
@@ -2045,6 +2051,8 @@ const es: Record<MessageKey, string> = {
   'start.tryEyebrow': 'Paso 3 de 3 · tu primera vacante',
   'start.tryLede': 'Listo. Trae una vacante que te interese, o prueba con la de ejemplo de abajo.',
   'settings.page.title': 'Ajustes',
+  'settings.page.eyebrow': 'Tu clave y tus datos',
+  'settings.page.lede': 'Lo que CVForge necesita para funcionar, y dónde vive lo tuyo.',
   'settings.group.status': 'Cómo está todo',
   'settings.group.key': 'Tu clave',
   'settings.group.look': 'Idioma y vibración',
@@ -2066,7 +2074,7 @@ const es: Record<MessageKey, string> = {
   'settings.eyebrow': 'Ajustes',
   'settings.title': 'Tu clave de Anthropic',
   'settings.lede':
-    'CVForge solo habla con un lugar, api.anthropic.com, con una clave que es tuya. Se guarda en esta máquina, en el config.json de tu carpeta de datos, y solo tu usuario puede leerla. Cuida ese archivo como una contraseña.',
+    'CVForge solo habla con Anthropic, con una clave que es tuya. La clave se queda en esta computadora y solo tu usuario puede leerla. Trátala como una contraseña.',
   'settings.envManaged':
     'Hay una clave en el entorno (ANTHROPIC_API_KEY). Tiene prioridad sobre lo que guardes aquí.',
   'settings.keyLabel': 'Clave de Anthropic',
@@ -2181,7 +2189,7 @@ const es: Record<MessageKey, string> = {
     'Si lo activas, la app lee cvforge.korven.dev/version.json una vez al día. Es un archivo estático y la consulta no lleva nada tuyo: ni datos ni identificadores.',
   'settings.backup.title': 'Respaldo',
   'settings.backup.lede':
-    'Descarga un archivo con todo: tu perfil, tu experiencia, tus postulaciones y tu historial de entrevistas. Guárdalo en un lugar seguro. Para restaurar, reemplaza datos/cvforge.db con este archivo.',
+    'Descarga un archivo con todo: tu perfil, tu experiencia, tus postulaciones y tu historial de entrevistas. Guárdalo en un lugar seguro. Para volver a él, usa «Restaurar», justo abajo.',
   'settings.backup.download': 'Descargar un respaldo',
   'settings.backup.lastAuto': 'Última copia automática: {date}.',
   'settings.restore.title': 'Restaurar',
@@ -2301,9 +2309,10 @@ const es: Record<MessageKey, string> = {
   'pipeline.allTab': 'todas',
   'stats.eyebrow': 'Números',
   'stats.title': 'Lo que dicen tus postulaciones',
-  'stats.empty.title': 'Aún no hay resultados que contar',
+  'stats.lede': 'Cuántas mandaste, cuántas contestan y qué te piden que aún no tienes.',
+  'stats.empty.title': 'Todavía no hay números, y está bien',
   'stats.empty.lede':
-    'Marca lo que pasa con cada postulación y aquí verás qué te consigue respuestas de verdad.',
+    'Marca lo que pasa con cada postulación: enviada, llamada, rechazo. En unas semanas, esta página te dice qué te consigue respuestas y qué no.',
   'stats.appliedWeek.one': '{n} enviada esta semana',
   'stats.appliedWeek.other': '{n} enviadas esta semana',
   'stats.median': 'respuesta mediana: {n}d',
@@ -2530,8 +2539,8 @@ const es: Record<MessageKey, string> = {
   'coverage.aria': '{strong} de {total} obligatorios bien respaldados por tu experiencia',
 
   // ---- evidence ----
-  'evidence.eyebrow': 'Experiencia',
   'evidence.lede': 'Todo lo que CVForge puede decir de ti sale de aquí. Nada más.',
+  'evidence.eyebrow': 'Tu historial',
   'evidence.save.saving': 'guardando',
   'evidence.save.saved': 'guardado',
   'evidence.save.error': 'no se guardó',
@@ -2549,7 +2558,7 @@ const es: Record<MessageKey, string> = {
   'evidence.nudge.stub':
     'Aún son las líneas de tu CV. Responde unas preguntas y CVForge agrega lo que no cupo.',
   'evidence.nudge.empty':
-    'Aún no hay nada aquí. Responde unas preguntas y CVForge escribe lo que hiciste.',
+    'Aún no hay nada aquí. Responde unas preguntas y CVForge escribe lo que hiciste: solo lo que tú cuentes, nada inventado.',
   'evidence.addManual': 'Agregar una entrada',
   'evidence.showing.unquantified': 'Solo los logros sin cifra',
   'evidence.showing.untagged': 'Solo las entradas sin etiquetas',
@@ -2767,9 +2776,9 @@ const es: Record<MessageKey, string> = {
 
   // ---- pipeline ----
   'pipeline.eyebrow': 'Postulaciones',
-  'pipeline.empty.title': 'Todavía no hay nada aquí',
+  'pipeline.empty.title': 'Aquí van a vivir tus postulaciones',
   'pipeline.empty.lede':
-    'Analiza una vacante y aparecerá aquí, con su respuesta y cuánto de ella cubres.',
+    'Pega la primera vacante que te llame la atención. Antes de que escribas nada, CVForge te dice si vale tu tiempo.',
   'pipeline.worth.one': '{n} vale la pena',
   'pipeline.worth.other': '{n} valen la pena',
   'pipeline.none': 'Nada abierto que valga la pena',
@@ -3066,6 +3075,7 @@ const es: Record<MessageKey, string> = {
   'studio.pdfPage': 'Página {n} de {total}',
   'share.reading': 'Leyendo la vacante de LinkedIn…',
   'share.title': 'Analiza una vacante',
+  'share.eyebrow': 'Una vacante nueva',
   'share.lede':
     'Pega el texto de una vacante. En menos de un minuto sabrás si vale la pena, qué cumples y qué te falta.',
   'share.ledeReady':
@@ -3262,6 +3272,7 @@ const es: Record<MessageKey, string> = {
   'web.shots.unreadable': 'No se pudo leer: {what}.',
   'web.shots.dropped': '{n} parte(s) se quedaron fuera: máximo {max} por vacante.',
   'privacy.title': 'Tu privacidad',
+  'privacy.eyebrow': 'Lo que pasa con tus datos',
   'privacy.flow.aria':
     'A dónde van tus datos: se quedan en tu navegador; solo lo necesario va a Anthropic, con tu clave; CVForge no recibe nada.',
   'privacy.flow.you': 'Tu navegador',
@@ -3404,7 +3415,7 @@ const es: Record<MessageKey, string> = {
     'Este navegador no puede guardar los datos de CVForge. Usa un Chrome, Edge, Safari o Firefox actual.',
   'web.db.failed': 'No se pudieron abrir tus datos: {message}',
   'web.db.hello': 'Qué bueno verte de nuevo, {name}.',
-  'web.db.empty': 'Aún no hay nada. Tus datos vivirán solo en este navegador.',
+  'web.db.empty': 'Aún no hay nada. Lo que agregues se guarda solo en este navegador.',
   'web.db.persisted': 'Este navegador aceptó conservar tus datos.',
   'web.db.notPersisted':
     'Este navegador podría borrar tus datos si se queda sin espacio. Guarda una copia: expórtalos o respáldalos en Google Drive.',

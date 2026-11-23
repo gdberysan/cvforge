@@ -7,25 +7,16 @@ export default async function NotFound() {
 
   return (
     <main className="page page-narrow">
-      <p className="eyebrow">{t('notFound.eyebrow')}</p>
-      <h1 style={{ font: 'var(--type-h2)', marginTop: 'var(--space-3)' }}>{t('notFound.title')}</h1>
-      <p
-        style={{
-          color: 'var(--text-muted)',
-          marginTop: 'var(--space-4)',
-          maxWidth: '36em',
-          lineHeight: 'var(--leading-relaxed)',
-        }}
-      >
-        {t('notFound.lede')}
-      </p>
-      <Link
-        href="/"
-        className="btn btn-primary"
-        style={{ display: 'inline-block', marginTop: 'var(--space-6)' }}
-      >
-        {t('notFound.home')}
-      </Link>
+      <header className="page-head">
+        <p className="eyebrow">{t('notFound.eyebrow')}</p>
+        <h1 className="page-title">{t('notFound.title')}</h1>
+        <p className="page-lede">{t('notFound.lede')}</p>
+      </header>
+      <div className="page-actions">
+        <Link href="/" className="btn btn-primary">
+          {t('notFound.home')}
+        </Link>
+      </div>
     </main>
   )
 }
