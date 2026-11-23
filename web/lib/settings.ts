@@ -99,7 +99,12 @@ export function satelliteDbPath(): string | undefined {
 }
 
 export function hasCredentials(): boolean {
-  return Boolean(current.anthropicApiKey)
+  return Boolean(current.anthropicApiKey) || onTrial()
+}
+
+/** A free-trial pass that is still good, with no key of the person's own. */
+export function onTrial(): boolean {
+  return !current.anthropicApiKey && Boolean(current.trialToken) && !current.trialEnded
 }
 
 /** Drops the settings held in memory (the file goes with the rest of OPFS). */

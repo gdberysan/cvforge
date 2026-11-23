@@ -38,6 +38,28 @@ describe('cvOutline — what every renderer prints', () => {
     expect(outline.title).toBe('')
   })
 
+  it('writes an education period like the jobs’ dates, whatever form it was stored in', () => {
+    const dated = {
+      ...cv,
+      education: [{ degree: 'Licenciatura', institution: 'UNAM', period: '2011-08 – 2016-01' }],
+    }
+    const right = (language: 'es-MX' | 'en') =>
+      cvOutline(dated, language).sections.find(
+        (x) => x.heading === (language === 'es-MX' ? 'Educación' : 'Education'),
+      )?.items[0]
+    const es = right('es-MX')
+    const en = right('en')
+    expect(es && 'right' in es ? es.right : '').not.toMatch(/\d{4}-\d{2}/)
+    expect(en && 'right' in en ? en.right : '').not.toMatch(/\d{4}-\d{2}/)
+    // Free text without stored dates passes through untouched.
+    const plain = {
+      ...cv,
+      education: [{ degree: 'MBA', institution: 'IPADE', period: 'En curso' }],
+    }
+    const item = cvOutline(plain, 'es-MX').sections.find((x) => x.heading === 'Educación')?.items[0]
+    expect(item && 'right' in item ? item.right : '').toBe('En curso')
+  })
+
   it('keeps the clipboard text and the HTML in agreement', () => {
     const text = renderPlaintext(cv, { language: 'es-MX' })
     expect(text).toContain('Licenciatura — UNAM\n')
