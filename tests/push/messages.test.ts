@@ -3,7 +3,6 @@ import {
   documentMessage,
   findMessage,
   followUpMessage,
-  kitMessage,
   mailOutcomeMessage,
   verdictMessage,
   weeklyMessage,
@@ -38,22 +37,6 @@ describe('push messages', () => {
       kind: 'document-ready',
       title: 'CV ready',
       body: 'Growth Lead',
-      url: '/application/a1?step=docs',
-    })
-  })
-
-  it('a ready kit and a failed one both open the documents step', () => {
-    const a = { jobTitle: 'Growth Lead', company: 'Acme', applicationId: 'a1' }
-    expect(kitMessage('es', { ok: true, ...a })).toEqual({
-      kind: 'kit-ready',
-      title: 'Kit listo: Growth Lead',
-      body: 'Acme',
-      url: '/application/a1?step=docs',
-    })
-    expect(kitMessage('en', { ok: false, ...a })).toEqual({
-      kind: 'kit-failed',
-      title: "Couldn't prepare the kit: Growth Lead",
-      body: 'Acme',
       url: '/application/a1?step=docs',
     })
   })

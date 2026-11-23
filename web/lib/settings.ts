@@ -94,10 +94,6 @@ export function clearApiKey(): void {
   writeSettings(rest)
 }
 
-export function satelliteDbPath(): string | undefined {
-  return undefined
-}
-
 export function hasCredentials(): boolean {
   return Boolean(current.anthropicApiKey) || onTrial()
 }

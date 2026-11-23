@@ -100,8 +100,6 @@ const en = {
   'kit.retry':
     "The kit couldn't be prepared. It will try again tonight at 3:00, or you can generate it now.",
   'kit.failed': "The kit couldn't be prepared. Generate it here.",
-  'push.kitReady': 'Kit ready: {title}',
-  'push.kitFailed': "Couldn't prepare the kit: {title}",
   'push.agentFind': 'New posting: {title}',
   'push.followUp': 'Any reply from {company}?',
   'push.followUpJob': 'Any reply about {title}?',
@@ -1543,8 +1541,6 @@ const es: Record<MessageKey, string> = {
   'kit.retry':
     'No se pudo preparar el kit. Se reintenta esta noche a las 3:00, o puedes generarlo ahora.',
   'kit.failed': 'No se pudo preparar el kit. Genéralo aquí.',
-  'push.kitReady': 'Kit listo: {title}',
-  'push.kitFailed': 'No se pudo preparar el kit: {title}',
   'push.agentFind': 'Nueva vacante: {title}',
   'push.followUp': '¿Hubo respuesta de {company}?',
   'push.followUpJob': '¿Hubo respuesta sobre {title}?',

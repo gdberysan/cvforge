@@ -7,7 +7,7 @@ import { BRAND } from '@/lib/brand'
  * the colour of the word beside it, in both themes. Decorative by default:
  * the word next to it is the name, so the icon is hidden from screen readers.
  */
-function Icon({
+export function Icon({
   children,
   size = 22,
   className = 'icon',
@@ -291,14 +291,6 @@ export const IconCalendar = () => (
     <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
     <path d="M4 10h16" />
     <path d="M8.5 3.5v4M15.5 3.5v4" />
-  </Icon>
-)
-
-/** The agent: a spark — something the job agent did on its own. */
-export const IconAgent = () => (
-  <Icon size={18}>
-    <path d="M11 5.5c.6 3.9 2.1 5.4 6 6-3.9.6-5.4 2.1-6 6-.6-3.9-2.1-5.4-6-6 3.9-.6 5.4-2.1 6-6z" />
-    <path d="M18 3.5v3.5M16.25 5.25h3.5" />
   </Icon>
 )
 
