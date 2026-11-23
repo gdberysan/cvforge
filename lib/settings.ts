@@ -22,6 +22,14 @@ export type Settings = {
   kitOnChase?: boolean
   /** Background kits per local day, 1–10. Unset → 5. */
   kitDailyCap?: number
+  /**
+   * The web edition's free trial (web/trial): a pass that lets the app call
+   * Anthropic through Rumbo's server, on Rumbo's budget, until it is used up.
+   * Never set on the desktop app.
+   */
+  trialToken?: string
+  /** The trial's budget is spent: the pass no longer counts as a key. */
+  trialEnded?: boolean
 }
 
 export function settingsPath(): string {

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { AppMeta } from '@/components/application/AppMeta'
 import { CompanyAliases } from '@/components/application/CompanyAliases'
 import { DecideActions, RestoreButton } from '@/components/application/DecideActions'
@@ -223,7 +224,13 @@ export function ApplicationView({
                   </Meta>
                 </>
               ) : (
-                t('send.cvMissing')
+                <>
+                  {t('send.cvMissing')}{' '}
+                  <Link href={nextHref('docs')} className="action">
+                    {t('send.cvMissingLink')}
+                  </Link>
+                  .
+                </>
               )}
             </li>
             <li className={coverLetter ? 'is-done' : ''}>

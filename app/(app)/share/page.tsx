@@ -7,6 +7,7 @@ import { listApplicationLinks } from '@/lib/db/queries/applications'
 import { getProfile } from '@/lib/db/queries/profile'
 import { linkedInJobId, marketFromLocation } from '@/lib/discover/annotate'
 import { getTranslate } from '@/lib/i18n/server'
+import { effectiveMarkets } from '@/lib/markets'
 import { resolveShared } from '@/lib/share/resolve'
 
 export const dynamic = 'force-dynamic'
@@ -31,7 +32,8 @@ export default async function SharePage({
   // Opened from the bottom bar it is a place to start; from a share, it is
   // about the posting that just arrived.
   const fromShare = Boolean(params.text || params.url || params.title)
-  const markets = getProfile(db)?.preferences.markets ?? []
+  const owner = getProfile(db)
+  const markets = owner ? effectiveMarkets(owner.preferences.markets, owner.basics.location) : []
 
   if (shared.kind === 'linkedin') {
     const existing = listApplicationLinks(db).find(

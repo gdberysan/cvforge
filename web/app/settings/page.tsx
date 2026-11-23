@@ -35,9 +35,23 @@ export default function Page() {
   const persisted = state.kind === 'ready' && state.persisted
   const keyGroup = (
     <SettingsGroup
-      title={data.hasKey ? t('settings.group.key') : t('settings.group.keyMissing')}
-      lede={data.hasKey ? undefined : t('settings.group.keyMissingLede')}
-      alert={!data.hasKey}
+      title={
+        data.hasKey
+          ? t('settings.group.key')
+          : data.trial
+            ? t('settings.trial.title')
+            : t('settings.group.keyMissing')
+      }
+      lede={
+        data.hasKey
+          ? undefined
+          : data.trial
+            ? t('settings.trial.lede')
+            : data.trialEnded
+              ? t('settings.trial.endedLede')
+              : t('settings.group.keyMissingLede')
+      }
+      alert={!data.hasKey && !data.trial}
     >
       <ApiKeyForm hasSavedKey={data.hasKey} envManaged={false} local />
     </SettingsGroup>

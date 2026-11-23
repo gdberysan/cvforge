@@ -165,6 +165,21 @@ describe('runDeterministicChecks', () => {
     expect(at('us-remote', 'Managed a $1.2M budget')).toEqual([{ bulletId: 'b1', token: '$1.2M' }])
     expect(at('mx', 'Gestioné un presupuesto de $1.2M')).toEqual([])
     expect(at('us-remote', 'Managed a 1.2M MXN budget')).toEqual([])
+    // The currency written right after the "$" figure, or once after a range,
+    // is explicit: never re-read in the market's currency (2026-11-23 false
+    // flag on "de $1,450 a $890 MXN").
+    expect(at('us-remote', 'Managed a $1.2M MXN budget')).toEqual([])
+    const range = [
+      {
+        ...evidence[0],
+        metrics: [{ raw: 'CAC de $1,450 a $890 MXN', value: 890, currency: 'MXN' }],
+      },
+    ]
+    expect(at('us-remote', 'El CAC bajó de $1,450 a $890 MXN por comercio', range)).toEqual([])
+    // A metric's initials are not a currency: still read as the market's.
+    expect(at('us-remote', 'Managed a $1.2M CAC budget')).toEqual([
+      { bulletId: 'b1', token: '$1.2M' },
+    ])
     // A dollar record reads fine as "$" abroad, and a figure with no recorded
     // currency is the person's own wording: neither is flagged.
     const dollars = [

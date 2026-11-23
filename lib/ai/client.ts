@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import type { z } from 'zod'
-import { readSettings } from '@/lib/settings'
+import { readSettings, writeSettings } from '@/lib/settings'
 import { type Effort, MAX_TOKENS, MAX_TOKENS_CEILING, modelFor, reasoningFor } from './config'
 import { AiError, type AiErrorKind, classify, messageOf } from './errors'
 import { trackPaidCall } from './in-flight'
@@ -54,13 +54,23 @@ function getClient(): Anthropic {
     const env: Record<string, string | undefined> =
       typeof process === 'undefined' ? {} : process.env
     const envHasKey = Boolean(env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN)
-    const fileKey = envHasKey ? undefined : readSettings().anthropicApiKey
+    const settings = readSettings()
+    const fileKey = envHasKey ? undefined : settings.anthropicApiKey
+    // The web edition's free trial: no key of their own yet, so the same
+    // calls go to Rumbo's trial server (web/trial), with the pass as the key.
+    const trial =
+      inBrowser() && !fileKey && settings.trialToken && !settings.trialEnded
+        ? settings.trialToken
+        : undefined
     try {
       // maxRetries: 0 because the retry policy lives HERE — the SDK default
       // silently retries 429s and 529s twice, which turns "never retry a rate
       // limit" into three attempts.
       globalForAi.__anthropic = new Anthropic({
         ...(fileKey ? { apiKey: fileKey } : {}),
+        ...(trial
+          ? { apiKey: trial, baseURL: `${self.location.origin}/trial`, fetch: trialFetch }
+          : {}),
         maxRetries: 0,
         // The web edition calls Anthropic straight from the person's own
         // browser with their own key (CSP-locked page, no server of ours).
@@ -71,6 +81,24 @@ function getClient(): Anthropic {
     }
   }
   return globalForAi.__anthropic
+}
+
+/**
+ * The site serves every path with a trailing slash and redirects the rest;
+ * the trial's route is asked for in that form so a call is not redirected.
+ */
+const trialFetch: typeof fetch = (input, init) => {
+  const url = new URL(input instanceof Request ? input.url : String(input))
+  if (!url.pathname.endsWith('/')) url.pathname += '/'
+  return fetch(url, init)
+}
+
+/** The trial's budget ran out: from now on the app asks for a key. */
+function endTrial(): void {
+  const settings = readSettings()
+  if (!settings.trialToken || settings.trialEnded) return
+  writeSettings({ ...settings, trialEnded: true })
+  resetClient()
 }
 
 /** After the Settings page writes a new key, the next call must see it. */
@@ -205,6 +233,7 @@ async function callStructuredUntracked<T extends z.ZodTypeAny>(
       if (error instanceof AiError) throw error
       recordUsage(usageFromError(error))
       const kind = classify(error)
+      if (kind === 'trial-ended') endTrial()
       const delay = RETRY_DELAYS_MS[kind]?.[attempt]
       if (delay === undefined) {
         throw new AiError(

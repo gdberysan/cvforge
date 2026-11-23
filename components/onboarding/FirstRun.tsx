@@ -21,6 +21,7 @@ export function FirstRun({
   local,
   privacyHref,
   landingHref,
+  trial,
 }: {
   needsKey: boolean
   local: boolean
@@ -29,6 +30,8 @@ export function FirstRun({
   /** Where the example already lives (the web edition's landing page): the first
    *  run then opens on the key, and "back to the example" goes there. */
   landingHref?: string
+  /** The web edition's free trial: offered first, the key below it. */
+  trial?: React.ReactNode
 }) {
   const t = useT()
   // Whoever arrives from the landing page has seen the example: one press, not two.
@@ -59,10 +62,25 @@ export function FirstRun({
           it; on a phone, one under the other. */}
       <div className="welcome-main">
         <WelcomeSteps at={1} label={t('start.keyEyebrow')} />
-        <h1 className="welcome-title">{t('start.keyTitle')}</h1>
-        <p className="welcome-lede">{t('start.keyLede')}</p>
-        {/* The field first: it is what this screen is for. How to get a key
-            sits beside it, open, for someone who has none yet. */}
+        {trial ? (
+          <>
+            {/* The free trial first: no key to get before seeing it work on
+                your own CV. The key is the way to keep going. */}
+            <h1 className="welcome-title">
+              {t('start.trialTitle')} <em>{t('start.trialTitleEnd')}</em>
+            </h1>
+            <p className="welcome-lede">{t('start.trialLede')}</p>
+            {trial}
+            <h2 className="welcome-subtitle">{t('start.trialKeyHeading')}</h2>
+          </>
+        ) : (
+          <>
+            <h1 className="welcome-title">{t('start.keyTitle')}</h1>
+            <p className="welcome-lede">{t('start.keyLede')}</p>
+          </>
+        )}
+        {/* The field: what this screen is for. How to get a key sits beside
+            it, open, for someone who has none yet. */}
         <div className="welcome-card settings-rows">
           <ApiKeyForm hasSavedKey={false} envManaged={false} local={local} />
         </div>

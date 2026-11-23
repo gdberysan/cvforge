@@ -28,9 +28,12 @@ export function Nav({
   updateTo = null,
   discover = false,
   canQuit = true,
+  trial = false,
 }: {
   started: boolean
   spendUsd?: number
+  /** The web edition's free trial: Rumbo pays, so the bar says so, not a spend. */
+  trial?: boolean
   /** Demo hides Settings and quit: there is no key to set, no server to own. */
   demo?: boolean
   /** A newer version's number, when the opt-in check found one. */
@@ -95,7 +98,12 @@ export function Nav({
         {!demo && <NavLink href="/settings" label={t('nav.settings')} />}
         {/* Running API spend (spec §5.4), once the first real call lands;
             before that there is nothing to count. It opens the numbers. */}
-        {spendUsd > 0 && (
+        {trial && (
+          <Link href="/settings" className="spend-pill trial-pill">
+            {t('nav.trial')}
+          </Link>
+        )}
+        {!trial && spendUsd > 0 && (
           <Link href="/stats" className="spend-pill">
             <span className="sr-only">{t('nav.spend')} </span>
             <span className="num">{formatUsd(spendUsd)}</span>

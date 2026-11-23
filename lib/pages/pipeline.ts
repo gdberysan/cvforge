@@ -1,4 +1,5 @@
 /** Everything Postulaciones reads (see lib/pages/home.ts). */
+
 import type { Db } from '@/lib/db/client'
 import {
   type ApplicationSummary,
@@ -8,6 +9,7 @@ import {
 import { getProfile } from '@/lib/db/queries/profile'
 import { demoPostings } from '@/lib/demo/postings'
 import { type Locale, makeTranslate } from '@/lib/i18n'
+import { effectiveMarkets } from '@/lib/markets'
 import { cardStatus, hasUpcomingCall, interviewOf, settledParts } from '@/lib/overview-status'
 import { CVContentSchema, type OutcomeEvent, type OutcomeType } from '@/lib/schemas'
 import { latestOutcome, type StageFacts, stageFacts } from '@/lib/stage'
@@ -116,7 +118,10 @@ export function loadPipeline(
     .filter((a) => !attentionIds.has(a.id))
     .sort((a, b) => Number(b.status === 'offer') - Number(a.status === 'offer'))
 
-  const markets = getProfile(db)?.preferences.markets
+  const owner = getProfile(db)
+  const markets = owner
+    ? effectiveMarkets(owner.preferences.markets, owner.basics.location)
+    : undefined
   return {
     q,
     status,
