@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 import { useLocale, useT } from '@/components/i18n/LocaleProvider'
 import { HomeView } from '@/components/pages/HomeView'
 import { useLoader } from '@/web/lib/use-loader'
+import { WaysInCard } from '@/web/lib/ways-in'
 
 /** The home screen (components/pages/HomeView.tsx) on this browser's data. */
 function Home() {
@@ -27,6 +28,7 @@ function Home() {
       shotsHref="/share"
       privacyHref="/privacidad"
       landingHref="/?inicio"
+      extras={<WaysInCard />}
     />
   )
 }

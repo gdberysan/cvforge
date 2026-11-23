@@ -12,6 +12,7 @@ import { DataCard } from '@/web/lib/data-card'
 import { useDatabase } from '@/web/lib/database'
 import { PasswordCard } from '@/web/lib/password-card'
 import { useLoader } from '@/web/lib/use-loader'
+import { WaysInSettings } from '@/web/lib/ways-in'
 
 /** Ajustes in the browser: the key, the language, and the data as a file. */
 export default function Page() {
@@ -96,6 +97,10 @@ export default function Page() {
             <HapticsToggle />
           </SettingsGroup>
         )}
+
+        <SettingsGroup title={t('waysIn.settings')} lede={t('waysIn.settingsLede')}>
+          <WaysInSettings />
+        </SettingsGroup>
 
         <SettingsGroup title={t('settings.group.data')} id="tus-datos">
           <PasswordCard />

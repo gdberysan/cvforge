@@ -34,7 +34,6 @@ export const CVRoleSchema = z.object({
     .optional(),
   bullets: z.array(GeneratedBulletSchema),
 })
-export type CVRole = z.infer<typeof CVRoleSchema>
 
 /**
  * A project section as stored and rendered. Name, link and dates are filled
@@ -50,7 +49,6 @@ export const CVProjectSchema = z.object({
   endDate: z.string().optional(),
   bullets: z.array(GeneratedBulletSchema),
 })
-export type CVProject = z.infer<typeof CVProjectSchema>
 
 export const CVContentSchema = z.object({
   header: z.object({

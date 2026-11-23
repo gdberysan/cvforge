@@ -140,7 +140,7 @@ header.top {
   grid-template-columns: var(--split);
   gap: var(--split-gap);
   align-items: center;
-  padding-block: clamp(32px, 7vh, 72px) clamp(40px, 6vh, 72px);
+  padding-block: clamp(28px, 5vh, 56px) clamp(40px, 6vh, 64px);
 }
 .hero h1 {
   margin: 0;
@@ -209,7 +209,7 @@ header.top {
 .caption { margin: 2px 0 0; font: 400 14px/1.45 var(--display); color: var(--ink-faint); }
 
 /* Section rhythm: space, not rules. Each section opens with one line. */
-section { padding-block: clamp(48px, 8vh, 88px); }
+section { padding-block: clamp(48px, 7vh, 72px); }
 .kicker { margin: 0 0 16px; font: 500 14px/1.3 var(--data); letter-spacing: .04em; color: var(--amber-ink); }
 h2 { margin: 0 0 26px; font: 700 clamp(34px, 4.6vw, 54px)/1.04 var(--display); letter-spacing: -0.035em; max-width: 18ch; }
 
@@ -225,6 +225,16 @@ h2 { margin: 0 0 26px; font: 700 clamp(34px, 4.6vw, 54px)/1.04 var(--display); l
 .sign { margin-top: 30px; display: flex; align-items: baseline; gap: 14px; }
 .sign .name { font: italic 400 34px/1 var(--text); }
 .sign .where { font: 400 14px/1.4 var(--data); color: var(--ink-faint); }
+
+/* Where it works: two white cards, the only cards on the page besides the demo. */
+.ways { display: grid; grid-template-columns: var(--split); gap: 24px var(--split-gap); }
+.way-card { background: var(--sheet); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); display: grid; gap: 12px; align-content: start; }
+.way-card h3 { margin: 0; font: 700 26px/1.15 var(--display); letter-spacing: -0.02em; }
+.way-card p { margin: 0; color: var(--ink-soft); }
+.way-card ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; font: 500 18px/1.45 var(--display); }
+.way-card ol li::marker { color: var(--amber-ink); font-weight: 700; }
+.way-card .btn { justify-self: start; margin-top: 8px; }
+.way-card .soon { font: 500 16px/1.45 var(--display); color: var(--ink-faint); margin-top: 4px; }
 
 /* What it refuses: statements, set large. */
 .nots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: var(--split); gap: 40px var(--split-gap); }
@@ -281,7 +291,8 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
   .seg button span { font: 600 16px/1.2 var(--display); color: inherit; }
   .answer { padding: 20px; }
   .verdict h3 { font-size: 34px; }
-  .nots { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .nots, .ways { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .way-card { padding: 22px; }
   .last .start { width: 100%; }
   .nots h3 { font-size: 26px; }
   .nots p { padding-left: 32px; }
@@ -343,6 +354,33 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
         <span class="name">Gerardo</span>
         <span class="where">México</span>
       </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-ways">
+    <p class="kicker">Funciona donde buscas</p>
+    <h2 id="h-ways">Trae la vacante desde donde la encuentras.</h2>
+    <div class="ways">
+      <article class="way-card">
+        <h3>En tu computadora, desde LinkedIn</h3>
+        <p>Con la extensión de Rumbo para Chrome, un botón junto al título de cada vacante la abre en Rumbo, al lado, lista para analizar. Si cambias de vacante, te sigue.</p>
+        <ol>
+          <li>Agrega Rumbo a Chrome.</li>
+          <li>Abre una vacante en LinkedIn.</li>
+          <li>Pulsa «Analizar en Rumbo» junto al título.</li>
+        </ol>
+        <!--EXTENSION--><p class="soon">Muy pronto en Chrome Web Store</p><!--/EXTENSION-->
+      </article>
+      <article class="way-card">
+        <h3>En tu teléfono, desde cualquier app</h3>
+        <p>Abre Rumbo en tu teléfono e instálalo: aparecerá en el menú Compartir. Desde LinkedIn o cualquier app, comparte la vacante, o sus capturas, y Rumbo la abre lista.</p>
+        <ol>
+          <li>Abre rumbo.korven.dev e instálalo.</li>
+          <li>En LinkedIn, toca Compartir en la vacante.</li>
+          <li>Elige Rumbo.</li>
+        </ol>
+        <p class="soon">En iPhone, copia el texto de la vacante y pégalo en Analizar.</p>
+      </article>
     </div>
   </section>
 

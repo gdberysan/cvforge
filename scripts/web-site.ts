@@ -72,6 +72,18 @@ export function vercelSource(pattern: string): string {
   return parts.join('/')
 }
 
+/**
+ * The landing's extension button: the Chrome Web Store page once there is
+ * one; until then, the "coming soon" line between the EXTENSION markers.
+ */
+export function withStore(html: string, store: string): string {
+  return html.replace(/<!--EXTENSION-->[\s\S]*?<!--\/EXTENSION-->/, (soon) =>
+    store
+      ? `<a class="btn" href="${store}" target="_blank" rel="noreferrer">Agregar a Chrome</a>`
+      : soon.replace(/<!--\/?EXTENSION-->/g, ''),
+  )
+}
+
 /** The retired address: everything to Rumbo, except the update notice. */
 export const LEGACY_HOST = 'cvforge.korven.dev'
 export const LEGACY_REDIRECT = {
@@ -90,7 +102,11 @@ if (process.argv[1]?.endsWith('web-site.ts')) {
   mkdirSync(SITE, { recursive: true })
   cpSync(OUT, path.join(SITE, BASE.replace(/^\//, '')), { recursive: true })
 
-  const landing = readFileSync(path.join('web', 'landing', 'index.html'), 'utf8')
+  // The extension's store page, once approved: until then the landing says it is coming.
+  const landing = withStore(
+    readFileSync(path.join('web', 'landing', 'index.html'), 'utf8'),
+    process.env.RUMBO_EXTENSION_URL ?? '',
+  )
   const meta = `<meta http-equiv="Content-Security-Policy" content="${landingPolicy(inlineHashes(landing))}">`
   writeFileSync(path.join(SITE, 'index.html'), landing.replace('<head>', `<head>\n${meta}`))
   copyFileSync(path.join('web', 'app', 'icon.svg'), path.join(SITE, 'favicon.svg'))
