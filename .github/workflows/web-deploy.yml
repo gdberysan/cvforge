@@ -35,7 +35,7 @@ jobs:
       - run: npm run web:build
         env:
           CVFORGE_SOURCE_URL: ${{ github.server_url }}/${{ github.repository }}
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v4
         with:
           subject-path: web/out/build.json
       - uses: actions/upload-artifact@v4
