@@ -27,6 +27,7 @@ export function VerdictCard({
   onSkip,
   onSaveForLater,
   onBuild,
+  example = false,
 }: {
   company: string
   jobTitle: string
@@ -36,6 +37,8 @@ export function VerdictCard({
   onSkip: () => void
   onSaveForLater: () => void
   onBuild: () => void
+  /** An example (the first run's sample): the answer only, nothing to act on. */
+  example?: boolean
 }) {
   const t = useT()
   const locale = useLocale()
@@ -105,33 +108,35 @@ export function VerdictCard({
       {/* The big button is always what the analysis just recommended; the
           interface never argues with its own advice. On a phone the row is
           pinned above the bottom bar (.phone-footer). */}
-      <div className="answer-actions phone-footer">
-        {worthBuilding ? (
-          <>
-            <button type="button" className="btn btn-primary answer-main" onClick={onBuild}>
-              {t('verdict.build')}
-            </button>
-            <button type="button" className="btn btn-quiet" onClick={onSaveForLater}>
-              {t('verdict.save')}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={onSkip}>
-              {t('verdict.skip')}
-            </button>
-          </>
-        ) : (
-          <>
-            <button type="button" className="btn btn-primary answer-main" onClick={onSkip}>
-              {t('verdict.next')}
-            </button>
-            <button type="button" className="btn btn-quiet" onClick={onSaveForLater}>
-              {t('verdict.save')}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={onBuild}>
-              {t('verdict.buildAnyway')}
-            </button>
-          </>
-        )}
-      </div>
+      {!example && (
+        <div className="answer-actions phone-footer">
+          {worthBuilding ? (
+            <>
+              <button type="button" className="btn btn-primary answer-main" onClick={onBuild}>
+                {t('verdict.build')}
+              </button>
+              <button type="button" className="btn btn-quiet" onClick={onSaveForLater}>
+                {t('verdict.save')}
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={onSkip}>
+                {t('verdict.skip')}
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" className="btn btn-primary answer-main" onClick={onSkip}>
+                {t('verdict.next')}
+              </button>
+              <button type="button" className="btn btn-quiet" onClick={onSaveForLater}>
+                {t('verdict.save')}
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={onBuild}>
+                {t('verdict.buildAnyway')}
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </section>
   )
 }

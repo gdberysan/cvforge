@@ -76,7 +76,7 @@ export function Nav({
     // One row: the wordmark, then what you can reach; on a phone the
     // destinations live in the bottom bar and the language in Ajustes, so
     // the bar is the wordmark and your spend.
-    <nav className="topnav">
+    <nav className={started ? 'topnav' : 'topnav is-new'}>
       <Link href="/" className="brand-link">
         <span aria-hidden className="brand-mark">
           <IconMark />

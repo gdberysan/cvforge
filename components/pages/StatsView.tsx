@@ -78,8 +78,10 @@ export function StatsView({ data, t }: { data: StatsData; t: Translate }) {
           <p className="page-lede">{t('stats.empty.lede')}</p>
         </header>
         <p>
-          <Link href="/pipeline" className="btn btn-primary">
-            {t('nav.pipeline')}
+          {/* The step that moves you forward: a first analysis, or marking
+              one you already have as sent. */}
+          <Link href={apps.length === 0 ? '/' : '/pipeline'} className="btn btn-primary">
+            {apps.length === 0 ? t('nav.analyse') : t('nav.pipeline')}
           </Link>
         </p>
       </main>

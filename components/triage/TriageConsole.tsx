@@ -14,6 +14,16 @@ import { readEventStream } from '@/lib/sse-client'
 import { haptic } from '@/lib/ui/haptics'
 import { VerdictCard } from './VerdictCard'
 
+/** A link from outside, only if it is a web page (never javascript: or data:). */
+function webLink(raw: string): string {
+  try {
+    const u = new URL(raw)
+    return u.protocol === 'https:' || u.protocol === 'http:' ? u.href : ''
+  } catch {
+    return ''
+  }
+}
+
 type Result = {
   applicationId: string
   cached: boolean
@@ -35,6 +45,7 @@ export function TriageConsole({
   title,
   secondary,
   footer,
+  posting,
 }: {
   /** Where you would actually be working. It decides whether a location,
    *  timezone or authorization line in the posting is a blocker or noise. */
@@ -57,6 +68,9 @@ export function TriageConsole({
   secondary?: React.ReactNode
   /** Quiet help at the bottom of the card (hints, the sample link). */
   footer?: React.ReactNode
+  /** A job already read in parts (the browser extension): shown as the job
+   *  itself, its text one tap away for checking or editing. */
+  posting?: { title: string; company: string; location: string; url: string; body: string }
 }) {
   const t = useT()
   const locale = useLocale()
@@ -73,6 +87,7 @@ export function TriageConsole({
   const [stage, setStage] = useState<{ name: string; detail?: string } | null>(null)
   const [triaged, setTriaged] = useState(0)
   const [focused, setFocused] = useState(false)
+  const [editing, setEditing] = useState(false)
   const boxRef = useRef<HTMLTextAreaElement>(null)
   const verdictRef = useRef<HTMLDivElement>(null)
 
@@ -228,7 +243,32 @@ export function TriageConsole({
           </div>
         )}
 
-        {!result && (
+        {!result && posting && !editing && (
+          <article className="posting-card">
+            {posting.company && <p className="posting-company">{posting.company}</p>}
+            <h2 className="posting-title">{posting.title}</h2>
+            {posting.location && <p className="posting-place">{posting.location}</p>}
+            {/* A taste of the text, as one paragraph: enough to know it is the right job. */}
+            <p className="posting-body">{posting.body.replace(/\s*\n+\s*/g, ' ')}</p>
+            <div className="posting-foot">
+              <button type="button" className="posting-link" onClick={() => setEditing(true)}>
+                {t('triage.posting.full')}
+              </button>
+              {webLink(posting.url) && (
+                <a
+                  className="posting-link"
+                  href={webLink(posting.url)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t('triage.posting.original')}
+                </a>
+              )}
+            </div>
+          </article>
+        )}
+
+        {!result && (!posting || editing) && (
           <textarea
             ref={boxRef}
             value={text}
@@ -244,7 +284,7 @@ export function TriageConsole({
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             // biome-ignore lint/a11y/noAutofocus: this page exists to receive a paste
-            autoFocus={!compact}
+            autoFocus={!compact || editing}
             readOnly={Boolean(demoPostings?.length)}
             placeholder={t('triage.placeholder')}
             aria-label={t('triage.aria')}
@@ -252,7 +292,9 @@ export function TriageConsole({
           />
         )}
 
-        {!result && (
+        {/* Where you would work and the link are details of a posting: shown
+            once there is one, so an empty box asks for nothing else. */}
+        {!result && (text.trim().length > 0 || url.trim().length > 0) && (
           <details className="intake-more">
             <summary>
               {t(url.trim() ? 'triage.moreLinked' : 'triage.more', {

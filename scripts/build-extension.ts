@@ -53,7 +53,7 @@ const manifest = {
   version: pkg.version.split('-')[0],
   icons: { 48: 'icons/icon-48.png', 128: 'icons/icon-128.png' },
   action: { default_title: 'CVForge' },
-  side_panel: { default_path: 'panel.html' },
+  // No default panel: each tab gets its own when it asks (background.ts).
   background: { service_worker: 'background.js', type: 'module' },
   permissions: ['sidePanel', 'storage', 'activeTab', 'scripting'],
   // The site the panel frames, so its storage is the person's own (not a

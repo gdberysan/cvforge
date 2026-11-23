@@ -1,7 +1,5 @@
 import Link from 'next/link'
-import { ImportReview } from '@/components/evidence/ImportReview'
-import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
-import { KeyGuide } from '@/components/settings/KeyGuide'
+import { FirstRun, WelcomeSteps } from '@/components/onboarding/FirstRun'
 import { AgentFinds } from '@/components/today/AgentFinds'
 import { MailSuggestions } from '@/components/today/MailSuggestions'
 import { type InboxItem, TodayInbox } from '@/components/today/TodayInbox'
@@ -36,6 +34,7 @@ export function HomeView({
   discover,
   keyLocal = true,
   shotsHref,
+  privacyHref,
 }: {
   data: HomeData
   t: Translate
@@ -47,8 +46,11 @@ export function HomeView({
   keyLocal?: boolean
   /** The web edition reads screenshots: where its upload lives. */
   shotsHref?: string
+  /** Where the privacy promises are written down (the web edition's page). */
+  privacyHref?: string
 }) {
-  if (data.kind === 'first-run') return <FirstRun t={t} needsKey={data.needsKey} local={keyLocal} />
+  if (data.kind === 'first-run')
+    return <FirstRun needsKey={data.needsKey} local={keyLocal} privacyHref={privacyHref} />
   const { sample, li, find } = search
   const useSample = sample === '1'
 
@@ -198,46 +200,4 @@ export function HomeView({
   )
 }
 
-/**
- * The wizard (product spec §4.3), as in the mockup's "Primera vez": three
- * steps of about two minutes — the key, the CV, then a first posting, which
- * is Hoy itself once a profile exists. One big title and one card per step.
- */
-function FirstRun({ t, needsKey, local }: { t: Translate; needsKey: boolean; local: boolean }) {
-  if (needsKey) {
-    return (
-      <main id="main" tabIndex={-1} className="page welcome">
-        <WelcomeSteps at={1} label={t('start.keyEyebrow')} />
-        <h1 className="welcome-title">{t('start.keyTitle')}</h1>
-        <p className="welcome-lede">{t('start.keyLede')}</p>
-        {/* How to get one first, open: someone new has no key yet. */}
-        <KeyGuide open />
-        <div className="welcome-card settings-rows">
-          <ApiKeyForm hasSavedKey={false} envManaged={false} local={local} />
-        </div>
-      </main>
-    )
-  }
-  return (
-    <main id="main" tabIndex={-1} className="page welcome">
-      <WelcomeSteps at={2} label={t('start.importEyebrow')} />
-      <h1 className="welcome-title">{t('start.title')}</h1>
-      <p className="welcome-lede">{t('start.lede')}</p>
-      <ImportReview />
-    </main>
-  )
-}
-
-/** Three marks, filled up to this step, and the step in words. */
-export function WelcomeSteps({ at, label }: { at: 1 | 2 | 3; label: string }) {
-  return (
-    <div className="welcome-steps">
-      <div className="welcome-bar" aria-hidden>
-        {[1, 2, 3].map((n) => (
-          <span key={n} className={n <= at ? 'is-done' : undefined} />
-        ))}
-      </div>
-      <p>{label}</p>
-    </div>
-  )
-}
+export { WelcomeSteps }

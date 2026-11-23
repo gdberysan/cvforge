@@ -8,7 +8,7 @@
  * jobs: the button lives in its own shadow root and is put back whenever the
  * page drops it (the lesson from Mordue's panel, which had the same problem).
  */
-import { extractPosting, signedInJob } from './extract'
+import { extractPosting, linkedInJobUrl, signedInJob } from './extract'
 
 const HOST_ID = 'cvforge-analyse'
 // The page's own language first: LinkedIn may be in Spanish in an English browser.
@@ -80,18 +80,57 @@ function mount(): void {
   root.append(style, button)
   button.addEventListener('click', () => {
     const posting = extractPosting(document, location.href, String(window.getSelection() ?? ''))
+    lastSeen = posting.url
     void chrome.runtime.sendMessage({ type: 'cvforge:analyse', posting })
   })
   at.insertAdjacentElement('afterend', host)
 }
 
-mount()
+/**
+ * Moving to another job in the list tells the extension which job is now
+ * on screen, so an open side panel can follow it. Sent once per job, and
+ * only once the page shows that job's own description (LinkedIn empties
+ * the column between jobs, so a half-drawn page reads as nothing).
+ */
+let lastSeen = ''
+function announce(): void {
+  const url = linkedInJobUrl(location.href)
+  if (!url || url === lastSeen) return
+  const posting = extractPosting(document, location.href)
+  if (posting.source !== 'linkedin' || posting.url !== url) return
+  lastSeen = url
+  try {
+    void chrome.runtime.sendMessage({ type: 'cvforge:seen', posting })
+  } catch {
+    // The extension was reloaded under this page: nothing to tell.
+  }
+}
+
+function settle(): void {
+  mount()
+  announce()
+}
+
+/** Open while this page lives: its closing tells the extension the tab left. */
+function stayInTouch(): void {
+  try {
+    chrome.runtime.connect({ name: 'cvforge-page' }).onDisconnect.addListener(() => {
+      // The extension's worker slept and dropped it: say hello again.
+      setTimeout(stayInTouch, 1000)
+    })
+  } catch {
+    // The extension was reloaded under this page.
+  }
+}
+stayInTouch()
+
+settle()
 // LinkedIn changes its page many times a second; look again only once it
 // has been still for a moment.
 let pending: number | undefined
 new MutationObserver(() => {
   clearTimeout(pending)
-  pending = window.setTimeout(mount, 250)
+  pending = window.setTimeout(settle, 250)
 }).observe(document.documentElement, {
   childList: true,
   subtree: true,

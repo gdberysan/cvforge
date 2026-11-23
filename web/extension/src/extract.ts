@@ -30,6 +30,29 @@ const first = (doc: Document, selectors: string[]): HTMLElement | null => {
 
 const textOf = (el: HTMLElement | null) => clean(el?.innerText ?? el?.textContent)
 
+/**
+ * A description's text with its lists still reading as lists: innerText
+ * drops the bullet, so each item's first line gets one back.
+ */
+function bodyOf(el: HTMLElement): string {
+  const items = new Set(
+    [...el.querySelectorAll('li')]
+      .map((li) =>
+        clean(li.innerText ?? li.textContent)
+          .split('\n')[0]
+          ?.trim(),
+      )
+      .filter(Boolean),
+  )
+  return textOf(el)
+    .split('\n')
+    .map((line) => {
+      const l = line.trim()
+      return items.has(l) ? `• ${l}` : l
+    })
+    .join('\n')
+}
+
 /** "…linkedin.com/jobs/view/123/?trk=…", "…/jobs/view/title-at-acme-123" or "?currentJobId=123" -> the canonical view URL. */
 export function linkedInJobUrl(href: string): string | null {
   const url = new URL(href)
@@ -109,7 +132,7 @@ export function signedInJob(doc: Document): {
     title,
     company,
     location,
-    description: textOf(box).replace(MORE, '').trim(),
+    description: bodyOf(box).replace(MORE, '').trim(),
   }
 }
 
@@ -157,7 +180,7 @@ function fromLinkedIn(doc: Document, href: string): PagePosting | null {
     title,
     company,
     location: location.split('·')[0]?.trim() ?? '',
-    text: textOf(description).replace(/^(About the job|Acerca del empleo)\s*/i, ''),
+    text: bodyOf(description).replace(/^(About the job|Acerca del empleo)\s*/i, ''),
     url,
     source: 'linkedin',
   }

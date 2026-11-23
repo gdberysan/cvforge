@@ -27,7 +27,7 @@ const en = {
   'home.eyebrow': 'Analysis',
   'home.title': 'Is this worth your time?',
   'home.lede':
-    'Twenty seconds and a fraction of a cent. It checks location, time zone and work authorization first, because no change to your CV can fix those.',
+    'Twenty seconds and about four cents. It checks location, time zone and work authorization first, because no change to your CV can fix those.',
   'home.nudge.one':
     "{n} role still has only its CV bullets, so you'll look like a weaker match than you are.",
   'home.nudge.other':
@@ -53,14 +53,15 @@ const en = {
   'triage.cached': '· saved earlier, no cost',
   'triage.more': 'For {market} · add the link',
   'triage.moreLinked': 'For {market} · link added',
+  'triage.posting.full': 'See or edit the text',
+  'triage.posting.original': 'Open the posting',
   'triage.cardTitle': 'A new posting',
   'triage.shots': 'Upload screenshots',
   'triage.skipFailed': "Couldn't skip it. It's still in your pipeline.",
   'error.rate-limit':
     'Too many requests to Anthropic right now. Wait about a minute and try again. Your text is still here.',
   'error.overloaded': 'Anthropic is busy right now. Try again in a moment.',
-  'error.auth':
-    "You don't have an Anthropic key yet. Add one in Settings (or set ANTHROPIC_API_KEY) and try again.",
+  'error.auth': "You don't have an AI key yet. Add one in Settings and try again.",
   'error.billing':
     'Your Anthropic account is out of credits. Add more at console.anthropic.com and try again. Your text is still here.',
   'error.timeout': 'That took too long. Try again. Your text is still here.',
@@ -299,9 +300,20 @@ const en = {
   'home.sample': 'Try a sample posting →',
   'home.sampleLoaded': 'A sample posting is loaded. Replace it with a real one any time.',
   'start.keyEyebrow': 'Step 1 of 3 · about 5 minutes',
-  'start.keyTitle': 'First, your Anthropic key.',
+  'start.keyTitle': 'First, your AI key.',
   'start.keyLede':
-    'Anthropic makes Claude, the AI that reads postings and writes your CVs. You use it with a key of your own and pay only for what you use: a few cents per posting. The key stays on this device.',
+    'CVForge uses Claude, the AI made by Anthropic, to read postings and write your CVs. With a key of your own you pay only for what you use, straight to Anthropic: about $0.04 USD per posting. The key stays on this device.',
+  'start.lookTitle': "Worth applying? You'll know in a minute.",
+  'start.lookLede':
+    "Paste a job posting and CVForge compares it with your real experience: whether it's worth it, what you meet and what you're missing. It never makes anything up about you, and your data stays in your browser.",
+  'start.lookCta': 'Try it with my CV',
+  'start.lookCost':
+    'Free. You only pay for the AI you use, a few cents per posting, straight to Anthropic.',
+  'start.lookExample': 'See it with an example',
+  'start.lookWho':
+    'Lucas, a made-up example, is looking for marketing work in Mexico City. These are the real answers CVForge gave for three postings.',
+  'start.back': '← Back to the example',
+  'start.privacy': 'How your privacy is kept',
   'start.importEyebrow': 'Step 2 of 3',
   'start.tryEyebrow': 'Step 3 of 3 · your first posting',
   'start.tryLede': 'Ready. Bring a posting you like, or try the sample one below.',
@@ -475,12 +487,12 @@ const en = {
   'settings.key.remove': 'Remove',
   'settings.key.fromMac': 'Change the key from the Mac, not from the phone.',
   'settings.noKey': 'No key saved yet.',
-  'guide.title': 'How to get a key (five minutes)',
-  'guide.step1': 'Create an account at console.anthropic.com.',
-  'guide.step2': 'Add about $5 USD of credit under Plans & Billing.',
-  'guide.step3': 'Create a key under API Keys and paste it above.',
+  'guide.title': 'How to get your key (5 minutes)',
+  'guide.step1': 'Create an account at console.anthropic.com (it opens in a new tab).',
+  'guide.step2': 'Under “Plans & Billing”, add about $5 USD of credit.',
+  'guide.step3': 'Under “API Keys”, create a key, copy it and paste it above.',
   'guide.cost':
-    "Measured in real use, it costs about $0.13 to analyse a posting and $0.50 for a full kit. A whole job search usually comes to $5–10 of API use, less than a coffee a week. The counter in the top bar shows what you've spent so far.",
+    'Measured in real use: about $0.04 USD to analyse a posting and $0.50 USD for a full kit. A whole job search usually comes to $3–6 USD. Once you start, the top bar shows what you have spent.',
   'guide.open': 'Open console.anthropic.com →',
   'error.key-empty': 'Paste your key first.',
   'error.key-invalid':
@@ -565,7 +577,7 @@ const en = {
   'stats.title': 'What your applications say',
   'stats.empty.title': 'No outcomes to count yet',
   'stats.empty.lede':
-    'Log what happens with each application (sent, replied, interview, rejected) and this page becomes your own guide to when to apply: which verdicts actually get replies, what keeps coming up missing, which experience helps you most.',
+    'Mark what happens with each application and this page shows what actually gets you replies.',
   'stats.appliedWeek.one': '{n} sent this week',
   'stats.appliedWeek.other': '{n} sent this week',
   'stats.median': 'median response: {n}d',
@@ -1318,6 +1330,9 @@ const en = {
     'Paste a posting. In under a minute you will know whether it is worth it, what you meet and what you lack.',
   'share.ledeReady':
     'It is all here. Press Analyse and in under a minute you will know whether it is worth it, what you meet and what you lack.',
+  'share.setupFirst':
+    'To analyse this job, CVForge first needs your AI key and your CV. About 5 minutes, only once.',
+  'share.setupCta': 'Set up CVForge',
   'share.titleShared': 'Analyse this posting',
   'share.noReader': "This version can't read LinkedIn links. Paste the posting text below.",
   'share.fetchFailed':
@@ -1600,7 +1615,7 @@ const en = {
   'web.data.exportFailed': 'The copy could not be made.',
   'web.data.importTitle': 'Bring in a copy',
   'web.data.importHint':
-    "A file from Export, or a backup from the desktop app. It replaces everything here, but what's here now is saved aside first.",
+    "A file from Export, or a backup from CVForge for Mac or Windows. It replaces everything here, but what's here now is saved aside first.",
   'web.data.importConfirm': 'Replace my data with {name}',
   'web.data.imported': 'Done. Your data is the copy you brought in.',
   'web.data.importFailed': 'The file could not be read.',
@@ -1616,7 +1631,7 @@ const en = {
   'web.db.opening': 'Opening your data…',
   'web.db.busy': 'CVForge is open in another tab. Your data can only be open in one at a time.',
   'web.db.takeOver': 'Use it here',
-  'web.db.moved': 'CVForge moved to another tab. Close this one, or reload it to take it back.',
+  'web.db.moved': 'CVForge moved to another tab.',
   'web.db.unsupported':
     'This browser cannot keep CVForge’s data. Use a current Chrome, Edge, Safari or Firefox.',
   'web.db.failed': 'Your data could not be opened: {message}',
@@ -1700,7 +1715,7 @@ const es: Record<MessageKey, string> = {
   'home.eyebrow': 'Análisis',
   'home.title': '¿Vale tu tiempo?',
   'home.lede':
-    'Veinte segundos y una fracción de centavo. Primero revisa ubicación, zona horaria y permiso de trabajo, porque eso no se arregla con ningún ajuste al CV.',
+    'Veinte segundos y unos cuatro centavos de dólar. Primero revisa ubicación, zona horaria y permiso de trabajo, porque eso no se arregla con ningún ajuste al CV.',
   'home.nudge.one':
     '{n} puesto todavía tiene solo las viñetas de tu CV, así que vas a parecer menos compatible de lo que eres.',
   'home.nudge.other':
@@ -1726,14 +1741,15 @@ const es: Record<MessageKey, string> = {
   'triage.cached': '· ya estaba guardada, sin costo',
   'triage.more': 'Para {market} · agregar la liga',
   'triage.moreLinked': 'Para {market} · con su liga',
+  'triage.posting.full': 'Ver o editar el texto',
+  'triage.posting.original': 'Abrir la vacante',
   'triage.cardTitle': 'Una vacante nueva',
   'triage.shots': 'Subir capturas',
   'triage.skipFailed': 'No se pudo descartar. Sigue en tus postulaciones.',
   'error.rate-limit':
     'Hubo demasiadas solicitudes a Anthropic. Espera un minuto y vuelve a intentarlo. Tu texto sigue aquí.',
   'error.overloaded': 'Anthropic está saturado. Inténtalo de nuevo en un momento.',
-  'error.auth':
-    'Todavía no tienes clave de Anthropic. Agrégala en Ajustes (o define ANTHROPIC_API_KEY) y vuelve a intentarlo.',
+  'error.auth': 'Todavía no tienes clave de IA. Agrégala en Ajustes y vuelve a intentarlo.',
   'error.billing':
     'Tu cuenta de Anthropic se quedó sin créditos. Agrega más en console.anthropic.com y vuelve a intentarlo. Tu texto sigue aquí.',
   'error.timeout': 'Tardó demasiado en responder. Vuelve a intentarlo. Tu texto sigue aquí.',
@@ -1975,9 +1991,20 @@ const es: Record<MessageKey, string> = {
   'home.sample': 'Probar con una vacante de ejemplo →',
   'home.sampleLoaded': 'Cargamos una vacante de ejemplo. Reemplázala por una real cuando quieras.',
   'start.keyEyebrow': 'Paso 1 de 3 · unos 5 minutos',
-  'start.keyTitle': 'Primero, tu clave de Anthropic.',
+  'start.keyTitle': 'Primero, tu clave de IA.',
   'start.keyLede':
-    'Anthropic hace Claude, la IA que lee las vacantes y escribe tus CV. La usas con una clave tuya y pagas solo lo que usas: unos centavos por vacante. La clave se queda en este dispositivo.',
+    'CVForge usa Claude, la IA de Anthropic, para leer vacantes y escribir tus CV. Con una clave tuya pagas solo lo que usas, directo a Anthropic: unos $0.04 USD por vacante. La clave se queda en este dispositivo.',
+  'start.lookTitle': '¿Vale la pena postularte? Lo sabrás en un minuto.',
+  'start.lookLede':
+    'Pega una vacante y CVForge la compara con tu experiencia real: si vale la pena, qué cumples y qué te falta. Nunca inventa nada de ti, y tus datos se quedan en tu navegador.',
+  'start.lookCta': 'Probarlo con mi CV',
+  'start.lookCost':
+    'Gratis. Solo pagas la IA que uses, unos centavos por vacante, directo a Anthropic.',
+  'start.lookExample': 'Míralo con un ejemplo',
+  'start.lookWho':
+    'Lucas, un ejemplo inventado, busca trabajo de marketing en Ciudad de México. Estas son las respuestas reales que CVForge dio a tres vacantes.',
+  'start.back': '← Volver al ejemplo',
+  'start.privacy': 'Cómo se cuida tu privacidad',
   'start.importEyebrow': 'Paso 2 de 3',
   'start.tryEyebrow': 'Paso 3 de 3 · tu primera vacante',
   'start.tryLede': 'Listo. Trae una vacante que te interese, o prueba con la de ejemplo de abajo.',
@@ -2150,12 +2177,12 @@ const es: Record<MessageKey, string> = {
   'settings.key.remove': 'Quitar',
   'settings.key.fromMac': 'La clave se cambia desde la Mac, no desde el teléfono.',
   'settings.noKey': 'Aún no hay clave guardada.',
-  'guide.title': 'Cómo obtener una clave (cinco minutos)',
-  'guide.step1': 'Crea una cuenta en console.anthropic.com.',
-  'guide.step2': 'Agrega unos $5 USD de crédito en Plans & Billing.',
-  'guide.step3': 'Crea una clave en API Keys y pégala arriba.',
+  'guide.title': 'Cómo conseguir tu clave (5 minutos)',
+  'guide.step1': 'Crea una cuenta en console.anthropic.com (se abre en otra pestaña).',
+  'guide.step2': 'En «Plans & Billing», agrega unos $5 USD de crédito.',
+  'guide.step3': 'En «API Keys», crea una clave, cópiala y pégala arriba.',
   'guide.cost':
-    'Medido en uso real, analizar una vacante cuesta unos $0.13 USD y un kit completo $0.50. Una búsqueda de empleo completa suele costar $5–10 USD de API, menos que un café a la semana. El contador de la barra superior muestra lo que llevas gastado.',
+    'Medido en uso real: analizar una vacante cuesta unos $0.04 USD y un kit completo unos $0.50 USD. Una búsqueda completa suele costar entre $3 y $6 USD. En cuanto empieces, la barra superior muestra lo que llevas gastado.',
   'guide.open': 'Abrir console.anthropic.com →',
   'error.key-empty': 'Primero pega tu clave.',
   'error.key-invalid':
@@ -2240,7 +2267,7 @@ const es: Record<MessageKey, string> = {
   'stats.title': 'Lo que dicen tus postulaciones',
   'stats.empty.title': 'Aún no hay resultados que contar',
   'stats.empty.lede':
-    'Registra lo que pasa con cada postulación (enviada, respondieron, entrevista, rechazada) y esta página se vuelve tu propia guía para decidir cuándo postularte: qué veredictos sí consiguen respuesta, qué te falta una y otra vez, qué experiencia te ayuda más.',
+    'Marca lo que pasa con cada postulación y aquí verás qué te consigue respuestas de verdad.',
   'stats.appliedWeek.one': '{n} enviada esta semana',
   'stats.appliedWeek.other': '{n} enviadas esta semana',
   'stats.median': 'respuesta mediana: {n}d',
@@ -2997,6 +3024,9 @@ const es: Record<MessageKey, string> = {
     'Pega el texto de una vacante. En menos de un minuto sabrás si vale la pena, qué cumples y qué te falta.',
   'share.ledeReady':
     'Ya está todo aquí. Pulsa Analizar y en menos de un minuto sabrás si vale la pena, qué cumples y qué te falta.',
+  'share.setupFirst':
+    'Para analizar esta vacante, CVForge necesita primero tu clave de IA y tu CV. Son unos 5 minutos, una sola vez.',
+  'share.setupCta': 'Configurar CVForge',
   'share.titleShared': 'Analiza esta vacante',
   'share.noReader': 'Esta versión no lee enlaces de LinkedIn. Pega abajo el texto de la vacante.',
   'share.fetchFailed':
@@ -3282,7 +3312,7 @@ const es: Record<MessageKey, string> = {
   'web.data.exportFailed': 'No se pudo hacer la copia.',
   'web.data.importTitle': 'Traer una copia',
   'web.data.importHint':
-    'Un archivo de Exportar o un respaldo de la app de escritorio. Reemplaza todo lo que hay aquí, pero antes guarda aparte lo actual.',
+    'Un archivo de Exportar, o un respaldo de CVForge para Mac o Windows. Reemplaza todo lo que hay aquí, pero antes guarda aparte lo actual.',
   'web.data.importConfirm': 'Reemplazar mis datos con {name}',
   'web.data.imported': 'Listo. Tus datos son la copia que trajiste.',
   'web.data.importFailed': 'No se pudo leer el archivo.',
@@ -3299,7 +3329,7 @@ const es: Record<MessageKey, string> = {
   'web.db.busy':
     'CVForge está abierto en otra pestaña. Tus datos solo pueden estar abiertos en una a la vez.',
   'web.db.takeOver': 'Usarlo aquí',
-  'web.db.moved': 'CVForge pasó a otra pestaña. Cierra esta o recárgala para recuperarlo.',
+  'web.db.moved': 'CVForge pasó a otra pestaña.',
   'web.db.unsupported':
     'Este navegador no puede guardar los datos de CVForge. Usa un Chrome, Edge, Safari o Firefox actual.',
   'web.db.failed': 'No se pudieron abrir tus datos: {message}',

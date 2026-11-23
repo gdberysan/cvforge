@@ -18,12 +18,17 @@ export default function Page() {
   const t = useT()
   const { state } = useDatabase()
   const data = useLoader('settings')
+  const shell = useLoader('shell')
   // Vibration exists only on a touch screen that can vibrate; elsewhere the
   // group holds only the language (HapticsToggle hides itself by the same test).
   const [canVibrate, setCanVibrate] = useState(false)
+  // A wide screen already has the language in the top bar: shown here only
+  // on a phone, where the bar has no room for it.
+  const [phone, setPhone] = useState(false)
   useEffect(() => {
     const touch = window.matchMedia?.('(pointer: coarse)').matches ?? false
     setCanVibrate(touch && typeof navigator.vibrate === 'function')
+    setPhone(window.matchMedia?.('(max-width: 600px)').matches ?? false)
   }, [])
   if (!data) return null
   const persisted = state.kind === 'ready' && state.persisted
@@ -53,19 +58,23 @@ export default function Page() {
               hint={t('settings.status.keyOk')}
             />
           )}
-          <SettingsRow
-            label={
-              <StatusLabel tone={persisted ? 'ok' : 'attn'}>{t('web.data.storage')}</StatusLabel>
-            }
-            hint={persisted ? t('web.db.persisted') : t('web.db.notPersisted')}
-          >
-            {/* The fix is one tap away: the copy is in "Tus datos". */}
-            {!persisted && (
-              <a href="#tus-datos" className="btn btn-quiet">
-                {t('web.data.saveCopy')}
-              </a>
-            )}
-          </SettingsRow>
+          {/* Only once there is something to lose: an empty install greeted
+              with "your data could be erased" is alarm with no cause. */}
+          {(persisted || shell?.started) && (
+            <SettingsRow
+              label={
+                <StatusLabel tone={persisted ? 'ok' : 'attn'}>{t('web.data.storage')}</StatusLabel>
+              }
+              hint={persisted ? t('web.db.persisted') : t('web.db.notPersisted')}
+            >
+              {/* The fix is one tap away: the copy is in "Tus datos". */}
+              {!persisted && (
+                <a href="#tus-datos" className="btn btn-quiet">
+                  {t('web.data.saveCopy')}
+                </a>
+              )}
+            </SettingsRow>
+          )}
           {data.unknownCost > 0 && (
             <SettingsRow
               label={<StatusLabel tone="attn">{t('web.job.unknownTitle')}</StatusLabel>}
@@ -76,12 +85,17 @@ export default function Page() {
 
         {data.hasKey && keyGroup}
 
-        <SettingsGroup title={canVibrate ? t('settings.group.look') : t('settings.group.prefs')}>
-          <SettingsRow label={t('nav.language')}>
-            <LocaleSwitch />
-          </SettingsRow>
-          <HapticsToggle />
-        </SettingsGroup>
+        {/* Before a profile the phone's bar shows the language itself. */}
+        {((phone && shell?.started) || canVibrate) && (
+          <SettingsGroup title={canVibrate ? t('settings.group.look') : t('settings.group.prefs')}>
+            {phone && shell?.started && (
+              <SettingsRow label={t('nav.language')}>
+                <LocaleSwitch />
+              </SettingsRow>
+            )}
+            <HapticsToggle />
+          </SettingsGroup>
+        )}
 
         <SettingsGroup title={t('settings.group.data')} id="tus-datos">
           <PasswordCard />

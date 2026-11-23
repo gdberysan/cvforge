@@ -3,8 +3,8 @@
  * on every snapshotted posting and diffs extraction against the snapshot, so
  * a prompt change can be judged better rather than merely different.
  *
- * Costs real money (≈ $0.13 per fixture at current prices: extraction plus
- * mapping). Every run is appended to evals/runs.jsonl, because a single run
+ * Costs real money (≈ $0.04 per fixture on Sonnet 5.5, ≈ $0.11 on Opus 5:
+ * extraction plus mapping). Every run is appended to evals/runs.jsonl, because a single run
  * cannot separate a prompt regression from sampling noise — the baseline on
  * 2026-08-21 showed the SAME prompt re-extracting the same posting at
  * jaccard 0.71 overall, mostly churn in soft requirements. So the judged set

@@ -235,7 +235,7 @@ describe('callStructured', () => {
 
       expect(seen[0]).toMatchObject({
         stage: 'extract-requirements',
-        model: 'claude-opus-5',
+        model: 'claude-sonnet-5-5',
         inputTokens: 1200,
         outputTokens: 300,
         cacheReadTokens: 500,

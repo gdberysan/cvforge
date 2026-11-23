@@ -81,10 +81,11 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
     )
       .then(async (role) => {
         if (role.kind === 'busy') {
-          // Arriving from the phone's share sheet is an unambiguous "here":
-          // take the data over rather than ask (an older CVForge tab is
-          // usually still open in the browser).
-          if (!steal && new URLSearchParams(location.search).has('shared')) {
+          // Arriving from the phone's share sheet, or from the extension's
+          // button with a posting, is an unambiguous "here": take the data
+          // over rather than ask (an older CVForge tab is usually still open).
+          const params = new URLSearchParams(location.search)
+          if (!steal && (params.has('shared') || params.has('text'))) {
             setState({ kind: 'opening' })
             start(true)
             return
