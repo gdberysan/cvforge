@@ -48,21 +48,15 @@ function sectionKey(id: string): (typeof SECTIONS)[number] | 'line' {
   return (SECTIONS as readonly string[]).includes(id) ? (id as (typeof SECTIONS)[number]) : 'line'
 }
 
-export function GroundingFlags({
-  report,
-  textOf = {},
-}: {
-  report: GroundingReport
-  /** Bullet or paragraph id to its text. A flag names the line it is about,
-   *  not an internal id like "b5" that the reader cannot see anywhere. */
-  textOf?: Record<string, string>
-}) {
-  const t = useT()
-  const sent = useContext(DocumentsSent)
-  const locale = useLocale()
-  const [reviewed, setReviewed] = useState<Set<string>>(new Set())
+export type ReportFlag = { id: string; key: string; text: string; quote?: string }
 
-  const hard: { id: string; key: string; text: string; quote?: string }[] = [
+/**
+ * Every flag a report carries, as the reader sees it: the line or section it
+ * is about (`id`) and one sentence why. Shared by the report under a CV and
+ * the editor, so a problem is worded the same in both.
+ */
+export function reportFlags(report: GroundingReport, t: ReturnType<typeof useT>): ReportFlag[] {
+  return [
     ...report.uncitedBullets.map((id) => ({
       id,
       key: `uncited-${id}`,
@@ -103,6 +97,23 @@ export function GroundingFlags({
       text: d.reason,
     })),
   ]
+}
+
+export function GroundingFlags({
+  report,
+  textOf = {},
+}: {
+  report: GroundingReport
+  /** Bullet or paragraph id to its text. A flag names the line it is about,
+   *  not an internal id like "b5" that the reader cannot see anywhere. */
+  textOf?: Record<string, string>
+}) {
+  const t = useT()
+  const sent = useContext(DocumentsSent)
+  const locale = useLocale()
+  const [reviewed, setReviewed] = useState<Set<string>>(new Set())
+
+  const hard = reportFlags(report, t)
 
   if (hard.length === 0) {
     return (

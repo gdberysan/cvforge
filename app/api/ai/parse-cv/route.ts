@@ -1,8 +1,9 @@
 import { z } from 'zod'
+import { spendRoute } from '@/lib/ai/spend-route'
 import { type CvInput, parseCv, validateReferentialIntegrity } from '@/lib/ai/stages/parse-cv'
 import { isDemo } from '@/lib/demo/mode'
 import { eventStream } from '@/lib/http/event-stream'
-import { IncompleteRoleError, UndatedRoleError } from '@/lib/import/dates'
+import { IncompleteRoleError, MissingNameError, UndatedRoleError } from '@/lib/import/dates'
 
 const MAX_PDF_BYTES = 10 * 1024 * 1024
 /** Base64 inflates by 4/3; anything past this decodes to more than 10MB. */
@@ -45,7 +46,7 @@ function readInput(payload: unknown): { input: CvInput } | { error: string; code
  * emitted here are those calls, not a decorative timeline. Validation
  * failures answer as plain JSON before the stream starts.
  */
-export async function POST(request: Request) {
+async function handle(request: Request): Promise<Response> {
   // Demo: importing a CV is a write; refused with the friendly code.
   if (isDemo()) {
     return new Response(JSON.stringify({ error: 'Demo is read-only.', code: 'demo-read-only' }), {
@@ -74,9 +75,14 @@ export async function POST(request: Request) {
     {
       fallback: 'Unexpected error parsing the CV.',
       describe: (error) =>
-        error instanceof UndatedRoleError || error instanceof IncompleteRoleError
+        error instanceof UndatedRoleError ||
+        error instanceof IncompleteRoleError ||
+        error instanceof MissingNameError
           ? { error: error.message, code: error.code }
           : undefined,
     },
   )
 }
+
+/** One paid action: its calls are recorded under it (lib/ai/spend-route.ts). */
+export const POST = spendRoute('import', handle)

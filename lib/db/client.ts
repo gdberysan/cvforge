@@ -1,8 +1,14 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
 import { mkdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import Database, { type Database as SqliteDatabase } from 'better-sqlite3'
 import { type BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
+import {
+  type SpendContext,
+  type SpendContextStore,
+  setSpendContextStore,
+} from '@/lib/ai/spend-context'
 import { setSpendRecorder } from '@/lib/ai/spend-hook'
 import { isDemo } from '@/lib/demo/mode'
 import { loadSeed, SeedSchema } from '@/lib/demo/seed'
@@ -126,3 +132,10 @@ export const db: Db = new Proxy({} as Db, {
 // survives the registry split. Safe to import early: `db` is a lazy Proxy, so
 // nothing opens SQLite or migrates until a request actually uses it.
 setSpendRecorder((record) => recordApiCall(db, record))
+// Each request's own context, across every await (lib/ai/spend-context.ts).
+setSpendContextStore(asyncLocalSpendContext())
+
+function asyncLocalSpendContext(): SpendContextStore {
+  const storage = new AsyncLocalStorage<SpendContext>()
+  return { run: (context, fn) => storage.run(context, fn), get: () => storage.getStore() }
+}

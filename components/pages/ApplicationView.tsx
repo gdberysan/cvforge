@@ -22,6 +22,7 @@ import { StageTrack } from '@/components/pipeline/StageTrack'
 import { PrepStep } from '@/components/prep/PrepStep'
 import { Workspace } from '@/components/studio/Workspace'
 import { BackLink } from '@/components/ui/BackLink'
+import { ApplicationSpend } from '@/components/ui/CostNote'
 import { IconCheck } from '@/components/ui/icons'
 import { Meta } from '@/components/ui/Meta'
 import type { Step } from '@/lib/application-steps'
@@ -111,6 +112,7 @@ export function ApplicationView({
             <RequirementChips items={chipItems} />
           </details>
         )}
+        <ApplicationSpend applicationId={application.id} />
         {/* The decision only exists before you go for it. */}
         {!working && !archived && !data.sent && (
           <DecideActions
@@ -183,6 +185,8 @@ export function ApplicationView({
                 initialScreening={screening}
                 initialRecruiterMessage={recruiterMessage}
                 variants={data.variants}
+                requirements={application.requirements}
+                mappings={application.mappings}
                 sent={data.sent}
                 locked={data.sent || ended}
               />

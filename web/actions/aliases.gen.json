@@ -1,4 +1,5 @@
 {
+  "@/app/(app)/application/[id]/cv-actions": "./actions/application__id__cv-actions.ts",
   "@/app/(app)/application/[id]/gaps/actions": "./actions/application__id__gaps.ts",
   "@/app/(app)/application/[id]/people-actions": "./actions/application__id__people-actions.ts",
   "@/app/(app)/application/actions": "./actions/application.ts",

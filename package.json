@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit",
     "eval": "tsx scripts/eval.ts",
     "eval:snapshot": "tsx scripts/eval-snapshot.ts",
+    "eval:cv": "tsx scripts/eval-cv.ts",
+    "e2e": "vitest run --config vitest.e2e.config.ts",
     "recheck": "tsx scripts/recheck-cvs.ts",
     "scrub:check": "tsx scripts/scrub-check.ts",
     "release": "tsx scripts/release.ts",

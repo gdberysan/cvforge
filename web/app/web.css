@@ -6,3 +6,28 @@
 @source "../../lib";
 @source "../../app";
 @source "..";
+
+/* The trial's owner view (web/app/ops): a week of counts, in a scroller on a phone. */
+.table-scroll {
+  overflow-x: auto;
+  position: relative;
+}
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.ops-table th,
+.ops-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  white-space: nowrap;
+}
+.ops-table thead th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.ops-table td.num {
+  text-align: right;
+}

@@ -527,4 +527,35 @@ describe('the free trial', () => {
     expect(code).not.toBe(await networkCode('other', '203.0.113.9'))
     expect(code).not.toContain('203')
   })
+
+  it('shows the owner counts and spend for the week, and nobody else anything', async () => {
+    const c = config({ ownerKey: 'owner-key-not-real' })
+    const token = await startTrial(c)
+    await handleTrial(
+      post('/trial/v1/messages', { body: body({ max_tokens: 2_000 }), key: token }),
+      '1.1.1.1',
+      c,
+    )
+    const opsReq = (key?: string) =>
+      new Request('https://rumbo.test/api/trial?op=ops', {
+        method: 'POST',
+        headers: key ? { 'x-owner-key': key } : {},
+      })
+    expect((await handleTrial(opsReq(), '1.1.1.1', c)).status).toBe(404)
+    expect((await handleTrial(opsReq('wrong-key-xxxxxxx'), '1.1.1.1', c)).status).toBe(404)
+    const res = await handleTrial(opsReq('owner-key-not-real'), '1.1.1.1', c)
+    expect(res.status).toBe(200)
+    const out = (await res.json()) as {
+      state: string
+      days: { day: string; calls: number; starts: number; errors: number; spentUsd: number }[]
+      month: { spentUsd: number }
+    }
+    expect(out.state).toBe('open')
+    expect(out.days).toHaveLength(7)
+    expect(out.days[0]).toMatchObject({ day: '2026-11-23', calls: 1, starts: 1, errors: 0 })
+    expect(out.days[0]?.spentUsd).toBeCloseTo(0.15, 6)
+    expect(out.month.spentUsd).toBeCloseTo(0.15, 6)
+    // No owner key configured: the view does not exist.
+    expect((await handleTrial(opsReq('owner-key-not-real'), '1.1.1.1', config())).status).toBe(404)
+  })
 })

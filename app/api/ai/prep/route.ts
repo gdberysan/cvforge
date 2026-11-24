@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { kitWorking } from '#satellite'
 import { buildEvidenceProjection } from '@/lib/ai/projection'
+import { spendRoute } from '@/lib/ai/spend-route'
 import { db } from '@/lib/db/client'
 import { savePrep } from '@/lib/db/queries/prep'
 import { isDemo } from '@/lib/demo/mode'
@@ -34,7 +35,7 @@ const Body = z.object({
  * his tap: one generation, the checker, and at most one refine — every call
  * recorded by callStructured. Streams its stages because it takes a minute.
  */
-export async function POST(request: Request) {
+async function handle(request: Request): Promise<Response> {
   const body = Body.safeParse(await request.json().catch(() => undefined))
   if (!body.success) {
     return NextResponse.json(
@@ -91,3 +92,6 @@ export async function POST(request: Request) {
     { fallback: 'Unexpected error writing the interview prep.' },
   )
 }
+
+/** One paid action: its calls are recorded under it (lib/ai/spend-route.ts). */
+export const POST = spendRoute('prep', handle)

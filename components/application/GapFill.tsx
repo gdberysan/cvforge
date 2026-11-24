@@ -5,6 +5,7 @@ import { useState, useTransition } from 'react'
 import { acceptGapEvidenceAction } from '@/app/(app)/application/[id]/gaps/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { AutoTextarea } from '@/components/ui/AutoTextarea'
+import { CostNote } from '@/components/ui/CostNote'
 import { IconPlus } from '@/components/ui/icons'
 import { ApiFailure } from '@/lib/api-failure'
 import { requestRemap } from '@/lib/gaps/remap-request'
@@ -216,6 +217,7 @@ export function GapFill({
             >
               {stage === 'drafting' ? t('gaps.building') : t('gaps.submit')}
             </button>
+            <CostNote action="gaps" />
             {selection.secondary.length > 0 && (
               <button
                 type="button"

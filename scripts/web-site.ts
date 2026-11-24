@@ -105,6 +105,7 @@ export const TRIAL_REWRITES = [
   { source: '/trial/start{/}?', destination: '/api/trial?op=start' },
   { source: '/trial/status{/}?', destination: '/api/trial?op=status' },
   { source: '/trial/v1/messages{/}?', destination: '/api/trial?op=messages' },
+  { source: '/trial/ops{/}?', destination: '/api/trial?op=ops' },
 ]
 const LEGACY_HEADERS = [
   { key: 'Access-Control-Allow-Origin', value: '*' },

@@ -7,8 +7,10 @@ import type {
   CoverLetter,
   CVContent,
   EvidenceItem,
+  EvidenceMapping,
   GroundingReport,
   RecruiterMessage,
+  Requirement,
   ScreeningSet,
 } from '@/lib/schemas'
 import { CompanionPanel } from './CompanionPanel'
@@ -36,6 +38,8 @@ export function Workspace({
   initialScreening,
   initialRecruiterMessage,
   variants,
+  requirements,
+  mappings,
   sent = false,
   locked = false,
 }: {
@@ -52,6 +56,8 @@ export function Workspace({
   initialRecruiterMessage: CompanionState<RecruiterMessage>
   /** Composed base CVs in this application's document language. */
   variants: { id: string; label: string; stale: boolean }[]
+  requirements?: Requirement[]
+  mappings?: EvidenceMapping[]
   /** The application has been sent: verification flags speak in the past. */
   sent?: boolean
   /** Sent or settled: no paid moves on the documents. */
@@ -100,6 +106,8 @@ export function Workspace({
               initialCv={initialCv}
               initialReport={initialCvReport}
               variants={variants}
+              requirements={requirements}
+              mappings={mappings}
             />
           </div>
           <div hidden={tab !== 'coverLetter'}>

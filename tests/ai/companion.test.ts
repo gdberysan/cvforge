@@ -3,8 +3,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const callStructuredMock = vi.fn()
 vi.mock('@/lib/ai/client', () => ({ callStructured: callStructuredMock }))
 
-const { composeCoverLetter, composeScreening, composeRecruiterMessage, composeScreeningAnswer } =
-  await import('@/lib/ai/stages/compose-companion')
+const {
+  composeCoverLetter,
+  composeScreening,
+  composeRecruiterMessage,
+  composeScreeningAnswer,
+  readCoverLetter,
+  readRecruiterMessage,
+  readScreeningAnswer,
+  readScreeningSet,
+} = await import('@/lib/ai/stages/compose-companion')
+const { AiError } = await import('@/lib/ai/errors')
 const { composeAndVerifyCompanion, withGapSources } = await import('@/lib/ai/companion')
 
 import type { EvidenceItem, MasterProfile, Requirement } from '@/lib/schemas'
@@ -87,11 +96,121 @@ const baseArgs = {
   jobTitle: 'Ingeniero',
 }
 
+/** The smallest answers the readers accept: one item with text. */
+const LETTER = { paragraphs: [{ id: 'p1', text: 'Hola.', citedEvidenceIds: [] }] }
+const SCREENING = {
+  answers: [{ id: 'q1', question: '¿Por qué tú?', answer: 'Por esto.', citedEvidenceIds: [] }],
+}
+
+describe('reading what the model wrote — the companion schemas carry no minimums', () => {
+  it('the model-facing schemas send no minLength, minItems or enum to the API', async () => {
+    const { zodOutputFormat } = await import('@anthropic-ai/sdk/helpers/zod')
+    const schemas = await import('@/lib/schemas/companion')
+    for (const schema of [
+      schemas.ModelCoverLetterSchema,
+      schemas.ModelScreeningSetSchema,
+      schemas.ModelScreeningAnswerSchema,
+      schemas.ModelRecruiterMessageSchema,
+    ]) {
+      const grammar = JSON.stringify(zodOutputFormat(schema as never).schema)
+      // Descriptions may carry the old wording; no enforced keyword may (minItems is enforced by the API).
+      expect(grammar).not.toMatch(/"minLength":|"enum":|"pattern":/)
+    }
+  })
+
+  it('a cover letter drops a paragraph with no text and numbers one with no id', () => {
+    const letter = readCoverLetter({
+      paragraphs: [
+        { id: '', text: 'Primero.', citedEvidenceIds: [] },
+        { id: 'p2', text: '   ', citedEvidenceIds: ['ev_1'] },
+        { id: 'p3', text: 'Cierre.', citedEvidenceIds: [] },
+      ],
+    })
+    expect(letter.paragraphs.map((p) => [p.id, p.text])).toEqual([
+      ['p1', 'Primero.'],
+      ['p3', 'Cierre.'],
+    ])
+  })
+
+  it('a repeated paragraph id gets its own, so two paragraphs never share a flag', () => {
+    const letter = readCoverLetter({
+      paragraphs: [
+        { id: 'p1', text: 'Uno.', citedEvidenceIds: [] },
+        { id: 'p1', text: 'Dos.', citedEvidenceIds: [] },
+      ],
+    })
+    expect(letter.paragraphs.map((p) => p.id)).toEqual(['p1', 'p1-2'])
+  })
+
+  it('a cover letter with nothing written is an error, never an empty letter', () => {
+    expect(() => readCoverLetter({ paragraphs: [] })).toThrow(AiError)
+    expect(() =>
+      readCoverLetter({ paragraphs: [{ id: 'p1', text: ' ', citedEvidenceIds: [] }] }),
+    ).toThrow(/no text/)
+  })
+
+  it('screening drops an answer with no question or no answer, and the code sets source', () => {
+    const set = readScreeningSet({
+      answers: [
+        {
+          id: 'q1',
+          question: '¿Por qué tú?',
+          answer: 'Por esto.',
+          citedEvidenceIds: [],
+          source: 'user',
+        },
+        { id: 'q2', question: '', answer: 'Huérfana.', citedEvidenceIds: [], source: 'ai' },
+        { id: 'q3', question: '¿Kubernetes?', answer: '', citedEvidenceIds: [], source: 'ai' },
+        { id: '', question: '¿Inglés?', answer: 'C1.', citedEvidenceIds: [], source: 'ai' },
+      ],
+    })
+    expect(set.answers.map((a) => [a.id, a.question, a.source])).toEqual([
+      ['q1', '¿Por qué tú?', 'ai'],
+      ['q2', '¿Inglés?', 'ai'],
+    ])
+  })
+
+  it('a screening set with nothing answered is an error', () => {
+    expect(() => readScreeningSet({ answers: [] })).toThrow(AiError)
+  })
+
+  it("a single answer keeps the caller's question, fills its id, and fails when empty", () => {
+    const answer = readScreeningAnswer(
+      { id: '', question: '', answer: 'Sí.', citedEvidenceIds: [], source: 'ai' },
+      '¿Disponibilidad?',
+    )
+    expect(answer).toMatchObject({ id: 'q_custom', question: '¿Disponibilidad?', source: 'user' })
+    expect(() =>
+      readScreeningAnswer(
+        { id: 'q', question: 'x', answer: '  ', citedEvidenceIds: [], source: 'ai' },
+        'x',
+      ),
+    ).toThrow(AiError)
+  })
+
+  it('a recruiter message with no text is an error', () => {
+    expect(readRecruiterMessage({ text: 'Hola', citedEvidenceIds: [] }).text).toBe('Hola')
+    expect(() => readRecruiterMessage({ text: '', citedEvidenceIds: [] })).toThrow(AiError)
+  })
+
+  it('composeCoverLetter returns the read letter, not the raw answer', async () => {
+    callStructuredMock.mockReset()
+    callStructuredMock.mockResolvedValue({
+      paragraphs: [
+        { id: '', text: 'Hola.', citedEvidenceIds: [] },
+        { id: 'p2', text: '', citedEvidenceIds: [] },
+      ],
+    })
+    const letter = await composeCoverLetter(baseArgs)
+    expect(letter.paragraphs).toEqual([{ id: 'p1', text: 'Hola.', citedEvidenceIds: [] }])
+  })
+})
+
 describe('companion stages', () => {
   beforeEach(() => callStructuredMock.mockReset())
 
   it('the cover letter sees only selected evidence and carries the 300-word limit', async () => {
-    callStructuredMock.mockResolvedValue({ paragraphs: [] })
+    callStructuredMock.mockResolvedValue(LETTER)
     await composeCoverLetter(baseArgs)
 
     const call = JSON.stringify(callStructuredMock.mock.calls[0])
@@ -102,7 +221,7 @@ describe('companion stages', () => {
   })
 
   it('screening receives the answer bank so known questions are reused, not rewritten', async () => {
-    callStructuredMock.mockResolvedValue({ answers: [] })
+    callStructuredMock.mockResolvedValue(SCREENING)
     await composeScreening({
       ...baseArgs,
       bank: [{ question: 'Why us?', answer: 'The mission.' }],
@@ -120,7 +239,7 @@ describe('companion stages', () => {
   })
 
   it('every companion carries the tense rule — an ended role must not sound current', async () => {
-    callStructuredMock.mockResolvedValue({ paragraphs: [] })
+    callStructuredMock.mockResolvedValue(LETTER)
     await composeCoverLetter(baseArgs)
     expect(JSON.stringify(callStructuredMock.mock.calls[0][0].system)).toMatch(/past tense/i)
   })
@@ -137,7 +256,7 @@ describe('companion stages', () => {
   })
 
   it('no companion stage ever sees raw posting text', async () => {
-    callStructuredMock.mockResolvedValue({ paragraphs: [] })
+    callStructuredMock.mockResolvedValue(LETTER)
     await composeCoverLetter(baseArgs)
     expect(JSON.stringify(callStructuredMock.mock.calls[0])).not.toContain('<posting>')
   })
@@ -305,7 +424,7 @@ describe('composeAndVerifyCompanion', () => {
   })
 
   it('an unmapped credential never reaches the companion', async () => {
-    callStructuredMock.mockResolvedValue({ paragraphs: [] })
+    callStructuredMock.mockResolvedValue(LETTER)
     await composeCoverLetter(baseArgs)
     expect(JSON.stringify(callStructuredMock.mock.calls[0])).not.toContain('lang_ingles')
   })

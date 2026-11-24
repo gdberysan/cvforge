@@ -245,7 +245,11 @@ describe('adversarial grounding — the profile lacks X, the posting demands X',
   })
 
   it('the cover letter is told the gap by name, so it can address it instead of papering over it', async () => {
-    callStructuredMock.mockResolvedValue({ paragraphs: [] })
+    callStructuredMock
+      .mockResolvedValueOnce({
+        paragraphs: [{ id: 'p1', text: 'I would like this role.', citedEvidenceIds: [] }],
+      })
+      .mockResolvedValue({ verdicts: [{ bulletId: 'p1', supported: true, reason: '' }] })
 
     await composeAndVerifyCompanion('coverLetter', {
       profile,

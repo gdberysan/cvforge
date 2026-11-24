@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { skipApplicationAction } from '@/app/(app)/triage/actions'
 import { useLocale, useT } from '@/components/i18n/LocaleProvider'
+import { CostNote } from '@/components/ui/CostNote'
 import { MarketOptions } from '@/components/ui/MarketOptions'
 import { WorkProgress } from '@/components/ui/WorkProgress'
 import { ApiFailure } from '@/lib/api-failure'
@@ -386,6 +387,7 @@ export function TriageConsole({
             >
               {running ? t('triage.running') : t('triage.run')}
             </button>
+            <CostNote action="analysis" />
           </div>
         )}
 

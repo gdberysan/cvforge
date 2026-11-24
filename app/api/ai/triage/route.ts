@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { buildEvidenceProjection } from '@/lib/ai/projection'
+import { currentSpendContext } from '@/lib/ai/spend-context'
+import { spendRoute } from '@/lib/ai/spend-route'
 import { runRemap, runTriage } from '@/lib/ai/triage'
 import { db } from '@/lib/db/client'
 import {
@@ -10,6 +12,7 @@ import {
 } from '@/lib/db/queries/applications'
 import { listEvidence } from '@/lib/db/queries/evidence'
 import { getProfile } from '@/lib/db/queries/profile'
+import { attachRunToApplication } from '@/lib/db/queries/spend'
 import { isDemo } from '@/lib/demo/mode'
 import { demoTriageEvents } from '@/lib/demo/triage-events'
 import { hashEvidenceProjection, hashPosting } from '@/lib/hash'
@@ -37,7 +40,7 @@ const Body = z.object({
  * a hang. The stages emitted here are the real ones — each is a call in
  * runTriage, not a decorative timeline.
  */
-export async function POST(request: Request) {
+async function handle(request: Request): Promise<Response> {
   const payload: unknown = await request.json().catch(() => undefined)
   const body = Body.safeParse(payload)
   if (!body.success) {
@@ -188,6 +191,8 @@ export async function POST(request: Request) {
         coverage: result.coverage,
       })
 
+      // This run's calls were made before the application existed.
+      attachRunToApplication(db, currentSpendContext()?.runId, applicationId)
       send({ done: true, applicationId, cached: false, ...result })
       {
         const message = verdictMessage(rationaleLanguage, {
@@ -209,3 +214,6 @@ function json(payload: unknown, status = 200) {
     headers: { 'content-type': 'application/json' },
   })
 }
+
+/** One paid action: its calls are recorded under it (lib/ai/spend-route.ts). */
+export const POST = spendRoute('analysis', handle)

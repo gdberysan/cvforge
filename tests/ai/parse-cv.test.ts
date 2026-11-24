@@ -5,7 +5,9 @@ const callStructuredMock = vi.fn()
 vi.mock('@/lib/ai/client', () => ({ callStructured: callStructuredMock }))
 
 const { parseCv, validateReferentialIntegrity } = await import('@/lib/ai/stages/parse-cv')
-const { IncompleteRoleError, UndatedRoleError } = await import('@/lib/import/dates')
+const { IncompleteRoleError, MissingNameError, UndatedRoleError } = await import(
+  '@/lib/import/dates'
+)
 const {
   CvSkeletonSchema,
   CvProfileSkeletonSchema,
@@ -355,6 +357,28 @@ describe('toParsedCV reads what the grammar cannot enforce', () => {
     )
   })
 
+  it('accepts an empty name from the model, then refuses it in code with its own error', () => {
+    const parsed = CvProfileSkeletonSchema.safeParse({
+      ...skeleton,
+      basics: { ...skeleton.basics, fullName: '' },
+    })
+    expect(parsed.success).toBe(true)
+    const error = (() => {
+      try {
+        read({ basics: { ...skeleton.basics, fullName: ' ' } })
+      } catch (e) {
+        return e
+      }
+    })()
+    expect(error).toBeInstanceOf(MissingNameError)
+    expect((error as InstanceType<typeof MissingNameError>).code).toBe('cv-missing-name')
+  })
+
+  it('stores the name trimmed', () => {
+    const { parsed } = read({ basics: { ...skeleton.basics, fullName: '  Ana Torres ' } })
+    expect(parsed.profile.basics.fullName).toBe('Ana Torres')
+  })
+
   it('normalises closed lists instead of failing on them, and drops empty lines', () => {
     const { parsed, problems } = read({
       evidence: [
@@ -402,6 +426,21 @@ describe('parseCv', () => {
     const user = callStructuredMock.mock.calls[1][0].user as string
     expect(user).toContain('exp_1')
     expect(user).toContain('Kavak')
+  })
+
+  it('stops a CV with no readable name before the second paid call', async () => {
+    // fullName carries no minLength any more (prose to the API, fatal at the
+    // local parse); the code refuses an empty one instead of storing it.
+    const { evidence: _, ...profilePart } = CvSkeletonSchema.parse(skeleton)
+    callStructuredMock.mockReset()
+    callStructuredMock.mockResolvedValueOnce({
+      ...profilePart,
+      basics: { ...profilePart.basics, fullName: '  ' },
+    })
+    await expect(parseCv({ text: 'Engineer at Kavak since 2021.' })).rejects.toThrow(
+      MissingNameError,
+    )
+    expect(callStructuredMock).toHaveBeenCalledTimes(1)
   })
 
   it('wraps pasted text in a cv block on both calls', async () => {
