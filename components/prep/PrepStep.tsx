@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { CostNote } from '@/components/ui/CostNote'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText } from '@/lib/i18n'
 import type { PrepReport } from '@/lib/prep/verify'
@@ -113,6 +114,7 @@ export function PrepStep({ view }: { view: PrepView }) {
       >
         {t(prep ? 'prep.regenerate' : 'prep.generate')}
       </button>
+      <CostNote action="prep" />
       {stage && (
         <p className="prep-stage" role="status">
           {t(`prep.stage.${stage}`)}

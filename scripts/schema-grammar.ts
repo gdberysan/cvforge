@@ -15,10 +15,10 @@ import { PostingTranscriptSchema } from '@/lib/ai/stages/transcribe-posting'
 import { CVTranslationSchema } from '@/lib/ai/stages/translate-cv'
 import { VerdictsSchema } from '@/lib/ai/stages/verify-distortion'
 import {
-  CoverLetterSchema,
-  RecruiterMessageSchema,
-  ScreeningAnswerSchema,
-  ScreeningSetSchema,
+  ModelCoverLetterSchema,
+  ModelRecruiterMessageSchema,
+  ModelScreeningAnswerSchema,
+  ModelScreeningSetSchema,
 } from '@/lib/schemas/companion'
 import { CVDraftSchema } from '@/lib/schemas/cv'
 import { CvEvidenceSkeletonSchema, CvProfileSkeletonSchema } from '@/lib/schemas/import'
@@ -30,7 +30,7 @@ import { ModelExtractionSchema } from '@/lib/schemas/requirement'
 const SCHEMAS: Record<string, ZodType> = {
   CVDraftSchema,
   CVTranslationSchema,
-  CoverLetterSchema,
+  ModelCoverLetterSchema,
   CvEvidenceSkeletonSchema,
   CvProfileSkeletonSchema,
   InterviewPlanSchema,
@@ -39,9 +39,9 @@ const SCHEMAS: Record<string, ZodType> = {
   ModelExtractionSchema,
   ModelPrepSchema,
   PostingTranscriptSchema,
-  RecruiterMessageSchema,
-  ScreeningAnswerSchema,
-  ScreeningSetSchema,
+  ModelRecruiterMessageSchema,
+  ModelScreeningAnswerSchema,
+  ModelScreeningSetSchema,
   VerdictsSchema,
 }
 

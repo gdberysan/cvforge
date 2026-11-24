@@ -8,7 +8,14 @@ const { composeCv, resolveFromProfile, selectEvidenceForComposition } = await im
 )
 
 import { estimatePages } from '@/lib/render/page-budget'
-import type { EvidenceItem, EvidenceMapping, MasterProfile, Requirement } from '@/lib/schemas'
+import {
+  CVContentSchema,
+  CVDraftSchema,
+  type EvidenceItem,
+  type EvidenceMapping,
+  type MasterProfile,
+  type Requirement,
+} from '@/lib/schemas'
 
 function ev(id: string): EvidenceItem {
   return {
@@ -403,6 +410,38 @@ describe('projects on the CV', () => {
     )
     const ids = [...cv.experience, ...cv.projects].flatMap((s) => s.bullets.map((b) => b.id))
     expect(ids).toEqual(['b1', 'b1-2', 'b1-3'])
+  })
+
+  // The draft schema carries no minLength (the grammar cannot enforce it),
+  // so an empty id or text reaches the code instead of failing the paid call.
+  it('drops a bullet with no text, and numbers one with no id by its place', () => {
+    const cv = resolveFromProfile(
+      {
+        ...emptyContent,
+        experience: [
+          {
+            experienceId: 'exp_1',
+            title: 'Engineer',
+            bullets: [
+              { ...bullet, text: '  ' },
+              { ...bullet, id: '' },
+            ],
+          },
+        ],
+        projects: [{ projectId: 'proj_1', bullets: [{ ...bullet, id: 'b9', text: '' }] }],
+      },
+      withProject,
+    )
+    expect(cv.experience[0].bullets).toEqual([{ ...bullet, id: 'b2' }])
+    // A project left with no bullet is no section at all.
+    expect(cv.projects).toEqual([])
+    expect(CVContentSchema.safeParse(cv).success).toBe(true)
+  })
+
+  it('the draft schema sends no minLength to the API', async () => {
+    const { zodOutputFormat } = await import('@anthropic-ai/sdk/helpers/zod')
+    const grammar = JSON.stringify(zodOutputFormat(CVDraftSchema as never).schema)
+    expect(grammar).not.toMatch(/"minLength":|"enum":|"pattern":/)
   })
 })
 

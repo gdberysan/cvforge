@@ -143,4 +143,14 @@ export const MIGRATIONS: MigrationMeta[] = [
     folderMillis: 1795238222657,
     hash: 'c995fbf83789cdda25ed9df96959919b915b5019a09659f6f3c0d21430947795',
   },
+  {
+    sql: [
+      'ALTER TABLE `api_calls` ADD `action` text;',
+      '\nALTER TABLE `api_calls` ADD `application_id` text;',
+      '\nALTER TABLE `api_calls` ADD `run_id` text;',
+    ],
+    bps: true,
+    folderMillis: 1795476307972,
+    hash: '597f0ab57c74db0912bdcdfc317da03a6da55fdb0a3287ca89a4b2ff24820083',
+  },
 ]

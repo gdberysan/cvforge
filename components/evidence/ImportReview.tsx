@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { acceptImportAction } from '@/app/(app)/evidence/import/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { CostNote } from '@/components/ui/CostNote'
 import { IconCheck, IconDocument } from '@/components/ui/icons'
 import { Meta } from '@/components/ui/Meta'
 import { WorkProgress } from '@/components/ui/WorkProgress'
@@ -286,6 +287,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
           >
             {loading ? t('import.running') : t('import.run')}
           </button>
+          <CostNote action="import" />
           <button
             type="button"
             className="action import-switch"

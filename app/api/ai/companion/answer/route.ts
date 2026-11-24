@@ -4,6 +4,7 @@ import { withGapSources } from '@/lib/ai/companion'
 import { postingVocabularyOf, verifyDistortions } from '@/lib/ai/distortions'
 import { AiError } from '@/lib/ai/errors'
 import { recordSourcesOf } from '@/lib/ai/projection'
+import { spendRoute } from '@/lib/ai/spend-route'
 import {
   composeScreeningAnswer,
   selectCredentialsForComposition,
@@ -34,7 +35,7 @@ const Body = z.object({
  * than a mode on /api/ai/companion so a single-answer request never risks
  * regenerating (and silently discarding edits to) the rest of the set.
  */
-export async function POST(request: Request) {
+async function handle(request: Request): Promise<Response> {
   if (isDemo()) return NextResponse.json(demoBlock(), { status: 403 })
 
   const body = Body.safeParse(await request.json().catch(() => undefined))
@@ -139,3 +140,6 @@ export async function POST(request: Request) {
     )
   }
 }
+
+/** One paid action: its calls are recorded under it (lib/ai/spend-route.ts). */
+export const POST = spendRoute('answers', handle)

@@ -1,18 +1,23 @@
 import { documentSpanish, type Market } from '@/lib/markets'
 import {
   type CoverLetter,
-  CoverLetterSchema,
   type EvidenceItem,
   type EvidenceMapping,
   type MasterProfile,
+  type ModelCoverLetter,
+  ModelCoverLetterSchema,
+  type ModelRecruiterMessage,
+  ModelRecruiterMessageSchema,
+  type ModelScreeningAnswer,
+  ModelScreeningAnswerSchema,
+  type ModelScreeningSet,
+  ModelScreeningSetSchema,
   type RecruiterMessage,
-  RecruiterMessageSchema,
   type Requirement,
-  ScreeningAnswerSchema,
   type ScreeningSet,
-  ScreeningSetSchema,
 } from '@/lib/schemas'
 import { callStructured } from '../client'
+import { AiError } from '../errors'
 import { credentialSources, recordSourcesOf } from '../projection'
 import { selectEvidenceForComposition } from './compose-cv'
 
@@ -139,13 +144,14 @@ function contextBlock(args: CompanionArgs): string {
 }
 
 export async function composeCoverLetter(args: CompanionArgs): Promise<CoverLetter> {
-  return callStructured({
-    schema: CoverLetterSchema,
+  const raw = await callStructured({
+    schema: ModelCoverLetterSchema,
     system: [{ text: LETTER_SYSTEM, cache: true }, { text: contextBlock(args) }],
     user: `Write the cover letter.${args.repairInstruction ? `\n\n${args.repairInstruction}` : ''}`,
     effort: 'high',
     stage: 'compose-cover-letter',
   })
+  return readCoverLetter(raw)
 }
 
 export async function composeScreening(
@@ -155,13 +161,14 @@ export async function composeScreening(
     ? args.bank.map((b) => `Q: ${b.question}\nA: ${b.answer}`).join('\n\n')
     : '(empty)'
 
-  return callStructured({
-    schema: ScreeningSetSchema,
+  const raw = await callStructured({
+    schema: ModelScreeningSetSchema,
     system: [{ text: SCREENING_SYSTEM, cache: true }, { text: contextBlock(args) }],
     user: `<answer-bank>\n${bankBlock}\n</answer-bank>\n\nPredict and answer the screening questions.${args.repairInstruction ? `\n\n${args.repairInstruction}` : ''}`,
     effort: 'high',
     stage: 'compose-screening',
   })
+  return readScreeningSet(raw)
 }
 
 const SCREENING_ANSWER_SYSTEM = `You answer ONE screening question for this posting, from the person's real evidence.
@@ -187,24 +194,77 @@ export async function composeScreeningAnswer(
     ? args.bank.map((b) => `Q: ${b.question}\nA: ${b.answer}`).join('\n\n')
     : '(empty)'
 
-  const answer = await callStructured({
-    schema: ScreeningAnswerSchema,
+  const raw = await callStructured({
+    schema: ModelScreeningAnswerSchema,
     system: [{ text: SCREENING_ANSWER_SYSTEM, cache: true }, { text: contextBlock(args) }],
     user: `<answer-bank>\n${bankBlock}\n</answer-bank>\n\n<question>${args.question}</question>\n\nAnswer this question.${args.repairInstruction ? `\n\n${args.repairInstruction}` : ''}`,
     effort: 'high',
     stage: 'compose-screening-answer',
   })
 
-  return { ...answer, question: args.question, source: 'user' as const }
+  return readScreeningAnswer(raw, args.question)
 }
 
 export async function composeRecruiterMessage(args: CompanionArgs): Promise<RecruiterMessage> {
   const name = args.recruiterName?.trim()
-  return callStructured({
-    schema: RecruiterMessageSchema,
+  const raw = await callStructured({
+    schema: ModelRecruiterMessageSchema,
     system: [{ text: RECRUITER_SYSTEM, cache: true }, { text: contextBlock(args) }],
     user: `${name ? `<recruiter-name>${name}</recruiter-name>\n\n` : ''}Write the message.${args.repairInstruction ? `\n\n${args.repairInstruction}` : ''}`,
     effort: 'high',
     stage: 'compose-recruiter',
   })
+  return readRecruiterMessage(raw)
+}
+
+/*
+ * The readers below turn the model's unconstrained answer into the stored
+ * document. Nothing here writes a word of content: a paragraph or answer
+ * with no text is dropped, a missing id is numbered by position (nothing
+ * refers to these ids until the checks run on this very document), and a
+ * repeated id gets its own, as the CV's bullets do. A document left with
+ * nothing to show is an error the person sees — the same one a malformed
+ * answer gives — never an empty or padded document saved as if written.
+ */
+function numbered<T extends { id: string }>(items: T[], prefix: string): T[] {
+  const used = new Map<string, number>()
+  return items.map((item, i) => {
+    const id = item.id.trim() || `${prefix}${i + 1}`
+    const n = (used.get(id) ?? 0) + 1
+    used.set(id, n)
+    return { ...item, id: n === 1 ? id : `${id}-${n}` }
+  })
+}
+
+function nothingWritten(what: string): AiError {
+  return new AiError('invalid-output', `The model returned ${what} with no text.`)
+}
+
+export function readCoverLetter(raw: ModelCoverLetter): CoverLetter {
+  const paragraphs = numbered(
+    raw.paragraphs.filter((p) => p.text.trim()),
+    'p',
+  )
+  if (paragraphs.length === 0) throw nothingWritten('a cover letter')
+  return { paragraphs }
+}
+
+export function readScreeningSet(raw: ModelScreeningSet): ScreeningSet {
+  const answers = numbered(
+    raw.answers.filter((a) => a.question.trim() && a.answer.trim()),
+    'q',
+  ).map((a) => ({ ...a, source: 'ai' as const }))
+  if (answers.length === 0) throw nothingWritten('screening answers')
+  return { answers }
+}
+
+/** The question is the caller's, so only the answer can come back empty. */
+export function readScreeningAnswer(raw: ModelScreeningAnswer, question: string) {
+  if (!raw.answer.trim()) throw nothingWritten('a screening answer')
+  return { ...raw, id: raw.id.trim() || 'q_custom', question, source: 'user' as const }
+}
+
+export function readRecruiterMessage(raw: ModelRecruiterMessage): RecruiterMessage {
+  if (!raw.text.trim()) throw nothingWritten('a recruiter message')
+  return raw
 }

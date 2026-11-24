@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { kitWorking } from '#satellite'
 import { AiError } from '@/lib/ai/errors'
+import { spendRoute } from '@/lib/ai/spend-route'
 import { db } from '@/lib/db/client'
 import { getApplication } from '@/lib/db/queries/applications'
 import { getProfile } from '@/lib/db/queries/profile'
@@ -17,7 +18,7 @@ const Body = z.object({
   recruiterName: z.string().trim().max(80).optional(),
 })
 
-export async function POST(request: Request) {
+async function handle(request: Request): Promise<Response> {
   const body = Body.safeParse(await request.json().catch(() => undefined))
   if (!body.success) {
     return NextResponse.json(
@@ -94,3 +95,10 @@ export async function POST(request: Request) {
     )
   }
 }
+
+/** One paid action: its calls are recorded under it (lib/ai/spend-route.ts). */
+export const POST = spendRoute(
+  (body) =>
+    body?.kind === 'coverLetter' ? 'letter' : body?.kind === 'screening' ? 'answers' : 'message',
+  handle,
+)

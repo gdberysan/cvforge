@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { VERDICT_KEYS } from '@/lib/coverage'
+import { closeCallLine, VERDICT_KEYS } from '@/lib/coverage'
 import type { Translate } from '@/lib/i18n'
 import type { Coverage } from '@/lib/schemas'
 
@@ -31,6 +31,9 @@ export function VerdictBand({
       <p className="verdict-band-word">{t(VERDICT_KEYS[coverage.verdict].label)}</p>
       <div className="verdict-band-bar">
         <p className="verdict-band-say">{sentence}</p>
+        {closeCallLine(coverage, t) && (
+          <p className="verdict-close">{closeCallLine(coverage, t)}</p>
+        )}
         {coverage.mandatoryTotal > 0 && (
           <div
             className="verdict-meter"

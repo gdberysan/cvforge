@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { spendRoute } from '@/lib/ai/spend-route'
 import { db } from '@/lib/db/client'
 import { getVariant, saveVariantCv, upsertVariantBrief } from '@/lib/db/queries/cv-variants'
 import { listEvidence } from '@/lib/db/queries/evidence'
@@ -21,7 +22,7 @@ const Body = z.object({
 })
 
 /** Creates (no id) or recomposes (id) a base CV, streaming the real stages like compose. */
-export async function POST(request: Request) {
+async function handle(request: Request): Promise<Response> {
   const body = Body.safeParse(await request.json().catch(() => undefined))
   if (!body.success) {
     return NextResponse.json({ error: 'Invalid request', code: 'invalid-request' }, { status: 400 })
@@ -73,3 +74,6 @@ export async function POST(request: Request) {
     { fallback: 'Unexpected error composing the CV.' },
   )
 }
+
+/** One paid action: its calls are recorded under it (lib/ai/spend-route.ts). */
+export const POST = spendRoute('base-cv', handle)

@@ -147,7 +147,7 @@ export function keepsSubstance(
 }
 
 /** What the code checks need besides the CV, shared by compose and re-check. */
-function checkArgsOf(
+export function checkArgsOf(
   args: Pick<
     ComposeArgs,
     'evidence' | 'profile' | 'requirements' | 'mappings' | 'jobTitle' | 'focus'

@@ -4,6 +4,7 @@
  * client stays testable with only the SDK mocked, and a recording failure can
  * never break a paid API call that already succeeded.
  */
+import { currentSpendContext } from './spend-context'
 
 export type SpendRecord = {
   stage: string
@@ -12,6 +13,10 @@ export type SpendRecord = {
   outputTokens: number
   cacheReadTokens: number
   cacheWriteTokens: number
+  /** What the call was for, when known (./spend-context.ts). */
+  action?: string
+  applicationId?: string
+  runId?: string
 }
 
 type Recorder = (record: SpendRecord) => void
@@ -33,7 +38,17 @@ export function setSpendRecorder(fn: Recorder | null): void {
 
 export function reportSpend(record: SpendRecord): void {
   try {
-    globalForSpend.__cvforgeSpendRecorder?.(record)
+    const context = currentSpendContext()
+    globalForSpend.__cvforgeSpendRecorder?.(
+      context
+        ? {
+            ...record,
+            action: context.action,
+            applicationId: context.applicationId,
+            runId: context.runId,
+          }
+        : record,
+    )
   } catch {
     // Losing one spend row is acceptable; losing the response is not.
   }

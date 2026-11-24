@@ -15,6 +15,18 @@ export const GeneratedBulletSchema = z.object({
 })
 export type GeneratedBullet = z.infer<typeof GeneratedBulletSchema>
 
+/**
+ * A bullet as the model writes it: no minLength on id or text, which the
+ * grammar would carry only as prose and the local re-validation would turn
+ * into a fatal invalid-output. `resolveFromProfile` drops a bullet with no
+ * text and gives one with no id its own.
+ */
+// The old minimums stay as descriptions only: what the model reads is unchanged.
+const ModelBulletSchema = GeneratedBulletSchema.extend({
+  id: z.string().describe('{minLength: 1}'),
+  text: z.string().describe('{minLength: 1}'),
+})
+
 export const CVRoleSchema = z.object({
   experienceId: z.string().min(1),
   title: z.string().min(1),
@@ -95,9 +107,9 @@ export const CVDraftSchema = CVContentSchema.omit({
     z.object({
       experienceId: z.string(),
       title: z.string(),
-      bullets: z.array(GeneratedBulletSchema),
+      bullets: z.array(ModelBulletSchema),
     }),
   ),
-  projects: z.array(z.object({ projectId: z.string(), bullets: z.array(GeneratedBulletSchema) })),
+  projects: z.array(z.object({ projectId: z.string(), bullets: z.array(ModelBulletSchema) })),
 })
 export type CVDraft = z.infer<typeof CVDraftSchema>

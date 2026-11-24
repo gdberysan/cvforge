@@ -5,6 +5,7 @@ import { useState, useTransition } from 'react'
 import { saveScreeningAnswerAction } from '@/app/(app)/application/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { AutoTextarea } from '@/components/ui/AutoTextarea'
+import { CostNote } from '@/components/ui/CostNote'
 import { IconCopy, IconRegenerate } from '@/components/ui/icons'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText } from '@/lib/i18n'
@@ -228,9 +229,16 @@ export function CompanionPanel({
               />
             </span>
           ) : (
-            <button type="button" onClick={generate} className="btn btn-primary">
-              {t(`companion.generate.${kind}`)}
-            </button>
+            <>
+              <button type="button" onClick={generate} className="btn btn-primary">
+                {t(`companion.generate.${kind}`)}
+              </button>
+              <CostNote
+                action={
+                  kind === 'coverLetter' ? 'letter' : kind === 'screening' ? 'answers' : 'message'
+                }
+              />
+            </>
           )}
         </p>
       ) : (

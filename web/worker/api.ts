@@ -5,6 +5,7 @@
  */
 import { resetClient } from '@/lib/ai/client'
 import { paidRunInFlight, setPaidCallLedger } from '@/lib/ai/in-flight'
+import { setSpendContextStore, singleSlotStore, withSpendContext } from '@/lib/ai/spend-context'
 import { setSpendRecorder } from '@/lib/ai/spend-hook'
 import { type Screenshot, transcribePosting } from '@/lib/ai/stages/transcribe-posting'
 import { getProfile } from '@/lib/db/queries/profile'
@@ -42,6 +43,8 @@ import { setWorkerLocale } from './shims/i18n-server'
 // Every model call lands one spend row, in this Worker's database; and is
 // on record while in flight, so one the page does not survive is not lost.
 setSpendRecorder((record) => recordApiCall(db(), record))
+// No async context in a browser: one run at a time is attributed, overlaps are not.
+setSpendContextStore(singleSlotStore())
 setPaidCallLedger({
   open: (call) => openPaidCall(db(), call),
   close: (id) => closePaidCall(db(), id),
@@ -94,7 +97,8 @@ export const api = {
   route,
   load,
   /** Screenshots of a posting -> its text (one paid call, recorded like any other). */
-  transcribeScreenshots: (shots: Screenshot[]) => transcribePosting(shots),
+  transcribeScreenshots: (shots: Screenshot[]) =>
+    withSpendContext({ action: 'screenshots' }, () => transcribePosting(shots)),
   setLocale: setWorkerLocale,
 
   /** What the home screen needs to decide where to send a person. */

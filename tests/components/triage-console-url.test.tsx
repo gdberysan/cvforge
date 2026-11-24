@@ -35,7 +35,9 @@ beforeEach(() => {
 const posting = 'x'.repeat(120)
 
 function bodyOf() {
-  return JSON.parse(fetchMock.mock.calls[0][1].body as string)
+  // The analysis request, not the cost note's own read of /api/spend.
+  const call = fetchMock.mock.calls.find((c) => String(c[0]).includes('/api/ai/triage'))
+  return JSON.parse(call?.[1].body as string)
 }
 
 describe('TriageConsole posting URL', () => {

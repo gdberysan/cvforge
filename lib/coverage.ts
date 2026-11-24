@@ -81,6 +81,42 @@ export function computeCoverage(
   }
 }
 
+/**
+ * How close the verdict is to another one: what the same rules would say if
+ * one requirement read one step better (missing → partial → strong) or one
+ * step worse. The model's reading of a single requirement is the noisiest
+ * part of an analysis (eval runs on the same posting disagree by one or two),
+ * so a verdict that one step can change is a close call, and the screen says
+ * so. Read-only: it asks decideVerdict, it never changes what it decides. A
+ * gated posting is not close to anything: the gate decides it.
+ */
+export function closeCall(c: Coverage): { up: Verdict | null; down: Verdict | null } {
+  if (c.hardBlockers.length > 0 || c.verdict === 'skip') return { up: null, down: null }
+  const base = {
+    hardBlockerCount: 0,
+    mandatoryTotal: c.mandatoryTotal,
+    mandatoryStrong: c.mandatoryStrong,
+    mandatoryPartial: c.mandatoryPartial,
+    mandatoryMissing: c.mandatoryMissing,
+    desirableTotal: c.desirableTotal,
+    desirableStrong: c.desirableStrong,
+    desirablePartial: c.desirablePartial,
+    desirableMissing: c.desirableMissing,
+  }
+  // With no mandatory requirements the desirable pool decides; it is the one that moves.
+  const pool = c.mandatoryTotal > 0 ? 'mandatory' : 'desirable'
+  const k = (s: 'Strong' | 'Partial' | 'Missing') => `${pool}${s}` as keyof typeof base
+  const moved = (from: 'Strong' | 'Partial' | 'Missing', to: 'Strong' | 'Partial' | 'Missing') =>
+    base[k(from)] > 0
+      ? decideVerdict({ ...base, [k(from)]: base[k(from)] - 1, [k(to)]: base[k(to)] + 1 })
+      : null
+  const differs = (v: Verdict | null) => (v && v !== c.verdict ? v : null)
+  return {
+    up: differs(moved('Partial', 'Strong')) ?? differs(moved('Missing', 'Partial')),
+    down: differs(moved('Strong', 'Partial')) ?? differs(moved('Partial', 'Missing')),
+  }
+}
+
 function decideVerdict(input: {
   hardBlockerCount: number
   mandatoryTotal: number
@@ -161,4 +197,17 @@ export const VERDICT_KEYS: Record<Verdict, { label: MessageKey; detail: MessageK
   'worth-it': { label: 'verdict.worth-it.label', detail: 'verdict.worth-it.detail' },
   stretch: { label: 'verdict.stretch.label', detail: 'verdict.stretch.detail' },
   skip: { label: 'verdict.skip.label', detail: 'verdict.skip.detail' },
+}
+
+/** The close-call sentence for a verdict, or null when one step changes nothing. */
+export function closeCallLine(
+  c: Coverage,
+  t: (key: MessageKey, params?: Record<string, string | number>) => string,
+): string | null {
+  const { up, down } = closeCall(c)
+  const label = (v: Verdict) => t(VERDICT_KEYS[v].label)
+  if (up && down) return t('verdict.close.both', { up: label(up), down: label(down) })
+  if (up) return t('verdict.close.up', { up: label(up) })
+  if (down) return t('verdict.close.down', { down: label(down) })
+  return null
 }

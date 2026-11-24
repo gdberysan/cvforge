@@ -3,7 +3,10 @@
 import { useRouter } from 'next/navigation'
 import { useContext, useMemo, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { AtsReport } from '@/components/studio/AtsReport'
 import { ComposeProgress } from '@/components/studio/ComposeProgress'
+import { CvEditor } from '@/components/studio/CvEditor'
+import { CostNote } from '@/components/ui/CostNote'
 import { IconCopy, IconDownload, IconFind, IconRegenerate, IconStack } from '@/components/ui/icons'
 import { Sheet } from '@/components/ui/Sheet'
 import { useMedia } from '@/components/ui/use-media'
@@ -11,7 +14,13 @@ import type { ComposeStage } from '@/lib/ai/compose'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText } from '@/lib/i18n'
 import { renderPlaintext } from '@/lib/render/plaintext'
-import type { CVContent, EvidenceItem, GroundingReport } from '@/lib/schemas'
+import type {
+  CVContent,
+  EvidenceItem,
+  EvidenceMapping,
+  GroundingReport,
+  Requirement,
+} from '@/lib/schemas'
 import { readEventStream } from '@/lib/sse-client'
 import { printHtml, saveResponse } from '@/lib/ui/download'
 import { haptic } from '@/lib/ui/haptics'
@@ -37,6 +46,8 @@ export function Studio({
   initialCv,
   initialReport,
   variants,
+  requirements = [],
+  mappings = [],
 }: {
   applicationId: string
   company: string
@@ -46,6 +57,9 @@ export function Studio({
   initialCv: CVContent | null
   initialReport: GroundingReport | null
   variants: { id: string; label: string; stale: boolean }[]
+  /** The posting's requirements and how the record meets them: the ATS report. */
+  requirements?: Requirement[]
+  mappings?: EvidenceMapping[]
 }) {
   const t = useT()
   const router = useRouter()
@@ -62,6 +76,8 @@ export function Studio({
   // Bumped after a successful generate() so PdfPager knows to re-fetch the
   // freshly regenerated PDF rather than showing the previous one.
   const [refreshKey, setRefreshKey] = useState(0)
+  // Editing the words in place (CvEditor); the PDF waits until it is saved.
+  const [editing, setEditing] = useState(false)
 
   const [activeEvidenceId, setActiveEvidenceId] = useState<string | null>(null)
   const [seek, setSeek] = useState<{ text: string; n: number } | null>(null)
@@ -253,6 +269,7 @@ export function Studio({
               <button type="button" onClick={generate} className="btn btn-primary">
                 {t('studio.generate')}
               </button>
+              <CostNote action="cv" />
             </div>
           )
         ) : (
@@ -278,6 +295,15 @@ export function Studio({
                 <IconCopy />
                 {copied ? t('studio.copied') : t('studio.copyText')}
               </button>
+              {!locked && !running && !editing && (
+                <button
+                  type="button"
+                  onClick={() => setEditing(true)}
+                  className="btn btn-quiet icon-label"
+                >
+                  {t('cvEdit.open')}
+                </button>
+              )}
               {/* Once it is sent or settled, rewriting is no longer offered. */}
               {!locked && (
                 <button
@@ -313,7 +339,18 @@ export function Studio({
                 no page concept. Shows the literal file /api/export/pdf
                 produces, page by page; "show in the PDF" on an evidence
                 record turns to the page that prints its first line. */}
-            <div className="doc-pdf">
+            {editing && cv && (
+              <CvEditor
+                applicationId={applicationId}
+                cv={cv}
+                onSaved={(next, nextReport) => {
+                  applied(next, nextReport)
+                  setEditing(false)
+                }}
+                onCancel={() => setEditing(false)}
+              />
+            )}
+            <div className="doc-pdf" hidden={editing}>
               <PdfPager
                 query={`applicationId=${applicationId}`}
                 refreshKey={refreshKey}
@@ -321,6 +358,9 @@ export function Studio({
                 onDownload={() => download('pdf')}
               />
             </div>
+            {!running && !editing && cv && (
+              <AtsReport cv={cv} requirements={requirements} mappings={mappings} />
+            )}
           </>
         )}
       </div>

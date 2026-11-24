@@ -5,7 +5,7 @@ import { useT } from '@/components/i18n/LocaleProvider'
 import { Chip } from '@/components/ui/Chip'
 import { IconInfo } from '@/components/ui/icons'
 import { Sheet } from '@/components/ui/Sheet'
-import { VERDICT_KEYS } from '@/lib/coverage'
+import { closeCallLine, VERDICT_KEYS } from '@/lib/coverage'
 import { plural } from '@/lib/i18n'
 import type { Coverage, Requirement } from '@/lib/schemas'
 
@@ -31,6 +31,8 @@ export function VerdictPanel({
   // wording is a tap away, as every other requirement's is.
   const [gate, setGate] = useState<{ r: Requirement; unjudged: boolean } | null>(null)
   const copy = VERDICT_KEYS[coverage.verdict]
+  // One requirement read one step differently would change the answer: said, not hidden.
+  const closeLine = closeCallLine(coverage, t)
   const unjudged = coverage.unjudgedGates ?? []
   const segs = [
     { key: 'strong', n: coverage.mandatoryStrong },
@@ -53,6 +55,7 @@ export function VerdictPanel({
           <p className="verdict-say">{sentence}</p>
         </>
       )}
+      {closeLine && <p className="verdict-close">{closeLine}</p>}
 
       {!headless && coverage.mandatoryTotal > 0 && (
         <>
