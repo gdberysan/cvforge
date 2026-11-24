@@ -154,14 +154,30 @@ export function readLevel(text: string): { level: Level; estimated: boolean } | 
   if (/nativ|materna|mother tongue|bilingu/.test(t)) return { level: 'native', estimated: false }
   if (/upper.?intermedi|intermedio alto|intermedio-alto/.test(t))
     return { level: 'B2', estimated: true }
-  if (/fluid|fluent|avanzad|advanced|profici|dominio/.test(t))
+  if (/fluid|fluent|avanzad|advanced|profici|dominio|profesional|professional/.test(t))
     return { level: 'C1', estimated: true }
   if (/intermedi|conversa/.test(t)) return { level: 'B1', estimated: true }
   if (/basic|basico|elementa|principiante|beginner/.test(t)) return { level: 'A2', estimated: true }
   return undefined
 }
 
-export type ImportResult = { parsed: ParsedCV; problems: string[] }
+/**
+ * Something an import left out or guessed, said on the review screen in the
+ * person's language: a code and its details, never a sentence built here
+ * (the screen translates it through the dictionary).
+ */
+export type ImportProblem =
+  | { code: 'language-unread'; language: string; level: string }
+  | { code: 'language-estimated'; language: string; level: string; read: string }
+  | { code: 'education-end-unread'; name: string }
+  | { code: 'project-end-unread'; name: string }
+  | { code: 'evidence-unplaceable'; text: string }
+  | { code: 'evidence-undated'; text: string }
+  | { code: 'credential-undated'; text: string }
+  | { code: 'duplicate-id'; id: string }
+  | { code: 'unknown-ref'; id: string }
+
+export type ImportResult = { parsed: ParsedCV; problems: ImportProblem[] }
 
 /**
  * Fills in the code-owned fields the skeleton deliberately lacks, and reads
@@ -177,7 +193,7 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
   const incomplete = incompleteRoles(skeleton.experience)
   if (incomplete.length > 0) throw new IncompleteRoleError(incomplete)
 
-  const problems: string[] = []
+  const problems: ImportProblem[] = []
   // A missing id is filled, never fatal: evidence binds to the ids the
   // profile pass assigned, so a filled one simply has nothing bound to it.
   const idOr = (id: string, fallback: string) => id.trim() || fallback
@@ -196,15 +212,16 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
   const languages = skeleton.languages.flatMap((entry) => {
     const read = readLevel(entry.level)
     if (!read) {
-      problems.push(
-        `Left out — could not read the level of ${entry.language} ("${entry.level}"). Add it by hand with its level.`,
-      )
+      problems.push({ code: 'language-unread', language: entry.language, level: entry.level })
       return []
     }
     if (read.estimated)
-      problems.push(
-        `${entry.language}: "${entry.level}" read as ${read.level} — check it before saving.`,
-      )
+      problems.push({
+        code: 'language-estimated',
+        language: entry.language,
+        level: entry.level,
+        read: read.level,
+      })
     return [{ language: entry.language, level: read.level }]
   })
 
@@ -218,7 +235,11 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
     // with no start either, the entry simply stays undated.
     const period: { start?: string; end?: string } | undefined =
       start || end ? { ...(start ? { start } : {}), ...(end ? { end } : {}) } : undefined
-    if (unreadableEnd) problems.push(`Could not read the end date of education "${entry.id}".`)
+    if (unreadableEnd)
+      problems.push({
+        code: 'education-end-unread',
+        name: entry.degree.trim() || entry.institution.trim() || entry.id,
+      })
     return { ...entry, id: idOr(entry.id, `edu_${i + 1}`), period }
   })
 
@@ -229,7 +250,7 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
     const { start, end, unreadableEnd } = readPeriod(entry.period)
     const period: { start?: string; end?: string } | undefined =
       start || end ? { ...(start ? { start } : {}), ...(end ? { end } : {}) } : undefined
-    if (unreadableEnd) problems.push(`Could not read the end date of project "${entry.id}".`)
+    if (unreadableEnd) problems.push({ code: 'project-end-unread', name: entry.name.trim() })
     return [{ ...entry, id: idOr(entry.id, `proj_${i + 1}`), name: entry.name.trim(), period }]
   })
 
@@ -253,9 +274,7 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
     const read = readModelEvidence(raw)
     if (!read.ok) {
       if (read.reason === 'unplaceable')
-        problems.push(
-          `Left out — the CV line could not be tied to a role, project, degree or certification: "${raw.text.trim()}". Add it by hand from Evidence.`,
-        )
+        problems.push({ code: 'evidence-unplaceable', text: raw.text.trim() })
       continue
     }
     const item = { ...read.fields, id: idOr(raw.id, `ev_${i + 1}`), period: raw.period }
@@ -267,11 +286,13 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
     if (!period) {
       // A degree or certification restated as an achievement is still on
       // file as a credential; saying "not imported" about it would be false.
-      problems.push(
-        item.sourceRef.type === 'education' || item.sourceRef.type === 'certification'
-          ? `Kept as a credential only — the CV gives no date for an achievement: "${item.text}".`
-          : `Left out — the CV gives this achievement no date: "${item.text}". Add it by hand from Evidence.`,
-      )
+      problems.push({
+        code:
+          item.sourceRef.type === 'education' || item.sourceRef.type === 'certification'
+            ? 'credential-undated'
+            : 'evidence-undated',
+        text: item.text,
+      })
       continue
     }
     // Metrics come back from readModelEvidence already read: an empty one

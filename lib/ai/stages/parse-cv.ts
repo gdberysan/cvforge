@@ -2,6 +2,7 @@ import { IncompleteRoleError, MissingNameError, UndatedRoleError } from '@/lib/i
 import {
   CvEvidenceSkeletonSchema,
   CvProfileSkeletonSchema,
+  type ImportProblem,
   type ImportResult,
   incompleteRoles,
   type ParsedCV,
@@ -127,8 +128,8 @@ const SOURCE_LABEL = {
  * pointing at an id that was never assigned. Left unchecked, the evidence would
  * be orphaned and invisible in the editor.
  */
-export function validateReferentialIntegrity(parsed: ParsedCV): string[] {
-  const problems: string[] = []
+export function validateReferentialIntegrity(parsed: ParsedCV): ImportProblem[] {
+  const problems: ImportProblem[] = []
 
   const known: Record<string, Set<string>> = {
     experience: new Set(parsed.profile.experience.map((e) => e.id)),
@@ -150,16 +151,17 @@ export function validateReferentialIntegrity(parsed: ParsedCV): string[] {
   for (const [label, ids] of duplicateGroups) {
     const seen = new Set<string>()
     for (const id of ids) {
-      if (seen.has(id)) problems.push(`Duplicate ${label} id: ${id}`)
+      if (seen.has(id)) problems.push({ code: 'duplicate-id', id: `${label} ${id}` })
       seen.add(id)
     }
   }
 
   for (const item of parsed.evidence) {
     if (!known[item.sourceRef.type]?.has(item.sourceRef.id)) {
-      problems.push(
-        `Evidence ${item.id} references ${SOURCE_LABEL[item.sourceRef.type]} "${item.sourceRef.id}", which does not exist.`,
-      )
+      problems.push({
+        code: 'unknown-ref',
+        id: `${SOURCE_LABEL[item.sourceRef.type]} ${item.sourceRef.id}`,
+      })
     }
   }
 

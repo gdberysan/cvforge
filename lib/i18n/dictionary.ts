@@ -768,6 +768,21 @@ const en = {
   'import.error': 'Could not read that CV.',
   'import.problems.one': '{n} problem. Check it before accepting.',
   'import.problems.other': '{n} problems. Check them before accepting.',
+  'import.problem.languageUnread':
+    'Left out: the level of {language} ("{level}") could not be read. Add it by hand with its level.',
+  'import.problem.languageEstimated':
+    '{language}: "{level}" was read as {read}. Check it before accepting.',
+  'import.problem.educationEnd': 'The end date of "{name}" could not be read.',
+  'import.problem.projectEnd': 'The end date of the project "{name}" could not be read.',
+  'import.problem.unplaceable':
+    'Left out: a line that could not be tied to a role, project, degree or certification: "{text}". Add it by hand in My experience.',
+  'import.problem.undated':
+    'Left out: an achievement with no date: "{text}". Add it by hand in My experience.',
+  'import.problem.credentialUndated': 'Kept only as a credential (it has no date): "{text}".',
+  'import.problem.duplicate':
+    'Two entries came out with the same id ({id}). Check nothing is missing or repeated.',
+  'import.problem.unknownRef':
+    'An achievement points to an entry that does not exist ({id}) and will not show. Import again or add it by hand.',
   'import.skeleton': 'Outline',
   'import.roles': '{n} roles',
   'import.lede2':
@@ -2263,6 +2278,21 @@ const es: Record<MessageKey, string> = {
   'import.error': 'No se pudo leer ese CV.',
   'import.problems.one': '{n} problema. Revísalo antes de aceptar.',
   'import.problems.other': '{n} problemas. Revísalos antes de aceptar.',
+  'import.problem.languageUnread':
+    'Se dejó fuera: no se pudo leer el nivel de {language} («{level}»). Agrégalo a mano con su nivel.',
+  'import.problem.languageEstimated':
+    '{language}: «{level}» se leyó como {read}. Revísalo antes de aceptar.',
+  'import.problem.educationEnd': 'No se pudo leer la fecha de fin de «{name}».',
+  'import.problem.projectEnd': 'No se pudo leer la fecha de fin del proyecto «{name}».',
+  'import.problem.unplaceable':
+    'Se dejó fuera una línea que no se pudo ligar a un puesto, proyecto, estudio o certificación: «{text}». Agrégala a mano en Mi experiencia.',
+  'import.problem.undated':
+    'Se dejó fuera un logro sin fecha: «{text}». Agrégalo a mano en Mi experiencia.',
+  'import.problem.credentialUndated': 'Se guardó solo como credencial (no tiene fecha): «{text}».',
+  'import.problem.duplicate':
+    'Dos entradas salieron con el mismo identificador ({id}). Revisa que no falte ni sobre nada.',
+  'import.problem.unknownRef':
+    'Un logro apunta a una entrada que no existe ({id}) y no se mostrará. Vuelve a importar o agrégalo a mano.',
   'import.skeleton': 'Estructura',
   'import.roles': '{n} puestos',
   'import.lede2':
