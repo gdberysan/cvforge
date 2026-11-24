@@ -356,6 +356,7 @@ describe('classify', () => {
     expect(classify(trial('trial_ended'))).toBe('trial-ended')
     // Too little left for this step, or every trial full today: the trial goes on.
     expect(classify(trial('trial_unavailable'))).toBe('trial-unavailable')
+    expect(classify(trial('trial_short'))).toBe('trial-short')
     expect(classify(Object.assign(new Error('x'), { status: 402 }))).toBe('trial-unavailable')
     expect(classify(Object.assign(new Error('too big'), { status: 413 }))).toBe('too-large')
   })

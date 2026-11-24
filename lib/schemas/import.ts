@@ -177,6 +177,22 @@ export type ImportProblem =
   | { code: 'duplicate-id'; id: string }
   | { code: 'unknown-ref'; id: string }
 
+/** A read span with its year-only flags, or undefined when nothing was read. */
+function spanOf(
+  start: string | undefined,
+  end: string | undefined,
+  startYearOnly?: boolean,
+  endYearOnly?: boolean,
+): { start?: string; end?: string; startYearOnly?: boolean; endYearOnly?: boolean } | undefined {
+  if (!start && !end) return undefined
+  return {
+    ...(start ? { start } : {}),
+    ...(end ? { end } : {}),
+    ...(start && startYearOnly ? { startYearOnly: true } : {}),
+    ...(end && endYearOnly ? { endYearOnly: true } : {}),
+  }
+}
+
 export type ImportResult = { parsed: ParsedCV; problems: ImportProblem[] }
 
 /**
@@ -199,13 +215,18 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
   const idOr = (id: string, fallback: string) => id.trim() || fallback
 
   const experience = skeleton.experience.map((role, i) => {
-    const { start, end } = readPeriod(role.period)
+    const { start, end, startYearOnly, endYearOnly } = readPeriod(role.period)
     return {
       ...role,
       id: idOr(role.id, `exp_${i + 1}`),
       title: role.title.trim(),
       company: role.company.trim(),
-      period: { start: start as string, ...(end ? { end } : {}) },
+      period: {
+        start: start as string,
+        ...(end ? { end } : {}),
+        ...(startYearOnly ? { startYearOnly } : {}),
+        ...(end && endYearOnly ? { endYearOnly } : {}),
+      },
     }
   })
 
@@ -230,11 +251,10 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
   )
 
   const education = skeleton.education.map((entry, i) => {
-    const { start, end, unreadableEnd } = readPeriod(entry.period)
+    const { start, end, unreadableEnd, startYearOnly, endYearOnly } = readPeriod(entry.period)
     // An unreadable end on a degree is dropped rather than read as ongoing:
     // with no start either, the entry simply stays undated.
-    const period: { start?: string; end?: string } | undefined =
-      start || end ? { ...(start ? { start } : {}), ...(end ? { end } : {}) } : undefined
+    const period = spanOf(start, end, startYearOnly, endYearOnly)
     if (unreadableEnd)
       problems.push({
         code: 'education-end-unread',
@@ -247,9 +267,8 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
   // undated, and its achievements are reported rather than given a month.
   const projects = skeleton.projects.flatMap((entry, i) => {
     if (!entry.name.trim()) return []
-    const { start, end, unreadableEnd } = readPeriod(entry.period)
-    const period: { start?: string; end?: string } | undefined =
-      start || end ? { ...(start ? { start } : {}), ...(end ? { end } : {}) } : undefined
+    const { start, end, unreadableEnd, startYearOnly, endYearOnly } = readPeriod(entry.period)
+    const period = spanOf(start, end, startYearOnly, endYearOnly)
     if (unreadableEnd) problems.push({ code: 'project-end-unread', name: entry.name.trim() })
     return [{ ...entry, id: idOr(entry.id, `proj_${i + 1}`), name: entry.name.trim(), period }]
   })
@@ -263,8 +282,8 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
     for (const entry of entries) {
       if (!entry.period?.start) continue
       inherited.set(`${type}:${entry.id}`, {
+        ...entry.period,
         start: entry.period.start,
-        ...(entry.period.end ? { end: entry.period.end } : {}),
       })
     }
   }
@@ -281,7 +300,7 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
     const own = readPeriod(item.period)
     const period: Period | undefined =
       own.start && !own.unreadableEnd
-        ? { start: own.start, ...(own.end ? { end: own.end } : {}) }
+        ? (spanOf(own.start, own.end, own.startYearOnly, own.endYearOnly) as Period)
         : inherited.get(`${item.sourceRef.type}:${item.sourceRef.id}`)
     if (!period) {
       // A degree or certification restated as an achievement is still on

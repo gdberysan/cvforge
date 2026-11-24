@@ -2,6 +2,7 @@ import type { CVContent } from '@/lib/schemas'
 import {
   educationLine,
   formatDate,
+  formatDateOf,
   projectDates,
   projectTitle,
   type RenderLanguage,
@@ -15,6 +16,7 @@ export const HEADINGS = {
     education: 'Education',
     skills: 'Skills',
     present: 'Present',
+    earlier: 'Earlier experience',
   },
   'es-MX': {
     summary: 'Resumen',
@@ -23,6 +25,7 @@ export const HEADINGS = {
     education: 'Educación',
     skills: 'Habilidades',
     present: 'actualidad',
+    earlier: 'Experiencia previa',
   },
 } as const
 
@@ -50,10 +53,23 @@ export type Outline = {
  * empty field does. Each used to decide for itself: an undated degree
  * printed "()" in the clipboard text while the others printed nothing.
  */
+/** "Experiencia previa: Analista, Seguros La Cima; Ejecutiva, Agencia Brío (2010–2014)." */
+function earlierLine(roles: NonNullable<CVContent['earlierRoles']>, label: string): string {
+  const years = roles.flatMap((r) => [r.start, r.end ?? r.start]).map((d) => d.slice(0, 4))
+  const from = years.reduce((a, b) => (b < a ? b : a))
+  const to = years.reduce((a, b) => (b > a ? b : a))
+  const span = from === to ? from : `${from}–${to}`
+  return `${label}: ${roles.map((r) => `${r.title}, ${r.company}`).join('; ')} (${span}).`
+}
+
 export function cvOutline(content: CVContent, language: RenderLanguage): Outline {
   const h = HEADINGS[language]
-  const span = (start: string, end?: string) =>
-    `${formatDate(start, language)} – ${end ? formatDate(end, language) : h.present}`
+  const span = (
+    start: string,
+    end: string | undefined,
+    flags: { startYearOnly?: boolean; endYearOnly?: boolean },
+  ) =>
+    `${formatDateOf(start, language, flags.startYearOnly)} – ${end ? formatDateOf(end, language, flags.endYearOnly) : h.present}`
   const text = (s: string) => s.trim()
 
   const sections: Outline['sections'] = [
@@ -63,12 +79,20 @@ export function cvOutline(content: CVContent, language: RenderLanguage): Outline
     },
     {
       heading: h.experience,
-      items: content.experience.map((role) => ({
-        kind: 'entry',
-        left: `${role.title} — ${role.company}`,
-        right: span(role.startDate, role.endDate),
-        bullets: role.bullets.map((b) => b.text),
-      })),
+      items: [
+        ...content.experience.map(
+          (role): OutlineItem => ({
+            kind: 'entry',
+            left: `${role.title} — ${role.company}`,
+            right: span(role.startDate, role.endDate, role),
+            bullets: role.bullets.map((b) => b.text),
+          }),
+        ),
+        // Early career, named on one line rather than erased.
+        ...(content.earlierRoles?.length
+          ? [{ kind: 'para' as const, text: earlierLine(content.earlierRoles, h.earlier) }]
+          : []),
+      ],
     },
     {
       heading: h.projects,

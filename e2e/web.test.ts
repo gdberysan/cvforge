@@ -105,6 +105,24 @@ describe('the web edition on a phone', () => {
     await plain.ctx.close()
   })
 
+  // 2026-11-24: on the live site Ajustes said "Esta copia no trae recibo de
+  // construcción (una prueba local)": the receipt was fetched from the root,
+  // which the landing owns, instead of under /app.
+  it('finds its build receipt under the app, not the landing', async () => {
+    const { ctx, page } = await phone()
+    const asked: string[] = []
+    page.on(
+      'request',
+      (r) => r.url().includes('build.json') && asked.push(new URL(r.url()).pathname),
+    )
+    await page.goto(`${site.origin}/app/settings/`)
+    await page.waitForTimeout(2500)
+    expect(asked.length).toBeGreaterThan(0)
+    for (const path of asked) expect(path).toBe('/app/build.json')
+    expect(await page.getByText(/no trae recibo/).count()).toBe(0)
+    await ctx.close()
+  })
+
   it('opens the privacy page in English, fitting the screen', async () => {
     const { ctx, page, errors } = await phone({ locale: 'en-US' })
     await page.goto(`${site.origin}/app/privacidad/`)

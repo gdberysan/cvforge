@@ -213,7 +213,10 @@ const YEAR_SPAN = /(?<![\p{L}\p{N}.,])(\d{1,2})\s?\+?\s?(?:años|anos|years|yrs)
 export function extractCounts(text: string): number[] {
   // A span of time is judged by extractYearSpans, against the dates on record.
   let rest = text.replace(YEAR_SPAN, ' ')
-  for (const quantity of extractQuantities(rest)) rest = rest.split(quantity).join(' ')
+  // Longest first: removing "2%" before "4.2%" left a stray "4." that was
+  // then read as a count of 4 and flagged (a true line, shown red).
+  const quantities = extractQuantities(rest).sort((a, b) => b.length - a.length)
+  for (const quantity of quantities) rest = rest.split(quantity).join(' ')
   const counts: number[] = []
   for (const { raw, value } of readCounts(rest)) {
     if (/^(?:19|20)\d{2}$/.test(raw)) continue

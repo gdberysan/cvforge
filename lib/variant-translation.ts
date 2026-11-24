@@ -71,6 +71,8 @@ export function mergeTranslation(
       ...sameId('project', project.projectId, out.projectId, project),
       bullets: mergeBullets(project.projectId, project.bullets, out.bullets),
     })),
+    // Recorded roles, as held: carried over, not translated.
+    ...(source.earlierRoles ? { earlierRoles: source.earlierRoles } : {}),
     education: sameLength('education', source.education, draft.education).map(([entry, out]) => ({
       degree: text('degree', entry.degree, out.degree),
       // A proper name: the source's, whatever the model wrote.

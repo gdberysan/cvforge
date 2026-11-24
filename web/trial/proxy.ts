@@ -219,11 +219,7 @@ async function forward(request: Request, address: string, c: TrialConfig): Promi
         // otherwise only this step does not fit, and the trial goes on.
         return after - reserve >= c.budgetUsd - SMALLEST_STEP_USD
           ? apiError(402, 'trial_ended', 'This free trial is used up.')
-          : apiError(
-              402,
-              'trial_unavailable',
-              'What is left of this trial does not cover this step.',
-            )
+          : apiError(402, 'trial_short', 'What is left of this trial does not cover this step.')
       }
       await tally(c, 'full', now)
       return apiError(402, 'trial_unavailable', 'The free trial is full for now.')

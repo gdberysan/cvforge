@@ -70,8 +70,8 @@ describe('toParsedCV projects', () => {
       ],
       evidence: [projectItem('ev_p', 'proj_1')],
     })
-    expect(parsed.profile.projects[0].period).toEqual({ start: '2024-01' })
-    expect(parsed.evidence[0].period).toEqual({ start: '2024-01' })
+    expect(parsed.profile.projects[0].period).toEqual({ start: '2024-01', startYearOnly: true })
+    expect(parsed.evidence[0].period).toEqual({ start: '2024-01', startYearOnly: true })
   })
 
   it('keeps an undated project undated and reports its achievement instead of inventing a month', () => {

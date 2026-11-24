@@ -258,3 +258,33 @@ export async function saveDetailsAction(
   revalidatePath('/', 'layout')
   return { ok: true }
 }
+
+const AuthorizationSchema = z.object({
+  country: z.string().trim().min(1).max(80),
+  status: z.string().trim().min(1).max(120),
+})
+
+/**
+ * The person said yes to "are you authorized to work in …?" on a posting
+ * that gated on it while the record was silent: one entry added to what a
+ * posting's authorization line is judged against. Only their answer, never
+ * inferred; an entry for the same country is not repeated.
+ */
+export async function addWorkAuthorizationAction(
+  input: unknown,
+): Promise<{ ok: true } | { ok: false; error: string; code: string }> {
+  if (isDemo()) return demoBlock()
+  const parsed = AuthorizationSchema.safeParse(input)
+  if (!parsed.success) return { ok: false, error: 'Check the country.', code: 'invalid-details' }
+  const profile = getProfile(db)
+  if (!profile) return { ok: false, error: 'No profile yet.', code: 'no-profile' }
+  const same = (a: string) => a.trim().toLowerCase() === parsed.data.country.toLowerCase()
+  if (!profile.workAuthorization.some((w) => same(w.country)))
+    saveProfile(db, {
+      ...profile,
+      workAuthorization: [...profile.workAuthorization, parsed.data],
+      updatedAt: new Date().toISOString(),
+    })
+  revalidatePath('/', 'layout')
+  return { ok: true }
+}

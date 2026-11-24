@@ -192,8 +192,8 @@ describe('the free trial', () => {
       c,
     )
     expect(res.status).toBe(402)
-    // Only this step does not fit: the trial itself goes on.
-    expect(await errorType(res)).toBe('trial_unavailable')
+    // Only this step does not fit: the trial itself goes on, and says which.
+    expect(await errorType(res)).toBe('trial_short')
     expect(billed(c)).toHaveLength(0)
     // The refused reservation is returned: a smaller call still fits.
     const small = await handleTrial(

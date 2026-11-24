@@ -12,6 +12,7 @@ import { ToastHost } from '@/components/ui/ToastHost'
 import { useDatabase } from '@/web/lib/database'
 import { InAppBrowserBanner } from '@/web/lib/in-app-browser'
 import { onJobs } from '@/web/lib/jobs'
+import { TrialOutSheet } from '@/web/lib/trial-out'
 import { UnlockScreen } from '@/web/lib/unlock-screen'
 import { useLoader } from '@/web/lib/use-loader'
 
@@ -102,6 +103,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         canQuit={false}
       />
       <InAppBrowserBanner />
+      <TrialOutSheet />
       {jobs > 0 && (
         <p className="job-banner" role="status">
           {t('web.job.keepOpen')}

@@ -46,6 +46,7 @@ describe('readPeriod', () => {
   it('reads an open period as having no end', () => {
     expect(readPeriod({ start: '2021', end: 'Presente' })).toEqual({
       start: '2021-01',
+      startYearOnly: true,
       unreadableEnd: false,
     })
   })

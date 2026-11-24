@@ -33,7 +33,7 @@
   },
   "components/evidence/ImportReview.tsx": {
     "typed-arrow": 1,
-    "inline-style": 27
+    "inline-style": 25
   },
   "components/evidence/InterviewHistory.tsx": {
     "inline-style": 3
@@ -52,7 +52,7 @@
   },
   "components/studio/CompanionPanel.tsx": {
     "typed-arrow": 1,
-    "inline-style": 20
+    "inline-style": 19
   },
   "components/studio/VariantPicker.tsx": {
     "inline-style": 1

@@ -7,6 +7,7 @@ import { AtsReport } from '@/components/studio/AtsReport'
 import { ComposeProgress } from '@/components/studio/ComposeProgress'
 import { CvEditor } from '@/components/studio/CvEditor'
 import { CostNote } from '@/components/ui/CostNote'
+import { ErrorNote } from '@/components/ui/ErrorNote'
 import { IconCopy, IconDownload, IconFind, IconRegenerate, IconStack } from '@/components/ui/icons'
 import { Sheet } from '@/components/ui/Sheet'
 import { useMedia } from '@/components/ui/use-media'
@@ -70,7 +71,13 @@ export function Studio({
   const [running, setRunning] = useState(false)
   const [stage, setStage] = useState<ComposeStage | null>(null)
   const [seen, setSeen] = useState<ComposeStage[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const [error, setErrorText] = useState<string | null>(null)
+  // The failure's code beside its message: ErrorNote picks the way past it.
+  const [errorCode, setErrorCode] = useState<string | undefined>()
+  const setError = (text: string | null) => {
+    setErrorText(text)
+    setErrorCode(undefined)
+  }
   const [copied, setCopied] = useState(false)
   // The print dialog opens over this page, so its two settings are taught here.
   const [printHint, setPrintHint] = useState(false)
@@ -156,6 +163,7 @@ export function Studio({
             ? e.message
             : t('studio.failed'),
       )
+      setErrorCode(e instanceof ApiFailure ? e.code : undefined)
     } finally {
       setRunning(false)
     }
@@ -256,11 +264,7 @@ export function Studio({
             <GroundingFlags report={report} textOf={bulletText} />
           </div>
         )}
-        {error && (
-          <p role="alert" className="doc-block is-error">
-            {error}
-          </p>
-        )}
+        {error && <ErrorNote code={errorCode}>{error}</ErrorNote>}
         {printHint && <p className="fact doc-block is-muted">{t('studio.printHint')}</p>}
 
         {!cv ? (

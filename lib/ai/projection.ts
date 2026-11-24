@@ -13,9 +13,7 @@ import type { EvidenceItem, MasterProfile, Project } from '@/lib/schemas'
 export function buildEvidenceProjection(profile: MasterProfile, evidence: EvidenceItem[]): string {
   const roles = [...profile.experience]
     .sort((a, b) => a.id.localeCompare(b.id))
-    .map(
-      (r) => `${r.id} | ${r.title} @ ${r.company} | ${r.period.start}–${r.period.end ?? 'present'}`,
-    )
+    .map((r) => `${r.id} | ${r.title} @ ${r.company} | ${formatSpan(r.period, 'present')}`)
 
   const skills = [...profile.skills]
     .sort((a, b) => a.category.localeCompare(b.category))
@@ -26,7 +24,7 @@ export function buildEvidenceProjection(profile: MasterProfile, evidence: Eviden
     .map((e) =>
       [
         `${e.id} [${e.kind}] source=${e.sourceRef.type}:${e.sourceRef.id} strength=${e.strength}`,
-        `  period: ${e.period.start}–${e.period.end ?? 'present'}`,
+        `  period: ${formatSpan(e.period, 'present')}`,
         `  tags: ${[...e.tags].sort().join(', ') || '(none)'}`,
         `  metrics: ${e.metrics.map((m) => m.raw).join(' ; ') || '(none)'}`,
         `  text: ${e.text}`,

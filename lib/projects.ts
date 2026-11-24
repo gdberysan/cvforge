@@ -48,7 +48,23 @@ export function updateProject(
   if (!profile.projects.some((p) => p.id === projectId)) return null
   return {
     ...profile,
-    projects: profile.projects.map((p) => (p.id === projectId ? toProject(p.id, input) : p)),
+    projects: profile.projects.map((p) => {
+      if (p.id !== projectId) return p
+      const next = toProject(p.id, input)
+      // An untouched year-only date stays a year (see PeriodSchema).
+      return {
+        ...next,
+        period: {
+          ...next.period,
+          ...(p.period?.startYearOnly && input.start === p.period.start
+            ? { startYearOnly: true }
+            : {}),
+          ...(p.period?.endYearOnly && input.end && input.end === p.period.end
+            ? { endYearOnly: true }
+            : {}),
+        },
+      }
+    }),
   }
 }
 

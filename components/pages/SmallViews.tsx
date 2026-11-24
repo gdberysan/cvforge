@@ -69,6 +69,7 @@ export function InterviewView({ data, t }: { data: InterviewData; t: Translate }
               role.period.end,
               t('intl.locale'),
               t('evidence.present'),
+              role.period,
             )}
           </Meta>
         </p>

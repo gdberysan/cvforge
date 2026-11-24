@@ -21,6 +21,10 @@ export function periodLabel(
   end: string | null | undefined,
   locale: string,
   present: string,
+  /** The record gave only the year (see PeriodSchema): print just that. */
+  flags: { startYearOnly?: boolean; endYearOnly?: boolean } = {},
 ): string {
-  return `${monthYear(start, locale)} – ${end ? monthYear(end, locale) : present}`
+  const at = (value: string, yearOnly?: boolean) =>
+    yearOnly ? value.slice(0, 4) : monthYear(value, locale)
+  return `${at(start, flags.startYearOnly)} – ${end ? at(end, flags.endYearOnly) : present}`
 }

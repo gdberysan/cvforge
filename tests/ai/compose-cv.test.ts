@@ -330,6 +330,37 @@ describe('projects on the CV', () => {
     ])
   })
 
+  // 2026-11-24, on an S25: a CV that said "2015 – 2019" printed its degree
+  // as "Jan 2015–Jan 2019" — a month the person never gave.
+  it("prints a degree's dates from the record, in years", () => {
+    const withDegree = {
+      ...withProject,
+      education: [
+        {
+          id: 'edu_1',
+          degree: 'B.A. Communication',
+          institution: 'University of Texas at Austin',
+          period: { start: '2015-01', end: '2019-01' },
+        },
+      ],
+    } as typeof withProject
+    const cv = resolveFromProfile(
+      {
+        ...emptyContent,
+        education: [
+          {
+            degree: 'B.A. Communication',
+            institution: 'University of Texas at Austin',
+            period: 'Jan 2015–Jan 2019',
+          },
+          { degree: 'Diplomado', institution: 'Otra', period: '2020' },
+        ],
+      },
+      withDegree,
+    )
+    expect(cv.education.map((e) => e.period)).toEqual(['2015–2019', '2020'])
+  })
+
   it('drops a project id the profile does not hold, and an empty section', () => {
     const cv = resolveFromProfile(
       {
