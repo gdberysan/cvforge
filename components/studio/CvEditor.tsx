@@ -5,6 +5,7 @@ import { checkCvEditAction, saveCvEditAction } from '@/app/(app)/application/[id
 import { useT } from '@/components/i18n/LocaleProvider'
 import { reportFlags } from '@/components/studio/GroundingFlags'
 import type { CvPatch } from '@/lib/ai/edit-cv'
+import { readSkills, skillsText } from '@/lib/cv-edit-text'
 import type { CVContent, GroundingReport } from '@/lib/schemas'
 import { haptic } from '@/lib/ui/haptics'
 
@@ -17,6 +18,9 @@ import { haptic } from '@/lib/ui/haptics'
  */
 /** Rows to show a line whole on a phone (browsers without field-sizing). */
 const rowsFor = (text: string) => Math.max(2, Math.ceil(text.length / 34))
+
+/** The longest line the server accepts; the field stops there instead of the save failing. */
+const MAX_TEXT = 2000
 
 export function CvEditor({
   applicationId,
@@ -32,7 +36,8 @@ export function CvEditor({
   const t = useT()
   const [summary, setSummary] = useState(cv.summary)
   const [bullets, setBullets] = useState<Record<string, string | null>>({})
-  const [skills, setSkills] = useState(cv.skills.map((s) => ({ ...s, text: s.items.join(', ') })))
+  // One skill per line: a skill may hold a comma ("Google Ads (Search, Shopping)").
+  const [skills, setSkills] = useState(cv.skills.map((s) => ({ ...s, text: skillsText(s.items) })))
   const [report, setReport] = useState<GroundingReport | null>(null)
   const [edited, setEdited] = useState<Set<string>>(new Set())
   const [saving, setSaving] = useState(false)
@@ -40,17 +45,15 @@ export function CvEditor({
 
   const patch: CvPatch = useMemo(
     () => ({
-      summary,
+      // Only what changed is sent; an untouched line is never rewritten.
+      summary: summary === cv.summary ? undefined : summary,
       bullets,
       skills: skills.map((s) => ({
         category: s.category,
-        items: s.text
-          .split(',')
-          .map((i) => i.trim())
-          .filter(Boolean),
+        items: readSkills(s.text),
       })),
     }),
-    [summary, bullets, skills],
+    [summary, bullets, skills, cv.summary],
   )
 
   // Checked a moment after typing stops; an older answer never overwrites a newer one.
@@ -106,6 +109,7 @@ export function CvEditor({
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
           rows={rowsFor(summary)}
+          maxLength={MAX_TEXT}
         />
         {line('summary')}
       </label>
@@ -124,6 +128,7 @@ export function CvEditor({
                     value={bullets[b.id] ?? b.text}
                     onChange={(e) => setBullets((m) => ({ ...m, [b.id]: e.target.value }))}
                     rows={rowsFor(bullets[b.id] ?? b.text)}
+                    maxLength={MAX_TEXT}
                   />
                   <button
                     type="button"
@@ -145,9 +150,9 @@ export function CvEditor({
         {skills.map((s, i) => (
           <label key={s.category} className="cv-edit-field">
             <span>{s.category}</span>
-            <input
-              className="field"
+            <textarea
               value={s.text}
+              rows={Math.max(2, s.text.split('\n').length)}
               onChange={(e) =>
                 setSkills((all) =>
                   all.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)),
