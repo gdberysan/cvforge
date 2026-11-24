@@ -67,6 +67,35 @@ describe('PdfPager', () => {
     expect(screen.queryByText(/no pdf engine/i)).toBeNull()
   })
 
+  // 2026-11-24: on Rumbo the CV page threw "Cannot read properties of null
+  // (reading 'scrollHeight')" while the preview's document was being swapped.
+  it('measures a frame whose document has no root yet without throwing', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 503,
+        json: () =>
+          Promise.resolve({
+            error: 'chromium-unavailable',
+            html: '<p>Ana CV</p>',
+            printOnly: true,
+          }),
+      }),
+    ) as unknown as typeof fetch
+    const spy = vi
+      .spyOn(HTMLIFrameElement.prototype, 'contentDocument', 'get')
+      .mockReturnValue({ documentElement: null, body: null } as unknown as Document)
+    try {
+      const { container } = render(<PdfPager query="applicationId=app_1" refreshKey={0} />)
+      await waitFor(() => expect(container.querySelector('iframe')).toBeTruthy())
+      const frame = container.querySelector('iframe') as HTMLIFrameElement
+      expect(() => fireEvent.load(frame)).not.toThrow()
+      expect(frame.style.height).toBe(`${Math.round(794 * Math.SQRT2)}px`)
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
   it('explains a missing PDF engine and points to Settings, instead of a flat error', async () => {
     global.fetch = vi.fn(() =>
       Promise.resolve({

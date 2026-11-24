@@ -91,6 +91,11 @@ describe('the web edition on a phone', () => {
     await inApp.page.goto(`${site.origin}/app/`)
     await inApp.page.getByText(/Estás en el navegador de LinkedIn/).waitFor()
     expect(await overflows(inApp.page)).toBe(false)
+    // The way out: asks the phone for its browser; when the app keeps the
+    // page (as this test browser does), it points at the app's menu instead.
+    await inApp.page.getByRole('button', { name: 'Abrir en mi navegador' }).click()
+    await inApp.page.getByText(/¿No se abrió\? Toca el menú de LinkedIn/).waitFor()
+    expect(await overflows(inApp.page)).toBe(false)
     await inApp.ctx.close()
 
     const plain = await phone()

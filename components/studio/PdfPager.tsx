@@ -247,9 +247,12 @@ function ScaledHtmlPreview({ html, title }: { html: string; title: string }) {
     const f = frame.current
     if (!el || !f) return
     const scale = Math.min(1, el.clientWidth / A4_PX) || 0.5
+    // While the frame swaps documents its root is briefly null; measure the
+    // page size then, and the frame's load runs layout again.
     const doc = f.contentDocument
-    const height = doc
-      ? Math.max(doc.documentElement.scrollHeight, doc.body?.scrollHeight ?? 0)
+    const root = doc?.documentElement
+    const height = root
+      ? Math.max(root.scrollHeight, doc?.body?.scrollHeight ?? 0)
       : Math.round(A4_PX * Math.SQRT2)
     f.style.width = `${A4_PX}px`
     f.style.height = `${height}px`

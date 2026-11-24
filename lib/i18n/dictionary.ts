@@ -1021,6 +1021,7 @@ const en = {
   'studio.downloadDocx': 'Download DOCX',
   'studio.copyText': 'Copy text',
   'studio.copied': 'Copied ✓',
+  'studio.copyFailed': "Couldn't copy here. Press and hold the text to copy it.",
   'studio.evidenceUsed': 'Experience used',
   'studio.evidenceUsedCount': 'Experience it uses ({n})',
   'studio.noCvLede':
@@ -1401,7 +1402,13 @@ const en = {
     "Your data couldn't be opened. Nothing was deleted. Reload the page; if it happens again, close Rumbo's other tabs and update your browser.",
   'web.db.reload': 'Reload',
   'web.inApp.lede':
-    "You're in {app}'s own browser: what you save here may not be there later. Open {url} in Chrome or Safari so your data stays.",
+    "You're in {app}'s browser. Your CV can't be downloaded here, and what you save may be erased. Open Rumbo in your browser before you start.",
+  'web.inApp.open': 'Open in my browser',
+  'web.inApp.menuHint': "Didn't open? Tap {app}'s menu (··· or ⋮) and choose “Open in browser”.",
+  'web.inApp.blockedTitle': "{app} doesn't allow downloads",
+  'web.inApp.blockedBody':
+    'Open Rumbo in your browser to download your CV. What you did here stays in {app}: there you upload your CV again. Meanwhile, “Copy text” does work here.',
+  'web.inApp.notNow': 'Not now',
   'web.ops.eyebrow': 'Free trial',
   'web.ops.title': 'How the trial is doing',
   'web.ops.keyTitle': 'Owner key',
@@ -2529,6 +2536,7 @@ const es: Record<MessageKey, string> = {
   'studio.downloadDocx': 'Descargar DOCX',
   'studio.copyText': 'Copiar texto',
   'studio.copied': 'Copiado ✓',
+  'studio.copyFailed': 'No se pudo copiar aquí. Mantén presionado el texto para copiarlo.',
   'studio.evidenceUsed': 'Experiencia usada',
   'studio.evidenceUsedCount': 'Qué experiencia usa ({n})',
   'studio.noCvLede':
@@ -2915,7 +2923,14 @@ const es: Record<MessageKey, string> = {
     'No se pudieron abrir tus datos. No se borró nada. Recarga la página; si vuelve a pasar, cierra las otras pestañas de Rumbo y actualiza tu navegador.',
   'web.db.reload': 'Recargar',
   'web.inApp.lede':
-    'Estás en el navegador de {app}: lo que guardes aquí puede no estar después. Abre {url} en Chrome o Safari para que tus datos se queden.',
+    'Estás en el navegador de {app}. Aquí no se puede descargar tu CV, y lo que guardes puede borrarse. Abre Rumbo en tu navegador antes de empezar.',
+  'web.inApp.open': 'Abrir en mi navegador',
+  'web.inApp.menuHint':
+    '¿No se abrió? Toca el menú de {app} (··· o ⋮) y elige «Abrir en el navegador».',
+  'web.inApp.blockedTitle': '{app} no deja descargar archivos',
+  'web.inApp.blockedBody':
+    'Abre Rumbo en tu navegador para descargar tu CV. Lo que hiciste aquí se queda en {app}: allá subes tu CV otra vez. Mientras, «Copiar texto» sí funciona aquí.',
+  'web.inApp.notNow': 'Ahora no',
   'web.ops.eyebrow': 'Prueba gratis',
   'web.ops.title': 'Cómo va la prueba',
   'web.ops.keyTitle': 'Clave de dueño',

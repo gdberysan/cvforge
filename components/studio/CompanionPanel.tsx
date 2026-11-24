@@ -16,6 +16,7 @@ import type {
   RecruiterMessage,
   ScreeningSet,
 } from '@/lib/schemas'
+import { copyText } from '@/lib/ui/copy'
 import { haptic } from '@/lib/ui/haptics'
 import { GroundingFlags } from './GroundingFlags'
 
@@ -120,7 +121,10 @@ export function CompanionPanel({
 
   async function copy() {
     if (!document) return
-    await navigator.clipboard.writeText(plaintextOf(kind, document))
+    if (!(await copyText(plaintextOf(kind, document)))) {
+      setError(t('studio.copyFailed'))
+      return
+    }
     haptic('confirm')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
