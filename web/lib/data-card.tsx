@@ -4,6 +4,7 @@ import { type ChangeEvent, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { SettingsRow } from '@/components/settings/SettingsGroup'
 import { LOCALE_COOKIE } from '@/lib/i18n/locale'
+import { saveBlob } from '@/lib/ui/download'
 import { blockedInApp } from '@/lib/ui/in-app'
 import { dataChanged, workerApi } from './actions-client'
 /**
@@ -27,15 +28,10 @@ export function DataCard() {
     try {
       const bytes = await (await workerApi()).exportDatabase()
       const day = new Date().toISOString().slice(0, 10)
-      const url = URL.createObjectURL(
+      saveBlob(
         new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/vnd.sqlite3' }),
+        `cvforge-${day}.db`,
       )
-      const a = Object.assign(document.createElement('a'), {
-        href: url,
-        download: `cvforge-${day}.db`,
-      })
-      a.click()
-      setTimeout(() => URL.revokeObjectURL(url), 10_000)
       setMessage({ ok: true, text: t('web.data.exported') })
     } catch {
       setMessage({ ok: false, text: t('web.data.exportFailed') })

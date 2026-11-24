@@ -39,6 +39,14 @@ export function outsideUrl(href: string, userAgent: string): string | null {
   return null
 }
 
+/**
+ * Event sent after a download on Android. Inside LinkedIn's tab (Chrome, so
+ * nothing in the user agent says so) a file the page made never saves; the
+ * screen then says the way out, which keeps the person's data: Chrome's
+ * own tab shares it.
+ */
+export const ANDROID_DOWNLOAD = 'rumbo:android-download'
+
 /** Event the download helpers send instead of a download that cannot happen here. */
 export const IN_APP_BLOCKED = 'rumbo:in-app-blocked'
 

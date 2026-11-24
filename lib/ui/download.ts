@@ -1,15 +1,24 @@
-import { blockedInApp } from './in-app'
+import { ANDROID_DOWNLOAD, blockedInApp, platformOf } from './in-app'
 
-/** Saves a response as a file. Revoked later: Safari cancels a download whose URL dies at once. */
-export async function saveResponse(res: Response, fallbackName: string): Promise<void> {
+/** Saves a file. Revoked later: Safari cancels a download whose URL dies at once. */
+export function saveBlob(blob: Blob, name: string): void {
   // Inside LinkedIn's browser a download does nothing; the screen says why instead.
   if (blockedInApp()) return
-  const url = URL.createObjectURL(await res.blob())
+  const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = res.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] ?? fallbackName
+  a.download = name
   a.click()
   setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  if (platformOf(navigator.userAgent) === 'android')
+    window.dispatchEvent(new Event(ANDROID_DOWNLOAD))
+}
+
+/** Saves a response as a file, named as the server named it. */
+export async function saveResponse(res: Response, fallbackName: string): Promise<void> {
+  if (blockedInApp()) return
+  const name = res.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] ?? fallbackName
+  saveBlob(await res.blob(), name)
 }
 
 /**

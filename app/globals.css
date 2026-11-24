@@ -2529,6 +2529,8 @@ button.mail-candidate[aria-pressed="true"] { border-color: var(--accent); color:
 .job-banner { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; margin: 0; padding: var(--space-2) var(--space-4); display: flex; gap: var(--space-3); align-items: center; justify-content: space-between; font: var(--type-body-sm); color: var(--text-strong); background: var(--surface-raised); border-bottom: 1px solid var(--tone-partial-border); }
 .job-banner.is-warning { color: var(--tone-missing-text); background: var(--tone-missing-bg); border-bottom-color: var(--tone-missing-border); }
 .in-app-banner { position: static; flex-wrap: wrap; }
+.undo-bar.is-note { align-items: flex-start; border-radius: var(--radius-card); padding: var(--space-3) 6px var(--space-3) 18px; right: clamp(16px, 5vw, 64px); max-width: 30rem; }
+.undo-bar.is-note .undo-label { white-space: normal; overflow: visible; }
 .in-app-banner > span:first-child { flex: 1 1 16rem; }
 .in-app-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .in-app-hint { flex-basis: 100%; font: var(--type-body-sm); color: var(--text-strong); }
@@ -9410,3 +9412,91 @@ a.btn-primary:not(:has(svg))::after {
 .cv-edit-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
 /* Grows with its text where the browser can; `rows` covers the rest. */
 .cv-edit textarea { field-sizing: content; }
+
+/* BuildSheet: a document being made, in the shape of the one being written.
+   Lines write themselves in while the model writes; a scan passes and lines
+   are ticked while the code checks; a flagged line rewrites while it is fixed.
+   SVG: sizes are attributes; colour and motion are here. */
+.build-sheet {
+  flex: none;
+  width: 132px;
+  height: 176px;
+  border-radius: 10px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+.build-sheet svg { display: block; }
+.build-ink { fill: var(--border-strong); transform-box: fill-box; transform-origin: left center; }
+.build-dot { fill: var(--border-strong); }
+.build-row.is-name .build-ink { fill: var(--ink); }
+.build-row.is-sub .build-ink { fill: var(--track-todo); }
+.build-row.is-head .build-ink,
+.build-row.is-q .build-ink { fill: var(--fill-warm); }
+.build-row.is-bubble .build-ink { fill: var(--fill-warm-soft); }
+.build-tick { fill: var(--tone-strong); transform-box: fill-box; transform-origin: center; transform: scale(0); }
+.build-scan { opacity: 0; }
+.build-scan-stop { stop-color: var(--tone-strong); }
+.build-row.d0 { --d: 0.00s; }
+.build-row.d1 { --d: 0.15s; }
+.build-row.d2 { --d: 0.30s; }
+.build-row.d3 { --d: 0.45s; }
+.build-row.d4 { --d: 0.60s; }
+.build-row.d5 { --d: 0.75s; }
+.build-row.d6 { --d: 0.90s; }
+.build-row.d7 { --d: 1.05s; }
+.build-row.d8 { --d: 1.20s; }
+.build-row.d9 { --d: 1.35s; }
+.build-row.d10 { --d: 1.50s; }
+.build-row.d11 { --d: 1.65s; }
+.build-row.d12 { --d: 1.80s; }
+
+/* Writing: a wave of lines being written, top to bottom, again and again. */
+.build-sheet.is-writing .build-ink {
+  animation: build-write 2.8s var(--ease-out, ease-out) infinite both;
+  animation-delay: var(--d, 0s);
+}
+@keyframes build-write {
+  0% { transform: scaleX(0); opacity: 0.4; }
+  30% { transform: scaleX(1); opacity: 1; }
+  86% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0.25; }
+}
+/* Checking: the scan passes and each line earns its tick. */
+.build-sheet.is-checking .build-scan { opacity: 1; animation: build-scan 2.4s ease-in-out infinite; }
+.build-sheet.is-checking .build-tick {
+  animation: build-tick 2.4s var(--ease-out, ease-out) infinite both;
+  animation-delay: calc(var(--d, 0s) * 0.8);
+}
+@keyframes build-scan {
+  from { transform: translateY(-34px); }
+  to { transform: translateY(180px); }
+}
+@keyframes build-tick {
+  0%, 18% { transform: scale(0); }
+  32%, 88% { transform: scale(1); }
+  100% { transform: scale(0); }
+}
+/* Fixing: the flagged line is taken back and written again. */
+.build-sheet.is-fixing .is-fix .build-ink {
+  fill: var(--fill-warm);
+  animation: build-fix 1.8s ease-in-out infinite;
+}
+@keyframes build-fix {
+  0%, 12% { transform: scaleX(1); }
+  45%, 58% { transform: scaleX(0.12); }
+  100% { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .build-sheet * { animation: none !important; }
+  .build-sheet.is-checking .build-tick { transform: scale(1); }
+}
+
+/* The document tabs carry an icon. On a phone the four share the width,
+   icon over word, so none is cut off at the edge. */
+.doc-tab { display: inline-flex; align-items: center; gap: 8px; }
+.doc-tab .icon { flex: none; }
+@media (max-width: 600px) {
+  .doc-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; border-radius: 20px; }
+  .doc-tab { flex-direction: column; justify-content: center; gap: 4px; min-height: 58px; padding: 6px 4px; border-radius: 16px; font-size: 13px; }
+}

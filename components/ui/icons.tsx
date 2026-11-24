@@ -237,6 +237,31 @@ export const IconDocument = () => (
   </Icon>
 )
 
+/** A cover letter: an envelope. */
+export const IconLetter = () => (
+  <Icon size={18}>
+    <rect x="3.5" y="5.5" width="17" height="13" rx="1.5" />
+    <path d="m4 7 8 6 8-6" />
+  </Icon>
+)
+
+/** Screening answers: a clipboard of ticked questions. */
+export const IconAnswers = () => (
+  <Icon size={18}>
+    <path d="M9 4.5H7A1.5 1.5 0 0 0 5.5 6v13A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V6A1.5 1.5 0 0 0 17 4.5h-2" />
+    <rect x="9" y="3" width="6" height="3" rx="1" />
+    <path d="m8.5 11 1.5 1.5 2.5-2.5M14.5 11.5h1.5M8.5 15.5l1.5 1.5 2.5-2.5M14.5 16h1.5" />
+  </Icon>
+)
+
+/** A message to a recruiter: a speech bubble. */
+export const IconMessage = () => (
+  <Icon size={18}>
+    <path d="M4.5 6A1.5 1.5 0 0 1 6 4.5h12A1.5 1.5 0 0 1 19.5 6v9a1.5 1.5 0 0 1-1.5 1.5h-8l-4.5 3.5v-3.5H6A1.5 1.5 0 0 1 4.5 15z" />
+    <path d="M8.5 9h7M8.5 12.5h4" />
+  </Icon>
+)
+
 /** Sent: a paper plane leaving. */
 export const IconSend = () => (
   <Icon size={18}>

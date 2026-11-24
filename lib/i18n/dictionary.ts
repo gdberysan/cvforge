@@ -1409,6 +1409,8 @@ const en = {
   'web.inApp.blockedBody':
     'Open Rumbo in your browser to download your CV. What you did here stays in {app}: there you upload your CV again. Meanwhile, “Copy text” does work here.',
   'web.inApp.notNow': 'Not now',
+  'web.download.androidNote':
+    "Didn't download? If you opened Rumbo from LinkedIn, tap ⋮ at the top and choose “Open in Chrome”: your CV comes with you. The PDF works here too.",
   'web.ops.eyebrow': 'Free trial',
   'web.ops.title': 'How the trial is doing',
   'web.ops.keyTitle': 'Owner key',
@@ -2931,6 +2933,8 @@ const es: Record<MessageKey, string> = {
   'web.inApp.blockedBody':
     'Abre Rumbo en tu navegador para descargar tu CV. Lo que hiciste aquí se queda en {app}: allá subes tu CV otra vez. Mientras, «Copiar texto» sí funciona aquí.',
   'web.inApp.notNow': 'Ahora no',
+  'web.download.androidNote':
+    '¿No se descargó? Si abriste Rumbo desde LinkedIn, toca ⋮ arriba y elige «Abrir en Chrome»: tu CV te acompaña. El PDF sí funciona aquí.',
   'web.ops.eyebrow': 'Prueba gratis',
   'web.ops.title': 'Cómo va la prueba',
   'web.ops.keyTitle': 'Clave de dueño',

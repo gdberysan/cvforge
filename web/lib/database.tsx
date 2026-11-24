@@ -55,6 +55,7 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
   const worker = useRef<Worker | null>(null)
   const persistedRef = useRef(false)
   const apiRef = useRef<Client<WorkerApi> | null>(null)
+  const retries = useRef(0)
 
   const start = useCallback((steal: boolean) => {
     if (!supported()) {
@@ -106,11 +107,20 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
         if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') {
           ;(window as unknown as { cvforgeDebug?: unknown }).cvforgeDebug = api
         }
+        retries.current = 0
         setState({ kind: 'ready', api, persisted, interrupted: opened.interrupted })
       })
-      .catch((err: unknown) =>
-        setState({ kind: 'failed', message: err instanceof Error ? err.message : String(err) }),
-      )
+      .catch((err: unknown) => {
+        setState({ kind: 'failed', message: err instanceof Error ? err.message : String(err) })
+        // The usual cause is another tab that still holds the files: one
+        // frozen in the background (a phone does that) releases them only
+        // when it closes. Keep trying quietly, so this tab recovers on its
+        // own once the other lets go, instead of waiting for "Reload".
+        if (retries.current < 20) {
+          retries.current++
+          setTimeout(() => start(false), 3000)
+        }
+      })
   }, [])
 
   useEffect(() => {
