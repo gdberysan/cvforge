@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ParsedCV } from '@/lib/schemas'
+import { type ParsedCV, readLevel } from '@/lib/schemas'
 
 const callStructuredMock = vi.fn()
 vi.mock('@/lib/ai/client', () => ({ callStructured: callStructuredMock }))
@@ -106,12 +106,14 @@ describe('validateReferentialIntegrity', () => {
     }
     const problems = validateReferentialIntegrity(broken)
     expect(problems).toHaveLength(1)
-    expect(problems[0]).toContain('exp_99')
+    expect(JSON.stringify(problems[0])).toContain('exp_99')
   })
 
   it('reports duplicate evidence ids', () => {
     const dupes: ParsedCV = { ...base, evidence: [base.evidence[0], base.evidence[0]] }
-    expect(validateReferentialIntegrity(dupes).some((p) => p.includes('ev_1'))).toBe(true)
+    expect(
+      validateReferentialIntegrity(dupes).some((p) => JSON.stringify(p).includes('ev_1')),
+    ).toBe(true)
   })
 
   it('reports duplicate education and certification ids, which the model also assigns', () => {
@@ -130,8 +132,16 @@ describe('validateReferentialIntegrity', () => {
       },
     }
     const problems = validateReferentialIntegrity(dupes)
-    expect(problems.some((p) => p.includes('education') && p.includes('edu_1'))).toBe(true)
-    expect(problems.some((p) => p.includes('certification') && p.includes('cert_1'))).toBe(true)
+    expect(
+      problems.some(
+        (p) => JSON.stringify(p).includes('education') && JSON.stringify(p).includes('edu_1'),
+      ),
+    ).toBe(true)
+    expect(
+      problems.some(
+        (p) => JSON.stringify(p).includes('certification') && JSON.stringify(p).includes('cert_1'),
+      ),
+    ).toBe(true)
   })
 
   it('reports duplicate experience ids', () => {
@@ -142,7 +152,9 @@ describe('validateReferentialIntegrity', () => {
         experience: [base.profile.experience[0], base.profile.experience[0]],
       },
     }
-    expect(validateReferentialIntegrity(dupes).some((p) => p.includes('exp_1'))).toBe(true)
+    expect(
+      validateReferentialIntegrity(dupes).some((p) => JSON.stringify(p).includes('exp_1')),
+    ).toBe(true)
   })
 
   it('validates project-sourced evidence against projects, not experiences', () => {
@@ -280,8 +292,8 @@ describe('toParsedCV dates', () => {
     )
     expect(parsed.evidence.map((e) => e.id)).toEqual(['ev_1'])
     expect(problems).toHaveLength(1)
-    expect(problems[0]).toContain('Shipped an open-source CLI')
-    expect(problems[0]).toContain('Left out')
+    expect(JSON.stringify(problems[0])).toContain('Shipped an open-source CLI')
+    expect(problems[0]?.code).toBe('evidence-undated')
   })
 
   it('does not call a credential restated as an undated achievement "left out"', () => {
@@ -301,7 +313,7 @@ describe('toParsedCV dates', () => {
         ],
       }),
     )
-    expect(problems[0]).toContain('Kept as a credential')
+    expect(problems[0]?.code).toBe('credential-undated')
   })
 
   it('refuses a role with no readable start instead of storing a made-up month', () => {
@@ -331,6 +343,16 @@ describe('toParsedCV reads what the grammar cannot enforce', () => {
   const read = (over: object) =>
     toParsedCV(CvSkeletonSchema.parse({ ...skeleton, ...over }) as never)
 
+  // 2026-11-23: a Spanish CV's "manejo profesional" English was left out,
+  // and the verdict then told the person they lacked English.
+  it('reads a professional level as C1, estimated, in Spanish or English', () => {
+    expect(readLevel('manejo profesional; dos años como único punto de contacto')).toEqual({
+      level: 'C1',
+      estimated: true,
+    })
+    expect(readLevel('Professional working proficiency')).toEqual({ level: 'C1', estimated: true })
+  })
+
   it('reads a language level the CV words, and says so; leaves out one it cannot read', () => {
     const { parsed, problems } = read({
       languages: [
@@ -347,8 +369,13 @@ describe('toParsedCV reads what the grammar cannot enforce', () => {
       { language: 'Portugués', level: 'C1' },
       { language: 'Italiano', level: 'B1' },
     ])
-    expect(problems.join('\n')).toContain('"Avanzado" read as C1')
-    expect(problems.join('\n')).toContain('Francés')
+    expect(problems).toContainEqual({
+      code: 'language-estimated',
+      language: 'Portugués',
+      level: 'Avanzado',
+      read: 'C1',
+    })
+    expect(problems).toContainEqual({ code: 'language-unread', language: 'Francés', level: 'some' })
   })
 
   it('refuses a role with no employer before the second paid call, like an undated one', () => {
@@ -398,7 +425,7 @@ describe('toParsedCV reads what the grammar cannot enforce', () => {
     expect(parsed.evidence).toHaveLength(1)
     expect(parsed.evidence[0]).toMatchObject({ kind: 'achievement', strength: 'supporting' })
     expect(parsed.evidence[0].metrics).toEqual([{ raw: 'grew sales 40%', value: 40, unit: '%' }])
-    expect(problems.join('\n')).toContain('Left out')
+    expect(problems.map((p) => p.code)).toContain('evidence-unplaceable')
     expect(ParsedCVSchema.safeParse(parsed).success).toBe(true)
   })
 })
