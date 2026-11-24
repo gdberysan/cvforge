@@ -114,36 +114,39 @@ export function CvEditor({
         {line('summary')}
       </label>
 
-      {[...cv.experience, ...cv.projects].map((block) => {
-        const key = 'experienceId' in block ? block.experienceId : block.projectId
-        const heading = 'experienceId' in block ? `${block.title} · ${block.company}` : block.name
-        return (
-          <fieldset key={key} className="cv-edit-block">
-            <legend>{heading}</legend>
-            {block.bullets.map((b) =>
-              bullets[b.id] === null ? null : (
-                <div key={b.id} className="cv-edit-bullet">
-                  <textarea
-                    aria-label={t('cvEdit.bullet')}
-                    value={bullets[b.id] ?? b.text}
-                    onChange={(e) => setBullets((m) => ({ ...m, [b.id]: e.target.value }))}
-                    rows={rowsFor(bullets[b.id] ?? b.text)}
-                    maxLength={MAX_TEXT}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={() => setBullets((m) => ({ ...m, [b.id]: null }))}
-                  >
-                    {t('cvEdit.remove')}
-                  </button>
-                  {line(b.id)}
-                </div>
-              ),
-            )}
-          </fieldset>
-        )
-      })}
+      {/* A role printed only as a line (no bullets) has no words to edit. */}
+      {[...cv.experience, ...cv.projects]
+        .filter((block) => block.bullets.length > 0)
+        .map((block) => {
+          const key = 'experienceId' in block ? block.experienceId : block.projectId
+          const heading = 'experienceId' in block ? `${block.title} · ${block.company}` : block.name
+          return (
+            <fieldset key={key} className="cv-edit-block">
+              <legend>{heading}</legend>
+              {block.bullets.map((b) =>
+                bullets[b.id] === null ? null : (
+                  <div key={b.id} className="cv-edit-bullet">
+                    <textarea
+                      aria-label={t('cvEdit.bullet')}
+                      value={bullets[b.id] ?? b.text}
+                      onChange={(e) => setBullets((m) => ({ ...m, [b.id]: e.target.value }))}
+                      rows={rowsFor(bullets[b.id] ?? b.text)}
+                      maxLength={MAX_TEXT}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() => setBullets((m) => ({ ...m, [b.id]: null }))}
+                    >
+                      {t('cvEdit.remove')}
+                    </button>
+                    {line(b.id)}
+                  </div>
+                ),
+              )}
+            </fieldset>
+          )
+        })}
 
       <fieldset className="cv-edit-block">
         <legend>{t('cvEdit.skills')}</legend>

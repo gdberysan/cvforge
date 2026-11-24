@@ -183,7 +183,7 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
       used.set(id, n)
       return [{ ...b, id: n === 1 ? id : `${id}-${n}` }]
     })
-  return {
+  const resolved = {
     ...draft,
     header: {
       fullName: profile.basics.fullName,
@@ -235,6 +235,50 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
       ]
     }),
   }
+  return withWholeHistory(resolved, profile)
+}
+
+/**
+ * The composer may leave roles out to fit the pages. A role left out
+ * between two the CV prints opens a hole in the timeline, so its line comes
+ * back (title, employer, dates; no bullets). Roles older than the oldest it
+ * prints are named together on one line (earlierRoles): early career may be
+ * shortened, never silently erased. Code from the record: nothing invented.
+ */
+export function withWholeHistory(cv: CVContent, profile: MasterProfile): CVContent {
+  if (cv.experience.length === 0) return cv
+  const shown = new Set(cv.experience.map((r) => r.experienceId))
+  const oldest = cv.experience.reduce(
+    (min, r) => (r.startDate < min ? r.startDate : min),
+    '9999-99',
+  )
+  const left = profile.experience.filter((r) => !shown.has(r.id))
+  // Still running, or ending inside the span shown: a hole if left out.
+  const within = left.filter((r) => !r.period.end || r.period.end >= oldest)
+  const earlier = left.filter((r) => r.period.end && r.period.end < oldest)
+  const experience = [
+    ...cv.experience,
+    ...within.map((role) => ({
+      experienceId: role.id,
+      title: role.title,
+      company: role.company,
+      ...(role.location ? { location: role.location } : {}),
+      startDate: role.period.start,
+      ...(role.period.end ? { endDate: role.period.end } : {}),
+      ...(role.period.startYearOnly ? { startYearOnly: true } : {}),
+      ...(role.period.end && role.period.endYearOnly ? { endYearOnly: true } : {}),
+      bullets: [],
+    })),
+  ].sort((a, b) => (b.startDate > a.startDate ? 1 : b.startDate < a.startDate ? -1 : 0))
+  const earlierRoles = earlier
+    .sort((a, b) => (b.period.start > a.period.start ? 1 : -1))
+    .map((r) => ({
+      title: r.title,
+      company: r.company,
+      start: r.period.start,
+      ...(r.period.end ? { end: r.period.end } : {}),
+    }))
+  return { ...cv, experience, ...(earlierRoles.length > 0 ? { earlierRoles } : {}) }
 }
 
 const fold = (s: string) =>
