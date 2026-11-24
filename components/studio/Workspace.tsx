@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { IconAnswers, IconDocument, IconLetter, IconMessage } from '@/components/ui/icons'
 import type {
   CompanionKind,
   CoverLetter,
@@ -66,11 +67,11 @@ export function Workspace({
   const t = useT()
   const [tab, setTab] = useState<Tab>('cv')
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: 'cv', label: t('workspace.tab.cv') },
-    { id: 'coverLetter', label: t('workspace.tab.coverLetter') },
-    { id: 'screening', label: t('workspace.tab.screening') },
-    { id: 'recruiterMessage', label: t('workspace.tab.recruiterMessage') },
+  const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
+    { id: 'cv', label: t('workspace.tab.cv'), icon: <IconDocument /> },
+    { id: 'coverLetter', label: t('workspace.tab.coverLetter'), icon: <IconLetter /> },
+    { id: 'screening', label: t('workspace.tab.screening'), icon: <IconAnswers /> },
+    { id: 'recruiterMessage', label: t('workspace.tab.recruiterMessage'), icon: <IconMessage /> },
   ]
 
   return (
@@ -80,7 +81,7 @@ export function Workspace({
           {/* Words, not facts: the sans, like every other control. On a phone
           the bar scrolls sideways inside itself, never the page. */}
           <div role="tablist" aria-label={t('workspace.tabsAria')} className="doc-tabs">
-            {tabs.map(({ id, label }) => (
+            {tabs.map(({ id, label, icon }) => (
               <button
                 key={id}
                 type="button"
@@ -89,7 +90,8 @@ export function Workspace({
                 onClick={() => setTab(id)}
                 className="doc-tab"
               >
-                {label}
+                {icon}
+                <span>{label}</span>
               </button>
             ))}
           </div>

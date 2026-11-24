@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { copyText } from '@/lib/ui/copy'
 import { printHtml, saveResponse } from '@/lib/ui/download'
-import { IN_APP_BLOCKED, outsideUrl, platformOf } from '@/lib/ui/in-app'
+import { ANDROID_DOWNLOAD, IN_APP_BLOCKED, outsideUrl, platformOf } from '@/lib/ui/in-app'
 
 const ANDROID_LINKEDIN =
   'Mozilla/5.0 (Linux; Android 15; SM-S931B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Mobile Safari/537.36 [LinkedInApp]/4.1'
@@ -61,6 +61,28 @@ describe('downloads inside an in-app browser', () => {
     window.removeEventListener(IN_APP_BLOCKED, blocked)
     expect(blocked).not.toHaveBeenCalled()
     expect(click).toHaveBeenCalledOnce()
+  })
+})
+
+describe('a download on Android', () => {
+  // 2026-11-24, on an S25: inside LinkedIn's tab (real Chrome, no LinkedIn in
+  // its user agent) a DOCX the page made failed to save, while the same tap in
+  // Chrome's own tab worked. The page cannot tell the two apart.
+  it('is followed by the note on the way out, and only on Android', async () => {
+    URL.createObjectURL = vi.fn(() => 'blob:x')
+    URL.revokeObjectURL = vi.fn()
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    const note = vi.fn()
+    window.addEventListener(ANDROID_DOWNLOAD, note)
+    vi.stubGlobal('navigator', { ...navigator, userAgent: CHROME })
+    await saveResponse(new Response('docx'), 'CV.docx')
+    vi.stubGlobal('navigator', {
+      ...navigator,
+      userAgent: IOS_LINKEDIN.replace(' [LinkedInApp]/9.30', ''),
+    })
+    await saveResponse(new Response('docx'), 'CV.docx')
+    window.removeEventListener(ANDROID_DOWNLOAD, note)
+    expect(note).toHaveBeenCalledOnce()
   })
 })
 

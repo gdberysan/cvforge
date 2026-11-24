@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { IconClose } from '@/components/ui/icons'
 import { copyText } from '@/lib/ui/copy'
 import { haptic } from '@/lib/ui/haptics'
-import { IN_APP_BLOCKED, inAppBrowser, outsideUrl } from '@/lib/ui/in-app'
+import { ANDROID_DOWNLOAD, IN_APP_BLOCKED, inAppBrowser, outsideUrl } from '@/lib/ui/in-app'
 
 export { inAppBrowser } from '@/lib/ui/in-app'
 
@@ -22,20 +23,47 @@ export function InAppBrowserBanner() {
   const [copied, setCopied] = useState(false)
   const [hint, setHint] = useState(false)
   const [blocked, setBlocked] = useState(false)
+  const [note, setNote] = useState(false)
   const sheet = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setApp(inAppBrowser(navigator.userAgent))
     const onBlocked = () => setBlocked(true)
+    let hide: ReturnType<typeof setTimeout> | undefined
+    const onAndroidDownload = () => {
+      setNote(true)
+      clearTimeout(hide)
+      hide = setTimeout(() => setNote(false), 15_000)
+    }
     window.addEventListener(IN_APP_BLOCKED, onBlocked)
-    return () => window.removeEventListener(IN_APP_BLOCKED, onBlocked)
+    window.addEventListener(ANDROID_DOWNLOAD, onAndroidDownload)
+    return () => {
+      window.removeEventListener(IN_APP_BLOCKED, onBlocked)
+      window.removeEventListener(ANDROID_DOWNLOAD, onAndroidDownload)
+      clearTimeout(hide)
+    }
   }, [])
 
   useEffect(() => {
     if (blocked) sheet.current?.focus()
   }, [blocked])
 
-  if (!app) return null
+  // After a download on Android: inside LinkedIn's tab it silently fails.
+  const downloadNote = note && (
+    <div className="undo-bar is-note" role="status">
+      <span className="undo-label">{t('web.download.androidNote')}</span>
+      <button
+        type="button"
+        className="undo-close"
+        onClick={() => setNote(false)}
+        aria-label={t('undo.dismiss')}
+      >
+        <IconClose />
+      </button>
+    </div>
+  )
+
+  if (!app) return downloadNote || null
   const here = () => `${location.origin}${location.pathname}`
 
   function open() {
@@ -68,6 +96,7 @@ export function InAppBrowserBanner() {
 
   return (
     <>
+      {downloadNote}
       <div className="job-banner is-warning in-app-banner" role="alert">
         <span>{t('web.inApp.lede', { app, url: location.host })}</span>
         {actions}

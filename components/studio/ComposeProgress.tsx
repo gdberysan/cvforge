@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { BuildSheet, phaseOf } from '@/components/ui/BuildSheet'
 import type { ComposeStage } from '@/lib/ai/compose'
 
 const ORDER: ComposeStage[] = [
@@ -38,23 +39,22 @@ export function ComposeProgress({
 
   const steps = ORDER.filter((s) => !OPTIONAL.includes(s) || seen.includes(s))
   return (
-    <div className="compose-progress">
-      <ol aria-live="polite">
-        {steps.map((s) => {
-          const state = s === stage ? 'now' : seen.includes(s) ? 'done' : 'todo'
-          return (
-            <li key={s} className={`is-${state}`}>
-              <span aria-hidden className="mark">
-                {state === 'done' ? '✓' : state === 'now' ? '●' : '○'}
-              </span>
-              {t(`studio.stage.${s}`)}
-            </li>
-          )
-        })}
-      </ol>
-      <p className="fact" style={{ marginTop: 'var(--space-3)' }}>
-        {t('studio.elapsed', { n: seconds })}
-      </p>
+    <div className="work compose-progress">
+      <BuildSheet kind="cv" phase={phaseOf(stage)} />
+      <div className="work-body">
+        <ol className="work-steps" aria-live="polite">
+          {steps.map((s) => {
+            const state = s === stage ? 'now' : seen.includes(s) ? 'done' : 'next'
+            return (
+              <li key={s} className={`is-${state}`}>
+                <span className="work-mark" aria-hidden />
+                <span>{t(`studio.stage.${s}`)}</span>
+              </li>
+            )
+          })}
+        </ol>
+        <p className="work-note">{t('studio.elapsed', { n: seconds })}</p>
+      </div>
     </div>
   )
 }
