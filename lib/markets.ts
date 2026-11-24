@@ -78,6 +78,23 @@ export function marketLabel(market: Market, locale: 'en' | 'es'): string {
 }
 
 /**
+ * The country a posting's work-authorization line is about, as a person
+ * would say it ("the United States", "Estados Unidos"). A remote market is
+ * not a country: "US remote" asks about the United States, "Europe remote"
+ * about the European Union, and Latin America remote has no single
+ * permission to ask about (null: the question is not asked).
+ */
+export function authorizationPlace(market: Market, locale: 'en' | 'es'): string | null {
+  if (market === 'latam-remote') return null
+  if (market === 'eu-remote') return locale === 'es' ? 'la Unión Europea' : 'the European Union'
+  const country = market === 'us-remote' ? 'us' : market
+  const name = marketLabel(country as Market, locale)
+  // English says "the" before a few country names; Spanish names stand alone.
+  const THE = new Set(['us', 'gb', 'nl', 'ae', 'ph', 'do', 'cz'])
+  return locale === 'en' && THE.has(country) ? `the ${name}` : name
+}
+
+/**
  * Countries whose own currency is written with a bare "$". On a CV for one
  * of them "$1.2M" means that currency; everywhere else it means dollars.
  */

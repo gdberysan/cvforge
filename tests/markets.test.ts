@@ -144,3 +144,17 @@ describe('marketNamedIn reads whole place names', () => {
     expect(marketNamedIn('Busan')).not.toBe('us')
   })
 })
+
+// 2026-11-24, on an S25: a "Remote (US)" posting asked "Are you authorized
+// to work in US remote?" — a market, not a country.
+describe('authorizationPlace', () => {
+  it('asks about the country a remote market is in, as a person says it', async () => {
+    const { authorizationPlace } = await import('@/lib/markets')
+    expect(authorizationPlace('us-remote', 'en')).toBe('the United States')
+    expect(authorizationPlace('us-remote', 'es')).toBe('Estados Unidos')
+    expect(authorizationPlace('us', 'en')).toBe('the United States')
+    expect(authorizationPlace('mx', 'en')).toBe('Mexico')
+    expect(authorizationPlace('eu-remote', 'es')).toBe('la Unión Europea')
+    expect(authorizationPlace('latam-remote', 'en')).toBeNull()
+  })
+})
