@@ -142,3 +142,18 @@ describe('extractCounts and numbersIn read a count as one value', () => {
     expect(numbersIn('subió 40% con tres campañas')).toEqual(new Set([40, 3]))
   })
 })
+
+describe('extractCounts with overlapping percentages', () => {
+  // 2026-11-24, on an S25: a true screening answer ("a 2% por debajo … del
+  // 3.1% al 4.2%") was flagged for a count of 4 that it never printed:
+  // removing "2%" first had cut "4.2%" down to "4.".
+  it('reads no count out of percentages that contain one another', () => {
+    expect(
+      extractCounts(
+        'cerramos 2024 a 2% por debajo del presupuesto; la conversión subió del 3.1% al 4.2%.',
+      ),
+    ).toEqual([])
+    expect(extractCounts('de 2% a 12% en un trimestre')).toEqual([])
+    expect(extractCounts('un equipo de 6 y un ROAS de 2.1x a 12.1x')).toEqual([6])
+  })
+})

@@ -44,6 +44,9 @@ export const CVRoleSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}$/)
     .optional(),
+  /** The record gave only the year: print "2015", not "ene 2015". */
+  startYearOnly: z.boolean().optional(),
+  endYearOnly: z.boolean().optional(),
   bullets: z.array(GeneratedBulletSchema),
 })
 
@@ -59,6 +62,8 @@ export const CVProjectSchema = z.object({
   url: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  startYearOnly: z.boolean().optional(),
+  endYearOnly: z.boolean().optional(),
   bullets: z.array(GeneratedBulletSchema),
 })
 
@@ -79,6 +84,21 @@ export const CVContentSchema = z.object({
   education: z.array(z.object({ degree: z.string(), institution: z.string(), period: z.string() })),
   skills: z.array(z.object({ category: z.string(), items: z.array(z.string()) })),
   extras: z.array(z.object({ heading: z.string(), lines: z.array(z.string()) })),
+  /**
+   * Roles older than the oldest the CV prints, named together on one line
+   * ("Earlier experience: …"). Filled in code from the record after the
+   * model call, never by the model: the history stays whole for one line.
+   */
+  earlierRoles: z
+    .array(
+      z.object({
+        title: z.string(),
+        company: z.string(),
+        start: z.string(),
+        end: z.string().optional(),
+      }),
+    )
+    .optional(),
 })
 export type CVContent = z.infer<typeof CVContentSchema>
 
@@ -100,6 +120,8 @@ export const CVDraftSchema = CVContentSchema.omit({
   experience: true,
   projects: true,
   summaryCitedEvidenceIds: true,
+  // Code's, from the record (resolveFromProfile): never in the grammar.
+  earlierRoles: true,
 }).extend({
   header: z.object({ title: z.string() }),
   summaryCitedEvidenceIds: z.array(z.string()),

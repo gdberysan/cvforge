@@ -8,6 +8,7 @@ export type AiErrorKind =
   | 'network'
   | 'trial-ended'
   | 'trial-unavailable'
+  | 'trial-short'
   | 'too-large'
   | 'unknown'
 
@@ -39,7 +40,9 @@ export class AiError extends Error {
       case 'trial-ended':
         return 'The free trial is used up. Add your own Anthropic key in Settings to keep going.'
       case 'trial-unavailable':
-        return 'The free trial cannot run this step right now. Add your own Anthropic key in Settings to keep going.'
+        return 'The free trial is full for now. Come back tomorrow, or add your own Anthropic key in Settings to keep going.'
+      case 'trial-short':
+        return 'What is left of the free trial does not cover this step. Add your own Anthropic key in Settings to keep going.'
       case 'too-large':
         return 'That file is too large to send. Use a smaller PDF, or paste the text instead.'
       case 'network':
@@ -61,7 +64,10 @@ export function classify(error: unknown): AiErrorKind {
   // trial is full for the day), which must not end the trial.
   if (status === 402) {
     const type = (error as { error?: { error?: { type?: unknown } } }).error?.error?.type
-    return type === 'trial_ended' ? 'trial-ended' : 'trial-unavailable'
+    if (type === 'trial_ended') return 'trial-ended'
+    // Too little left for this step; a smaller one may still run.
+    if (type === 'trial_short') return 'trial-short'
+    return 'trial-unavailable'
   }
   // A body over the trial server's (or the API's) size limit.
   if (status === 413) return 'too-large'

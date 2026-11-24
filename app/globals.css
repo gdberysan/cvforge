@@ -2536,7 +2536,7 @@ button.mail-candidate[aria-pressed="true"] { border-color: var(--accent); color:
 .in-app-hint { flex-basis: 100%; font: var(--type-body-sm); color: var(--text-strong); }
 .in-app-scrim { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; background: var(--scrim); padding: var(--space-4); padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px)); }
 .in-app-sheet { width: 100%; max-width: 30rem; display: grid; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-card); background: var(--surface-raised); color: var(--text-strong); box-shadow: var(--shadow-bar); outline: none; }
-.in-app-sheet h2 { margin: 0; font: var(--type-h3); }
+.in-app-sheet h2 { margin: 0; font: 700 22px/1.2 var(--font-headline); letter-spacing: -0.01em; color: var(--text-strong); }
 .in-app-sheet p { margin: 0; font: var(--type-body); color: var(--text-body); }
 
 /* The browser edition's screenshot intake (Analizar). */
@@ -3092,22 +3092,57 @@ h3 {
   font: 400 15px/1.5 var(--font-text);
   color: var(--text-body);
 }
+/* What the role is about: a card to scan — lead sentence, the rest, facts. */
 .story-about {
+  position: relative;
   display: grid;
-  gap: 6px;
-  padding: 14px 16px;
+  gap: 10px;
+  padding: 18px 18px 18px 22px;
   border-radius: 16px;
   background: var(--surface-inset);
+  overflow: hidden;
 }
-.story-about h2 {
-  margin: 0;
-  font: 600 13px/1.3 var(--font-text);
-  color: var(--text-muted);
+.story-about::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--fill-warm);
 }
-.story-about p {
+.story-about .story-about-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 0;
-  font: 400 15px/1.5 var(--font-text);
+  font: 500 13px/1.3 var(--font-kicker);
+  color: var(--accent);
+}
+.story-about-lead {
+  margin: 0;
+  font: 400 18px/1.45 var(--font-voice);
+  color: var(--text-strong);
+}
+.story-about-rest {
+  margin: 0;
+  font: 400 15px/1.55 var(--font-text);
   color: var(--text-body);
+}
+.story-about-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.story-about-facts li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-card);
+  font: 500 13px/1.4 var(--font-text);
+  color: var(--text-muted);
 }
 .story-why > summary {
   cursor: pointer;
@@ -4838,9 +4873,6 @@ select.field {
 /* The role's text starts under its heading, however tall the box. */
 .decide-top > .story-about {
   align-content: start;
-}
-.story-about h2 {
-  font: 600 14px/20px var(--font-text);
 }
 .req-tone-label {
   font: 500 14px/20px var(--font-text);
@@ -9500,3 +9532,40 @@ a.btn-primary:not(:has(svg))::after {
   .doc-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; border-radius: 20px; }
   .doc-tab { flex-direction: column; justify-content: center; gap: 4px; min-height: 58px; padding: 6px 4px; border-radius: 16px; font-size: 13px; }
 }
+
+/* ErrorNote: a failed step as a callout — mark, message, the way past it. */
+.error-note {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--tone-missing-border);
+  border-radius: var(--radius-card);
+  background: var(--tone-missing-bg);
+  color: var(--tone-missing-text);
+}
+.error-note-mark { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--surface-card); }
+.error-note-body { display: grid; gap: var(--space-3); min-width: 0; }
+.error-note-body p { margin: 0; font: var(--type-body-sm); color: var(--text-strong); }
+.error-note-action { justify-self: start; }
+/* The trial sheet's picture: the trial as a meter, or a calendar for a full day. */
+.trial-meter { display: block; height: 12px; border-radius: 999px; background: var(--track-todo); overflow: hidden; }
+.trial-meter > span { display: block; height: 100%; width: 100%; border-radius: 999px; background: var(--fill-warm); }
+.trial-meter.is-short > span { width: 90%; }
+.trial-out-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--fill-warm-soft); color: var(--accent); }
+.trial-out-mark .icon { width: 26px; height: 26px; }
+
+/* AuthAsk: a gate the record is silent on, asked as a question. */
+.auth-ask {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line-warm);
+  border-radius: var(--radius-card);
+  background: var(--fill-warm-soft);
+}
+.auth-ask-title { margin: 0; font: 700 19px/1.25 var(--font-headline); color: var(--text-strong); }
+.auth-ask-body { margin: 0; font: var(--type-body-sm); color: var(--text-body); }
+.auth-ask-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }

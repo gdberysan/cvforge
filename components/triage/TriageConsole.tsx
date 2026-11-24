@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { skipApplicationAction } from '@/app/(app)/triage/actions'
 import { useLocale, useT } from '@/components/i18n/LocaleProvider'
 import { CostNote } from '@/components/ui/CostNote'
+import { ErrorNote } from '@/components/ui/ErrorNote'
 import { MarketOptions } from '@/components/ui/MarketOptions'
 import { WorkProgress } from '@/components/ui/WorkProgress'
 import { ApiFailure } from '@/lib/api-failure'
@@ -92,7 +93,13 @@ export function TriageConsole({
     if (!marketPicked) setMarket(marketOfPosting(next) ?? defaultMarket)
   }
   const [result, setResult] = useState<Result | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setErrorText] = useState<string | null>(null)
+  // The failure's code beside its message: ErrorNote picks the way past it.
+  const [errorCode, setErrorCode] = useState<string | undefined>()
+  const setError = (text: string | null) => {
+    setErrorText(text)
+    setErrorCode(undefined)
+  }
   const [running, setRunning] = useState(false)
   const [stage, setStage] = useState<{ name: string; detail?: string } | null>(null)
   const [triaged, setTriaged] = useState(0)
@@ -180,6 +187,7 @@ export function TriageConsole({
             ? e.message
             : t('triage.failed'),
       )
+      setErrorCode(e instanceof ApiFailure ? e.code : undefined)
     } finally {
       setRunning(false)
       setStage(null)
@@ -371,9 +379,7 @@ export function TriageConsole({
         {error && (
           // role="alert" so the failure is announced — the status line goes
           // quiet on error, and silence reads as a hang.
-          <p role="alert" className="intake-error">
-            {error}
-          </p>
+          <ErrorNote code={errorCode}>{error}</ErrorNote>
         )}
 
         {!result && (

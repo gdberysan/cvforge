@@ -2,8 +2,8 @@ import fs from 'node:fs'
 import { PDFParse } from 'pdf-parse'
 import { chromium } from 'playwright'
 import { describe, expect, it } from 'vitest'
-import { renderCvHtml } from '@/lib/render/cv-html'
-import { isPdfEngineAvailable } from '@/lib/render/pdf'
+import { isSnug, renderCvHtml } from '@/lib/render/cv-html'
+import { isPdfEngineAvailable, renderPdf } from '@/lib/render/pdf'
 import type { CVContent } from '@/lib/schemas'
 
 /**
@@ -14,8 +14,8 @@ import type { CVContent } from '@/lib/schemas'
 const seed = JSON.parse(fs.readFileSync('demo/seed.json', 'utf8'))
 
 /** The demo CV with its last `n` bullets dropped: a CV just over one A4 page. */
-function trimmed(n: number): CVContent {
-  const cv = structuredClone(seed.applications[0].documents.cv) as CVContent
+function trimmed(n: number, app = 0): CVContent {
+  const cv = structuredClone(seed.applications[app].documents.cv) as CVContent
   for (let k = 0; k < n; k++) {
     const role = [...cv.experience, ...(cv.projects ?? [])]
       .reverse()
@@ -63,4 +63,32 @@ describe('the CV on a phone’s paper', () => {
     // A CV a little over one A4 page now fits one Letter page.
     expect(await pages(trimmed(7), 'Letter')).toBe(1)
   }, 120_000)
+
+  // 2026-11-24, on an S25: a CV of 1.07 A4 pages printed its last section
+  // alone on page 2. A CV a little over a whole page is now set snug.
+  it('sets a CV a little over one page snug, and it prints on one page', async () => {
+    const probe = (await isPdfEngineAvailable()) ? await launch() : null
+    if (!probe) {
+      console.warn('Chromium not installed; skipping. Run: npx playwright install chromium')
+      return
+    }
+    await probe.close()
+    for (const [n, app] of [
+      [6, 0],
+      [7, 0],
+      [7, 1],
+      [8, 1],
+      [9, 1],
+    ] as const) {
+      const cv = trimmed(n, app)
+      expect(isSnug(cv)).toBe(true)
+      const desktop = await new PDFParse({
+        data: new Uint8Array(await renderPdf(renderCvHtml(cv, { language: 'es-MX' }))),
+      }).getInfo()
+      expect(desktop.total).toBe(1)
+      expect(await pages(cv, 'Letter')).toBe(1)
+    }
+    // A CV well into its second page is left as it is.
+    expect(isSnug(trimmed(3, 0))).toBe(false)
+  }, 180_000)
 })

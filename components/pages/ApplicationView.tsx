@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { FollowUpDraft, KitProgress, MailThread } from '#satellite-ui'
+import { AboutRole } from '@/components/application/AboutRole'
 import { AppMeta } from '@/components/application/AppMeta'
+import { AuthAsk } from '@/components/application/AuthAsk'
 import { CompanyAliases } from '@/components/application/CompanyAliases'
 import { DecideActions, RestoreButton } from '@/components/application/DecideActions'
 import { DeleteApplication } from '@/components/application/DeleteApplication'
@@ -90,20 +92,40 @@ export function ApplicationView({
   // stages says it, and the panel further down keeps only its details.
   const banded = ended || end === 'offer' || data.sent || data.savedCv !== null
 
+  const authBlocker = application.coverage?.hardBlockers.find((r) => r.kind === 'authorization')
   const decideBlock = (
     <>
       <section className="story-card" id="s-decide" tabIndex={-1} aria-label={t('steps.decide')}>
         {stale && !ended && !data.sent && (
           <Reanalyse postingRaw={application.postingRaw} market={application.market} />
         )}
+        {/* Gated on work authorization while the record is silent on it:
+            asked, not assumed (the verdict itself stays as strict). */}
+        {authBlocker &&
+          profile &&
+          profile.workAuthorization.length === 0 &&
+          !ended &&
+          !data.sent && (
+            <AuthAsk
+              requirement={authBlocker.text}
+              market={application.market}
+              postingRaw={application.postingRaw}
+            />
+          )}
         {/* The answer and what the role is about, side by side on a wide screen. */}
         <div className={data.summary ? 'decide-top has-about' : 'decide-top'}>
           <VerdictPanel coverage={application.coverage} sentence={sentence} headless={banded} />
           {data.summary && (
-            <div className="story-about">
-              <h2>{t('overview.about')}</h2>
-              <p lang={application.documentLanguage}>{data.summary}</p>
-            </div>
+            <AboutRole
+              summary={data.summary}
+              lang={application.documentLanguage}
+              company={application.company}
+              market={application.market}
+              mandatory={application.coverage?.mandatoryTotal ?? 0}
+              desirable={application.coverage?.desirableTotal ?? 0}
+              t={t}
+              locale={locale}
+            />
           )}
         </div>
         {chipItems.length > 0 && (

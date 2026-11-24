@@ -34,7 +34,7 @@ WRITING:
 - Select the most relevant evidence per role for THIS job — typically 3–5 bullets for recent roles, fewer and more compressed for older ones. Order each role's bullets, each skills row and the summary's sentences most relevant first: a CV over its page limit is cut in code from the ends — older roles' bullets first, then the last skills, then the summary's last sentences, then the recent roles' last bullets.
 - Order skills so the ones this posting requires (and that the evidence supports) come first. List only skills named in the evidence, a project's stack, a credential or a requirement the evidence supports — in the wording they have there. A skill appearing nowhere in those is invented.
 - header.title is a specialty headline, not a job title: 2–4 areas joined by " · " (e.g. "eCommerce Operations · Retail Media · PPC"), each one a requirement keyword the evidence supports, a skill the person listed, or one of their own role titles from <roles>, in that wording. At the top of a CV a title reads as one the person holds, so the target role's title never goes here unless it is one of their own titles in <roles>.
-- The summary is 3–4 lines written for this specific role, in whole sentences that each stand on their own. When the target parameters give a role title (a CV for a posting, not a base CV), the first sentence names it exactly as given in the target parameters, as the role being sought (e.g. "Candidate for <title>: …" / "Candidato a <title>: …"), so an applicant-tracking system finds the exact title (unless the parameters say the person has held that very title: then follow that line instead); after that it describes the person only by titles they have held (see <roles>): never write as if they already hold the target title ("As Head of X, I bring…"). Include two or three top matched keywords, only where truthful.
+- The summary is 3–4 lines written for this specific role, in whole sentences that each stand on their own. When the target parameters give a role title (a CV for a posting, not a base CV), the first sentence opens with a title the person has held (see <roles>) and then names the target role exactly as given in the target parameters, as the role they are seeking (e.g. "<held title> in <field>, seeking the <title> role: …" / "<puesto que ocupó> en <campo>, que busca el puesto de <título>: …"), so an applicant-tracking system finds the exact title and a recruiter reads a person, not a form; never open with "Candidate for" / "Candidato a" (unless the parameters say the person has held that very title: then follow that line instead). After that it describes the person only by titles they have held: never write as if they already hold the target title ("As Head of X, I bring…"). Include two or three top matched keywords, only where truthful.
 - Mirror the posting's exact keyword variants where the underlying fact exists. Use each once, naturally. Never keyword-stuff.
 - TENSE follows the evidence period, not the evidence wording: work whose period has ended is written in past tense even if the source text speaks in the present. Only an open period ("present") may sound current. Implying an ended engagement is ongoing misrepresents the person.
 
@@ -183,7 +183,7 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
       used.set(id, n)
       return [{ ...b, id: n === 1 ? id : `${id}-${n}` }]
     })
-  return {
+  const resolved = {
     ...draft,
     header: {
       fullName: profile.basics.fullName,
@@ -201,9 +201,20 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
           ...(role.location ? { location: role.location } : {}),
           startDate: role.period.start,
           ...(role.period.end ? { endDate: role.period.end } : {}),
+          ...(role.period.startYearOnly ? { startYearOnly: true } : {}),
+          ...(role.period.end && role.period.endYearOnly ? { endYearOnly: true } : {}),
           bullets: unique(bullets),
         },
       ]
+    }),
+    // A degree's dates come from the record, in years: a CV that said
+    // "2015 – 2019" was stored as January (import's rule for a bare year)
+    // and the composer then printed "Jan 2015–Jan 2019", a month nobody
+    // gave. Degrees are read in years anyway.
+    education: draft.education.map((entry) => {
+      const held = sameEducation(profile, entry)
+      const years = held ? yearSpan(held.period) : ''
+      return years ? { ...entry, period: years } : entry
     }),
     projects: draft.projects.flatMap(({ projectId, bullets }) => {
       const project = byId.get(projectId)
@@ -217,11 +228,87 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
           ...(project.url ? { url: project.url } : {}),
           ...(project.period?.start ? { startDate: project.period.start } : {}),
           ...(project.period?.end ? { endDate: project.period.end } : {}),
+          ...(project.period?.start && project.period.startYearOnly ? { startYearOnly: true } : {}),
+          ...(project.period?.end && project.period.endYearOnly ? { endYearOnly: true } : {}),
           bullets: kept,
         },
       ]
     }),
   }
+  return withWholeHistory(resolved, profile)
+}
+
+/**
+ * The composer may leave roles out to fit the pages. A role left out
+ * between two the CV prints opens a hole in the timeline, so its line comes
+ * back (title, employer, dates; no bullets). Roles older than the oldest it
+ * prints are named together on one line (earlierRoles): early career may be
+ * shortened, never silently erased. Code from the record: nothing invented.
+ */
+export function withWholeHistory(cv: CVContent, profile: MasterProfile): CVContent {
+  if (cv.experience.length === 0) return cv
+  const shown = new Set(cv.experience.map((r) => r.experienceId))
+  const oldest = cv.experience.reduce(
+    (min, r) => (r.startDate < min ? r.startDate : min),
+    '9999-99',
+  )
+  const left = profile.experience.filter((r) => !shown.has(r.id))
+  // Still running, or ending inside the span shown: a hole if left out.
+  const within = left.filter((r) => !r.period.end || r.period.end >= oldest)
+  const earlier = left.filter((r) => r.period.end && r.period.end < oldest)
+  const experience = [
+    ...cv.experience,
+    ...within.map((role) => ({
+      experienceId: role.id,
+      title: role.title,
+      company: role.company,
+      ...(role.location ? { location: role.location } : {}),
+      startDate: role.period.start,
+      ...(role.period.end ? { endDate: role.period.end } : {}),
+      ...(role.period.startYearOnly ? { startYearOnly: true } : {}),
+      ...(role.period.end && role.period.endYearOnly ? { endYearOnly: true } : {}),
+      bullets: [],
+    })),
+  ].sort((a, b) => (b.startDate > a.startDate ? 1 : b.startDate < a.startDate ? -1 : 0))
+  const earlierRoles = earlier
+    .sort((a, b) => (b.period.start > a.period.start ? 1 : -1))
+    .map((r) => ({
+      title: r.title,
+      company: r.company,
+      start: r.period.start,
+      ...(r.period.end ? { end: r.period.end } : {}),
+    }))
+  return { ...cv, experience, ...(earlierRoles.length > 0 ? { earlierRoles } : {}) }
+}
+
+const fold = (s: string) =>
+  s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+/** The record's degree a CV education line prints: same degree, else same school. */
+function sameEducation(
+  profile: MasterProfile,
+  entry: { degree: string; institution: string },
+): MasterProfile['education'][number] | undefined {
+  const degree = fold(entry.degree)
+  const school = fold(entry.institution)
+  return (
+    profile.education.find((e) => degree !== '' && fold(e.degree) === degree) ??
+    profile.education.find((e) => school !== '' && fold(e.institution) === school)
+  )
+}
+
+/** "2015–2019" from a degree's period; '' when it has no finished span to give. */
+export function yearSpan(period: { start?: string; end?: string } | undefined): string {
+  const start = period?.start?.slice(0, 4)
+  const end = period?.end?.slice(0, 4)
+  if (start && end) return start === end ? end : `${start}–${end}`
+  if (!start && end) return end
+  return ''
 }
 
 async function draftCv(args: ComposeArgs): Promise<CVDraft> {

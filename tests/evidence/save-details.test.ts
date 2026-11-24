@@ -9,7 +9,9 @@ vi.mock('@/lib/db/client', () => ({ db: {} }))
 vi.mock('@/lib/db/queries/profile', () => ({ getProfile: () => stored, saveProfile }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 
-const { saveDetailsAction } = await import('@/app/(app)/evidence/actions')
+const { addWorkAuthorizationAction, saveDetailsAction } = await import(
+  '@/app/(app)/evidence/actions'
+)
 
 const base = (): MasterProfile =>
   ({
@@ -95,5 +97,32 @@ describe('saveDetailsAction', () => {
     expect(p.summary).toBe('Kept.')
     expect(p.skills).toEqual([{ category: 'A', items: ['b'] }])
     expect(p.preferences.targetTitles).toEqual(['PPC Manager'])
+  })
+})
+
+// 2026-11-24: a US CV silent on authorization came out "not eligible" for
+// every posting that required it. The person is asked; their yes is saved.
+describe('addWorkAuthorizationAction', () => {
+  beforeEach(() => {
+    stored = base()
+    saveProfile.mockClear()
+  })
+
+  it('adds the answer once, keeping the rest of the record', async () => {
+    const yes = { country: 'Estados Unidos', status: 'Con permiso para trabajar' }
+    expect(await addWorkAuthorizationAction(yes)).toEqual({ ok: true })
+    expect(await addWorkAuthorizationAction({ ...yes, country: ' estados unidos ' })).toEqual({
+      ok: true,
+    })
+    const p = stored as MasterProfile
+    expect(p.workAuthorization).toEqual([yes])
+    expect(p.basics.location).toBe('CDMX')
+    expect(saveProfile).toHaveBeenCalledTimes(1)
+  })
+
+  it('refuses an empty country', async () => {
+    expect(await addWorkAuthorizationAction({ country: ' ', status: 'x' })).toMatchObject({
+      ok: false,
+    })
   })
 })

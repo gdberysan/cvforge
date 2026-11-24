@@ -16,6 +16,11 @@ export const MONTHS = {
  * Shared by every render target. The preview, the DOCX and the clipboard
  * text once printed three different formats for the same CV.
  */
+/** A stored month as printed, or just its year when the record gave only that. */
+export function formatDateOf(value: string, language: RenderLanguage, yearOnly?: boolean): string {
+  return yearOnly ? value.slice(0, 4) : formatDate(value, language)
+}
+
 export function formatDate(value: string, language: RenderLanguage): string {
   const match = value.match(/^(\d{4})-(\d{2})$/)
   if (!match) return value
@@ -35,7 +40,7 @@ export function projectDates(
   present: string,
 ): string {
   if (!project.startDate) return ''
-  return `${formatDate(project.startDate, language)} – ${project.endDate ? formatDate(project.endDate, language) : present}`
+  return `${formatDateOf(project.startDate, language, project.startYearOnly)} – ${project.endDate ? formatDateOf(project.endDate, language, project.endYearOnly) : present}`
 }
 
 /** "Degree — Institution", or whichever half exists; never a dangling dash. */

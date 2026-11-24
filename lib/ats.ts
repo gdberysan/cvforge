@@ -31,6 +31,8 @@ export function cvText(cv: CVContent): string {
     cv.header.title,
     cv.summary,
     ...cv.experience.flatMap((r) => [r.title, ...r.bullets.map((b) => b.text)]),
+    // Early career on one line (withWholeHistory) still prints its titles.
+    ...(cv.earlierRoles ?? []).map((r) => `${r.title}, ${r.company}`),
     ...cv.projects.flatMap((p) => p.bullets.map((b) => b.text)),
     ...cv.skills.flatMap((s) => [s.category, ...s.items]),
     ...cv.education.map((e) => `${e.degree} ${e.institution}`),

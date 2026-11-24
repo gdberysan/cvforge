@@ -177,6 +177,7 @@ export function ProjectHeader({
                   project.period.end,
                   t('intl.locale'),
                   t('evidence.present'),
+                  project.period,
                 )
               : t('evidence.undated')}
             <span style={{ color: 'var(--text-muted)' }}>

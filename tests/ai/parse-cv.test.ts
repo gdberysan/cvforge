@@ -260,7 +260,7 @@ describe('toParsedCV dates', () => {
         education: [{ id: 'edu_1', degree: 'BA', institution: 'UNAM', period: { end: '2015' } }],
       }),
     )
-    expect(parsed.profile.education[0].period).toEqual({ end: '2015-01' })
+    expect(parsed.profile.education[0].period).toEqual({ end: '2015-01', endYearOnly: true })
   })
 
   it('normalises the date shapes a model emits despite the prompt', () => {
@@ -270,7 +270,7 @@ describe('toParsedCV dates', () => {
         experience: [{ ...role, period: { start: '2019', end: 'Actualidad' } }],
       }),
     )
-    expect(parsed.profile.experience[0].period).toEqual({ start: '2019-01' })
+    expect(parsed.profile.experience[0].period).toEqual({ start: '2019-01', startYearOnly: true })
   })
 
   it('reports and skips an achievement with no date and nowhere to inherit one', () => {
