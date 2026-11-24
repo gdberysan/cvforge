@@ -27,6 +27,18 @@ function documentCss(opts: RenderOpts): string {
       --doc-accent: #b8641f;
     }
     @page { size: A4; margin: 16mm 15mm; }
+    /* A phone prints on its own paper, not the size asked for here: Android
+       in Mexico or the US defaults to Letter (Carta), 17.6 mm shorter than
+       A4, so a CV that fills one A4 page spilled a lone section onto a
+       second. On a Letter sheet the margins and leading give back more than
+       that, so one A4 page stays one page. The window is the whole sheet's
+       height as a print dialog reports it: A4 (297 mm) stays out, and so
+       does the desktop renderer, which reports the area inside its own
+       margins (265 mm). */
+    @media print and (min-height: 270mm) and (max-height: 285mm) {
+      @page { margin: 11mm 15mm; }
+      body { line-height: 1.36; }
+    }
     * { box-sizing: border-box; }
     body {
       margin: 0;

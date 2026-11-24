@@ -5,6 +5,7 @@ import { useState, useTransition } from 'react'
 import { saveScreeningAnswerAction } from '@/app/(app)/application/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { AutoTextarea } from '@/components/ui/AutoTextarea'
+import { BuildSheet } from '@/components/ui/BuildSheet'
 import { CostNote } from '@/components/ui/CostNote'
 import { IconCopy, IconRegenerate } from '@/components/ui/icons'
 import { ApiFailure } from '@/lib/api-failure'
@@ -224,13 +225,12 @@ export function CompanionPanel({
       {!document ? (
         <p aria-live="polite">
           {running ? (
-            <span className="fact">
-              {t('studio.generating')}
-              <span
-                className="intake-spinner"
-                aria-hidden
-                style={{ marginLeft: 'var(--space-2)' }}
-              />
+            <span className="work">
+              <BuildSheet kind={kind} phase="writing" />
+              <span className="work-body">
+                <span className="work-title">{t('studio.generating')}</span>
+                <span className="work-note">{t('progress.note')}</span>
+              </span>
             </span>
           ) : (
             <>

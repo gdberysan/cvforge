@@ -52,10 +52,7 @@
   },
   "components/studio/CompanionPanel.tsx": {
     "typed-arrow": 1,
-    "inline-style": 21
-  },
-  "components/studio/ComposeProgress.tsx": {
-    "inline-style": 1
+    "inline-style": 20
   },
   "components/studio/VariantPicker.tsx": {
     "inline-style": 1
