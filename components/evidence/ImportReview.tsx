@@ -13,11 +13,35 @@ import { errorText, plural } from '@/lib/i18n'
 import { formatSpan } from '@/lib/import/dates'
 import { periodLabel } from '@/lib/period'
 import { readAsBase64 } from '@/lib/read-file'
-import type { ParsedCV } from '@/lib/schemas'
+import type { ImportProblem, ParsedCV } from '@/lib/schemas'
 import { readEventStream } from '@/lib/sse-client'
 import { haptic } from '@/lib/ui/haptics'
 
 const MAX_PDF_BYTES = 10 * 1024 * 1024
+
+/** An import problem in the person's language (lib/schemas/import.ts names them). */
+function problemText(p: ImportProblem, t: ReturnType<typeof useT>): string {
+  switch (p.code) {
+    case 'language-unread':
+      return t('import.problem.languageUnread', p)
+    case 'language-estimated':
+      return t('import.problem.languageEstimated', p)
+    case 'education-end-unread':
+      return t('import.problem.educationEnd', p)
+    case 'project-end-unread':
+      return t('import.problem.projectEnd', p)
+    case 'evidence-unplaceable':
+      return t('import.problem.unplaceable', p)
+    case 'evidence-undated':
+      return t('import.problem.undated', p)
+    case 'credential-undated':
+      return t('import.problem.credentialUndated', p)
+    case 'duplicate-id':
+      return t('import.problem.duplicate', p)
+    case 'unknown-ref':
+      return t('import.problem.unknownRef', p)
+  }
+}
 
 /** A file's size from its base64 (4 characters carry 3 bytes), the way people read it. */
 function fileSize(base64: string): string {
@@ -38,7 +62,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
   const [dragOver, setDragOver] = useState(false)
   const [text, setText] = useState('')
   const [parsed, setParsed] = useState<ParsedCV | null>(null)
-  const [problems, setProblems] = useState<string[]>([])
+  const [problems, setProblems] = useState<ImportProblem[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [stage, setStage] = useState<'profile' | 'evidence' | null>(null)
@@ -97,7 +121,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
         if (event.done) {
           haptic('done')
           setParsed(event.parsed as ParsedCV)
-          setProblems(event.problems as string[])
+          setProblems(event.problems as ImportProblem[])
         } else if (typeof event.stage === 'string') {
           setStage(event.stage as 'profile' | 'evidence')
         }
@@ -365,9 +389,10 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
               font: 'var(--type-body-sm)',
             }}
           >
-            {problems.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
+            {problems.map((p) => {
+              const text = problemText(p, t)
+              return <li key={text}>{text}</li>
+            })}
           </ul>
         </div>
       )}
