@@ -69,7 +69,8 @@ function month(year: number, m: number): string | undefined {
 }
 
 /** "2019-03", "2019-3", "2019/03", "2019-03-15", "03/2019", "Mar 2019",
- *  "marzo de 2019" and a bare "2019" (its January, as the prompt specifies). */
+ *  "marzo de 2019" and a bare "2019" (stored as its January; readPeriod
+ *  says it was only a year, so nothing prints a month the CV never gave). */
 export function readCvMonth(raw: string | undefined): string | undefined {
   const s = raw?.trim().toLowerCase()
   if (!s) return undefined
@@ -89,6 +90,11 @@ export function readCvMonth(raw: string | undefined): string | undefined {
   return undefined
 }
 
+/** True when the CV gave only a year ("2019"), not a month. */
+export function isYearOnly(raw: string | undefined): boolean {
+  return /^\d{4}$/.test(raw?.trim() ?? '')
+}
+
 /** Whether an end date says the period is still open. */
 export function isPresent(raw: string | undefined): boolean {
   return PRESENT.has(raw?.trim().toLowerCase() ?? '')
@@ -102,14 +108,23 @@ export type RawPeriod = { start?: string; end?: string }
  * finished job is ongoing is exactly the misrepresentation the composer's
  * tense rule exists to prevent.
  */
-export type ReadPeriod = { start?: string; end?: string; unreadableEnd: boolean }
+export type ReadPeriod = {
+  start?: string
+  end?: string
+  unreadableEnd: boolean
+  /** Only a year was given for that end: see PeriodSchema. */
+  startYearOnly?: boolean
+  endYearOnly?: boolean
+}
 
 export function readPeriod(raw: RawPeriod | undefined): ReadPeriod {
   const start = readCvMonth(raw?.start)
+  const startYearOnly = start !== undefined && isYearOnly(raw?.start) ? { startYearOnly: true } : {}
   const endRaw = raw?.end?.trim()
-  if (!endRaw || isPresent(endRaw)) return { start, unreadableEnd: false }
+  if (!endRaw || isPresent(endRaw)) return { start, unreadableEnd: false, ...startYearOnly }
   const end = readCvMonth(endRaw)
-  return { start, end, unreadableEnd: end === undefined }
+  const endYearOnly = end !== undefined && isYearOnly(endRaw) ? { endYearOnly: true } : {}
+  return { start, end, unreadableEnd: end === undefined, ...startYearOnly, ...endYearOnly }
 }
 
 /**
@@ -160,10 +175,16 @@ export class MissingNameError extends Error {
 
 /** Human-readable span for display and prompts; '' when nothing is known. */
 export function formatSpan(
-  period: { start?: string; end?: string } | undefined,
+  period:
+    | { start?: string; end?: string; startYearOnly?: boolean; endYearOnly?: boolean }
+    | undefined,
   present: string,
   separator = '–',
 ): string {
-  if (!period?.start) return period?.end ?? ''
-  return `${period.start}${separator}${period.end ?? present}`
+  // A date the CV gave only as a year is written as that year: "2015", not
+  // "2015-01", which a reader (or the model) would take for January.
+  const start = period?.start && period.startYearOnly ? period.start.slice(0, 4) : period?.start
+  const end = period?.end && period.endYearOnly ? period.end.slice(0, 4) : period?.end
+  if (!start) return end ?? ''
+  return `${start}${separator}${end ?? present}`
 }

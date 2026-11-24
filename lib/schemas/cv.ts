@@ -44,6 +44,9 @@ export const CVRoleSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}$/)
     .optional(),
+  /** The record gave only the year: print "2015", not "ene 2015". */
+  startYearOnly: z.boolean().optional(),
+  endYearOnly: z.boolean().optional(),
   bullets: z.array(GeneratedBulletSchema),
 })
 
@@ -59,6 +62,8 @@ export const CVProjectSchema = z.object({
   url: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  startYearOnly: z.boolean().optional(),
+  endYearOnly: z.boolean().optional(),
   bullets: z.array(GeneratedBulletSchema),
 })
 

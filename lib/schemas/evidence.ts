@@ -18,9 +18,16 @@ export type SourceRef = z.infer<typeof SourceRefSchema>
 /** `YYYY-MM`, the granularity CVs actually use. */
 export const MonthSchema = z.string().regex(/^\d{4}-\d{2}$/)
 
+/**
+ * A span of months. A CV that gave only a year ("2015") is stored as its
+ * January with startYearOnly / endYearOnly set, so date math stays in
+ * months while everything that prints a date prints just the year.
+ */
 export const PeriodSchema = z.object({
   start: MonthSchema,
   end: MonthSchema.optional(),
+  startYearOnly: z.boolean().optional(),
+  endYearOnly: z.boolean().optional(),
 })
 export type Period = z.infer<typeof PeriodSchema>
 

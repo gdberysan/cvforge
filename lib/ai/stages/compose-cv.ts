@@ -201,6 +201,8 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
           ...(role.location ? { location: role.location } : {}),
           startDate: role.period.start,
           ...(role.period.end ? { endDate: role.period.end } : {}),
+          ...(role.period.startYearOnly ? { startYearOnly: true } : {}),
+          ...(role.period.end && role.period.endYearOnly ? { endYearOnly: true } : {}),
           bullets: unique(bullets),
         },
       ]
@@ -226,6 +228,8 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
           ...(project.url ? { url: project.url } : {}),
           ...(project.period?.start ? { startDate: project.period.start } : {}),
           ...(project.period?.end ? { endDate: project.period.end } : {}),
+          ...(project.period?.start && project.period.startYearOnly ? { startYearOnly: true } : {}),
+          ...(project.period?.end && project.period.endYearOnly ? { endYearOnly: true } : {}),
           bullets: kept,
         },
       ]

@@ -27,7 +27,14 @@ export const EducationSchema = z.object({
   /** Optional at both ends: "UNAM, 2015" is a graduation year with no start,
    *  and plenty of CVs list a degree with no dates at all. Requiring a start
    *  left the model two choices — invent a month or fail the paid import. */
-  period: z.object({ start: MonthSchema.optional(), end: MonthSchema.optional() }).optional(),
+  period: z
+    .object({
+      start: MonthSchema.optional(),
+      end: MonthSchema.optional(),
+      startYearOnly: z.boolean().optional(),
+      endYearOnly: z.boolean().optional(),
+    })
+    .optional(),
 })
 export type Education = z.infer<typeof EducationSchema>
 
@@ -44,7 +51,14 @@ export const ProjectSchema = z.object({
   description: z.string().default(''),
   url: z.string().optional(),
   stack: z.array(z.string()).default([]),
-  period: z.object({ start: MonthSchema.optional(), end: MonthSchema.optional() }).optional(),
+  period: z
+    .object({
+      start: MonthSchema.optional(),
+      end: MonthSchema.optional(),
+      startYearOnly: z.boolean().optional(),
+      endYearOnly: z.boolean().optional(),
+    })
+    .optional(),
 })
 export type Project = z.infer<typeof ProjectSchema>
 

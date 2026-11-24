@@ -57,7 +57,18 @@ export function updateRole(
             ...r,
             title: role.title,
             company: role.company,
-            period: { start: role.start, ...(role.end ? { end: role.end } : {}) },
+            period: {
+              start: role.start,
+              ...(role.end ? { end: role.end } : {}),
+              // A date the CV gave only as a year stays a year while it is
+              // left as it was; one the person changes is their month.
+              ...(r.period.startYearOnly && role.start === r.period.start
+                ? { startYearOnly: true }
+                : {}),
+              ...(r.period.endYearOnly && role.end && role.end === r.period.end
+                ? { endYearOnly: true }
+                : {}),
+            },
           }
         : r,
     ),

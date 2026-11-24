@@ -61,6 +61,7 @@ export function RoleHeader({
               role.period.end,
               t('intl.locale'),
               t('evidence.present'),
+              role.period,
             )}
             {plural(t, recordCount, 'evidence.entries')}
           </Meta>

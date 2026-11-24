@@ -441,6 +441,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
                 role.period.end,
                 t('intl.locale'),
                 t('evidence.present'),
+                role.period,
               )}
             </p>
 

@@ -2,6 +2,7 @@ import type { CVContent } from '@/lib/schemas'
 import {
   educationLine,
   formatDate,
+  formatDateOf,
   projectDates,
   projectTitle,
   type RenderLanguage,
@@ -52,8 +53,12 @@ export type Outline = {
  */
 export function cvOutline(content: CVContent, language: RenderLanguage): Outline {
   const h = HEADINGS[language]
-  const span = (start: string, end?: string) =>
-    `${formatDate(start, language)} – ${end ? formatDate(end, language) : h.present}`
+  const span = (
+    start: string,
+    end: string | undefined,
+    flags: { startYearOnly?: boolean; endYearOnly?: boolean },
+  ) =>
+    `${formatDateOf(start, language, flags.startYearOnly)} – ${end ? formatDateOf(end, language, flags.endYearOnly) : h.present}`
   const text = (s: string) => s.trim()
 
   const sections: Outline['sections'] = [
@@ -66,7 +71,7 @@ export function cvOutline(content: CVContent, language: RenderLanguage): Outline
       items: content.experience.map((role) => ({
         kind: 'entry',
         left: `${role.title} — ${role.company}`,
-        right: span(role.startDate, role.endDate),
+        right: span(role.startDate, role.endDate, role),
         bullets: role.bullets.map((b) => b.text),
       })),
     },
