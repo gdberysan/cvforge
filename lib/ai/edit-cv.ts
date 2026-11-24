@@ -32,9 +32,11 @@ export type CvPatch = {
   skills?: { category: string; items: string[] }[]
 }
 
-const MAX_LINE = 600
+/** Whitespace only: nothing is ever cut (the action caps lengths and refuses, never trims). */
+const clean = (s: string) => s.replace(/\s+/g, ' ').trim()
 
-const clean = (s: string) => s.replace(/\s+/g, ' ').trim().slice(0, MAX_LINE)
+/** The saved text when an edit only differs in whitespace, so an untouched line stays byte for byte. */
+const keep = (saved: string, next: string) => (clean(next) === clean(saved) ? saved : clean(next))
 
 export function applyCvPatch(saved: CVContent, patch: CvPatch): CVContent {
   const bullets = patch.bullets ?? {}
@@ -43,22 +45,25 @@ export function applyCvPatch(saved: CVContent, patch: CvPatch): CVContent {
       if (!(b.id in bullets)) return [b]
       const next = bullets[b.id]
       if (next === null || next === undefined) return []
-      const text = clean(next)
-      return text ? [{ ...b, text }] : []
+      const text = keep(b.text, next)
+      return text.trim() ? [{ ...b, text }] : []
     })
   return {
     ...saved,
-    summary: patch.summary === undefined ? saved.summary : clean(patch.summary),
+    summary: patch.summary === undefined ? saved.summary : keep(saved.summary, patch.summary),
     experience: saved.experience.map((r) => ({ ...r, bullets: edit(r.bullets) })),
     projects: saved.projects.map((p) => ({ ...p, bullets: edit(p.bullets) })),
     skills:
       patch.skills === undefined
         ? saved.skills
         : patch.skills
-            .map((s) => ({
-              category: clean(s.category),
-              items: s.items.map(clean).filter(Boolean),
-            }))
+            .map((s) => {
+              const items = s.items.map(clean).filter(Boolean)
+              const was = saved.skills.find((x) => x.category === s.category)
+              // An untouched list is the saved one, items and all.
+              if (was && was.items.map(clean).join('\n') === items.join('\n')) return was
+              return { category: clean(s.category), items }
+            })
             .filter((s) => s.category && s.items.length > 0),
   }
 }
