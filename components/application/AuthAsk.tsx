@@ -8,7 +8,7 @@ import { ErrorNote } from '@/components/ui/ErrorNote'
 import { ApiFailure } from '@/lib/api-failure'
 import { requestRemap } from '@/lib/gaps/remap-request'
 import { errorText } from '@/lib/i18n'
-import { marketLabel } from '@/lib/markets'
+import { authorizationPlace } from '@/lib/markets'
 import type { Market } from '@/lib/schemas'
 import { haptic } from '@/lib/ui/haptics'
 
@@ -33,12 +33,13 @@ export function AuthAsk({
   const router = useRouter()
   const [state, setState] = useState<'ask' | 'saving' | 'checking' | 'no'>('ask')
   const [error, setError] = useState<{ text: string; code?: string } | null>(null)
-  const country = marketLabel(market, locale)
-  if (state === 'no') return null
+  const country = authorizationPlace(market, locale)
+  if (state === 'no' || !country) return null
 
   async function yes() {
     setError(null)
     setState('saving')
+    if (!country) return
     const saved = await addWorkAuthorizationAction({ country, status: t('authAsk.status') })
     if (!saved.ok) {
       setError({ text: errorText(t, saved.code, saved.error), code: saved.code })
