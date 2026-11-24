@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const callStructuredMock = vi.fn()
 vi.mock('@/lib/ai/client', () => ({ callStructured: callStructuredMock }))
 
-const { extractRequirements } = await import('@/lib/ai/stages/extract-requirements')
-const { mapEvidence } = await import('@/lib/ai/stages/map-evidence')
+const { extractRequirements, readExtraction } = await import('@/lib/ai/stages/extract-requirements')
+const { mapEvidence, readMappings } = await import('@/lib/ai/stages/map-evidence')
 const { AiError } = await import('@/lib/ai/errors')
 const { hashPosting, hashEvidenceProjection } = await import('@/lib/hash')
-const { RequirementSchema } = await import('@/lib/schemas')
+const { ExtractedRequirementsSchema, RequirementSchema } = await import('@/lib/schemas')
 
 import type { Requirement } from '@/lib/schemas'
 
@@ -175,6 +175,103 @@ describe('extractRequirements', () => {
     const system = JSON.stringify(callStructuredMock.mock.calls[0][0].system).toLowerCase()
     expect(system).toContain('instruction')
     expect(system).toContain('data')
+  })
+})
+
+describe('readExtraction — the extraction schema carries no enum or minimum', () => {
+  const raw = (over: Partial<Record<string, unknown>> = {}) => ({
+    id: 'req_1',
+    text: 'Kubernetes in production',
+    keyword: 'Kubernetes',
+    variants: [],
+    kind: 'hard',
+    mandatory: true,
+    weight: 2,
+    ...over,
+  })
+  const extraction = (requirements: ReturnType<typeof raw>[], language = 'en') => ({
+    company: 'Acme',
+    jobTitle: 'Engineer',
+    language,
+    requirements,
+  })
+
+  it('demands nothing the API cannot enforce, but still shows the model the allowed values', async () => {
+    const { zodOutputFormat } = await import('@anthropic-ai/sdk/helpers/zod')
+    const { ModelExtractionSchema, MappingResultSchema } = await import('@/lib/schemas')
+    for (const schema of [ModelExtractionSchema, MappingResultSchema]) {
+      const sent = JSON.stringify(zodOutputFormat(schema as never).schema)
+      // No minimum or enum as a real grammar keyword (descriptions may say them).
+      expect(sent).not.toMatch(/"minLength":|"minItems":|"enum":/)
+    }
+    // The value lists reach the model as descriptions: without them extraction
+    // marked real must-haves optional (2026-11-23 eval).
+    const extraction = JSON.stringify(zodOutputFormat(ModelExtractionSchema as never).schema)
+    expect(extraction).toContain('location')
+    expect(JSON.stringify(zodOutputFormat(MappingResultSchema as never).schema)).toContain(
+      'partial',
+    )
+    // And a value outside them still parses, for the code to read.
+    expect(
+      MappingResultSchema.safeParse({
+        mappings: [{ requirementId: 'r1', evidenceIds: [], strength: 'maybe', rationale: '' }],
+      }).success,
+    ).toBe(true)
+  })
+
+  it('reads an unknown kind as hard — never as a gating kind', () => {
+    const read = readExtraction(
+      extraction([
+        raw({ kind: 'technical' }),
+        raw({ kind: '' }),
+        raw({ kind: ' Location ' }),
+        raw({ kind: 'relocation' }),
+      ]),
+      'posting',
+    )
+    expect(read.requirements.map((r) => r.kind)).toEqual(['hard', 'hard', 'location', 'hard'])
+  })
+
+  it('drops a requirement with no wording at all, and renumbers what is left', () => {
+    const read = readExtraction(
+      extraction([raw({ keyword: 'SQL', text: 'SQL' }), raw({ text: '  ', keyword: '' }), raw()]),
+      'posting',
+    )
+    expect(read.requirements.map((r) => [r.id, r.keyword])).toEqual([
+      ['req_1', 'SQL'],
+      ['req_2', 'Kubernetes'],
+    ])
+  })
+
+  it("keeps a requirement with only a keyword or only a text, using the posting's own words for both", () => {
+    const read = readExtraction(
+      extraction([raw({ keyword: '', text: 'Docker' }), raw({ keyword: 'Go', text: '' })]),
+      'posting',
+    )
+    expect(read.requirements.map((r) => [r.keyword, r.text])).toEqual([
+      ['Docker', 'Docker'],
+      ['Go', 'Go'],
+    ])
+    expect(RequirementSchema.array().safeParse(read.requirements).success).toBe(true)
+  })
+
+  it('reads the language tag, and derives it from the posting when the tag is unreadable', () => {
+    expect(readExtraction(extraction([], 'es'), 'x').language).toBe('es-MX')
+    expect(readExtraction(extraction([], 'Spanish'), 'x').language).toBe('es-MX')
+    expect(readExtraction(extraction([], 'en-US'), 'x').language).toBe('en')
+    const spanish = 'Buscamos una persona con experiencia en la gestión de campañas para el equipo.'
+    const english = 'We are looking for a person with experience in the management of campaigns.'
+    expect(readExtraction(extraction([], ''), spanish).language).toBe('es-MX')
+    expect(readExtraction(extraction([], 'fr'), english).language).toBe('en')
+    expect(readExtraction(extraction([], '??'), '').language).toBe('en')
+  })
+
+  it('what it returns always passes the stored schema', () => {
+    const read = readExtraction(
+      extraction([raw({ kind: 'weird', weight: 9 }), raw({ id: '' })], 'xx'),
+      'posting',
+    )
+    expect(ExtractedRequirementsSchema.safeParse(read).success).toBe(true)
   })
 })
 
@@ -375,5 +472,73 @@ describe('mapEvidence', () => {
     expect(retry).not.toContain('req_1 |')
     expect(result[1]).toMatchObject({ requirementId: 'req_2', strength: 'strong' })
     expect(result[1].unjudged).toBeUndefined()
+  })
+})
+
+describe('readMappings — the mapping schema carries no enum or minimum', () => {
+  const skill: Requirement = {
+    id: 'req_1',
+    text: 'Kubernetes',
+    keyword: 'Kubernetes',
+    variants: [],
+    kind: 'hard',
+    mandatory: true,
+    weight: 3,
+  }
+  const location: Requirement = { ...skill, id: 'req_2', kind: 'location', keyword: 'Mexico' }
+  const mapping = (requirementId: string, strength: string, evidenceIds = ['ev_1']) => ({
+    requirementId,
+    evidenceIds,
+    strength,
+    rationale: 'r',
+  })
+
+  it('reads an unknown strength as none on a skill requirement — never as support', () => {
+    const [read] = readMappings([mapping('req_1', 'very strong')], [skill])
+    expect(read.strength).toBe('none')
+    expect(readMappings([mapping('req_1', '')], [skill])[0].strength).toBe('none')
+    expect(readMappings([mapping('req_1', ' Partial ')], [skill])[0].strength).toBe('partial')
+  })
+
+  it('leaves an unreadable strength on a gating kind unanswered, so it cannot gate', () => {
+    expect(readMappings([mapping('req_2', 'yes', [])], [location])).toEqual([])
+  })
+
+  it('drops a mapping that names no requirement it was asked about', () => {
+    const read = readMappings(
+      [mapping('req_9', 'strong'), mapping('', 'strong'), mapping(' req_1 ', 'strong')],
+      [skill],
+    )
+    expect(read).toEqual([
+      { requirementId: 'req_1', evidenceIds: ['ev_1'], strength: 'strong', rationale: 'r' },
+    ])
+  })
+
+  it('a dangling mapping never trips the unknown-id repair, and its requirement is asked about again', async () => {
+    callStructuredMock.mockReset()
+    callStructuredMock
+      .mockResolvedValueOnce({ mappings: [mapping('req_X', 'strong', ['ev_NOPE'])] })
+      .mockResolvedValueOnce({ mappings: [mapping('req_1', 'partial')] })
+    const result = await mapEvidence({
+      requirements: [skill],
+      projection: '<career/>',
+      validEvidenceIds: new Set(['ev_1']),
+    })
+    expect(callStructuredMock).toHaveBeenCalledTimes(2)
+    expect(callStructuredMock.mock.calls[1][0].user).toContain('left out')
+    expect(result).toEqual([
+      { requirementId: 'req_1', evidenceIds: ['ev_1'], strength: 'partial', rationale: 'r' },
+    ])
+  })
+
+  it('a gating requirement whose strength stays unreadable ends unjudged, not unmet', async () => {
+    callStructuredMock.mockReset()
+    callStructuredMock.mockResolvedValue({ mappings: [mapping('req_2', 'maybe', [])] })
+    const result = await mapEvidence({
+      requirements: [location],
+      projection: '<career/>',
+      validEvidenceIds: new Set(['ev_1']),
+    })
+    expect(result[0]).toMatchObject({ requirementId: 'req_2', strength: 'none', unjudged: true })
   })
 })

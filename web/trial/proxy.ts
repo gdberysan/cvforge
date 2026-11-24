@@ -44,6 +44,8 @@ export type TrialConfig = {
   dailyUsd: number
   startsPerAddressPerDay: number
   callsPerAddressPerHour: number
+  /** Opens the owner's view of the counts (op=ops). Absent: no such view. */
+  ownerKey?: string
   now: () => number
   upstream: typeof fetch
   randomId: () => string
@@ -101,6 +103,7 @@ export async function handleTrial(
   if (op === 'start') return start(address, c)
   if (op === 'status') return status(request, c)
   if (op === 'messages') return forward(request, address, c)
+  if (op === 'ops') return ops(request, c)
   return json(404, { state: 'not-found' })
 }
 
@@ -121,6 +124,7 @@ async function start(address: string, c: TrialConfig): Promise<Response> {
   if (starts > c.startsPerAddressPerDay) return json(429, { state: 'limit' })
   const id = c.randomId()
   const token = await issueToken(c.secret, id, now + TRIAL_DAYS * 86_400_000)
+  await tally(c, 'starts', now)
   return json(200, { state: 'started', token, budgetUsd: c.budgetUsd })
 }
 
@@ -221,6 +225,7 @@ async function forward(request: Request, address: string, c: TrialConfig): Promi
               'What is left of this trial does not cover this step.',
             )
       }
+      await tally(c, 'full', now)
       return apiError(402, 'trial_unavailable', 'The free trial is full for now.')
     }
   }
@@ -250,6 +255,7 @@ async function forward(request: Request, address: string, c: TrialConfig): Promi
     // reservation stays as its cost.
     if (started) await settle(reserve)
     else await release()
+    await tally(c, 'errors', now)
     return upstreamError(error)
   }
 
@@ -264,6 +270,7 @@ async function forward(request: Request, address: string, c: TrialConfig): Promi
     body.model,
   )
   const total = await settle(cost)
+  await tally(c, 'calls', now)
   return new Response(JSON.stringify(message), {
     status: 200,
     headers: {
@@ -411,4 +418,53 @@ export function checkBody(text: string): string | null {
     }
   }
   return null
+}
+
+const OPS = ['calls', 'errors', 'starts', 'full'] as const
+
+/** One more of something that happened today: a count, never what it was. */
+async function tally(
+  c: TrialConfig & { store: TrialStore },
+  name: (typeof OPS)[number],
+  now: number,
+): Promise<void> {
+  await c.store.add(`ops:${name}:${day(now)}`, 1, 40 * 86_400)
+}
+
+/**
+ * The owner's view: the last week's counts against the caps, and the month's
+ * spend. Only with the owner key; numbers only, like everything kept here.
+ */
+async function ops(request: Request, c: TrialConfig): Promise<Response> {
+  const given = request.headers.get('x-owner-key') ?? ''
+  const store = c.store
+  if (!c.ownerKey || !store || !sameSecret(given, c.ownerKey)) {
+    return json(404, { state: 'not-found' })
+  }
+  const now = c.now()
+  const days = await Promise.all(
+    Array.from({ length: 7 }, async (_, i) => {
+      const d = day(now - i * 86_400_000)
+      const counts = Object.fromEntries(
+        await Promise.all(OPS.map(async (n) => [n, await store.get(`ops:${n}:${d}`)] as const)),
+      )
+      return { day: d, spentUsd: await store.get(`day:${d}`), ...counts }
+    }),
+  )
+  return json(200, {
+    state: isOpen(c) ? 'open' : 'closed',
+    dailyUsd: c.dailyUsd,
+    monthlyUsd: c.monthlyUsd,
+    budgetUsd: c.budgetUsd,
+    month: { month: month(now), spentUsd: await store.get(`month:${month(now)}`) },
+    days,
+  })
+}
+
+/** Equal, compared without leaking where two strings first differ. */
+function sameSecret(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return diff === 0
 }

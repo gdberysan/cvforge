@@ -143,6 +143,21 @@ export class IncompleteRoleError extends Error {
   }
 }
 
+/**
+ * A CV the reader found no name in. Stopped before the second paid call like
+ * an incomplete role: the stored profile needs a name, and there is no
+ * honest one to put there.
+ */
+export class MissingNameError extends Error {
+  readonly code = 'cv-missing-name'
+  constructor() {
+    super(
+      'No name could be read from the CV. Make sure your full name appears as text at the top and import again.',
+    )
+    this.name = 'MissingNameError'
+  }
+}
+
 /** Human-readable span for display and prompts; '' when nothing is known. */
 export function formatSpan(
   period: { start?: string; end?: string } | undefined,

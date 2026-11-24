@@ -159,6 +159,16 @@ export const apiCalls = sqliteTable('api_calls', {
    * rather than counting them as free.
    */
   costKnown: integer('cost_known', { mode: 'boolean' }).notNull().default(true),
+  /**
+   * What the call was for (lib/ai/spend-context.ts): the action the person
+   * started ('analysis', 'cv', 'import'…), its application when it has one,
+   * and the run that groups its calls. Null where it is not known for sure
+   * (calls before 2026-11-23, or two browser runs that overlapped): never
+   * a guess.
+   */
+  action: text('action'),
+  applicationId: text('application_id'),
+  runId: text('run_id'),
 })
 
 /**

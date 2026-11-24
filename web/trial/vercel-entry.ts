@@ -38,6 +38,7 @@ export async function POST(request: Request): Promise<Response> {
     dailyUsd: num(env.TRIAL_DAILY_USD, num(env.TRIAL_MONTHLY_USD, 90) / 3),
     startsPerAddressPerDay: num(env.TRIAL_STARTS_PER_DAY, 3),
     callsPerAddressPerHour: num(env.TRIAL_CALLS_PER_HOUR, 60),
+    ownerKey: env.TRIAL_OWNER_KEY,
     now: () => Date.now(),
     upstream: fetch,
     randomId: () => Buffer.from(crypto.getRandomValues(new Uint8Array(18))).toString('base64url'),

@@ -22,6 +22,23 @@ jobs:
       - run: npm test
       - run: npm run build
 
+  # The built web edition and the extension's store build in a real Chromium
+  # (e2e/), the network beyond the site faked in each test.
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run web:build
+      - run: CVFORGE_SITE=https://rumbo.korven.dev/app/ npm run web:extension
+      - run: rm -rf web/extension/dist-store && cp -R web/extension/dist web/extension/dist-store
+      - run: npm run e2e
+
   seguridad:
     name: Seguridad
     uses: gdberysan/.github/.github/workflows/security.yml@v1

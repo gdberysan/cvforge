@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import { IncompleteRoleError, readPeriod, UndatedRoleError } from '@/lib/import/dates'
+import {
+  IncompleteRoleError,
+  MissingNameError,
+  readPeriod,
+  UndatedRoleError,
+} from '@/lib/import/dates'
 import { serverTimeZone } from '@/lib/time'
 import { EvidenceItemSchema, ModelEvidenceSchema, type Period, readModelEvidence } from './evidence'
 import {
@@ -39,7 +44,11 @@ const SkeletonPeriodSchema = z.object({ start: z.string().optional(), end: z.str
 
 export const CvSkeletonSchema = z.object({
   basics: z.object({
-    fullName: z.string().min(1),
+    // Plain string, like the role fields below: a minimum length is prose to
+    // the API, and a CV whose name sits in an image or a page header the
+    // reader missed would fail the paid import here with nothing to say. An
+    // empty name stops the import before the second call (MissingNameError).
+    fullName: z.string().describe('{minLength: 1}'),
     headline: z.string().default(''),
     email: z.string().default(''),
     phone: z.string().optional(),
@@ -162,6 +171,7 @@ export type ImportResult = { parsed: ParsedCV; problems: string[] }
  * the review screen says what was skipped instead of storing a made-up month.
  */
 export function toParsedCV(skeleton: CvSkeleton): ImportResult {
+  if (!skeleton.basics.fullName.trim()) throw new MissingNameError()
   const undated = undatedRoles(skeleton.experience)
   if (undated.length > 0) throw new UndatedRoleError(undated)
   const incomplete = incompleteRoles(skeleton.experience)
@@ -272,7 +282,11 @@ export function toParsedCV(skeleton: CvSkeleton): ImportResult {
   return {
     parsed: {
       profile: {
-        basics: { ...skeleton.basics, timezone: serverTimeZone() },
+        basics: {
+          ...skeleton.basics,
+          fullName: skeleton.basics.fullName.trim(),
+          timezone: serverTimeZone(),
+        },
         summary: skeleton.summary,
         experience,
         education,

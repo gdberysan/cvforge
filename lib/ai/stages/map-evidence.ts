@@ -1,4 +1,11 @@
-import { type EvidenceMapping, MappingResultSchema, type Requirement } from '@/lib/schemas'
+import {
+  type EvidenceMapping,
+  MappingResultSchema,
+  type MappingStrength,
+  MappingStrengthSchema,
+  type ModelMapping,
+  type Requirement,
+} from '@/lib/schemas'
 import { callStructured } from '../client'
 import { AiError } from '../errors'
 
@@ -36,8 +43,8 @@ export async function mapEvidence(args: {
 
   const requirementBlock = requirementLines(args.requirements)
 
-  const ask = (extra = '') =>
-    callStructured({
+  const ask = async (extra = '') => {
+    const answer = await callStructured({
       schema: MappingResultSchema,
       system: [
         { text: SYSTEM },
@@ -48,18 +55,20 @@ export async function mapEvidence(args: {
       effort: 'high',
       stage: 'map-evidence',
     })
+    return readMappings(answer.mappings, args.requirements)
+  }
 
-  let result = await ask()
-  let unknown = findUnknownIds(result.mappings, args.validEvidenceIds)
+  let mappings = await ask()
+  let unknown = findUnknownIds(mappings, args.validEvidenceIds)
 
   // Exactly one repair attempt. A hallucinated id is the only semantic failure
   // worth re-asking about; beyond that, fail loudly rather than loop.
   if (unknown.length > 0) {
-    result = await ask(
+    mappings = await ask(
       `\n\nYour previous answer referenced evidence ids that do not exist: ${unknown.join(', ')}. ` +
         'Use only ids present in the <evidence> or <credentials> blocks, or return an empty array with strength "none".',
     )
-    unknown = findUnknownIds(result.mappings, args.validEvidenceIds)
+    unknown = findUnknownIds(mappings, args.validEvidenceIds)
     if (unknown.length > 0) {
       throw new AiError(
         'invalid-output',
@@ -71,7 +80,7 @@ export async function mapEvidence(args: {
   // A requirement the answer skipped is asked about once more, on its own.
   // Left unanswered, a location or authorization line would otherwise read
   // as unmet and gate the posting on a judgement the model never made.
-  const answered = new Set(result.mappings.map((m) => m.requirementId))
+  const answered = new Set(mappings.map((m) => m.requirementId))
   const skipped = args.requirements.filter((r) => !answered.has(r.id))
   if (skipped.length > 0) {
     const retry = await callStructured({
@@ -82,13 +91,13 @@ export async function mapEvidence(args: {
       stage: 'map-evidence',
     })
     const wanted = new Set(skipped.map((r) => r.id))
-    const valid = retry.mappings.filter(
+    const valid = readMappings(retry.mappings, skipped).filter(
       (m) => wanted.has(m.requirementId) && findUnknownIds([m], args.validEvidenceIds).length === 0,
     )
-    result = { mappings: [...result.mappings, ...valid] }
+    mappings = [...mappings, ...valid]
   }
 
-  return normalise(result.mappings, args.requirements)
+  return normalise(mappings, args.requirements)
 }
 
 function requirementLines(requirements: Requirement[]): string {
@@ -103,6 +112,48 @@ function findUnknownIds(mappings: EvidenceMapping[], valid: Set<string>): string
     for (const id of m.evidenceIds) if (!valid.has(id)) unknown.add(id)
   }
   return [...unknown]
+}
+
+/**
+ * The mapper's answer, read into stored mappings. Its schema carries no
+ * constraints (the grammar cannot enforce them), so this is where they live:
+ * - A mapping whose requirementId names none of the requirements asked
+ *   about (an empty one included) is dropped: it can be attached to nothing.
+ *   The requirement it may have meant is then unanswered, and is asked about
+ *   again like any skipped one.
+ * - A strength other than strong / partial / none is never read as support.
+ *   On a skill requirement it reads 'none'. On a gating kind 'none' would be
+ *   a judgement nobody made — an invented "you can't work there" that gates
+ *   the posting — so that mapping is dropped instead, left unanswered: asked
+ *   again, and marked unjudged if it stays so.
+ */
+export function readMappings(
+  mappings: ModelMapping[],
+  requirements: Requirement[],
+): EvidenceMapping[] {
+  const byId = new Map(requirements.map((r) => [r.id, r]))
+  return mappings.flatMap((m) => {
+    const requirementId = m.requirementId.trim()
+    const requirement = byId.get(requirementId)
+    if (!requirement) return []
+    const read = readStrength(m.strength)
+    if (!read && PROFILE_JUDGED.has(requirement.kind)) return []
+    return [
+      {
+        requirementId,
+        evidenceIds: m.evidenceIds,
+        strength: read ?? ('none' as const),
+        rationale: m.rationale,
+      },
+    ]
+  })
+}
+
+const STRENGTHS = new Set<string>(MappingStrengthSchema.options)
+
+function readStrength(raw: string): MappingStrength | undefined {
+  const strength = raw.trim().toLowerCase()
+  return STRENGTHS.has(strength) ? (strength as MappingStrength) : undefined
 }
 
 /** Requirement kinds judged against profile facts, not evidence records. */

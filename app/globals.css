@@ -1857,10 +1857,10 @@ html.sheet-open body {
 .verify-ok .icon { width: 16px; height: 16px; }
 
 /* ── Ajustes, phase 4: groups, rows, switches ──────────────────────── */
-.settings-page { display: grid; gap: var(--space-8); max-width: 44em; }
+.settings-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); max-width: 44em; }
 .settings-head { display: grid; gap: var(--space-2); }
 .settings-h1 { font: var(--type-h1); font-family: var(--font-display); color: var(--text-strong); margin: 0; }
-.settings-group { display: grid; gap: var(--space-2); }
+.settings-group { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
 .settings-title { font: var(--type-h3); font-family: var(--font-display); color: var(--text-strong); margin: 0; }
 .settings-lede { margin: 0; font: var(--type-body-sm); color: var(--text-muted); max-width: 38em; }
 .settings-rows { margin-top: var(--space-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: var(--surface-card); overflow: hidden; }
@@ -9336,3 +9336,68 @@ a.btn-primary:not(:has(svg))::after {
 .trial-left-bar i { height: 6px; border-radius: 3px; background: var(--surface-sunken); }
 .trial-left-bar i.is-on { background: var(--fill-warm); }
 .trial-left-text { margin: 0; font: 400 16px/1.45 var(--font-voice); color: var(--text-body); }
+
+/* What a paid button usually costs, beside it (components/ui/CostNote.tsx). */
+.cost-note {
+  font: var(--type-body-sm);
+  color: var(--text-muted);
+  align-self: center;
+}
+
+/* A verdict one requirement away from another (lib/coverage.ts closeCall). */
+.verdict-close {
+  margin: var(--space-2) 0 0;
+  font: var(--type-body-sm);
+  color: var(--text-muted);
+}
+
+/* The ATS check under a CV (components/studio/AtsReport.tsx). */
+.ats-report {
+  margin-top: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  padding: var(--space-4);
+}
+.ats-report > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-strong);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.ats-group { margin-top: var(--space-4); }
+.ats-group h4 { margin: 0; font: var(--type-body); font-weight: 600; color: var(--text-strong); }
+.ats-hint { margin: var(--space-1) 0 var(--space-2); font: var(--type-body-sm); color: var(--text-muted); }
+.ats-terms { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+.ats-as, .ats-must { color: var(--text-muted); font: var(--type-body-sm); }
+.ats-supported-missing h4 { color: var(--text-accent); }
+
+/* Editing a CV's words in place (components/studio/CvEditor.tsx). */
+.cv-edit { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-4); }
+.cv-edit-lede { margin: 0; font: var(--type-body-sm); color: var(--text-muted); }
+.cv-edit-field { display: grid; gap: var(--space-2); }
+.cv-edit-field > span { font-weight: 600; color: var(--text-strong); }
+.cv-edit textarea,
+.cv-edit .field {
+  width: 100%;
+  box-sizing: border-box;
+  font: var(--type-body);
+  color: var(--text-strong);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-control);
+  padding: var(--space-3);
+  resize: vertical;
+}
+.cv-edit-block { border: 1px solid var(--border-subtle); border-radius: var(--radius-card); padding: var(--space-4); margin: 0; display: grid; gap: var(--space-3); min-width: 0; }
+.cv-edit-block > legend { font-weight: 600; color: var(--text-strong); padding: 0 var(--space-2); }
+.cv-edit-bullet { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2); align-items: start; }
+.cv-edit-bullet > .cv-edit-flag,
+.cv-edit-bullet > .cv-edit-note { grid-column: 1 / -1; }
+.cv-edit-flag { margin: 0; font: var(--type-body-sm); color: var(--signal-error); }
+.cv-edit-note { margin: 0; font: var(--type-body-sm); color: var(--text-muted); }
+.cv-edit-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+/* Grows with its text where the browser can; `rows` covers the rest. */
+.cv-edit textarea { field-sizing: content; }

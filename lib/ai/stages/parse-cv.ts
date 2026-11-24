@@ -1,4 +1,4 @@
-import { IncompleteRoleError, UndatedRoleError } from '@/lib/import/dates'
+import { IncompleteRoleError, MissingNameError, UndatedRoleError } from '@/lib/import/dates'
 import {
   CvEvidenceSkeletonSchema,
   CvProfileSkeletonSchema,
@@ -78,6 +78,10 @@ export async function parseCv(
     stage: 'parse-cv-profile',
   })
 
+  // A CV with no readable name stops before the second paid call: the stored
+  // profile needs one, and the schema cannot demand it of the model (a
+  // minLength is prose to the API).
+  if (!profile.basics.fullName.trim()) throw new MissingNameError()
   // An undated role stops here, before the second paid call — the evidence
   // pass could not produce anything importable for it anyway.
   const undated = undatedRoles(profile.experience)

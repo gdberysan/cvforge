@@ -167,13 +167,21 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
   const byId = new Map(profile.projects.map((p) => [p.id, p]))
   const roleById = new Map(profile.experience.map((r) => [r.id, r]))
   // Bullet ids are the model's, and a repeated one made two lines share a
-  // flag (and once, a verdict). A repeat gets its own: "b3", "b3-2".
+  // flag (and once, a verdict). A repeat gets its own: "b3", "b3-2". The
+  // draft schema cannot demand a non-empty id or text (the grammar does not
+  // enforce it), so here a bullet with no text is dropped — there is no line
+  // to print — and one with no id is numbered by its place in the document;
+  // nothing refers to a bullet id before this point.
   const used = new Map<string, number>()
+  let position = 0
   const unique = (bullets: GeneratedBullet[]) =>
-    bullets.map((b) => {
-      const n = (used.get(b.id) ?? 0) + 1
-      used.set(b.id, n)
-      return n === 1 ? b : { ...b, id: `${b.id}-${n}` }
+    bullets.flatMap((b) => {
+      position++
+      if (!b.text.trim()) return []
+      const id = b.id.trim() || `b${position}`
+      const n = (used.get(id) ?? 0) + 1
+      used.set(id, n)
+      return [{ ...b, id: n === 1 ? id : `${id}-${n}` }]
     })
   return {
     ...draft,
@@ -199,7 +207,9 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
     }),
     projects: draft.projects.flatMap(({ projectId, bullets }) => {
       const project = byId.get(projectId)
-      if (!project || bullets.length === 0) return []
+      if (!project) return []
+      const kept = unique(bullets)
+      if (kept.length === 0) return []
       return [
         {
           projectId,
@@ -207,7 +217,7 @@ export function resolveFromProfile(draft: CVDraft, profile: MasterProfile): CVCo
           ...(project.url ? { url: project.url } : {}),
           ...(project.period?.start ? { startDate: project.period.start } : {}),
           ...(project.period?.end ? { endDate: project.period.end } : {}),
-          bullets: unique(bullets),
+          bullets: kept,
         },
       ]
     }),

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { spendRoute } from '@/lib/ai/spend-route'
 import { db } from '@/lib/db/client'
 import { getVariant } from '@/lib/db/queries/cv-variants'
 import { listEvidence } from '@/lib/db/queries/evidence'
@@ -20,7 +21,7 @@ const Body = z.object({ sourceId: z.string().min(1), targetId: z.string().min(1)
  * the real stages like compose. Nothing is saved when the translation does
  * not match the source's structure.
  */
-export async function POST(request: Request) {
+async function handle(request: Request): Promise<Response> {
   const body = Body.safeParse(await request.json().catch(() => undefined))
   if (!body.success) {
     return NextResponse.json({ error: 'Invalid request', code: 'invalid-request' }, { status: 400 })
@@ -68,3 +69,6 @@ export async function POST(request: Request) {
     },
   )
 }
+
+/** One paid action: its calls are recorded under it (lib/ai/spend-route.ts). */
+export const POST = spendRoute('translate', handle)
