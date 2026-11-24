@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { acceptImportAction } from '@/app/(app)/evidence/import/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { CostNote } from '@/components/ui/CostNote'
+import { ErrorNote } from '@/components/ui/ErrorNote'
 import { IconCheck, IconDocument } from '@/components/ui/icons'
 import { Meta } from '@/components/ui/Meta'
 import { WorkProgress } from '@/components/ui/WorkProgress'
@@ -63,7 +64,13 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
   const [text, setText] = useState('')
   const [parsed, setParsed] = useState<ParsedCV | null>(null)
   const [problems, setProblems] = useState<ImportProblem[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const [error, setErrorText] = useState<string | null>(null)
+  // The failure's code beside its message: ErrorNote picks the way past it.
+  const [errorCode, setErrorCode] = useState<string | undefined>()
+  const setError = (text: string | null) => {
+    setErrorText(text)
+    setErrorCode(undefined)
+  }
   const [loading, setLoading] = useState(false)
   const [stage, setStage] = useState<'profile' | 'evidence' | null>(null)
   // Overwriting an existing profile is destructive, so it takes two clicks:
@@ -135,6 +142,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
             ? e.message
             : t('import.error'),
       )
+      setErrorCode(e instanceof ApiFailure ? e.code : undefined)
     } finally {
       setLoading(false)
       setStage(null)
@@ -289,9 +297,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
 
         {error && (
           // role="alert" so a failed parse is announced, not silently shown.
-          <p role="alert" style={{ color: 'var(--signal-error)', marginTop: 'var(--space-4)' }}>
-            {error}
-          </p>
+          <ErrorNote code={errorCode}>{error}</ErrorNote>
         )}
 
         <div
@@ -526,11 +532,7 @@ export function ImportReview({ hasProfile = false }: { hasProfile?: boolean }) {
         </section>
       )}
 
-      {error && (
-        <p role="alert" style={{ color: 'var(--signal-error)', marginTop: 'var(--space-6)' }}>
-          {error}
-        </p>
-      )}
+      {error && <ErrorNote code={errorCode}>{error}</ErrorNote>}
 
       {armed && (
         <p

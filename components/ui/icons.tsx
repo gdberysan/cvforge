@@ -237,6 +237,14 @@ export const IconDocument = () => (
   </Icon>
 )
 
+/** Your own key: a key. */
+export const IconKey = () => (
+  <Icon size={18}>
+    <circle cx="8" cy="15" r="4" />
+    <path d="m10.8 12.2 8.7-8.7M16.5 6.5l2.5 2.5M14 9l2 2" />
+  </Icon>
+)
+
 /** A cover letter: an envelope. */
 export const IconLetter = () => (
   <Icon size={18}>

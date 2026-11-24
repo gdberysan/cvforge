@@ -62,7 +62,26 @@ const en = {
   'error.trial-ended':
     'Your free trial is used up. To keep going, add your own key in Settings: it takes about 5 minutes, and everything of yours stays here.',
   'error.trial-unavailable':
-    "The free trial can't run this step right now: what's left doesn't cover it, or today's trials are full. Your text is still here. To keep going now, add your own key in Settings.",
+    'The free trial is full for today. Your text is still here. Come back tomorrow, or add your own key in Settings to keep going now.',
+  'error.trial-short':
+    "What's left of your free trial doesn't cover this step. Your text is still here. To keep going, add your own key in Settings.",
+  'web.trialOut.ended.title': 'Your free trial is used up',
+  'web.trialOut.ended.body':
+    'It covered about two full kits. To keep going, connect your own Anthropic key: you pay only for what you use, under a dollar per posting, and everything of yours stays here.',
+  'web.trialOut.short.title': "Your trial doesn't cover this step",
+  'web.trialOut.short.body':
+    "What's left is too little for this step; smaller ones may still run. To do this one, connect your own Anthropic key: under a dollar per posting, and everything of yours stays here.",
+  'web.trialOut.full.title': 'The free trial is full for today',
+  'web.trialOut.full.body':
+    'Many people used it today. Come back tomorrow, or connect your own Anthropic key to keep going now: under a dollar per posting.',
+  'web.trialOut.connect': 'Connect my key',
+  'web.trialOut.later': 'Not now',
+  'errorNote.connectKey': 'Connect my key',
+  'errorNote.toSettings': 'Go to Settings',
+  'about.mustHaves.one': '{n} must-have',
+  'about.mustHaves.other': '{n} must-haves',
+  'about.niceToHaves.one': '{n} nice-to-have',
+  'about.niceToHaves.other': '{n} nice-to-haves',
   'error.too-large':
     'That file is too large to send (on the free trial, about 3 MB). Use a smaller PDF or paste the text instead.',
   'error.network':
@@ -1579,7 +1598,26 @@ const es: Record<MessageKey, string> = {
   'error.trial-ended':
     'Tu prueba gratis se terminó. Para seguir, agrega tu propia clave en Ajustes: toma unos 5 minutos y todo lo tuyo sigue aquí.',
   'error.trial-unavailable':
-    'La prueba gratis no puede hacer este paso ahora: lo que te queda no alcanza, o las pruebas de hoy están llenas. Tu texto sigue aquí. Para seguir ya, agrega tu propia clave en Ajustes.',
+    'La prueba gratis está llena por hoy. Tu texto sigue aquí. Vuelve mañana, o agrega tu propia clave en Ajustes para seguir ya.',
+  'error.trial-short':
+    'Lo que te queda de la prueba gratis no alcanza para este paso. Tu texto sigue aquí. Para seguir, agrega tu propia clave en Ajustes.',
+  'web.trialOut.ended.title': 'Se acabó tu prueba gratis',
+  'web.trialOut.ended.body':
+    'Alcanzó para unos dos kits completos. Para seguir, conecta tu propia clave de Anthropic: pagas solo lo que usas, menos de un dólar por vacante, y todo lo tuyo sigue aquí.',
+  'web.trialOut.short.title': 'Tu prueba ya no alcanza para este paso',
+  'web.trialOut.short.body':
+    'Te queda muy poco para este paso; los más pequeños aún pueden funcionar. Para hacer este, conecta tu propia clave de Anthropic: menos de un dólar por vacante, y todo lo tuyo sigue aquí.',
+  'web.trialOut.full.title': 'La prueba gratis está llena por hoy',
+  'web.trialOut.full.body':
+    'Mucha gente la usó hoy. Vuelve mañana, o conecta tu propia clave de Anthropic para seguir ya: menos de un dólar por vacante.',
+  'web.trialOut.connect': 'Conectar mi clave',
+  'web.trialOut.later': 'Ahora no',
+  'errorNote.connectKey': 'Conectar mi clave',
+  'errorNote.toSettings': 'Ir a Ajustes',
+  'about.mustHaves.one': '{n} requisito obligatorio',
+  'about.mustHaves.other': '{n} requisitos obligatorios',
+  'about.niceToHaves.one': '{n} deseable',
+  'about.niceToHaves.other': '{n} deseables',
   'error.too-large':
     'Ese archivo es demasiado grande para enviarlo (en la prueba gratis, unos 3 MB). Usa un PDF más pequeño o pega el texto.',
   'error.network':

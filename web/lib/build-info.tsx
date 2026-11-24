@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { SettingsRow } from '@/components/settings/SettingsGroup'
+import { BASE } from './base'
 
 type Receipt = { commit: string; dirty: boolean; source: string | null; fingerprint: string }
 
@@ -17,7 +18,9 @@ export function BuildInfo() {
   const t = useT()
   const [receipt, setReceipt] = useState<Receipt | null | undefined>(undefined)
   useEffect(() => {
-    fetch('/build.json', { cache: 'no-cache' })
+    // Under the app's base: on rumbo.korven.dev the landing owns the root,
+    // and /build.json there is a 404 that read as "a local test".
+    fetch(`${BASE}/build.json`, { cache: 'no-cache' })
       .then((r) => (r.ok ? r.json() : null))
       .then(setReceipt)
       .catch(() => setReceipt(null))

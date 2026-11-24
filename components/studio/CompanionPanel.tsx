@@ -7,6 +7,7 @@ import { useT } from '@/components/i18n/LocaleProvider'
 import { AutoTextarea } from '@/components/ui/AutoTextarea'
 import { BuildSheet } from '@/components/ui/BuildSheet'
 import { CostNote } from '@/components/ui/CostNote'
+import { ErrorNote } from '@/components/ui/ErrorNote'
 import { IconCopy, IconRegenerate } from '@/components/ui/icons'
 import { ApiFailure } from '@/lib/api-failure'
 import { errorText } from '@/lib/i18n'
@@ -75,7 +76,13 @@ export function CompanionPanel({
   const [document, setDocument] = useState(initialDocument)
   const [report, setReport] = useState(initialReport)
   const [running, setRunning] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setErrorText] = useState<string | null>(null)
+  // The failure's code beside its message: ErrorNote picks the way past it.
+  const [errorCode, setErrorCode] = useState<string | undefined>()
+  const setError = (text: string | null) => {
+    setErrorText(text)
+    setErrorCode(undefined)
+  }
   const [copied, setCopied] = useState(false)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [recruiterName, setRecruiterName] = useState('')
@@ -115,6 +122,7 @@ export function CompanionPanel({
             ? e.message
             : t('studio.failed'),
       )
+      setErrorCode(e instanceof ApiFailure ? e.code : undefined)
     } finally {
       setRunning(false)
     }
@@ -163,6 +171,7 @@ export function CompanionPanel({
             ? e.message
             : t('studio.failed'),
       )
+      setErrorCode(e instanceof ApiFailure ? e.code : undefined)
     } finally {
       setAnswering(null)
     }
@@ -199,11 +208,7 @@ export function CompanionPanel({
           <GroundingFlags report={report} textOf={document ? textsOf(kind, document) : {}} />
         </div>
       )}
-      {error && (
-        <p role="alert" style={{ color: 'var(--signal-error)', marginBottom: 'var(--space-4)' }}>
-          {error}
-        </p>
-      )}
+      {error && <ErrorNote code={errorCode}>{error}</ErrorNote>}
 
       {!document && !running && <p className="companion-lede">{t(`companion.lede.${kind}`)}</p>}
       {kind === 'recruiterMessage' && (

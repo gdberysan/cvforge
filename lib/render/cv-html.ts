@@ -1,5 +1,6 @@
 import type { CVContent } from '@/lib/schemas'
 import { cvOutline, type OutlineItem } from './outline'
+import { estimatePages } from './page-budget'
 
 type RenderOpts = {
   language: 'en' | 'es-MX'
@@ -66,7 +67,28 @@ function documentCss(opts: RenderOpts): string {
     li { margin-bottom: 1mm; }
     .skills-row { margin-bottom: 1.5mm; }
     .skills-cat { font-weight: 700; }
+    /* Snug: a CV a little over a whole page (estimatePages) is set a little
+       tighter so the last page is not a lone section. Spacing only: the
+       type size and every word stay as they are. */
+    body.snug { line-height: 1.32; }
+    .snug .title { margin-top: 1mm; }
+    .snug .contact { margin-top: 2mm; }
+    .snug h2 { margin: 4.5mm 0 1.8mm; }
+    .snug .role { margin-bottom: 3mm; }
+    .snug ul { margin-top: 1mm; }
+    .snug li { margin-bottom: 0.5mm; }
+    .snug .skills-row { margin-bottom: 1mm; }
   `
+}
+
+/** How far past a whole page still counts as "a little over" (see .snug). */
+export const SNUG_OVERFLOW = 0.18
+
+/** True when the CV runs a little past a whole page and is set snug. */
+export function isSnug(content: CVContent): boolean {
+  const pages = estimatePages(content)
+  const over = pages - Math.floor(pages)
+  return pages > 1 && over > 0 && over <= SNUG_OVERFLOW
 }
 
 /**
@@ -98,7 +120,7 @@ export function renderCvHtml(content: CVContent, opts: RenderOpts): string {
   return `<!doctype html>
 <html lang="${opts.language === 'es-MX' ? 'es-MX' : 'en'}">
 <head><meta charset="utf-8"><title>${e(outline.name)}</title><style>${documentCss(opts)}</style></head>
-<body>
+<body${isSnug(content) ? ' class="snug"' : ''}>
   <div class="doc">
     <p class="name">${e(outline.name)}</p>
     ${outline.title ? `<p class="title">${e(outline.title)}</p>` : ''}

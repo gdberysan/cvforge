@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { FollowUpDraft, KitProgress, MailThread } from '#satellite-ui'
+import { AboutRole } from '@/components/application/AboutRole'
 import { AppMeta } from '@/components/application/AppMeta'
 import { CompanyAliases } from '@/components/application/CompanyAliases'
 import { DecideActions, RestoreButton } from '@/components/application/DecideActions'
@@ -100,10 +101,16 @@ export function ApplicationView({
         <div className={data.summary ? 'decide-top has-about' : 'decide-top'}>
           <VerdictPanel coverage={application.coverage} sentence={sentence} headless={banded} />
           {data.summary && (
-            <div className="story-about">
-              <h2>{t('overview.about')}</h2>
-              <p lang={application.documentLanguage}>{data.summary}</p>
-            </div>
+            <AboutRole
+              summary={data.summary}
+              lang={application.documentLanguage}
+              company={application.company}
+              market={application.market}
+              mandatory={application.coverage?.mandatoryTotal ?? 0}
+              desirable={application.coverage?.desirableTotal ?? 0}
+              t={t}
+              locale={locale}
+            />
           )}
         </div>
         {chipItems.length > 0 && (

@@ -28,7 +28,10 @@ export default function Page() {
   // A wide screen already has the language in the top bar: shown here only
   // on a phone, where the bar has no room for it.
   const [phone, setPhone] = useState(false)
+  // Sent here by the trial's sheet ("Connect my key"): open the guide.
+  const [fromTrialOut, setFromTrialOut] = useState(false)
   useEffect(() => {
+    setFromTrialOut(location.hash === '#clave')
     const touch = window.matchMedia?.('(pointer: coarse)').matches ?? false
     setCanVibrate(touch && typeof navigator.vibrate === 'function')
     setPhone(window.matchMedia?.('(max-width: 600px)').matches ?? false)
@@ -57,8 +60,10 @@ export default function Page() {
     >
       {data.trial && <TrialLeft />}
       <ApiKeyForm hasSavedKey={data.hasKey} envManaged={false} local />
-      {/* Past the trial, or never on one: how to get a key, opened. */}
-      {!data.hasKey && !data.trial && <KeyGuide open />}
+      {/* Past the trial, or never on one: how to get a key, opened. During
+          the trial it is there too, folded, and opens when the trial's
+          sheet sent the person here (#clave). */}
+      {!data.hasKey && <KeyGuide open={!data.trial || fromTrialOut} />}
     </SettingsGroup>
   )
   return (
@@ -71,7 +76,7 @@ export default function Page() {
         </header>
 
         {/* What blocks everything comes first (standard point 3). */}
-        {!data.hasKey && keyGroup}
+        {!data.hasKey && <div id="clave">{keyGroup}</div>}
 
         <SettingsGroup
           title={t('settings.group.status')}
