@@ -25,8 +25,18 @@ function trimmed(n: number): CVContent {
   return cv
 }
 
+/** Null where no browser can be launched (a CI job without Playwright's). */
+async function launch() {
+  try {
+    return await chromium.launch()
+  } catch {
+    return null
+  }
+}
+
 async function pages(cv: CVContent, format: 'A4' | 'Letter'): Promise<number> {
-  const browser = await chromium.launch()
+  const browser = await launch()
+  if (!browser) throw new Error('no browser')
   try {
     const page = await browser.newPage()
     await page.setContent(renderCvHtml(cv, { language: 'es-MX' }), { waitUntil: 'load' })
@@ -41,10 +51,12 @@ async function pages(cv: CVContent, format: 'A4' | 'Letter'): Promise<number> {
 
 describe('the CV on a phone’s paper', () => {
   it('fits Letter at least as well as A4, so one A4 page never spills on Carta', async () => {
-    if (!(await isPdfEngineAvailable())) {
+    const probe = (await isPdfEngineAvailable()) ? await launch() : null
+    if (!probe) {
       console.warn('Chromium not installed; skipping. Run: npx playwright install chromium')
       return
     }
+    await probe.close()
     for (const n of [7, 8]) {
       expect(await pages(trimmed(n), 'Letter')).toBeLessThanOrEqual(await pages(trimmed(n), 'A4'))
     }
