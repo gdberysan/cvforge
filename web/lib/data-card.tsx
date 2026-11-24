@@ -4,6 +4,7 @@ import { type ChangeEvent, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { SettingsRow } from '@/components/settings/SettingsGroup'
 import { LOCALE_COOKIE } from '@/lib/i18n/locale'
+import { blockedInApp } from '@/lib/ui/in-app'
 import { dataChanged, workerApi } from './actions-client'
 /**
  * The web edition's own data controls: the whole database as one file, out
@@ -20,6 +21,7 @@ export function DataCard() {
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
 
   async function exportNow() {
+    if (blockedInApp()) return
     setBusy(true)
     setMessage(null)
     try {

@@ -1,5 +1,9 @@
+import { blockedInApp } from './in-app'
+
 /** Saves a response as a file. Revoked later: Safari cancels a download whose URL dies at once. */
 export async function saveResponse(res: Response, fallbackName: string): Promise<void> {
+  // Inside LinkedIn's browser a download does nothing; the screen says why instead.
+  if (blockedInApp()) return
   const url = URL.createObjectURL(await res.blob())
   const a = document.createElement('a')
   a.href = url
@@ -16,6 +20,7 @@ export async function saveResponse(res: Response, fallbackName: string): Promise
  * The iframe prints only after its own document has loaded.
  */
 export function printHtml(html: string): void {
+  if (blockedInApp()) return
   const frame = document.createElement('iframe')
   frame.setAttribute('aria-hidden', 'true')
   frame.style.cssText = 'position:fixed;width:0;height:0;border:0;right:0;bottom:0'

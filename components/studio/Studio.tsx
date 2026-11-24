@@ -22,6 +22,7 @@ import type {
   Requirement,
 } from '@/lib/schemas'
 import { readEventStream } from '@/lib/sse-client'
+import { copyText } from '@/lib/ui/copy'
 import { printHtml, saveResponse } from '@/lib/ui/download'
 import { haptic } from '@/lib/ui/haptics'
 import { cvLineText } from '@/lib/verify/line-text'
@@ -186,7 +187,10 @@ export function Studio({
   /** Half of application forms are a textarea; this feeds them directly. */
   async function copyPlaintext() {
     if (!cv) return
-    await navigator.clipboard.writeText(renderPlaintext(cv, { language: documentLanguage }))
+    if (!(await copyText(renderPlaintext(cv, { language: documentLanguage })))) {
+      setError(t('studio.copyFailed'))
+      return
+    }
     haptic('confirm')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)

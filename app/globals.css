@@ -140,6 +140,7 @@
   --fill-warm-hover: #EC9548;
   --bar-ink: rgb(23 23 26 / 0.94);
   --shadow-bar: 0 12px 32px rgb(23 23 26 / 0.22);
+  --scrim: rgb(23 23 26 / 0.45);
 
   --signal-ok: #1D6B43;
   --signal-warn: #8A4310;
@@ -2527,6 +2528,14 @@ button.mail-candidate[aria-pressed="true"] { border-color: var(--accent); color:
 /* The browser edition's job notices: keep the page open; a call was cut off. */
 .job-banner { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; margin: 0; padding: var(--space-2) var(--space-4); display: flex; gap: var(--space-3); align-items: center; justify-content: space-between; font: var(--type-body-sm); color: var(--text-strong); background: var(--surface-raised); border-bottom: 1px solid var(--tone-partial-border); }
 .job-banner.is-warning { color: var(--tone-missing-text); background: var(--tone-missing-bg); border-bottom-color: var(--tone-missing-border); }
+.in-app-banner { position: static; flex-wrap: wrap; }
+.in-app-banner > span:first-child { flex: 1 1 16rem; }
+.in-app-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.in-app-hint { flex-basis: 100%; font: var(--type-body-sm); color: var(--text-strong); }
+.in-app-scrim { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; background: var(--scrim); padding: var(--space-4); padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px)); }
+.in-app-sheet { width: 100%; max-width: 30rem; display: grid; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-card); background: var(--surface-raised); color: var(--text-strong); box-shadow: var(--shadow-bar); outline: none; }
+.in-app-sheet h2 { margin: 0; font: var(--type-h3); }
+.in-app-sheet p { margin: 0; font: var(--type-body); color: var(--text-body); }
 
 /* The browser edition's screenshot intake (Analizar). */
 .shots { margin-block: var(--space-4); display: grid; gap: var(--space-3); }
