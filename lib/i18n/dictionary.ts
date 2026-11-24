@@ -82,6 +82,13 @@ const en = {
   'about.mustHaves.other': '{n} must-haves',
   'about.niceToHaves.one': '{n} nice-to-have',
   'about.niceToHaves.other': '{n} nice-to-haves',
+  'authAsk.title': 'Are you authorized to work in {country}?',
+  'authAsk.body':
+    "Your CV doesn't say, so this posting came out as not eligible: it asks for “{requirement}”. If you are, Rumbo saves it to your experience and checks the posting again.",
+  'authAsk.yes': 'Yes, I am',
+  'authAsk.no': 'No',
+  'authAsk.status': 'Authorized to work',
+  'authAsk.checking': 'Checking again…',
   'error.too-large':
     'That file is too large to send (on the free trial, about 3 MB). Use a smaller PDF or paste the text instead.',
   'error.network':
@@ -1618,6 +1625,13 @@ const es: Record<MessageKey, string> = {
   'about.mustHaves.other': '{n} requisitos obligatorios',
   'about.niceToHaves.one': '{n} deseable',
   'about.niceToHaves.other': '{n} deseables',
+  'authAsk.title': '¿Tienes permiso para trabajar en {country}?',
+  'authAsk.body':
+    'Tu CV no lo dice, por eso esta vacante quedó como «no aplica»: pide «{requirement}». Si lo tienes, Rumbo lo guarda en tu experiencia y vuelve a revisar la vacante.',
+  'authAsk.yes': 'Sí, tengo permiso',
+  'authAsk.no': 'No',
+  'authAsk.status': 'Con permiso para trabajar',
+  'authAsk.checking': 'Volviendo a revisar…',
   'error.too-large':
     'Ese archivo es demasiado grande para enviarlo (en la prueba gratis, unos 3 MB). Usa un PDF más pequeño o pega el texto.',
   'error.network':

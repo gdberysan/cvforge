@@ -21,3 +21,5 @@ export const deleteEvidenceAction: typeof desktop.deleteEvidenceAction = (...arg
   callAction('evidence', 'deleteEvidenceAction', args) as ReturnType<typeof desktop.deleteEvidenceAction>
 export const saveDetailsAction: typeof desktop.saveDetailsAction = (...args) =>
   callAction('evidence', 'saveDetailsAction', args) as ReturnType<typeof desktop.saveDetailsAction>
+export const addWorkAuthorizationAction: typeof desktop.addWorkAuthorizationAction = (...args) =>
+  callAction('evidence', 'addWorkAuthorizationAction', args) as ReturnType<typeof desktop.addWorkAuthorizationAction>
