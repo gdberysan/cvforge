@@ -21,11 +21,27 @@ afterAll(async () => {
 })
 
 describe('the web edition in a window that keeps no files', () => {
-  it('says to open it in a normal window, with the address to copy', async () => {
+  it('says to open it in a normal window, with the address to copy', async (test) => {
     const { defaultBrowserType: _, ...iphone } = devices['iPhone 15']
     const ctx = await browser.newContext({ ...iphone, locale: 'es-MX' })
     const page = await ctx.newPage()
     await page.goto(`${site.origin}/app/`)
+    // Apple's WebKit (macOS, iOS) refuses files in a private-style context;
+    // the Linux build in CI keeps them, so there is nothing to show there.
+    const refused = await page.evaluate(async () => {
+      try {
+        const dir = await navigator.storage.getDirectory()
+        await dir.getFileHandle('.probe', { create: true })
+        return false
+      } catch {
+        return true
+      }
+    })
+    if (!refused) {
+      await ctx.close()
+      test.skip()
+      return
+    }
     await page
       .getByRole('heading', { name: 'Ábrelo en una ventana normal' })
       .waitFor({ timeout: 30_000 })
