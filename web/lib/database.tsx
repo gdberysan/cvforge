@@ -24,6 +24,9 @@ export type DbState =
   | { kind: 'busy' }
   | { kind: 'moved' }
   | { kind: 'unsupported' }
+  /** The browser refuses to keep files for this page at all: private browsing
+   * (Safari, Firefox) and some browsers inside apps. Reloading cannot help. */
+  | { kind: 'refused' }
   | { kind: 'failed'; message: string }
 
 type Ctx = {
@@ -40,6 +43,23 @@ const DatabaseContext = createContext<Ctx>({
   unlocked: () => {},
   locked: () => {},
 })
+
+/**
+ * After a failed open: can this page keep a file at all? Safari's private
+ * browsing (and Playwright's WebKit, which behaves like it) refuses with
+ * "UnknownError" on the very first file, so the generic "reload" advice
+ * would send the person round in circles (found before the 2026-11 launch).
+ */
+async function storageRefused(): Promise<boolean> {
+  try {
+    const dir = await navigator.storage.getDirectory()
+    await dir.getFileHandle('.cvforge-probe', { create: true })
+    await dir.removeEntry('.cvforge-probe').catch(() => {})
+    return false
+  } catch {
+    return true
+  }
+}
 
 function supported(): boolean {
   return (
@@ -110,7 +130,11 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
         retries.current = 0
         setState({ kind: 'ready', api, persisted, interrupted: opened.interrupted })
       })
-      .catch((err: unknown) => {
+      .catch(async (err: unknown) => {
+        if (await storageRefused()) {
+          setState({ kind: 'refused' })
+          return
+        }
         setState({ kind: 'failed', message: err instanceof Error ? err.message : String(err) })
         // The usual cause is another tab that still holds the files: one
         // frozen in the background (a phone does that) releases them only

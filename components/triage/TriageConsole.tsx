@@ -223,9 +223,14 @@ export function TriageConsole({
     next()
   }
 
+  // The pipeline sends counts, never words: "12|9" is 12 requirements, 9 entries.
+  const detailCopy = (detail?: string) => {
+    const m = detail?.match(/^(\d+)\|(\d+)$/)
+    return m ? `  ·  ${t('progress.triage.counts', { requirements: m[1], entries: m[2] })}` : ''
+  }
   const expanded = !compact || focused || text.length > 0
   const status = running
-    ? `${stageCopy(stage?.name)}${stage?.detail ? `  ·  ${stage.detail}` : ''}`
+    ? `${stageCopy(stage?.name)}${detailCopy(stage?.detail)}`
     : result
       ? result.company.trim()
         ? `${result.jobTitle} · ${result.company}`
@@ -361,7 +366,7 @@ export function TriageConsole({
               t('progress.triage.save'),
             ]}
             current={stage?.name === 'mapping' ? 1 : stage?.name === 'saving' ? 2 : 0}
-            title={`${stageCopy(stage?.name)}${stage?.detail ? `  ·  ${stage.detail}` : ''}`}
+            title={`${stageCopy(stage?.name)}${detailCopy(stage?.detail)}`}
             note={t('progress.note')}
           />
         )}

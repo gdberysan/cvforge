@@ -853,6 +853,7 @@ const en = {
   'progress.cv.achievements': 'Achievements',
   'progress.triage.read': 'Read the posting',
   'progress.triage.compare': 'Compare it with your experience',
+  'progress.triage.counts': '{requirements} requirements · {entries} entries',
   'progress.triage.save': 'Save the answer',
   'progress.note': 'It usually takes under a minute. Keep this tab open.',
   'import.error': 'Could not read that CV.',
@@ -1619,6 +1620,11 @@ const en = {
   'web.db.moved': 'CVForge moved to another tab.',
   'web.db.unsupported':
     'This browser cannot keep CVForge’s data. Use a current Chrome, Edge, Safari or Firefox.',
+  'web.db.refused':
+    "This window doesn't let CVForge keep your data. That happens in private browsing and in some browsers inside apps. Copy the address and open it in Safari or Chrome.",
+  'web.db.refusedTitle': 'Open it in a normal window',
+  'web.db.copyLink': 'Copy the address',
+  'web.db.copied': 'Copied',
   'web.db.failed':
     "Your data couldn't be opened. Nothing was deleted. Reload the page; if it happens again, close Rumbo's other tabs and update your browser.",
   'web.db.reload': 'Reload',
@@ -2593,6 +2599,7 @@ const es: Record<MessageKey, string> = {
   'progress.cv.achievements': 'Logros',
   'progress.triage.read': 'Leer la vacante',
   'progress.triage.compare': 'Compararla con tu experiencia',
+  'progress.triage.counts': '{requirements} requisitos · {entries} entradas',
   'progress.triage.save': 'Guardar la respuesta',
   'progress.note': 'Suele tardar menos de un minuto. Deja esta pestaña abierta.',
   'import.error': 'No se pudo leer ese CV.',
@@ -3363,6 +3370,11 @@ const es: Record<MessageKey, string> = {
   'web.db.moved': 'CVForge pasó a otra pestaña.',
   'web.db.unsupported':
     'Este navegador no puede guardar los datos de CVForge. Usa un Chrome, Edge, Safari o Firefox actual.',
+  'web.db.refused':
+    'Esta ventana no deja que CVForge guarde tus datos. Pasa en la navegación privada y en algunos navegadores dentro de apps. Copia la dirección y ábrela en Safari o Chrome.',
+  'web.db.refusedTitle': 'Ábrelo en una ventana normal',
+  'web.db.copyLink': 'Copiar la dirección',
+  'web.db.copied': 'Copiada',
   'web.db.failed':
     'No se pudieron abrir tus datos. No se borró nada. Recarga la página; si vuelve a pasar, cierra las otras pestañas de Rumbo y actualiza tu navegador.',
   'web.db.reload': 'Recargar',
