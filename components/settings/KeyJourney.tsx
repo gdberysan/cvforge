@@ -150,6 +150,12 @@ export function KeyJourney({
     )
   }
 
+  const fold = !open && !connected && (
+    <button type="button" className="journey-fold" onClick={() => setExpanded(false)}>
+      {t('journey.fold')}
+    </button>
+  )
+
   return (
     <section
       ref={self}
@@ -157,14 +163,15 @@ export function KeyJourney({
       aria-labelledby={bare ? undefined : 'journey-title'}
       aria-label={bare ? t('journey.title') : undefined}
     >
-      {!open && !connected && (
-        <button type="button" className="journey-fold" onClick={() => setExpanded(false)}>
-          {t('journey.fold')}
-        </button>
-      )}
+      {!bare && fold}
       {bare ? (
         !connected && (
-          <p className="journey-sub">{t(quiet ? 'journey.subAfterTrial' : 'journey.sub')}</p>
+          // In a card of its own (the trial's), the fold shares this line: it
+          // sits in the flow, so it can never cover what the card shows above.
+          <div className="journey-bare-head">
+            <p className="journey-sub">{t(quiet ? 'journey.subAfterTrial' : 'journey.sub')}</p>
+            {fold}
+          </div>
         )
       ) : (
         <header className="journey-head">

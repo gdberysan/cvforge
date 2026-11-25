@@ -118,6 +118,13 @@ header.top {
   font: 600 16px/1 var(--display); color: var(--ink); text-decoration: none;
 }
 .top-link:hover { background: var(--sheet); }
+/* A 360 px phone has no room for the wordmark beside the language pill and
+   the start link (the bar scrolled sideways by 23 px): the mark alone, the
+   link keeps its name ("Rumbo, inicio") for screen readers. */
+@media (max-width: 380px) {
+  .brand span { display: none; }
+  .brand { min-width: 44px; justify-content: center; }
+}
 
 /* Hero: promise left, product right. */
 .hero {

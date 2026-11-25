@@ -8318,6 +8318,26 @@ textarea#details-titles {
 .locale-option {
   font-size: 14px;
 }
+.spend-pill,
+.update-pill,
+.quit-pill {
+  font-size: 14px;
+}
+/* A finger's 44 px around the bar's 34-40 px pills, without changing their look. */
+.locale-option,
+.spend-pill,
+.update-pill,
+.quit-pill {
+  position: relative;
+}
+.locale-option::after,
+.spend-pill::after,
+.update-pill::after,
+.quit-pill::after {
+  content: '';
+  position: absolute;
+  inset: -5px -1px;
+}
 .privacy-more > summary {
   min-height: 44px;
 }
@@ -9296,6 +9316,13 @@ a.btn-primary:not(:has(svg))::after {
   font: 800 23px/1 var(--font-headline);
   letter-spacing: -0.035em;
 }
+/* A 360 px phone has no room for the word beside the trial pill and EN/ES
+   (the switch ran 23 px off the screen in Spanish, 2026-11-25): the mark
+   alone, the word kept for screen readers as the link's name. */
+@media (max-width: 380px) {
+  .topnav .brand-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .topnav .brand-link { min-width: 44px; justify-content: center; }
+}
 .brand-word.is-lower {
   text-transform: lowercase;
 }
@@ -9572,6 +9599,9 @@ a.btn-primary:not(:has(svg))::after {
   container-type: inline-size;
   scroll-margin-top: 96px;
   display: grid;
+  /* One column the card's width: an implicit column took the step row's
+     322 px and spilled past a 360 px phone's card (2026-11-25). */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
   padding: var(--space-5);
   border: 1px solid var(--border-subtle);
@@ -9904,7 +9934,9 @@ a.btn-primary:not(:has(svg))::after {
 /* The fold-back, top right of an opened guide that started folded. */
 .journey { position: relative; }
 .journey-fold { position: absolute; top: var(--space-3); right: var(--space-3); min-height: 44px; padding: 0 var(--space-3); border: 0; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
-.journey.is-bare .journey-fold { top: -52px; right: 0; }
+.journey-bare-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: var(--space-3); }
+.journey-bare-head .journey-sub { flex: 1 1 12rem; }
+.journey-bare-head .journey-fold { position: static; padding-inline: 0; white-space: nowrap; }
 /* Nothing to show in the button row: it takes no room, so nothing below moves. */
 .journey-paste .settings-form:has(.btn-primary:disabled) .settings-row-control,
 .journey-paste .settings-row-control:empty { display: none; }

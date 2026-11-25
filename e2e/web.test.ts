@@ -73,6 +73,46 @@ describe('the web edition on a phone', () => {
     await ctx.close()
   })
 
+  it('fits the trial card with its guide open on a 360 px phone', async () => {
+    // 2026-11-25: "Ocultar guía" sat on the trial line, the guide spilled
+    // past its card and the bar pushed EN/ES off the screen at 360 px.
+    const ctx = await browser.newContext({
+      ...devices['Pixel 7'],
+      viewport: { width: 360, height: 780 },
+      locale: 'es-MX',
+    })
+    await ctx.route(/^https?:\/\/(?!127\.0\.0\.1)/, (r) => r.abort())
+    await ctx.route('**/trial/status/', (r) =>
+      r.fulfill({ json: { leftUsd: 1.45, budgetUsd: 1.5 } }),
+    )
+    await ctx.route('**/trial/start/', (r) =>
+      r.fulfill({
+        json: {
+          state: 'started',
+          token: 't1.testtrialid0000000.9999999999999.sig',
+          budgetUsd: 1.5,
+        },
+      }),
+    )
+    const page = await ctx.newPage()
+    await page.goto(`${site.origin}/app/`)
+    await page.getByRole('button', { name: /Probar gratis con mi CV/ }).click()
+    await page.getByText('Paso 2 de 3').waitFor()
+    await page.goto(`${site.origin}/app/settings/`)
+    await page.locator('.trial-left-text').waitFor()
+    await page.locator('.journey-open').first().click()
+    await page.locator('.journey-fold').waitFor()
+    const m = await page.evaluate(`(() => {
+      var W = document.documentElement.clientWidth
+      var box = function (s) { return document.querySelector(s).getBoundingClientRect() }
+      var f = box('.journey-fold'), t = box('.trial-left-text'), j = box('.journey'), g = box('.settings-group')
+      var cut = Array.from(document.querySelectorAll('a,button')).filter(function (e) { var r = e.getBoundingClientRect(); return r.width > 2 && (r.right > W + 1 || r.left < -1) }).length
+      return { overflow: document.documentElement.scrollWidth > W, cut: cut, foldBelowTrial: f.top >= t.bottom, guideInCard: j.right <= g.right - 1 }
+    })()`)
+    expect(m).toEqual({ overflow: false, cut: 0, foldBelowTrial: true, guideInCard: true })
+    await ctx.close()
+  })
+
   it('says so when the trial is closed, and offers the key instead', async () => {
     const { ctx, page } = await phone()
     await ctx.route('**/trial/start/', (r) => r.fulfill({ status: 503, json: { state: 'closed' } }))

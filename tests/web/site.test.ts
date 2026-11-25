@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  beaconTag,
   LEGACY_REDIRECT,
   landingPolicy,
   parseHeaders,
@@ -31,6 +32,15 @@ describe('the host rules for rumbo.korven.dev', () => {
     expect(policy).toContain("connect-src 'none'")
     expect(policy).toContain("font-src 'self'")
     expect(policy).not.toMatch(/googleapis|gstatic/)
+  })
+
+  it('let the visit counter reach only its own two Cloudflare hosts', () => {
+    const policy = landingPolicy(['abc'], true)
+    expect(policy).toContain('connect-src https://cloudflareinsights.com;')
+    expect(policy).toMatch(
+      /script-src 'sha256-abc' https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js;/,
+    )
+    expect(beaconTag('a'.repeat(32))).toContain(`data-cf-beacon='{"token":"${'a'.repeat(32)}"}'`)
   })
 
   it('send the retired address to Rumbo, except the desktop update notice', () => {

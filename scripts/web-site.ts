@@ -16,8 +16,8 @@
  * served byte for byte from web/landing/legacy/version.json; bump it there when
  * a desktop release should be offered.
  *
- * The landing's policy is stricter than the app's: no network at all, and
- * scripts only by hash. Its type is served from the site itself.
+ * The landing's policy is stricter than the app's: no network but the visit
+ * counter (when its token is set), and scripts only by hash. Its type is served from the site itself.
  */
 import { copyFileSync, cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -28,14 +28,29 @@ const OUT = path.join('web', 'out')
 const SITE = path.join('web', 'site')
 const BASE = process.env.WEB_BASE ?? '/app'
 
-export function landingPolicy(hashes: string[]): string {
+/**
+ * Visit counting on the landing pages only (never under /app/, beside the
+ * key): Cloudflare Web Analytics, free, cookieless, nothing that identifies
+ * a person. The privacy page says so ("privacy.none.body"). Empty env = off.
+ */
+// Site "rumbo.korven.dev" in Cloudflare Web Analytics (owner's account, added
+// 2026-11-25). Public by design: it is in every page it counts.
+export const CF_BEACON_TOKEN = process.env.CF_BEACON_TOKEN ?? '10e06069bd304462b72370e3c4db0c12'
+const BEACON_SCRIPT = 'https://static.cloudflareinsights.com/beacon.min.js'
+const BEACON_REPORT = 'https://cloudflareinsights.com'
+
+export function beaconTag(token: string): string {
+  return `<script type="module" src="${BEACON_SCRIPT}" data-cf-beacon='${JSON.stringify({ token })}'></script>`
+}
+
+export function landingPolicy(hashes: string[], beacon = false): string {
   return [
     "default-src 'self'",
-    `script-src ${hashes.map((h) => `'sha256-${h}'`).join(' ')}`,
+    `script-src ${hashes.map((h) => `'sha256-${h}'`).join(' ')}${beacon ? ` ${BEACON_SCRIPT}` : ''}`,
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self'",
     "img-src 'self' data:",
-    "connect-src 'none'",
+    beacon ? `connect-src ${BEACON_REPORT}` : "connect-src 'none'",
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'none'",
@@ -87,8 +102,10 @@ export function withStore(html: string, store: string, label = 'Agregar a Chrome
 
 /** A landing page as served: the store button filled in, its own CSP first in <head>. */
 function landingPage(file: string, store: string, label?: string): string {
-  const html = withStore(readFileSync(file, 'utf8'), store, label)
-  const meta = `<meta http-equiv="Content-Security-Policy" content="${landingPolicy(inlineHashes(html))}">`
+  const beacon = /^[0-9a-f]{32}$/.test(CF_BEACON_TOKEN)
+  let html = withStore(readFileSync(file, 'utf8'), store, label)
+  if (beacon) html = html.replace('</body>', `${beaconTag(CF_BEACON_TOKEN)}\n</body>`)
+  const meta = `<meta http-equiv="Content-Security-Policy" content="${landingPolicy(inlineHashes(html), beacon)}">`
   return html.replace('<head>', `<head>\n${meta}`)
 }
 
