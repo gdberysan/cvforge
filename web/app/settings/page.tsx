@@ -231,7 +231,9 @@ function TrialLeft() {
           <i key={i} className={i < pct / 10 ? 'is-on' : ''} />
         ))}
       </div>
-      <p className="trial-left-text">{t('settings.trial.left', { pct })}</p>
+      <p className="trial-left-text">
+        {pct >= 100 ? t('settings.trial.leftAll') : t('settings.trial.left', { pct })}
+      </p>
     </div>
   )
 }

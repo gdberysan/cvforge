@@ -9676,6 +9676,9 @@ a.btn-primary:not(:has(svg))::after {
 }
 .journey-text { display: grid; gap: var(--space-3); min-width: 0; }
 .journey-step-title { margin: 0; font: 700 20px/1.25 var(--font-headline); color: var(--text-strong); }
+/* Inside a card that has its own title (the trial's), the step is one size
+   below it, so the card's title leads. */
+.journey.is-bare .journey-step-title { font-size: 18px; }
 .journey-step-body { margin: 0; font: var(--type-body); color: var(--text-body); }
 .journey-tip { margin: 0; font: var(--type-body-sm); color: var(--text-muted); }
 .journey-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -9820,6 +9823,11 @@ a.btn-primary:not(:has(svg))::after {
 
 /* A rejected key: the drawing stops promising the check mark. */
 .journey-body:has(.settings-feedback .is-error) :is(.ill-ok, .ill-ok-mark) { display: none; }
+/* At 360 px four 44 px steps and "Cuenta" leave no room for the lines (the
+   one after it touched the "2"): the step's title below already names it. */
+@container (max-width: 300px) {
+  .journey-dot.is-now .journey-dot-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
 /* A dot whose name is hidden on a narrow card still gets a full finger. */
 .journey-dot { min-width: 44px; justify-content: center; }
 
