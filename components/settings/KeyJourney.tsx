@@ -131,8 +131,14 @@ export function KeyJourney({
           aria-expanded={false}
           onClick={() => {
             setExpanded(true)
+            // To the card that titles it (the trial's), as #clave does: the
+            // guide alone landed with the card's title and trial line under
+            // the sticky bar (2026-11-25).
             requestAnimationFrame(() =>
-              self.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }),
+              (self.current?.closest('#clave') ?? self.current)?.scrollIntoView({
+                block: 'start',
+                behavior: 'smooth',
+              }),
             )
           }}
         >
@@ -330,7 +336,7 @@ export function KeyJourney({
                     {t(k('open'))}
                     <IconExternal />
                   </a>
-                  {!quiet && (
+                  {!quiet && !bare && (
                     <button type="button" className="btn btn-quiet" onClick={() => go(at + 1)}>
                       {t(k('done'))}
                     </button>
@@ -362,9 +368,9 @@ export function KeyJourney({
             {step.id !== 'paste' && step.id !== 'key' && (
               <p className="journey-tip">{t(k('tip'))}</p>
             )}
-            {/* Beside the trial the "done" answer is a quiet link, after the
-                note that belongs to the button above it. */}
-            {quiet && step.url && !back && (
+            {/* Beside the trial (and inside its card) the "done" answer is a
+                quiet link, so the step has one button. */}
+            {(quiet || bare) && step.url && !back && (
               <button type="button" className="journey-skip is-answer" onClick={() => go(at + 1)}>
                 {t(k('done'))}
               </button>

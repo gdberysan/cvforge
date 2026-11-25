@@ -281,6 +281,7 @@ const en = {
   'settings.trial.lede':
     'This time CVForge pays. When it runs out, add your key here and pick up where you left off.',
   'settings.trial.left': 'About {pct}% of your trial is left.',
+  'settings.trial.leftAll': "You've barely used your trial yet.",
   'settings.trial.endedLede':
     'Your free trial is over. Add your key and pick up where you left off: your CV and applications are still here.',
   'settings.group.data': 'Your data',
@@ -2022,6 +2023,7 @@ const es: Record<MessageKey, string> = {
   'settings.trial.lede':
     'Esta vez paga CVForge. Cuando se acabe, agrega aquí tu clave y sigues donde ibas.',
   'settings.trial.left': 'Te queda cerca del {pct}% de tu prueba.',
+  'settings.trial.leftAll': 'Aún casi no has usado tu prueba.',
   'settings.trial.endedLede':
     'Tu prueba gratis terminó. Agrega tu clave y sigues donde ibas: tu CV y tus postulaciones siguen aquí.',
   'settings.group.data': 'Tus datos',
