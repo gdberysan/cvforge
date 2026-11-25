@@ -10409,3 +10409,9 @@ a.btn-primary:not(:has(svg))::after {
 /* Drive: actions on one line beside their row or banner text. */
 .drive-actions { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .drive-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+
+/* Private browsing / an in-app browser that keeps no files (web/app/shell.tsx). */
+.db-refused { display: grid; gap: var(--space-4); padding-top: var(--space-6); max-width: 36rem; }
+.db-refused .settings-h1 { margin: 0; }
+.db-refused p { margin: 0; }
+.db-refused strong { font-family: var(--font-text); word-break: break-all; }

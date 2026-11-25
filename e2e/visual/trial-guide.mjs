@@ -1,6 +1,7 @@
-// revision-visual state: the free trial running, Ajustes, the key guide opened
-// from its folded card (the trial card's "Ocultar guía" layout). Use with
-// measure.mjs --setup e2e/visual/trial-guide.mjs against the served web/site.
+// kit-ui state: the free trial running, Ajustes, the key guide opened from its
+// folded card (the trial card's "Ocultar guía" layout). Listed in .claude/ui.json;
+// run with ~/.claude/skills/kit-ui/run.mjs <url> <outDir> --state trial-guide
+// against the served web/site.
 const TOKEN = 't1.testtrialid0000000.9999999999999.sig'
 
 export async function before(ctx) {

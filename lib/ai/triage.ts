@@ -35,10 +35,8 @@ export async function runRemap(args: {
   /** Language of the rationales; Spanish, the product's first language, when unsaid. */
   rationaleLanguage?: 'en' | 'es'
 }): Promise<{ mappings: EvidenceMapping[]; coverage: Coverage }> {
-  args.onProgress?.(
-    'mapping',
-    `${args.requirements.length} requirements · ${args.evidence.length} records`,
-  )
+  // Two counts, worded by the screen in its own language (progress.triage.counts).
+  args.onProgress?.('mapping', `${args.requirements.length}|${args.evidence.length}`)
   const mappings = await mapEvidence({
     requirements: args.requirements,
     projection: buildEvidenceProjection(args.profile, args.evidence),

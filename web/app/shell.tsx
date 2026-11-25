@@ -9,6 +9,8 @@ import { IconMark } from '@/components/ui/icons'
 import { MomentHost } from '@/components/ui/MomentHost'
 import { Nav } from '@/components/ui/Nav'
 import { ToastHost } from '@/components/ui/ToastHost'
+import { haptic } from '@/lib/ui/haptics'
+import { BASE } from '@/web/lib/base'
 import { useDatabase } from '@/web/lib/database'
 import { DriveBanner } from '@/web/lib/drive-ui'
 import { InAppBrowserBanner } from '@/web/lib/in-app-browser'
@@ -68,6 +70,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </div>
           )}
           {state.kind === 'unsupported' && <p className="prose">{t('web.db.unsupported')}</p>}
+          {state.kind === 'refused' && <Refused />}
           {state.kind === 'failed' && (
             <div className="stack">
               {/* What to do in the person's words; the browser's own
@@ -125,5 +128,41 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <MomentHost />
       <HapticsListener />
     </>
+  )
+}
+
+/**
+ * Private browsing, or a browser inside an app, that keeps no files: say so,
+ * and hand over the address to open in a normal browser.
+ */
+function Refused() {
+  const t = useT()
+  const [copied, setCopied] = useState(false)
+  const url = `${location.origin}${BASE}/`
+  return (
+    <div className="stack db-refused">
+      <h1 className="settings-h1">{t('web.db.refusedTitle')}</h1>
+      <p role="alert" className="prose">
+        {t('web.db.refused')}
+      </p>
+      <p className="prose">
+        <strong>{url}</strong>
+      </p>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() =>
+          navigator.clipboard
+            ?.writeText(url)
+            .then(() => {
+              haptic('confirm')
+              setCopied(true)
+            })
+            .catch(() => {})
+        }
+      >
+        {t(copied ? 'web.db.copied' : 'web.db.copyLink')}
+      </button>
+    </div>
   )
 }
