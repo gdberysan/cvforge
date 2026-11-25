@@ -20,7 +20,7 @@ const bigQuery: EvidenceItem = {
   ...funnel,
   id: 'ev_sql',
   kind: 'project-highlight',
-  text: 'Descargué reportes con querys personalizados en SQL a través de Big Query.',
+  text: 'Saqué reportes de ventas con consultas en SQL sobre el data warehouse.',
   metrics: [],
   tags: ['SQL', 'BigQuery'],
   strength: 'supporting',
@@ -75,7 +75,7 @@ describe('the prep sees what the mapping missed', () => {
     const c = ctx()
     const raw = rawPrep()
     must(raw.gapAnswers[0]).bridge = {
-      text: 'Descargué reportes con querys personalizados en SQL a través de Big Query.',
+      text: 'Saqué reportes de ventas con consultas en SQL sobre el data warehouse.',
       citedEvidenceIds: ['ev_sql'],
     }
     expect(paths(checkPrepInCode(sanitizePrep(raw, c), c))).toEqual([])
@@ -86,7 +86,7 @@ describe('the prep sees what the mapping missed', () => {
     const raw = rawPrep()
     raw.gapAnswers = []
     must(raw.stories[0]).action = {
-      text: 'Descargué reportes con querys personalizados en SQL a través de Big Query.',
+      text: 'Saqué reportes de ventas con consultas en SQL sobre el data warehouse.',
       citedEvidenceIds: ['ev_sql'],
       ask: '',
       ideas: [],

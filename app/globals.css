@@ -7960,7 +7960,7 @@ textarea#details-titles {
   border-top: 0;
 }
 .build-fold > summary {
-  min-height: 40px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -9569,3 +9569,461 @@ a.btn-primary:not(:has(svg))::after {
 .auth-ask-title { margin: 0; font: 700 19px/1.25 var(--font-headline); color: var(--text-strong); }
 .auth-ask-body { margin: 0; font: var(--type-body-sm); color: var(--text-body); }
 .auth-ask-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* KeyJourney: getting your own key, four steps with what you'll see. */
+.journey {
+  container-type: inline-size;
+  scroll-margin-top: 96px;
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+}
+.journey.is-folded { padding: 0; }
+.journey.is-bare { padding: 0; border: 0; background: none; }
+.journey-open {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-4) var(--space-5);
+  border: 0;
+  border-radius: var(--radius-card);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.journey-open-text { display: grid; gap: 4px; }
+.journey-open-title { font: 700 17px/1.3 var(--font-headline); color: var(--text-strong); }
+.journey-open-chevron { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--surface-sunken); color: var(--text-strong); flex: none; }
+#clave { scroll-margin-top: 96px; }
+.journey-open-sub { font: var(--type-body-sm); color: var(--text-muted); }
+.journey-head { display: grid; gap: 4px; }
+.journey-title { margin: 0; font: 700 22px/1.2 var(--font-headline); letter-spacing: -0.01em; color: var(--text-strong); }
+.journey-sub { margin: 0; font: var(--type-body-sm); color: var(--text-muted); }
+
+.journey-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); margin: 0; padding: 0; list-style: none; position: relative; }
+.journey-dot {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 56px;
+  padding: 4px 2px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+.journey-dot-mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--track-todo);
+  background: var(--surface-card);
+  font: 700 14px/1 var(--font-text);
+  color: var(--text-muted);
+  transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+.journey-dot-mark .icon { width: 16px; height: 16px; }
+.journey-dot-label { font: 500 14px/1.2 var(--font-text); color: var(--text-muted); }
+.journey-dot.is-now .journey-dot-mark { border-color: var(--ink); background: var(--ink); color: var(--on-ink); }
+.journey-dot.is-now .journey-dot-label { color: var(--text-strong); font-weight: 600; }
+.journey-dot.is-done .journey-dot-mark { border-color: var(--tone-strong); background: var(--tone-strong); color: var(--surface-card); }
+
+.journey-body { display: grid; gap: var(--space-5); align-items: start; scroll-margin: var(--space-6); }
+/* Side by side only when the journey itself is wide, whatever the screen. */
+@container (min-width: 620px) {
+  .journey-body { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); }
+}
+/* On a narrow card both actions are full width, stacked, the same on every step. */
+@container (max-width: 520px) {
+  .journey-actions { flex-direction: column; }
+  .journey-actions > .btn { width: 100%; justify-content: center; }
+}
+.journey-text { display: grid; gap: var(--space-3); min-width: 0; }
+.journey-step-title { margin: 0; font: 700 20px/1.25 var(--font-headline); color: var(--text-strong); }
+.journey-step-body { margin: 0; font: var(--type-body); color: var(--text-body); }
+.journey-tip { margin: 0; font: var(--type-body-sm); color: var(--text-muted); }
+.journey-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.journey-back { display: grid; gap: var(--space-3); padding: var(--space-4); border-radius: 14px; background: var(--fill-warm-soft); }
+.journey-back p { margin: 0; font: 600 16px/1.35 var(--font-text); color: var(--text-strong); }
+.journey-skip { justify-self: start; min-height: 44px; padding: 0; border: 0; background: none; font: 600 14px/1.4 var(--font-text); color: var(--accent); cursor: pointer; }
+.journey-paste { margin: 0; }
+.journey-calc { display: grid; gap: var(--space-2); }
+.journey-calc-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.journey-chip { min-height: 44px; padding: 0 18px; border: 1px solid var(--border-default); border-radius: 999px; background: var(--surface-card); font: 600 15px/1 var(--font-text); color: var(--text-body); cursor: pointer; }
+.journey-chip[aria-checked="true"] { border-color: var(--fill-warm); background: var(--fill-warm-soft); color: var(--accent); }
+.journey-calc-out { display: grid; gap: 2px; margin: 4px 0 0; }
+.journey-calc-n { font: 700 28px/1.1 var(--font-headline); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--text-strong); }
+.journey-calc-label { font: 500 15px/1.4 var(--font-text); color: var(--text-body); }
+
+/* The illustrations: Anthropic's screens, small, with a cursor going to the
+   button the person will press. Still under reduced motion (end state). */
+.journey-ill { border-radius: 18px; background: var(--surface-sunken); padding: 8px; }
+.journey-ill svg { display: block; overflow: visible; }
+.ill-window { fill: var(--surface-card); stroke: var(--border-default); }
+.ill-bar { fill: var(--surface-sunken); }
+.ill-light { fill: var(--border-strong); }
+.ill-address { fill: var(--surface-card); }
+.ill-h { font: 700 15px/1 var(--font-text); fill: var(--text-strong); }
+.ill-btn { fill: var(--surface-sunken); stroke: var(--border-default); }
+.ill-btn.is-target { fill: var(--fill-warm); stroke: var(--fill-warm); transform-box: fill-box; transform-origin: center; animation: ill-press 3.6s var(--ease-out) infinite; }
+.ill-btn-text { font: 600 14px/1 var(--font-text); fill: var(--text-body); }
+.ill-btn-text.is-on { fill: var(--ink); }
+.ill-side { fill: var(--surface-sunken); }
+.ill-side-row { fill: var(--track-todo); }
+.ill-side-row.is-on { fill: var(--fill-warm-soft); }
+.ill-side-text { font: 700 14px/1 var(--font-text); fill: var(--accent); }
+.ill-money { font: 700 26px/1 var(--font-headline); fill: var(--text-strong); }
+.ill-money.is-after { opacity: 0; fill: var(--tone-strong); animation: ill-roll-in 3.6s var(--ease-out) infinite; }
+@keyframes ill-roll-in { 0%, 56% { opacity: 0; transform: translateY(14px); } 64%, 100% { opacity: 1; transform: translateY(0); } }
+.ill-money.is-before { animation: ill-before 3.6s var(--ease-out) infinite; }
+.ill-field { fill: var(--surface-base); stroke: var(--border-default); }
+.ill-key-text { font: 500 14px/1 var(--font-kicker); fill: var(--text-strong); }
+.ill-copy { fill: var(--fill-warm); }
+.ill-key { opacity: 0; animation: ill-after 3.6s var(--ease-out) infinite; }
+.ill-typing { animation: ill-after 3.6s var(--ease-out) infinite; opacity: 0; }
+.ill-ok { fill: var(--tone-strong); transform-box: fill-box; transform-origin: center; transform: scale(0); animation: ill-pop 3.6s var(--ease-out) infinite; }
+.ill-ok-mark { fill: none; stroke: var(--surface-card); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; animation: ill-mark 3.6s var(--ease-out) infinite; }
+.ill-cursor path { fill: var(--ink); stroke: var(--surface-card); stroke-width: 1.2; }
+.ill-cursor.is-account { animation: ill-cur-account 3.6s var(--ease-in-out, ease-in-out) infinite; }
+.ill-cursor.is-credit { animation: ill-cur-credit 3.6s var(--ease-in-out, ease-in-out) infinite; }
+.ill-cursor.is-key { animation: ill-cur-key 3.6s var(--ease-in-out, ease-in-out) infinite; }
+.ill-cursor.is-paste { animation: ill-cur-paste 3.6s var(--ease-in-out, ease-in-out) infinite; }
+@keyframes ill-cur-account { 0% { transform: translate(272px, 176px); } 40%, 62% { transform: translate(238px, 102px); } 50% { transform: translate(238px, 102px) scale(0.85); } 100% { transform: translate(238px, 102px); } }
+@keyframes ill-cur-credit { 0% { transform: translate(190px, 178px); } 40%, 62% { transform: translate(279px, 146px); } 50% { transform: translate(279px, 146px) scale(0.85); } 100% { transform: translate(279px, 146px); } }
+@keyframes ill-cur-key { 0% { transform: translate(190px, 178px); } 40%, 62% { transform: translate(274px, 58px); } 50% { transform: translate(274px, 58px) scale(0.85); } 100% { transform: translate(274px, 58px); } }
+@keyframes ill-cur-paste { 0% { transform: translate(272px, 178px); } 35%, 100% { transform: translate(246px, 108px); } }
+@keyframes ill-press { 0%, 44% { transform: scale(1); } 50% { transform: scale(0.94); } 58%, 100% { transform: scale(1); } }
+@keyframes ill-before { 0%, 50% { opacity: 1; transform: translateY(0); } 56%, 100% { opacity: 0; transform: translateY(-14px); } }
+@keyframes ill-after { 0%, 52% { opacity: 0; } 62%, 100% { opacity: 1; } }
+@keyframes ill-pop { 0%, 64% { transform: scale(0); } 74%, 100% { transform: scale(1); } }
+@keyframes ill-mark { 0%, 70% { opacity: 0; } 78%, 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .journey-ill * { animation: none !important; }
+  .ill-money.is-before { opacity: 0; }
+  .ill-money.is-after, .ill-key, .ill-typing, .ill-ok-mark { opacity: 1; }
+  .ill-ok { transform: scale(1); }
+  .ill-cursor { display: none; }
+}
+
+/* The language pills stay as tall as the bar's other pills, but a finger
+   gets a 44px target: the hit area reaches past the visible pill. */
+.locale-option { position: relative; }
+.locale-option::after { content: ''; position: absolute; inset: -5px -1px; }
+
+/* The key field inside the journey: one column like every other step, the
+   field no wider than a key needs, and the primary button the same black as
+   the steps before it (dimmed, not recoloured, while there is nothing to save). */
+.journey-paste .settings-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); padding: 0; border: 0; }
+.journey-paste .settings-form .field { max-width: 30rem; }
+.journey-paste .settings-row-control { justify-content: flex-start; }
+@container (max-width: 520px) {
+  .journey-paste .settings-row-control > .btn { width: 100%; justify-content: center; }
+}
+/* First run on a wide screen: the journey in its own column beside the trial. */
+@media (min-width: 960px) {
+  .welcome-key > .journey { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+}
+
+/* The step's drawing plays once when the step opens, then rests on its end
+   frame (the frame reduced motion shows): motion beside text being read is
+   a distraction once it has made its point. */
+.journey-ill * { animation-iteration-count: 1 !important; animation-fill-mode: both !important; }
+.journey-paste .settings-form .settings-row-label { white-space: normal; }
+/* Pasting saves at once; the button appears only for a key typed by hand. */
+.journey-paste .settings-form:has(.field:placeholder-shown) .settings-row-control { display: none; }
+.journey-calc-title { margin: 0; font: 600 14px/1.3 var(--font-text); color: var(--text-muted); }
+/* Inside the journey the key form is one column (label over field), like
+   every other step, not Ajustes' label-left row. */
+.journey-paste .settings-row.settings-form { grid-template-columns: minmax(0, 1fr); }
+.journey-paste .settings-row.settings-form > .settings-row-label,
+.journey-paste .settings-row.settings-form > :not(.settings-row-label) { grid-column: 1; grid-row: auto; }
+
+/* The folded row opens in place: its chevron points down, not onward. */
+.journey-open-chevron .icon { transform: rotate(90deg); }
+/* The drawing keeps the console's scale: in a wide column it stops growing
+   before its type outranks the step's own text. */
+.journey-ill { width: 100%; max-width: 320px; }
+
+/* The stepper: one track from the content's left edge to its right edge,
+   each node a dot with its name beside it, joined by lines that fill as
+   you go. On a narrow card only the current step keeps its name. */
+.journey-steps { display: flex; align-items: center; gap: 0; }
+.journey-steps > li { display: flex; align-items: center; flex: 1 1 auto; min-width: 0; position: relative; }
+.journey-steps > li:last-child { flex: 0 0 auto; }
+.journey-dot { display: inline-flex; align-items: center; gap: 8px; width: auto; min-height: 44px; padding: 0; justify-items: initial; flex: none; }
+.journey-dot:disabled { cursor: default; }
+.journey-line { flex: 1 1 auto; min-width: 12px; height: 2px; margin: 0 10px; border-radius: 1px; background: var(--track-todo); transition: background var(--dur-base) var(--ease-out); }
+.journey-line.is-filled { background: var(--tone-strong); }
+@container (max-width: 520px) {
+  .journey-dot:not(.is-now) .journey-dot-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* On a narrow card the instruction and its button come first; the drawing
+   of what Anthropic will show follows them, and the last step has none
+   (it would sit right above the real field). */
+@container (max-width: 619px) {
+  .journey-body { row-gap: var(--space-3); }
+  .journey-text { display: contents; }
+  .journey-ill { order: 1; margin-block: var(--space-2); justify-self: stretch; max-width: none; }
+  .journey-skip { order: 2; }
+  .journey-ill.is-paste { display: none; }
+}
+
+/* The key is in: the one moment the journey celebrates. */
+.journey-done { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--space-3) var(--space-4); padding: var(--space-5); border-radius: 16px; background: var(--tone-strong-bg); }
+.journey-done-text { display: grid; gap: var(--space-2); }
+.journey-done-mark { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--tone-strong); color: var(--surface-card); animation: journey-done-pop 420ms var(--ease-out) both; }
+.journey-done-mark .icon { width: 28px; height: 28px; }
+.journey-done-next { grid-column: 1 / -1; justify-self: start; }
+@container (max-width: 520px) {
+  .journey-done { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+  .journey-done-next { width: 100%; justify-content: center; }
+}
+@keyframes journey-done-pop { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .journey-done-mark { animation: none; } }
+
+/* A rejected key: the drawing stops promising the check mark. */
+.journey-body:has(.settings-feedback .is-error) :is(.ill-ok, .ill-ok-mark) { display: none; }
+/* A dot whose name is hidden on a narrow card still gets a full finger. */
+.journey-dot { min-width: 44px; justify-content: center; }
+
+/* The estimate reads as one figure with its unit; what it covers is the line under it. */
+.journey-calc-n { font-size: 24px; }
+.journey-calc-label { font: var(--type-body-sm); color: var(--text-muted); }
+/* Step 4: one column no wider than a key needs, so field, message and note share one right edge. */
+.journey-paste { max-width: 30rem; }
+.journey-paste .settings-form .field { max-width: none; }
+/* The one warning that loses work if missed (the key is shown once). */
+.journey-tip.is-warn { padding: var(--space-2) var(--space-3); border-radius: 12px; background: var(--fill-warm-soft); color: var(--text-strong); font-weight: 600; }
+/* Success: the mark beside the title at every width. */
+@container (max-width: 520px) {
+  .journey-done { grid-template-columns: auto minmax(0, 1fr); justify-items: stretch; }
+  .journey-done-mark { width: 44px; height: 44px; }
+  .journey-done-mark .icon { width: 22px; height: 22px; }
+}
+/* The key field with its show/hide toggle inside the same box. */
+.key-field { position: relative; display: block; }
+.key-field > .field { width: 100%; padding-right: 88px; }
+.key-field-toggle { position: absolute; top: 50%; right: 4px; transform: translateY(-50%); min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: 10px; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
+.field[aria-invalid="true"] { border-color: var(--signal-error); box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal-error) 14%, transparent); }
+
+.journey-done { align-items: start; }
+.ill-copy-glyph { fill: none; stroke: var(--surface-card); stroke-width: 1.6; stroke-linejoin: round; }
+
+/* Success: the mark beside the title, the sentence under both at full width. */
+.journey .journey-done { grid-template-columns: minmax(0, 1fr); justify-items: stretch; }
+.journey-done-head { display: flex; align-items: center; gap: var(--space-3); }
+.journey .journey-done-mark { width: 40px; height: 40px; flex: none; }
+.journey .journey-done-mark .icon { width: 20px; height: 20px; }
+.journey-done .journey-step-body { margin: 0; }
+/* The estimate: a clear figure, never louder than the step's title. */
+.journey-calc-n { font-size: 18px; line-height: 1.3; }
+/* Checking happens in the field: a small spinner where the toggle was. */
+.key-field.is-checking .key-field-toggle { visibility: hidden; }
+.key-field-spinner { position: absolute; top: 50%; right: 16px; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%; border: 2px solid var(--track-todo); border-top-color: var(--accent); animation: key-spin 0.8s linear infinite; }
+@keyframes key-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .key-field-spinner { animation-duration: 2.4s; } }
+.key-field-note { margin: 0; }
+.key-field-note .is-pending { color: var(--text-muted); }
+/* In the journey the button is for a typed key; while checking, the field says it. */
+.journey-paste .btn-primary:disabled { display: none; }
+
+/* "Ya tengo cuenta" answers the step: it stays with the button and its note. */
+@container (max-width: 619px) { .journey-skip.is-answer { order: 0; } }
+
+/* The drawing is a picture, never a second interface: its target is the
+   warm highlight (not the real buttons' black), and on a narrow card it
+   stays small, on the text's left edge. */
+@container (max-width: 619px) {
+  .journey .journey-ill { max-width: 280px; justify-self: start; }
+  .journey-skip.icon-label { order: 0; }
+}
+.key-field-spinner { border-color: var(--border-default); border-top-color: var(--ink); }
+
+/* Success says which key is saved, with a way to change it. */
+.journey-done-key { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
+.journey-done-key-text { font: var(--type-body-sm); color: var(--text-body); }
+.journey-done-key-value { font-family: var(--font-kicker); color: var(--text-strong); }
+.journey-done .journey-done-next { grid-row: auto; }
+/* "Next: Credit" under the stepper only where the other names are hidden. */
+.journey-next { display: none; margin: calc(-1 * var(--space-3)) 0 0; font: var(--type-body-sm); color: var(--text-muted); }
+@container (max-width: 520px) { .journey-next { display: block; } }
+
+/* Ajustes: the status sentence under the heading when there is nothing else to report. */
+.settings-head-note { margin: var(--space-2) 0 0; font: var(--type-body-sm); color: var(--text-muted); }
+/* The alert dot hangs in the card's gutter, so title and lede share one edge. */
+.settings-group.is-alert .settings-title { position: relative; }
+.settings-group.is-alert .settings-title::before { position: absolute; left: -15px; top: 50%; width: 8px; height: 8px; margin-top: -4px; box-shadow: 0 0 0 3px var(--fill-warm-soft); }
+/* A row's action sits on the card's right edge, not in a middle column. */
+@media (min-width: 760px) {
+  .settings-row:not(.is-stacked):not(:has(.segmented)):not(:has(select)) > .settings-row-control { justify-content: flex-end; }
+}
+
+/* First run under the trial: one column, the trial first and the key path
+   folded under it, so the page has one progress and one "5 minutes". */
+@media (min-width: 960px) {
+  .page.welcome.welcome-key.is-trial { grid-template-columns: minmax(0, 40rem); max-width: 44rem; }
+  .welcome-key.is-trial > .journey { grid-column: 1; grid-row: auto; }
+}
+/* A refused key: the field's message is the way forward; the footer link would repeat it. */
+.journey-text:has(.key-field-note .is-error) .journey-skip.is-lost { display: none; }
+/* Step 4: the field and its line take a readable width, nothing beside them. */
+.journey-body.is-solo .journey-text { max-width: 36rem; }
+.key-field-note { min-height: 48px; }
+/* Warm is the drawings' highlight; a real selection is ink, a real prompt neutral. */
+.journey-chip[aria-checked="true"] { border-color: var(--ink); background: var(--surface-card); color: var(--text-strong); box-shadow: inset 0 0 0 1px var(--ink); }
+.journey-back { background: var(--surface-sunken); }
+/* The orange border already says "this needs you": no dot as well. */
+.settings-group.is-alert .settings-title::before { display: none; }
+/* Ajustes: one compact title; the cards carry the page's weight. */
+.settings-head .settings-h1 { font-size: clamp(30px, 4vw, 38px); line-height: 1.1; }
+/* "Esta versión": its two links side by side on the row's right. */
+.settings-row:has(.build-fold) > .settings-row-control { align-items: flex-start; gap: var(--space-4); }
+
+/* Step 4 has no drawing: its column takes the card's width (the two-column
+   grid is for steps with a picture). */
+@container (min-width: 620px) { .journey-body.is-solo { grid-template-columns: minmax(0, 1fr); } }
+.journey-body.is-solo .journey-text { max-width: 40rem; }
+.journey-body.is-solo .journey-paste { max-width: 34rem; }
+/* On a narrow card the drawing spans the column, like the buttons above it. */
+@container (max-width: 619px) { .journey .journey-ill { max-width: none; justify-self: stretch; } }
+/* "Esta versión": both links on one line, one baseline. */
+.settings-row:has(.build-fold) > .settings-row-control > .action { display: inline-flex; align-items: center; min-height: 44px; }
+.build-fold > summary { min-height: 44px; }
+/* Success: the card itself turns green; no panel inside it. */
+.settings-group:has(.journey.is-bare .journey-done) { background: var(--tone-strong-bg); }
+.journey.is-bare .journey-done { padding: 0; background: none; }
+.journey-done-key { justify-content: flex-start; }
+
+/* The fold-back, top right of an opened guide that started folded. */
+.journey { position: relative; }
+.journey-fold { position: absolute; top: var(--space-3); right: var(--space-3); min-height: 44px; padding: 0 var(--space-3); border: 0; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
+.journey.is-bare .journey-fold { top: -52px; right: 0; }
+/* Nothing to show in the button row: it takes no room, so nothing below moves. */
+.journey-paste .settings-form:has(.btn-primary:disabled) .settings-row-control,
+.journey-paste .settings-row-control:empty { display: none; }
+
+/* The story's "Completa / Versión corta" keeps its compact pill, with a
+   44px target for a finger (the same as the language pills). */
+.prep-toggle button { position: relative; }
+.prep-toggle button::after { content: ''; position: absolute; inset: -5px -1px; }
+
+/* Prep, 2026-11-24 review: one hierarchy for a long guide. */
+/* Requirement tags grouped by status ("Required: A, B · Nice to have: C"). */
+.prep-q-req { display: flex; flex-wrap: wrap; gap: 2px var(--space-3); }
+.prep-q-group { min-width: 0; }
+.prep-q-status { font-weight: 600; color: var(--text-body); }
+/* The exposure list: a card like its siblings, warm because it needs him. */
+.prep-exposed { list-style: none; margin: 0; padding: 4px 20px; border-radius: 16px; background: var(--fill-warm-soft); }
+.prep-exposed li + li { border-top: 1px solid var(--border-subtle); }
+.prep-exposed-link { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 48px; padding: 12px 0; text-decoration: none; }
+.prep-exposed-text { display: grid; gap: 2px; min-width: 0; }
+.prep-exposed-name { font: 600 16px/1.35 var(--font-text); color: var(--text-strong); }
+.prep-exposed-admit { font: 400 15px/1.45 var(--font-text); color: var(--text-body); }
+.prep-exposed-see { flex: none; font: 600 14px/1 var(--font-text); color: var(--accent); }
+/* The briefing note: three lines, the rest a tap away. */
+.prep-note { font: 400 16px/1.55 var(--font-text); }
+.prep-note.is-clamped { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.prep-note-toggle { justify-self: start; min-height: 44px; padding: 0; border: 0; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
+/* The index in the side column. */
+.prep-index { display: grid; gap: var(--space-2); padding: 20px; border-radius: 16px; background: var(--surface-base); }
+.prep-index-title { margin: 0; font: 600 14px/1.3 var(--font-text); color: var(--text-muted); }
+.prep-index-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.prep-index-list a { display: flex; align-items: center; min-height: 44px; font: 500 15px/1.3 var(--font-text); color: var(--text-strong); text-decoration: none; border-top: 1px solid var(--border-subtle); }
+.prep-index-list li:first-child a { border-top: 0; }
+@media (hover: hover) { .prep-index-list a:hover { color: var(--accent); } }
+/* The index is for a wide screen, where the column stays beside the guide. */
+.prep-index { display: none; }
+@media (min-width: 900px) {
+  .prep-index { display: grid; }
+  /* The rail fits the screen: compact rows (a pointer, not a finger). */
+  .prep-side { gap: var(--space-5); }
+  .prep-index { padding: 16px 20px; gap: 6px; }
+  .prep-index-list a { min-height: 32px; font-size: 14px; border-top: 0; padding-left: 10px; border-left: 2px solid var(--border-subtle); }
+  .prep-index-list a[aria-current="location"] { color: var(--text-strong); font-weight: 700; border-left-color: var(--accent); }
+}
+.prep-memory a { color: var(--accent); font-weight: 600; }
+/* A gap answer: one card like a story, its three steps inside it. */
+.prep-gap { padding: 20px; border-radius: 16px; background: var(--surface-base); gap: var(--space-3); }
+.prep-gap-title { font: 600 17px/1.3 var(--font-text); }
+.prep-gap-steps { gap: 0; }
+.prep-gap-steps li, .prep-gap-steps li:first-child, .prep-gap-steps li:last-child { padding: 12px 0; background: none; border-radius: 0; }
+.prep-gap-steps li + li { border-top: 1px solid var(--border-subtle); }
+/* The CV line as quoted text on paper, not a black slab: emphasis is for his reply. */
+.prep-cvline { margin: 20px 20px 0; padding: 2px 0 2px 14px; background: none; color: var(--text-strong); border-left: 3px solid var(--border-strong); font: 400 16px/1.5 var(--font-serif); }
+
+/* A CV figure his records lack: said to him, outside what he speaks. */
+.prep-cvwarn { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--fill-warm-soft); font: 500 15px/1.45 var(--font-text); color: var(--text-strong); }
+/* Links inside a sentence and the prep's language pills keep their look,
+   with a 44px target for a finger. */
+.prep-memory a, .prep .prep-muted a { position: relative; }
+.prep-memory a::after, .prep .prep-muted a::after { content: ''; position: absolute; inset: -14px -4px; }
+.prep-lang label { position: relative; }
+.prep-lang label::after { content: ''; position: absolute; inset: -5px -1px; }
+
+/* One accent per screen: the per-card links step back until pointed at. */
+.prep-qcard-link { color: var(--text-muted); }
+@media (hover: hover) { .prep-qcard-head:hover .prep-qcard-link { color: var(--accent); } }
+/* No dead band under a card's title. */
+.prep-qcard-head { align-items: center; }
+.prep-qcard { gap: 4px; }
+/* What a question to ask tells him: quieter than the question itself. */
+.prep-ask-why { font: 400 14px/1.4 var(--font-text); color: var(--text-muted); }
+/* The meter: an honest answer is its own tone, not a near-grey. */
+.prep-seg.is-gap { background: var(--fill-warm); }
+
+/* The side column runs the guide's full height; only readiness and the
+   index stay pinned (they fit any laptop screen), the briefing scrolls. */
+.prep-rail { display: grid; gap: var(--space-5); }
+@media (min-width: 900px) {
+  .prep.has-content > .prep-side { position: static; align-self: stretch; align-content: start; }
+  .prep-rail { position: sticky; top: var(--space-5); }
+}
+/* Pinned below the 64px top bar, not under it. */
+@media (min-width: 900px) { .prep-rail { top: calc(64px + var(--space-4)); } }
+
+.prep-gap { scroll-margin-top: calc(64px + var(--space-5)); }
+/* The CV card: one 20px inner edge for the quote, the warning and the reply. */
+.prep-cvbody { padding: 16px 20px 20px; }
+/* On a phone the "Tu respuesta" link goes under the text, which keeps the width. */
+@media (max-width: 600px) {
+  .prep-exposed-link { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+
+/* One card per story (2026-11-24): the questions it answers on top, the
+   story under them, short by default. */
+.prep-story-qs { display: grid; gap: 2px; padding: 12px 16px 4px; border-radius: 12px; background: var(--surface-card); }
+.prep-story-qs .prep-qs { margin: 0; }
+.prep-story-qs .prep-q:first-child { border-top: 0; }
+.prep-open-note { justify-self: start; min-height: 44px; padding: 0; border: 0; background: none; font: 600 14px/1.3 var(--font-text); color: var(--accent); cursor: pointer; text-align: left; }
+.prep-subhead { margin: var(--space-4) 0 0; font: 600 17px/1.3 var(--font-text); color: var(--text-strong); }
+.prep-section > .prep-story { scroll-margin-top: calc(64px + var(--space-5)); }
+
+/* Stories as a list he scans: one closed row each, one open at a time. */
+.prep-section > .prep-story, .prep-story { display: block; padding: 0; }
+.prep-story-row { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 64px; padding: 16px 20px; cursor: pointer; border-radius: 16px; }
+.prep-story-row::-webkit-details-marker { display: none; }
+.prep-story-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.prep-story-rowtext { display: grid; gap: 4px; min-width: 0; }
+.prep-story-row .prep-story-title { margin: 0; font: 600 18px/1.3 var(--font-text); color: var(--text-strong); }
+.prep-story-meta { font: 500 14px/1.35 var(--font-text); color: var(--text-muted); }
+.prep-story-open { color: var(--tone-strong-text); }
+.prep-story-chevron { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--surface-card); color: var(--text-strong); transition: transform var(--dur-base) var(--ease-out); }
+.prep-story-chevron .icon { transform: rotate(90deg); }
+.prep-story[open] .prep-story-chevron { transform: rotate(180deg); }
+.prep-story-body { display: grid; gap: var(--space-4); padding: 0 20px 20px; }
+@media (hover: hover) { .prep-story-row:hover .prep-story-title { color: var(--accent); } }
+@media (prefers-reduced-motion: reduce) { .prep-story-chevron { transition: none; } }
+/* The short version reads like the questions it answers, not louder. */
+.prep-short li { font: 400 16px/1.5 var(--font-text); }
+/* "Leer más" right under the clamped note. */
+.prep-note-toggle { margin-top: calc(-1 * var(--space-2)); }

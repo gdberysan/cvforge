@@ -324,17 +324,17 @@ describe('summarySentences', () => {
   it('never splits after a common abbreviation or inside a decimal', () => {
     expect(
       summarySentences(
-        'Sr. Manager de performance con 3.4x ROAS en Amazon. Trabajé con el Lic. Pérez y la Dra. Ruiz, p. ej. en Grupo S.A. de C.V. Lideré equipos en EE. UU., U.S. Inc. y Co. Ltd., e.g. Mercado Norte, vs. la competencia, etc. Cerré el No. 1 del canal.',
+        'Sr. Manager de performance con 2.7x ROAS en Amazon. Trabajé con el Lic. Pérez y la Dra. Ruiz, p. ej. en Grupo S.A. de C.V. Lideré equipos en EE. UU., U.S. Inc. y Co. Ltd., e.g. Mercado Norte, vs. la competencia, etc. Cerré el No. 1 del canal.',
       ),
     ).toEqual([
-      'Sr. Manager de performance con 3.4x ROAS en Amazon.',
+      'Sr. Manager de performance con 2.7x ROAS en Amazon.',
       'Trabajé con el Lic. Pérez y la Dra. Ruiz, p. ej. en Grupo S.A. de C.V. Lideré equipos en EE. UU., U.S. Inc. y Co. Ltd., e.g. Mercado Norte, vs. la competencia, etc. Cerré el No. 1 del canal.',
     ])
   })
 
   it('a trailing cut never leaves an abbreviation dangling', () => {
     const cv = cvOf({ perRole: [3, 3, 3], skills: [5, 5, 5], summarySentences: 1 })
-    cv.summary = `${cv.summary} Reporté al Sr. Director Comercial cada semana. Gestioné 3.4x ROAS.`
+    cv.summary = `${cv.summary} Reporté al Sr. Director Comercial cada semana. Gestioné 2.7x ROAS.`
     for (const fit of sweep(cv)) expect(fit.summary).not.toMatch(/\b(Sr|3)\.$/)
   })
 

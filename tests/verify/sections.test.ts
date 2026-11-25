@@ -126,11 +126,11 @@ describe('the summary is checked like a bullet', () => {
   })
 
   it('accepts a figure the cited record states in its text, not only in its metrics', () => {
-    // 2026-11-19: "logística 100% automatizada" was flagged against a record
-    // reading "un sistema 100% automatizado", and the repair round deleted it.
+    // 2026-11-19: "facturación 100% automatizada" was flagged against a record
+    // reading "un proceso 100% automatizado", and the repair round deleted it.
     const record = {
       ...evidence[0],
-      text: 'La logística, a través de un sistema 100% automatizado',
+      text: 'La facturación, a través de un proceso 100% automatizado',
     }
     const line = (text: string) =>
       runDeterministicChecks({

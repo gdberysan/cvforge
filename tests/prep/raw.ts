@@ -47,15 +47,15 @@ export function rawPrep(over: Partial<ModelPrep> = {}): ModelPrep {
           '¿Bajó de 30 días a 10 el tiempo a la primera venta?',
         ]),
         action: beat('I automated the conversion funnel.', ['ev_funnel']),
-        result: beat('The conversion rate held at 60%.', ['ev_funnel']),
-        short: ['Shopco, sellers stalled', 'Automated the funnel', '60% CR, steady'],
+        result: beat('The conversion rate held at 45%.', ['ev_funnel']),
+        short: ['Shopco, sellers stalled', 'Automated the funnel', '45% conversion, steady'],
       },
     ],
     cvDefense: [
       {
         bulletId: 'b1',
-        likelyQuestion: 'How did you measure the 60%?',
-        facts: { text: 'The CR was 60%.', citedEvidenceIds: ['ev_funnel'] },
+        likelyQuestion: 'How did you measure the 45%?',
+        facts: { text: 'Conversion was 45%.', citedEvidenceIds: ['ev_funnel'] },
       },
     ],
     gapAnswers: [
@@ -71,6 +71,9 @@ export function rawPrep(over: Partial<ModelPrep> = {}): ModelPrep {
       },
     ],
     interviewerNote: '',
+    askThem: [
+      { text: 'What would a great first quarter look like?', why: 'shows what they measure' },
+    ],
     ...over,
   }
 }

@@ -7,14 +7,15 @@
  * the real check is outside the page: `npm run web:verify` and
  * `gh attestation verify` (docs/verify-web.md).
  */
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { SettingsRow } from '@/components/settings/SettingsGroup'
 import { BASE } from './base'
 
 type Receipt = { commit: string; dirty: boolean; source: string | null; fingerprint: string }
 
-export function BuildInfo() {
+/** `extra`: another link that belongs on the same row (the privacy page). */
+export function BuildInfo({ extra }: { extra?: ReactNode } = {}) {
   const t = useT()
   const [receipt, setReceipt] = useState<Receipt | null | undefined>(undefined)
   useEffect(() => {
@@ -28,6 +29,7 @@ export function BuildInfo() {
   if (receipt === undefined) return null
   return (
     <SettingsRow label={t('web.build.title')} hint={t('web.build.hint')}>
+      {extra}
       {receipt ? (
         // The fingerprints are for whoever checks the build; folded, they
         // never read as debug output to everyone else.

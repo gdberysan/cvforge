@@ -27,7 +27,7 @@ describe('readableReason', () => {
 describe('openingWords', () => {
   it('cuts at a word boundary, never inside a word', () => {
     expect(
-      openingWords('Ran purchasing, marketing and logistics, the latter through an automation', 50),
-    ).toBe('Ran purchasing, marketing and logistics, the…')
+      openingWords('Handled sourcing, pricing and shipping, the latter through an automation', 50),
+    ).toBe('Handled sourcing, pricing and shipping, the…')
   })
 })

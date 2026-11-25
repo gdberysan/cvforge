@@ -85,14 +85,14 @@ describe('RequirementChips', () => {
       <RequirementChips
         items={[
           item({
-            sources: [{ id: 'e1', text: 'Manejé 150,000 MXN en ads', label: 'Voltis Electric' }],
+            sources: [{ id: 'e1', text: 'Manejé 90,000 MXN en ads', label: 'Voltis Electric' }],
           }),
         ]}
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: /SQL/ }))
     expect(screen.getByText('Lo usaste a diario.')).toBeTruthy()
-    expect(screen.getByText(/Manejé 150,000 MXN en ads/)).toBeTruthy()
+    expect(screen.getByText(/Manejé 90,000 MXN en ads/)).toBeTruthy()
     expect(screen.getByText('Voltis Electric')).toBeTruthy()
   })
   it('a blocker reads "bloqueado", not "falta", on its chip and in its sheet', () => {

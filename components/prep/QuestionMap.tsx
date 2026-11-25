@@ -2,8 +2,16 @@
 
 import { useT } from '@/components/i18n/LocaleProvider'
 import type { PrepContent } from '@/lib/schemas/prep'
+import { StoryCard } from './StoryCard'
+import type { LineMarks } from './types'
 
-export type ReqChip = { id: string; keyword: string; mandatory: boolean }
+export type ReqChip = {
+  id: string
+  keyword: string
+  mandatory: boolean
+  /** How well his experience covers it; older views lack it. */
+  strength?: 'strong' | 'partial' | 'weak' | 'none'
+}
 
 function Question({
   q,
@@ -13,14 +21,30 @@ function Question({
   reqs: Map<string, ReqChip>
 }) {
   const t = useT()
-  const chips = q.requirementIds.flatMap((id) => {
+  // Grouped by status, so the dot never separates a name from its own status.
+  const named = q.requirementIds.flatMap((id) => {
     const r = reqs.get(id)
-    return r ? [`${r.keyword} · ${t(r.mandatory ? 'prep.mandatory' : 'prep.desirable')}`] : []
+    return r ? [r] : []
   })
+  const required = named.filter((r) => r.mandatory).map((r) => r.keyword)
+  const nice = named.filter((r) => !r.mandatory).map((r) => r.keyword)
   return (
     <li className="prep-q">
       <span>{q.text}</span>
-      {chips.length > 0 && <span className="prep-q-req">{chips.join(' · ')}</span>}
+      {named.length > 0 && (
+        <span className="prep-q-req">
+          {required.length > 0 && (
+            <span className="prep-q-group">
+              <span className="prep-q-status">{t('prep.tags.required')}</span> {required.join(', ')}
+            </span>
+          )}
+          {nice.length > 0 && (
+            <span className="prep-q-group">
+              <span className="prep-q-status">{t('prep.tags.nice')}</span> {nice.join(', ')}
+            </span>
+          )}
+        </span>
+      )}
       {q.know && (
         <span className="prep-q-know">
           <span className="prep-beat-label">{t('prep.know')}</span>
@@ -40,9 +64,13 @@ function Question({
 export function QuestionMap({
   content,
   requirements,
+  labels,
+  marks,
 }: {
   content: PrepContent
   requirements: ReqChip[]
+  labels: Record<string, string>
+  marks: LineMarks
 }) {
   const t = useT()
   const reqs = new Map(requirements.map((r) => [r.id, r]))
@@ -56,20 +84,24 @@ export function QuestionMap({
       <h2 id="prep-q-h" className="prep-h2">
         {t('prep.questions.title')}
       </h2>
+      {/* Each story once: the questions it answers, then the story itself. */}
       {content.stories
         .filter((s) => byStory(s.id).length > 0)
         .map((s) => (
-          <article key={s.id} className="prep-qcard">
-            <a className="prep-qcard-head" href={`#story-${s.id}`}>
-              <span className="prep-qcard-title">{s.title}</span>
-              <span className="prep-qcard-link">{t('prep.questions.see')}</span>
-            </a>
-            <ul className="prep-qs">
-              {byStory(s.id).map((q) => (
-                <Question key={q.id} q={q} reqs={reqs} />
-              ))}
-            </ul>
-          </article>
+          <StoryCard
+            key={s.id}
+            story={s}
+            answers={byStory(s.id).length}
+            labels={labels}
+            marks={marks}
+            questions={
+              <ul className="prep-qs">
+                {byStory(s.id).map((q) => (
+                  <Question key={q.id} q={q} reqs={reqs} />
+                ))}
+              </ul>
+            }
+          />
         ))}
       {viaGap.length > 0 && (
         <section className="prep-qcard is-gap" aria-labelledby="prep-q-gap">
@@ -95,6 +127,16 @@ export function QuestionMap({
           </ul>
           <p className="prep-muted">{t('prep.questions.noneHint')}</p>
         </section>
+      )}
+      {content.stories.some((s) => byStory(s.id).length === 0) && (
+        <>
+          <h3 className="prep-subhead">{t('prep.stories.more')}</h3>
+          {content.stories
+            .filter((s) => byStory(s.id).length === 0)
+            .map((s) => (
+              <StoryCard key={s.id} story={s} labels={labels} marks={marks} />
+            ))}
+        </>
       )}
     </section>
   )

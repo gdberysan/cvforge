@@ -10,7 +10,8 @@ export function Readiness({ content }: { content: PrepContent }) {
   const story = content.coverage.filter((c) => c.by === 'story').length
   const gap = content.coverage.filter((c) => c.by === 'gap').length
   const none = total - story - gap
-  const memory = content.stories.filter((s) => BEATS.some((b) => s[b].text === '')).length
+  const open = content.stories.filter((s) => BEATS.some((b) => s[b].text === ''))
+  const memory = open.length
   const order = [...content.coverage].sort(
     (a, b) => ['story', 'gap', 'none'].indexOf(a.by) - ['story', 'gap', 'none'].indexOf(b.by),
   )
@@ -31,7 +32,8 @@ export function Readiness({ content }: { content: PrepContent }) {
       <p className="prep-ready-text">{t('prep.ready.summary', { story, total, gap, none })}</p>
       {memory > 0 && (
         <p className="prep-memory">
-          {t(memory === 1 ? 'prep.ready.memory.one' : 'prep.ready.memory.other', { n: memory })}
+          {t(memory === 1 ? 'prep.ready.memory.one' : 'prep.ready.memory.other', { n: memory })}{' '}
+          <a href={`#story-${open[0]?.id}`}>{t('prep.ready.memoryLink')}</a>
         </p>
       )}
     </section>

@@ -74,11 +74,15 @@ function Way({ kind, install }: { kind: Kind; install: Install | null }) {
       <p className="way-body">
         {t(kind === 'extension' ? 'waysIn.extension.body' : 'waysIn.phone.body')}
       </p>
-      <ol className="way-steps">
-        {steps.map((s) => (
-          <li key={s}>{s}</li>
-        ))}
-      </ol>
+      {/* No steps for something nobody can do yet: until the extension is
+          in the store, only what it will do and when. */}
+      {(kind !== 'extension' || EXTENSION_URL) && (
+        <ol className="way-steps">
+          {steps.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
+        </ol>
+      )}
       {kind === 'extension' ? (
         EXTENSION_URL ? (
           <a
@@ -143,13 +147,17 @@ export function WaysInCard() {
 }
 
 /** Ajustes: both ways, always, for whoever dismissed the card or looks later. */
+/** Whether the Chrome extension can be installed yet (the store listing exists). */
+export const HAS_EXTENSION = Boolean(EXTENSION_URL)
+
 export function WaysInSettings() {
   const install = useInstallPrompt()
   const [ios, setIos] = useState(false)
   useEffect(() => setIos(/iPhone|iPad|iPod/.test(navigator.userAgent)), [])
   return (
     <div className="ways-in-list">
-      <Way kind="extension" install={null} />
+      {/* Not in the store yet: no column for something nobody can install. */}
+      {EXTENSION_URL && <Way kind="extension" install={null} />}
       <Way kind={ios ? 'ios' : 'android'} install={install} />
     </div>
   )

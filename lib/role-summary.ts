@@ -52,7 +52,7 @@ const ROLE_HEADING =
 
 /**
  * The same heading words pasted onto their paragraph with no break: "The
- * RoleAs a…", "About Marea SocialMarea Social is…". The heading ends where a
+ * RoleAs a…", "About Brisa AgencyBrisa Agency is…". The heading ends where a
  * lowercase letter runs straight into a capital within the first words.
  * Such a line is skipped whole — never trimmed — and still moves the
  * section on (role: the company section ends; company: it begins).
@@ -67,7 +67,7 @@ const gluedRole = (line: string) => {
 /**
  * A company heading glued on: within the first six words a lowercase letter
  * runs into a capital, and the word starting there repeats a word of the
- * heading ("About Marea SocialMarea Social is…"). The repeat is what tells a
+ * heading ("About Brisa AgencyBrisa Agency is…"). The repeat is what tells a
  * paste from a brand: "About our McDonald's account:" is a sentence.
  */
 function gluedCompany(line: string): boolean {

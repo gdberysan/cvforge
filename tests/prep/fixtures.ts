@@ -58,8 +58,8 @@ const ev = (id: string, over: Partial<EvidenceItem> = {}): EvidenceItem => ({
 })
 
 export const funnel = ev('ev_funnel', {
-  text: 'Automaticé el funnel de conversiones logrando una CR estable del 60%',
-  metrics: [{ raw: '60%', value: 60, unit: '%' }],
+  text: 'Automaticé el embudo de registro y la conversión quedó estable en 45%',
+  metrics: [{ raw: '45%', value: 45, unit: '%' }],
   strength: 'core',
 })
 export const bidTool = ev('ev_bid', {
@@ -116,7 +116,7 @@ export const cv = (title: string): CVContent => ({
       bullets: [
         {
           id: 'b1',
-          text: 'Automated the conversion funnel to a steady 60% CR',
+          text: 'Automated the signup flow to a steady 45% conversion',
           citedEvidenceIds: ['ev_funnel'],
           keywordsUsed: [],
         },

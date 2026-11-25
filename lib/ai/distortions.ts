@@ -100,7 +100,7 @@ export async function verifyDistortions(
 /**
  * A record as the checker sees it: period, text, and its recorded metrics.
  * The metrics used to be left out, so a bullet quoting a recorded figure
- * ("8x ROAS", stored only as a metric) was judged unsupported — the code
+ * ("5x ROAS", stored only as a metric) was judged unsupported — the code
  * checks had already proven the figure was recorded, and the model was never
  * shown it.
  */

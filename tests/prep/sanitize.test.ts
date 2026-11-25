@@ -108,6 +108,6 @@ describe('sanitizePrep', () => {
       rawPrep(),
       buildPrepContext(input(), Date.parse('2026-10-18T09:00:00Z')),
     )
-    expect(out.cvDefense[0]?.line).toBe('Automated the conversion funnel to a steady 60% CR')
+    expect(out.cvDefense[0]?.line).toBe('Automated the signup flow to a steady 45% conversion')
   })
 })

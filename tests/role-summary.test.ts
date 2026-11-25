@@ -8,7 +8,7 @@ Job Type:  Full-Time
 Location Type:  Hybrid
 Primary Location:  Guadalajara, MX
 
-The Regional Growth Lead shapes how Halden's online stores across LATAM win and keep customers. It is a senior individual contributor role for a hands-on planner: someone who turns customer research, store data and the regional teams' plans into campaigns, offers and site changes that ship every month and show up in the numbers.
+The Regional Growth Lead shapes how Halden's online stores across LATAM win and keep customers. It is a hands-on senior role for a planner: someone who turns customer research, store data and the regional teams' plans into campaigns, offers and site changes that ship every month and show up in the numbers.
 
 Where You'll Make an Impact`
 
@@ -46,15 +46,15 @@ describe('roleSummary', () => {
   })
 
   it('skips a line with a heading glued on, whole — never trimmed, never garbled', () => {
-    const marea = `Acerca del empleo
-About Marea SocialMarea Social is a full-funnel eCommerce growth agency specializing in acquisition and retention for direct-to-consumer brands.
-Our partnership-first approach has earned us a 90% client retention rate and recognition as an Inc. 5000 honoree.
-The RoleAs a Paid Search Media Buyer at Marea Social, you will own the strategy, execution, and optimization of Google Ads accounts.
-You will launch and manage search, shopping, and Performance Max campaigns while testing to drive scalable growth.`
+    const brisa = `Acerca del empleo
+About Brisa AgencyBrisa Agency is a growth studio for direct-to-consumer brands, working on paid traffic and repeat purchases.
+Most of our clients stay with us for years, and most of them came to us through referrals.
+The RoleAs a Search Specialist at Brisa Agency, you will plan, run and improve the paid search accounts of our clients.
+You will build and run search, shopping, and Performance Max campaigns and test what moves their sales.`
     // The company section (glued "About …") is skipped; the glued role line is
     // dropped rather than cut; the next whole role sentence is the summary.
-    expect(roleSummary(marea)).toBe(
-      'You will launch and manage search, shopping, and Performance Max campaigns while testing to drive scalable growth.',
+    expect(roleSummary(brisa)).toBe(
+      'You will build and run search, shopping, and Performance Max campaigns and test what moves their sales.',
     )
   })
 
@@ -243,7 +243,7 @@ Como Especialista de Marketplaces serás responsable de la estrategia comercial 
       'Text  with   doubled    spaces inside it, which must come back exactly as stored and never collapsed by the summary.',
       '\tLeading tab and trailing spaces around a line that describes the role in enough words to qualify for the block.   ',
       `${'Long sentence word '.repeat(10)}ends here. ${'Another long sentence word '.repeat(10)}ends too.`,
-      'About Marea SocialMarea Social is an agency.\nThe RoleAs a buyer you own Google Ads.\nYou will launch and manage search, shopping, and Performance Max campaigns while testing to drive growth.',
+      'About Brisa AgencyBrisa Agency is an agency.\nThe RoleAs a buyer you run Google Ads.\nYou will build and run search, shopping, and Performance Max campaigns and test what moves sales.',
       'At Lumen Metrics, we are passionate about our work to power a better media future for all people.\nYou will join the Lumen Metrics team that measures paid media for the largest advertisers in Mexico.',
     ]
     let seen = 0

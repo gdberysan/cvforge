@@ -115,6 +115,7 @@ function prepData(
       id: r.id,
       keyword: r.keyword,
       mandatory: r.mandatory,
+      strength: r.mapping?.strength ?? 'none',
     })),
     labels,
   }

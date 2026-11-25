@@ -1,4 +1,6 @@
 import type { ModelPrep, PrepContent } from '@/lib/schemas/prep'
+import { allowedQuantityForms } from '@/lib/verify/checks'
+import { extractQuantities, normaliseQuantity } from '@/lib/verify/quantities'
 import type { PrepContext } from './context'
 
 /**
@@ -16,6 +18,16 @@ const FIGURE = /(?<![\p{L}\d])\d+(?:[.,]\d+)*(?![\p{L}\d])/u
 
 /** Most memory prompts one open beat shows. */
 const MAX_IDEAS = 3
+
+/**
+ * Most questions one story may answer. The audit of 2026-11-24 found one
+ * story pointed at five questions it showed nothing about: the readiness bar
+ * counted them covered, and telling one story five times reads as having one.
+ */
+const MAX_ANSWERS_PER_STORY = 2
+
+/** Most questions to ask the interviewer. */
+const MAX_ASK_THEM = 5
 
 /**
  * A memory prompt helps him recall; it must never tell him what happened. So
@@ -43,6 +55,25 @@ export function sanitizePrep(raw: ModelPrep, ctx: PrepContext): PrepContent {
         )
       : [],
   )
+  // A CV line's figures against the records that line cites: "30% growth" over a
+  // record with no figure is a claim he must confirm or drop before the
+  // interview, said to him outside what he speaks (audit 2026-11-24).
+  const bulletCites = new Map(
+    ctx.cv
+      ? [...ctx.cv.experience, ...ctx.cv.projects].flatMap((s) =>
+          s.bullets.map((b) => [b.id, b.citedEvidenceIds] as const),
+        )
+      : [],
+  )
+  const recordOf = new Map(ctx.evidence.map((e) => [e.id, e]))
+  const unsupportedIn = (bulletId: string, line: string): string[] => {
+    const records = (bulletCites.get(bulletId) ?? []).flatMap((id) => {
+      const r = recordOf.get(id)
+      return r ? [r] : []
+    })
+    const allowed = allowedQuantityForms(records)
+    return [...new Set(extractQuantities(line).filter((q) => !allowed.has(normaliseQuantity(q))))]
+  }
   const cites = (ids: string[]) => [...new Set(ids.filter((id) => evidenceIds.has(id)))]
   const cited = <T extends { text: string; citedEvidenceIds: string[] }>(c: T): T => ({
     ...c,
@@ -63,16 +94,29 @@ export function sanitizePrep(raw: ModelPrep, ctx: PrepContext): PrepContent {
     result: beat(s.result),
     short: s.short.map((l) => l.trim()).filter(Boolean),
   }))
+  // A gap answer with nothing to admit is not a gap (the record showed the
+  // thing): shown, it put "Lo que te falta" over an empty line.
   const gapAnswers = raw.gapAnswers
-    .filter((g) => requirementIds.has(g.requirementId))
-    .map((g) => ({ ...g, bridge: cited(g.bridge) }))
+    .filter((g) => requirementIds.has(g.requirementId) && g.admit.trim() !== '')
+    .map((g) => ({ ...g, admit: g.admit.trim(), plan: g.plan.trim(), bridge: cited(g.bridge) }))
   const storyIds = new Set(stories.map((s) => s.id))
   const gapIds = new Set(gapAnswers.map((g) => g.id))
 
+  // In the model's order (most likely first), each story answers its first
+  // questions only; later ones fall back to nothing rather than claim it.
+  const answersPerStory = new Map<string, number>()
+  const answerer = (id: string): string => {
+    if (gapIds.has(id)) return id
+    if (!storyIds.has(id)) return ''
+    const n = answersPerStory.get(id) ?? 0
+    if (n >= MAX_ANSWERS_PER_STORY) return ''
+    answersPerStory.set(id, n + 1)
+    return id
+  }
   const questions = raw.questions.map((q) => ({
     ...q,
     requirementIds: q.requirementIds.filter((id) => requirementIds.has(id)),
-    answeredBy: storyIds.has(q.answeredBy) || gapIds.has(q.answeredBy) ? q.answeredBy : '',
+    answeredBy: answerer(q.answeredBy),
     // Field knowledge carries no figure: a market share or a fee he repeats
     // in the room must come from somewhere he can check, not from the model.
     // A digit inside a name ("1P", "B2B", "n8n") is not a figure.
@@ -84,9 +128,22 @@ export function sanitizePrep(raw: ModelPrep, ctx: PrepContext): PrepContent {
     stories,
     cvDefense: raw.cvDefense
       .filter((d) => lineOf.has(d.bulletId))
-      .map((d) => ({ ...d, facts: cited(d.facts), line: lineOf.get(d.bulletId) })),
+      .map((d) => {
+        const line = lineOf.get(d.bulletId) ?? ''
+        const unsupported = unsupportedIn(d.bulletId, line)
+        return {
+          ...d,
+          facts: cited(d.facts),
+          line,
+          ...(unsupported.length > 0 ? { unsupported } : {}),
+        }
+      }),
     gapAnswers,
     interviewerNote: raw.interviewerNote.trim(),
+    askThem: raw.askThem
+      .map((a) => ({ text: a.text.trim(), why: a.why.trim() }))
+      .filter((a) => a.text !== '')
+      .slice(0, MAX_ASK_THEM),
     coverage: questions.map((q) => ({
       questionId: q.id,
       by: storyIds.has(q.answeredBy)

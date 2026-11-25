@@ -482,7 +482,7 @@ describe('composeAndVerify', () => {
   })
 
   it('shows the checker the recorded metrics, not just the text', async () => {
-    // A live run flagged "8x ROAS" as unsupported: the figure was stored only
+    // A live run flagged "5x ROAS" as unsupported: the figure was stored only
     // as a metric, which the code checks accepted and the model never saw.
     composeCvMock.mockResolvedValue(cvWith('Migrated the checkout flow'))
     callStructuredMock.mockResolvedValue({
@@ -492,11 +492,11 @@ describe('composeAndVerify', () => {
     await composeAndVerify({
       ...baseArgs,
       evidence: [
-        { ...evidence[0], metrics: [{ raw: 'ROAS de 8x en seasonalities', value: 8, unit: 'x' }] },
+        { ...evidence[0], metrics: [{ raw: 'ROAS de 5x en temporada alta', value: 5, unit: 'x' }] },
       ],
     })
     expect(JSON.stringify(callStructuredMock.mock.calls[0])).toContain(
-      '(recorded metrics: ROAS de 8x en seasonalities)',
+      '(recorded metrics: ROAS de 5x en temporada alta)',
     )
   })
 })

@@ -81,18 +81,31 @@ describe('PrepStep', () => {
         "Of 3 questions: 1 with a story of yours, 1 with an honest answer about what's missing, 1 with nothing yet.",
       ),
     ).toBeTruthy()
-    expect(screen.getByText('1 story has a part you tell from memory')).toBeTruthy()
+    expect(
+      screen.getByText(
+        (_, el) =>
+          el?.tagName === 'P' &&
+          (el.textContent ?? '').startsWith('1 story has a part only you can tell.'),
+      ),
+    ).toBeTruthy()
   })
 
   it('draws a missing beat as a note with memory prompts, and no text box', () => {
     render(<PrepStep view={view()} />)
+    // Stories open short; the open part is one tap away.
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Parts only you can tell: see the whole story' }),
+    )
     expect(screen.getByText('Task · tell it from memory')).toBeTruthy()
     expect(screen.getByText('¿Qué pedía tu jefe cuando empezaste?')).toBeTruthy()
     expect(screen.queryAllByRole('textbox')).toHaveLength(0)
   })
 
-  it('flips a story to its short version', () => {
+  it('opens a story short, and flips to the full beats and back', () => {
     render(<PrepStep view={view()} />)
+    expect(screen.getByText('Automated the funnel')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Full' }))
+    expect(screen.getByText('I automated the conversion funnel.')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Short version' }))
     expect(screen.getByText('Automated the funnel')).toBeTruthy()
   })
@@ -116,6 +129,7 @@ describe('PrepStep', () => {
       passed: false,
     }
     render(<PrepStep view={view({ preps: { en: { content, report, stale: false } } })} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Full' }))
     expect(
       screen.getByText('Check this line before you say it: the record never says nightly'),
     ).toBeTruthy()
@@ -123,7 +137,7 @@ describe('PrepStep', () => {
 
   it('shows the CV line exactly as sent, and an empty state with no CV', () => {
     render(<PrepStep view={view()} />)
-    expect(screen.getByText('Automated the conversion funnel to a steady 60% CR')).toBeTruthy()
+    expect(screen.getByText('Automated the signup flow to a steady 45% conversion')).toBeTruthy()
     cleanup()
     render(<PrepStep view={view({ cv: null })} />)
     expect(
@@ -205,7 +219,7 @@ describe('PrepStep', () => {
     if (role)
       role.bullets = [{ id: 'b9', text: 'Rewritten line', citedEvidenceIds: [], keywordsUsed: [] }]
     render(<PrepStep view={view({ cv: edited, cvIsSnapshot: false })} />)
-    expect(screen.getByText('Automated the conversion funnel to a steady 60% CR')).toBeTruthy()
+    expect(screen.getByText('Automated the signup flow to a steady 45% conversion')).toBeTruthy()
   })
 
   it('says so when an older prep points at a line no longer in the CV', () => {

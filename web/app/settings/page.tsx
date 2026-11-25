@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
 import { HapticsToggle } from '@/components/settings/HapticsToggle'
-import { KeyGuide } from '@/components/settings/KeyGuide'
+import { KeyJourney } from '@/components/settings/KeyJourney'
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsGroup'
 import { LocaleSwitch } from '@/components/ui/LocaleSwitch'
 import { workerApi } from '@/web/lib/actions-client'
@@ -14,7 +14,7 @@ import { DataCard } from '@/web/lib/data-card'
 import { useDatabase } from '@/web/lib/database'
 import { PasswordCard } from '@/web/lib/password-card'
 import { useLoader } from '@/web/lib/use-loader'
-import { WaysInSettings } from '@/web/lib/ways-in'
+import { HAS_EXTENSION, WaysInSettings } from '@/web/lib/ways-in'
 
 /** Ajustes in the browser: the key, the language, and the data as a file. */
 export default function Page() {
@@ -30,6 +30,9 @@ export default function Page() {
   const [phone, setPhone] = useState(false)
   // Sent here by the trial's sheet ("Connect my key"): open the guide.
   const [fromTrialOut, setFromTrialOut] = useState(false)
+  // Just connected here: the journey keeps its success moment in place
+  // (the saved key would otherwise swap it out and move the group down).
+  const [justConnected, setJustConnected] = useState(false)
   useEffect(() => {
     setFromTrialOut(location.hash === '#clave')
     const touch = window.matchMedia?.('(pointer: coarse)').matches ?? false
@@ -38,14 +41,23 @@ export default function Page() {
   }, [])
   if (!data) return null
   const persisted = state.kind === 'ready' && state.persisted
+  const keyOnTop = !data.hasKey || justConnected
+  // The status card earns its place only with something to report; with
+  // nothing yet, its one sentence joins the page's own heading.
+  const keyRow = data.hasKey && !justConnected
+  const storageRow = persisted || Boolean(shell?.started)
+  const statusRows = keyRow || storageRow || data.unknownCost > 0
+  const statusLede = t(data.trial ? 'web.settings.ledeTrial' : 'web.settings.lede')
   const keyGroup = (
     <SettingsGroup
       title={
-        data.hasKey
-          ? t('settings.group.key')
-          : data.trial
-            ? t('settings.trial.title')
-            : t('settings.group.keyMissing')
+        justConnected
+          ? t('journey.done.title')
+          : data.hasKey
+            ? t('settings.group.key')
+            : data.trial
+              ? t('settings.trial.title')
+              : t('settings.group.keyMissing')
       }
       lede={
         data.hasKey
@@ -58,66 +70,85 @@ export default function Page() {
       }
       alert={!data.hasKey && !data.trial}
     >
-      {data.trial && <TrialLeft />}
-      <ApiKeyForm hasSavedKey={data.hasKey} envManaged={false} local />
-      {/* Past the trial, or never on one: how to get a key, opened. During
-          the trial it is there too, folded, and opens when the trial's
-          sheet sent the person here (#clave). */}
-      {!data.hasKey && <KeyGuide open={!data.trial || fromTrialOut} />}
+      {data.trial && !data.hasKey && <TrialLeft />}
+      {data.hasKey && !justConnected ? (
+        <ApiKeyForm hasSavedKey envManaged={false} local />
+      ) : (
+        // No key yet: the four steps, ending in the field. During the trial
+        // they wait folded, and open when the trial's sheet sent you here.
+        <KeyJourney
+          local
+          bare
+          open={!data.trial || fromTrialOut}
+          onConnected={() => setJustConnected(true)}
+          next={{ href: '/triage', label: t('journey.done.next') }}
+        />
+      )}
     </SettingsGroup>
   )
   return (
     <main id="main" tabIndex={-1} className="page">
       <div className="settings-page">
         <header className="page-head settings-head">
-          <p className="eyebrow">{t('settings.page.eyebrow')}</p>
           <h1 className="settings-h1">{t('settings.page.title')}</h1>
           <p className="page-lede">{t('settings.page.lede')}</p>
+          {/* Where the key is missing, the field itself says where it goes:
+              said once, there, not three times on the way down. */}
+          {!statusRows && data.hasKey && <p className="settings-head-note">{statusLede}</p>}
         </header>
 
         {/* What blocks everything comes first (standard point 3). */}
-        {!data.hasKey && <div id="clave">{keyGroup}</div>}
+        {keyOnTop && <div id="clave">{keyGroup}</div>}
 
-        <SettingsGroup
-          title={t('settings.group.status')}
-          lede={t(data.trial ? 'web.settings.ledeTrial' : 'web.settings.lede')}
-        >
-          {data.hasKey && (
-            <SettingsRow
-              label={<StatusLabel tone="ok">{t('settings.status.key')}</StatusLabel>}
-              hint={t('settings.status.keyOk')}
-            />
-          )}
-          {/* Only once there is something to lose: an empty install greeted
+        {statusRows && (
+          <SettingsGroup title={t('settings.group.status')} lede={statusLede}>
+            {keyRow && (
+              <SettingsRow
+                label={<StatusLabel tone="ok">{t('settings.status.key')}</StatusLabel>}
+                hint={t('settings.status.keyOk')}
+              />
+            )}
+            {/* Only once there is something to lose: an empty install greeted
               with "your data could be erased" is alarm with no cause. */}
-          {(persisted || shell?.started) && (
-            <SettingsRow
-              label={
-                <StatusLabel tone={persisted ? 'ok' : 'attn'}>{t('web.data.storage')}</StatusLabel>
-              }
-              hint={persisted ? t('web.db.persisted') : t('web.db.notPersisted')}
-            >
-              {/* The fix is one tap away: the copy is in "Tus datos". */}
-              {!persisted && (
-                <a href="#tus-datos" className="btn btn-quiet">
-                  {t('web.data.saveCopy')}
-                </a>
-              )}
-            </SettingsRow>
-          )}
-          {data.unknownCost > 0 && (
-            <SettingsRow
-              label={<StatusLabel tone="attn">{t('web.job.unknownTitle')}</StatusLabel>}
-              hint={t('web.job.unknownHint', { n: data.unknownCost })}
-            />
-          )}
-        </SettingsGroup>
+            {storageRow && (
+              <SettingsRow
+                label={
+                  <StatusLabel tone={persisted ? 'ok' : 'attn'}>
+                    {t('web.data.storage')}
+                  </StatusLabel>
+                }
+                hint={persisted ? t('web.db.persisted') : t('web.db.notPersisted')}
+              >
+                {/* The fix is one tap away: the copy is in "Tus datos". */}
+                {!persisted && (
+                  <a href="#tus-datos" className="btn btn-quiet">
+                    {t('web.data.saveCopy')}
+                  </a>
+                )}
+              </SettingsRow>
+            )}
+            {data.unknownCost > 0 && (
+              <SettingsRow
+                label={<StatusLabel tone="attn">{t('web.job.unknownTitle')}</StatusLabel>}
+                hint={t('web.job.unknownHint', { n: data.unknownCost })}
+              />
+            )}
+          </SettingsGroup>
+        )}
 
-        {data.hasKey && keyGroup}
+        {!keyOnTop && keyGroup}
 
         {/* Before a profile the phone's bar shows the language itself. */}
         {((phone && shell?.started) || canVibrate) && (
-          <SettingsGroup title={canVibrate ? t('settings.group.look') : t('settings.group.prefs')}>
+          <SettingsGroup
+            title={
+              phone && shell?.started
+                ? canVibrate
+                  ? t('settings.group.look')
+                  : t('settings.group.prefs')
+                : t('settings.group.vibration')
+            }
+          >
             {phone && shell?.started && (
               <SettingsRow label={t('nav.language')}>
                 <LocaleSwitch />
@@ -127,22 +158,28 @@ export default function Page() {
           </SettingsGroup>
         )}
 
-        <SettingsGroup title={t('waysIn.settings')} lede={t('waysIn.settingsLede')}>
-          <WaysInSettings />
-        </SettingsGroup>
-
         <SettingsGroup title={t('settings.group.data')} id="tus-datos">
           <PasswordCard />
           <DataCard />
         </SettingsGroup>
 
+        {/* How jobs come in: after the key and the data, since one of the
+            two ways is not out yet. */}
+        <SettingsGroup
+          title={t('waysIn.settings')}
+          lede={HAS_EXTENSION ? t('waysIn.settingsLede') : undefined}
+        >
+          <WaysInSettings />
+        </SettingsGroup>
+
         <SettingsGroup title={t('web.build.group')}>
-          <BuildInfo />
-          <p className="privacy-link">
-            <Link href="/privacidad" className="action">
-              {t('privacy.link')}
-            </Link>
-          </p>
+          <BuildInfo
+            extra={
+              <Link href="/privacidad" className="action">
+                {t('privacy.link')}
+              </Link>
+            }
+          />
           <p className="colophon">{t('web.colophon')}</p>
         </SettingsGroup>
       </div>

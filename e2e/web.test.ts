@@ -82,7 +82,8 @@ describe('the web edition on a phone', () => {
       .getByRole('alert')
       .filter({ hasText: /cerrada/i })
       .waitFor()
-    await page.getByText('¿Ya tienes clave de IA?').waitFor()
+    // The key is offered right there: the guide to connect one's own.
+    await page.getByText('Conecta tu propia clave').first().waitFor()
     await ctx.close()
   })
 

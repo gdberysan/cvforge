@@ -46,7 +46,7 @@ describe('runPrep', () => {
     )
     const { content, report } = await runPrep(ctx())
     expect(stages()).toContain('interview-prep-refine')
-    expect(content.stories[0]?.result.text).toBe('The conversion rate held at 60%.')
+    expect(content.stories[0]?.result.text).toBe('The conversion rate held at 45%.')
     expect(report.passed).toBe(true)
   })
 
@@ -105,7 +105,7 @@ describe('runPrep', () => {
   it('judges each sentence on its own, so an invented one cannot hide behind a true one', async () => {
     const two = rawPrep()
     must(two.stories[0], 'story').result.text =
-      'The conversion rate held at 60%. The whole team finally trusted the numbers.'
+      'The conversion rate held at 45%. The whole team finally trusted the numbers.'
     callStructured.mockImplementation(async (o) => {
       if (o.stage !== 'verify-distortion') return two
       return {
