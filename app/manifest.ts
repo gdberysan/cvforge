@@ -5,8 +5,8 @@ const BACKGROUND = '#0E131B'
 
 /**
  * Installs CVForge on the phone (Chrome makes it a WebAPK, which is what puts
- * it in Android's share menu). Served from the Mac over the tailnet; the
- * share target lands on /share (app/(app)/share/page.tsx).
+ * it in Android's share menu). The share target lands on /share
+ * (app/(app)/share/page.tsx).
  */
 export default function manifest(): MetadataRoute.Manifest & {
   share_target: {

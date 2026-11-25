@@ -21,10 +21,19 @@ export function LineNotes({
   const roles = [
     ...new Set(cited.filter((id) => !id.startsWith('answer:')).map((id) => labels[id] ?? id)),
   ]
-  const sources = [
-    ...(roles.length > 0 ? [t('prep.source', { label: roles.join(' · ') })] : []),
-    ...(cited.some((id) => id.startsWith('answer:')) ? [t('prep.sourceAnswer')] : []),
-  ]
+  const own = cited.some((id) => id.startsWith('answer:'))
+  // A no-break space before each dot keeps "·" with the name before it.
+  const named = roles.join('\u00a0· ')
+  const sources =
+    roles.length > 0
+      ? [
+          own
+            ? `${t('prep.source', { label: named })}\u00a0· ${t('prep.sourceOwnWords')}`
+            : t('prep.source', { label: named }),
+        ]
+      : own
+        ? [t('prep.sourceAnswer')]
+        : []
   const flag = marks.flags.get(path)
   return (
     <>

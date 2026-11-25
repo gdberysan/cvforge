@@ -14,14 +14,14 @@ import { BackLink } from '@/components/ui/BackLink'
 import { IconAnalyse, IconClose, IconDocument, IconSend } from '@/components/ui/icons'
 
 /** When this page last changed what it says (bump with the text). */
-const UPDATED = '2026-11-21'
+const UPDATED = '2026-11-25'
 const ANTHROPIC_POLICY =
   'https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data'
 
-/** The ten facts, in three groups: what stays, what leaves, what you trust. */
+/** The facts, in three groups: what stays, what leaves, what you trust. */
 const GROUPS = [
   { id: 'stays', sections: ['where', 'device', 'erase', 'extension'] },
-  { id: 'leaves', sections: ['out', 'trial', 'anthropic', 'shots'] },
+  { id: 'leaves', sections: ['out', 'drive', 'trial', 'anthropic', 'shots'] },
   { id: 'trust', sections: ['none', 'host', 'trust'] },
 ] as const
 

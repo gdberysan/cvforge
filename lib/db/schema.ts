@@ -295,7 +295,9 @@ export const prepAnswers = sqliteTable(
       .notNull()
       .references(() => applications.id, { onDelete: 'cascade' }),
     evidenceIds: text('evidence_ids', { mode: 'json' }).$type<string[]>().notNull(),
-    part: text('part', { enum: ['S', 'T', 'A', 'R'] }).notNull(),
+    // S/T/A/R: a part of a story; Q: his answer to an interview question;
+    // D: his notes after a round. A text column: no migration to widen it.
+    part: text('part', { enum: ['S', 'T', 'A', 'R', 'Q', 'D', 'C', 'P'] }).notNull(),
     question: text('question').notNull(),
     answer: text('answer').notNull(),
     createdAt: text('created_at').notNull(),

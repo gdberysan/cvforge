@@ -111,6 +111,14 @@ function prepData(
     cv: ctx.cv,
     cvIsSnapshot: ctx.cvIsSnapshot,
     flaggedBulletIds: ctx.flaggedBulletIds,
+    company: input.application.company,
+    answers: input.answers.map((a) => ({
+      id: a.id,
+      part: a.part,
+      question: a.question,
+      answer: a.answer,
+      createdAt: a.createdAt,
+    })),
     requirements: ctx.requirements.map((r) => ({
       id: r.id,
       keyword: r.keyword,

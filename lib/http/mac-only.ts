@@ -1,5 +1,5 @@
 import { headers } from 'next/headers'
-import { doorOf, tailnetConfig } from './doors'
+import { doorOf } from './doors'
 
 /**
  * Server actions post to page URLs, so the guard cannot tell one from
@@ -11,7 +11,7 @@ export async function macOnlyRefusal(): Promise<{
   error: string
   code: 'mac-only'
 } | null> {
-  const door = doorOf(await headers(), tailnetConfig())
+  const door = doorOf(await headers())
   return door === 'local'
     ? null
     : { ok: false, error: 'Only from the Mac itself.', code: 'mac-only' }

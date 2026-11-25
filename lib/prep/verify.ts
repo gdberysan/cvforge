@@ -27,6 +27,7 @@ export type PrepFlag = {
     | 'duration'
     | 'inflation'
     | 'link'
+    | 'employers'
   reason: string
 }
 
@@ -54,6 +55,10 @@ export function factLines(content: PrepContent): FactLine[] {
       ...g.bridge,
       gapCheck: true,
     })),
+    // The pitch is said first in most interviews: checked like any fact.
+    ...(content.pitch && content.pitch.text.trim() !== ''
+      ? [{ path: 'pitch', ...content.pitch, gapCheck: true }]
+      : []),
     // The short version is what he glances at in the room: it stands on the
     // records its story's beats cite, and is checked like them.
     ...content.stories.flatMap((s) => {
@@ -125,13 +130,45 @@ const ESCALATIONS: { word: string; said: RegExp; earned: RegExp }[] = [
 const LINK =
   /\b(?:con eso|con ellos|con ellas|con esos datos|de ahí (?:salió|nació|vino|surgió)|a partir de (?:eso|ahí|ellos)|gracias a (?:eso|ello)|sobre eso|lo que (?:permitió|llevó)|eso (?:permitió|llevó)|para (?:los|esos) datos|esos datos (?:alimentaban|alimentaron|servían)|que alimentaban?)\b|\b(?:on top of (?:that|this|it|those|them)|built (?:it )?on (?:that|those|them)|from (?:that|those) (?:data|reports)|which (?:let|allowed|led)|that(?:'s| is) how|thanks to (?:that|this|those)|as a result)\b/iu
 
-/** Problems a line's wording makes beyond its figures: a year that wasn't, a raised verb, an invented link. */
+/** "There" in a sentence: it must point at the employer that sentence names. */
+const THERE = /\b(?:there|ahí|allí|allá)\b/iu
+const rolesOf = (records: EvidenceItem[]) =>
+  new Set(records.filter((r) => r.sourceRef.type === 'experience').map((r) => r.sourceRef.id)).size
+
+/** A sentence's end, for telling one claim's employers from the next one's. */
+const SENTENCE = /(?<=[.!?])\s+/u
+
+/** Problems a line's wording makes beyond its figures: a year that wasn't, a raised verb, an invented link, two employers in one breath. */
 function wordingFlags(
   line: FactLine,
   cited: EvidenceItem[],
   months: Map<string, number>,
+  employers: string[] = [],
 ): PrepFlag[] {
   const flags: PrepFlag[] = []
+  // "At A I ran X … I also built a tool there at B": one sentence, two
+  // employers, and the work lands at the wrong one (review 2026-11-24).
+  for (const sentence of line.text.split(SENTENCE)) {
+    const named = employers.filter((c) => wholeWord(c).test(sentence))
+    if (new Set(named.map((c) => c.toLowerCase())).size >= 2) {
+      flags.push({
+        path: line.path,
+        kind: 'employers',
+        reason: `"${sentence.slice(0, 80)}" names ${named.join(' and ')} in one sentence; one employer per sentence`,
+      })
+      break
+    }
+    // Over records from two roles, "there" reaches back to whichever
+    // employer came last: it may only sit in a sentence that names its own.
+    if (named.length !== 1 && THERE.test(sentence) && rolesOf(cited) >= 2) {
+      flags.push({
+        path: line.path,
+        kind: 'employers',
+        reason: `"${sentence.slice(0, 80)}" says "there" while this answer stands on more than one role; name the employer in that sentence`,
+      })
+      break
+    }
+  }
   const year = line.text.match(YEAR_CLAIM)?.[0]
   if (year) {
     const roles = cited
@@ -252,7 +289,7 @@ export function checkPrepInCode(content: PrepContent, ctx: PrepContext): PrepFla
           reason: `claims "${claimed[0]}", which nothing on file shows`,
         })
     }
-    flags.push(...wordingFlags(line, cited, ctx.months))
+    flags.push(...wordingFlags(line, cited, ctx.months, employers))
     const onlyProjects = cited.every((r) => r.sourceRef.type === 'project')
     const employer = onlyProjects ? employers.find((c) => wholeWord(c).test(line.text)) : undefined
     if (employer)

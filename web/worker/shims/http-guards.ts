@@ -6,9 +6,6 @@ export async function macOnlyRefusal(): Promise<null> {
 export function isSameOriginRequest(): boolean {
   return true
 }
-export function tailnetConfig(): null {
-  return null
-}
 export function doorOf(): 'local' {
   return 'local'
 }

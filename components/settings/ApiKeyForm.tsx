@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { clearApiKeyAction, saveApiKeyAction } from '@/app/(app)/settings/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { IconExternal } from '@/components/ui/icons'
@@ -24,7 +24,7 @@ export function ApiKeyForm({
 }: {
   hasSavedKey: boolean
   envManaged: boolean
-  /** True on the Mac itself; false through the phone's tailnet door. */
+  /** True on the Mac itself (the desktop app); false in the browser edition. */
   local: boolean
   /** After the server accepted the key (the journey shows its own moment). */
   onSaved?: (key: string) => void
@@ -47,6 +47,24 @@ export function ApiKeyForm({
   const [refused, setRefused] = useState<string | null>(null)
   // A value already known to be malformed: no button to send it, until it changes.
   const [malformed, setMalformed] = useState<string | null>(null)
+  // One tap instead of focus, long-press and "Paste" on a phone; only where
+  // the browser lets a page read the clipboard on a tap.
+  const [canPaste, setCanPaste] = useState(false)
+  useEffect(
+    () => setCanPaste(typeof navigator !== 'undefined' && !!navigator.clipboard?.readText),
+    [],
+  )
+  async function pasteFromClipboard() {
+    try {
+      const pasted = (await navigator.clipboard.readText()).trim()
+      if (!pasted) return
+      setKey(pasted)
+      save(pasted)
+    } catch {
+      // Refused or unavailable: the field itself still takes a paste.
+      document.getElementById('api-key')?.focus()
+    }
+  }
 
   function save(value = key) {
     setError(null)
@@ -184,6 +202,11 @@ export function ApiKeyForm({
               {shown ? t('settings.key.hide') : t('settings.key.show')}
             </button>
           </span>
+          {canPaste && !key && !isPending && (
+            <button type="button" className="btn btn-quiet key-paste" onClick={pasteFromClipboard}>
+              {t('settings.key.paste')}
+            </button>
+          )}
           {/* What happens to the key is said under the field itself:
               checking, or why it was refused. */}
           {(isPending || error || idleNote) && (

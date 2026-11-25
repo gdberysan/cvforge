@@ -47,6 +47,7 @@ export function sanitizePrep(raw: ModelPrep, ctx: PrepContext): PrepContent {
     ...ctx.answers.map((a) => `answer:${a.id}`),
   ])
   const requirementIds = new Set(ctx.requirements.map((r) => r.id))
+  const keywordOf = new Map(ctx.requirements.map((r) => [r.id, r.keyword]))
   // Each card keeps its line's words: the CV can change after the prep.
   const lineOf = new Map(
     ctx.cv
@@ -80,8 +81,17 @@ export function sanitizePrep(raw: ModelPrep, ctx: PrepContext): PrepContent {
     text: c.text.trim(),
     citedEvidenceIds: cites(c.citedEvidenceIds),
   })
+  // A line that stands on his answer alone is his answer, as he wrote it:
+  // the model translating or polishing it put his words in another mouth
+  // (review 2026-11-24, a distributor story moved to another employer).
+  const answerText = new Map(ctx.answers.map((a) => [`answer:${a.id}`, a.answer.trim()]))
+  const verbatim = <T extends { text: string; citedEvidenceIds: string[] }>(c: T): T => {
+    const ids = c.citedEvidenceIds
+    if (c.text === '' || ids.length === 0 || !ids.every((id) => answerText.has(id))) return c
+    return { ...c, text: ids.map((id) => answerText.get(id)).join(' ') }
+  }
   const beat = (b: ModelPrep['stories'][number]['situation']) => {
-    const out = cited(b)
+    const out = verbatim(cited(b))
     if (out.text !== '') return { ...out, ask: '', ideas: [] }
     return { ...out, citedEvidenceIds: [], ask: b.ask.trim(), ideas: memoryPrompts(b.ideas) }
   }
@@ -98,14 +108,29 @@ export function sanitizePrep(raw: ModelPrep, ctx: PrepContext): PrepContent {
   // thing): shown, it put "Lo que te falta" over an empty line.
   const gapAnswers = raw.gapAnswers
     .filter((g) => requirementIds.has(g.requirementId) && g.admit.trim() !== '')
-    .map((g) => ({ ...g, admit: g.admit.trim(), plan: g.plan.trim(), bridge: cited(g.bridge) }))
+    .map((g) => {
+      const keyword = keywordOf.get(g.requirementId)
+      // His own plan for this gap, when he wrote one, is the plan.
+      const his = ctx.answers.find((a) => a.part === 'P' && a.question === keyword)
+      return {
+        ...g,
+        admit: g.admit.trim(),
+        plan: his ? his.answer.trim() : g.plan.trim(),
+        bridge: cited(g.bridge),
+      }
+    })
   const storyIds = new Set(stories.map((s) => s.id))
   const gapIds = new Set(gapAnswers.map((g) => g.id))
 
   // In the model's order (most likely first), each story answers its first
   // questions only; later ones fall back to nothing rather than claim it.
   const answersPerStory = new Map<string, number>()
+  const pitch = cited(raw.pitch)
+  // A question he already answered himself points to his answer.
+  const ownAnswers = new Set(ctx.answers.filter((a) => a.part === 'Q').map((a) => `answer:${a.id}`))
   const answerer = (id: string): string => {
+    if (id === 'pitch') return pitch.text !== '' ? id : ''
+    if (ownAnswers.has(id)) return id
     if (gapIds.has(id)) return id
     if (!storyIds.has(id)) return ''
     const n = answersPerStory.get(id) ?? 0
@@ -144,13 +169,16 @@ export function sanitizePrep(raw: ModelPrep, ctx: PrepContext): PrepContent {
       .map((a) => ({ text: a.text.trim(), why: a.why.trim() }))
       .filter((a) => a.text !== '')
       .slice(0, MAX_ASK_THEM),
+    pitch,
     coverage: questions.map((q) => ({
       questionId: q.id,
-      by: storyIds.has(q.answeredBy)
-        ? ('story' as const)
-        : gapIds.has(q.answeredBy)
-          ? ('gap' as const)
-          : ('none' as const),
+      // The pitch is his material, like a story.
+      by:
+        storyIds.has(q.answeredBy) || q.answeredBy === 'pitch' || ownAnswers.has(q.answeredBy)
+          ? ('story' as const)
+          : gapIds.has(q.answeredBy)
+            ? ('gap' as const)
+            : ('none' as const),
       targetId: q.answeredBy,
     })),
   }

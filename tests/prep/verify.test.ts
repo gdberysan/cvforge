@@ -105,12 +105,37 @@ describe('checkPrepInCode', () => {
     const out = content((r) => {
       must(r.stories[0]).result = {
         text: 'ROAS rose 30%.',
-        citedEvidenceIds: ['answer:ans_2'],
+        citedEvidenceIds: ['answer:ans_2', 'ev_funnel'],
         ask: '',
         ideas: [],
       }
     }, c)
     expect(paths(checkPrepInCode(out, c))).toContain('number@stories.s1.result')
+  })
+
+  it('tells a line that stands on his answer alone in his own words', () => {
+    const c = ctx({
+      answers: [
+        {
+          id: 'ans_2',
+          applicationId: 'app_1',
+          evidenceIds: [],
+          part: 'R',
+          question: '¿Subiste el ROAS 30%?',
+          answer: 'Sí, bastante',
+          createdAt: '',
+        },
+      ],
+    })
+    const out = content((r) => {
+      must(r.stories[0]).result = {
+        text: 'ROAS rose 30%.',
+        citedEvidenceIds: ['answer:ans_2'],
+        ask: '',
+        ideas: [],
+      }
+    }, c)
+    expect(out.stories[0]?.result.text).toBe('Sí, bastante')
   })
 
   it('flags a span of years longer than the time on record', () => {

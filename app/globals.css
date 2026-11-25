@@ -2412,6 +2412,8 @@ button.mail-candidate[aria-pressed="true"] { border-color: var(--accent); color:
 
 .prep-brief { display: grid; gap: var(--space-3); padding: var(--pad-card); border-radius: var(--radius-card); background: var(--surface-card); box-shadow: var(--shadow-1); }
 .prep-when { margin: 0; font: 600 14px/1.3 var(--font-text); color: var(--accent); }
+/* No date is a fact, not an alert. */
+.prep-when.is-unknown { font-weight: 500; color: var(--text-muted); }
 .prep-date { display: flex; align-items: center; gap: 14px; }
 .prep-date-text { margin: 0; display: grid; font: 500 clamp(30px, 7vw, 40px)/1.04 var(--font-serif); color: var(--text-strong); text-transform: capitalize; }
 .prep-time { text-transform: none; }
@@ -2460,7 +2462,7 @@ button.mail-candidate[aria-pressed="true"] { border-color: var(--accent); color:
 .prep-beat.is-open .prep-dot { box-shadow: inset 0 0 0 2px var(--accent); }
 .prep-beat-label { margin: 0 0 4px; font: 600 13px/1.3 var(--font-text); color: var(--text-muted); }
 .prep-beat.is-result .prep-beat-label { color: var(--accent); }
-.prep-beat.is-open .prep-beat-label { color: var(--tone-strong-text); }
+.prep-beat.is-open .prep-beat-label { color: var(--accent); }
 .prep-say { margin: 0; font: 400 17px/1.5 var(--font-text); color: var(--text-strong); }
 .prep-beat.is-result .prep-say { font: 500 clamp(22px, 5vw, 26px)/1.3 var(--font-serif); }
 .prep-slot { display: grid; gap: var(--space-2); padding: 14px; border-radius: var(--radius-control); border: 1.5px dashed var(--accent); background: var(--surface-sunken); }
@@ -2475,7 +2477,6 @@ button.mail-candidate[aria-pressed="true"] { border-color: var(--accent); color:
 .prep-cvline { margin: 0; padding: var(--space-4); background: var(--surface-inverse); color: var(--surface-base); font: 400 15px/1.45 var(--font-serif); }
 .prep-cvbody { display: grid; gap: var(--space-2); padding: var(--space-4); }
 .prep-weak { margin: 0; font: 600 13px/1.3 var(--font-text); color: var(--tone-missing-text); }
-.prep-likely { margin: 0; font: italic 400 17px/1.45 var(--font-serif); color: var(--text-strong); }
 
 .prep-gap { display: grid; gap: var(--space-2); }
 .prep-gap-title { margin: 0; font: 600 15px/1.3 var(--font-text); color: var(--text-strong); }
@@ -5164,14 +5165,14 @@ select.field {
    are item-sized, inner panels are paper-coloured (never white in white),
    no hatching, no dashed outlines, nothing under 14 px. */
 .prep-h2 {
-  font: 600 18px/26px var(--font-text);
-  letter-spacing: -0.01em;
+  font: 700 16px/24px var(--font-text);
+  letter-spacing: -0.005em;
 }
 .prep-story-title {
-  font: 600 20px/28px var(--font-text);
+  font: 600 15px/22px var(--font-text);
 }
 .prep-qcard-title {
-  font: 600 17px/24px var(--font-text);
+  font: 600 15px/22px var(--font-text);
 }
 .prep-date-text {
   font: 600 28px/36px var(--font-text);
@@ -5243,10 +5244,6 @@ select.field {
 @media (max-width: 600px) {
   .prep-beat {
     padding-left: 24px;
-  }
-  .prep-story,
-  .prep-qcard {
-    padding: 16px;
   }
 }
 
@@ -9954,7 +9951,7 @@ a.btn-primary:not(:has(svg))::after {
 .prep-memory a { color: var(--accent); font-weight: 600; }
 /* A gap answer: one card like a story, its three steps inside it. */
 .prep-gap { padding: 20px; border-radius: 16px; background: var(--surface-base); gap: var(--space-3); }
-.prep-gap-title { font: 600 17px/1.3 var(--font-text); }
+.prep-gap-title { font: 600 15px/1.3 var(--font-text); }
 .prep-gap-steps { gap: 0; }
 .prep-gap-steps li, .prep-gap-steps li:first-child, .prep-gap-steps li:last-child { padding: 12px 0; background: none; border-radius: 0; }
 .prep-gap-steps li + li { border-top: 1px solid var(--border-subtle); }
@@ -10014,9 +10011,9 @@ a.btn-primary:not(:has(svg))::after {
 .prep-story-row::-webkit-details-marker { display: none; }
 .prep-story-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .prep-story-rowtext { display: grid; gap: 4px; min-width: 0; }
-.prep-story-row .prep-story-title { margin: 0; font: 600 18px/1.3 var(--font-text); color: var(--text-strong); }
+.prep-story-row .prep-story-title { margin: 0; font: 600 15px/1.35 var(--font-text); color: var(--text-strong); }
 .prep-story-meta { font: 500 14px/1.35 var(--font-text); color: var(--text-muted); }
-.prep-story-open { color: var(--tone-strong-text); }
+.prep-story-open { color: var(--accent); }
 .prep-story-chevron { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--surface-card); color: var(--text-strong); transition: transform var(--dur-base) var(--ease-out); }
 .prep-story-chevron .icon { transform: rotate(90deg); }
 .prep-story[open] .prep-story-chevron { transform: rotate(180deg); }
@@ -10027,3 +10024,348 @@ a.btn-primary:not(:has(svg))::after {
 .prep-short li { font: 400 16px/1.5 var(--font-text); }
 /* "Leer más" right under the clamped note. */
 .prep-note-toggle { margin-top: calc(-1 * var(--space-2)); }
+
+/* "Cuéntame de ti": the first answer, a warm card above the stories. */
+.prep-pitch { display: grid; gap: var(--space-3); padding: 20px; border-radius: 16px; background: var(--surface-base); }
+.prep-pitch-title { margin: 0; font: 600 15px/1.3 var(--font-text); color: var(--text-strong); }
+.prep-pitch-hint { margin: 0; font: 400 14px/1.45 var(--font-text); color: var(--text-muted); }
+/* His own answers: written where the gap is, read back as his. */
+.prep-answer-open { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
+.prep-answer-open .icon { width: 16px; height: 16px; }
+@media (hover: hover) { .prep-answer-open:hover { text-decoration: underline; } }
+.prep-answer { display: grid; gap: var(--space-2); }
+.prep-answer.is-saved { padding: 2px 0 2px 14px; border-left: 3px solid var(--fill-warm); }
+.prep-answer-text { margin: 0; font: 400 16px/1.5 var(--font-text); color: var(--text-strong); white-space: pre-wrap; }
+.prep-answer-field { width: 100%; font: 400 16px/1.5 var(--font-text); }
+.prep-answer-hint { margin: 4px 0 0; font: 400 14px/1.4 var(--font-text); color: var(--text-muted); }
+.prep-answer-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.prep-answer-link { min-height: 44px; min-width: 44px; padding: 0; border: 0; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
+.prep-answer-link.is-quiet { color: var(--text-muted); }
+.prep-q-answerable { display: grid; gap: var(--space-2); padding: 10px 0; border-top: 1px solid var(--border-subtle); list-style: none; }
+.prep-q-answerable .prep-qs { margin: 0; padding: 0; }
+.prep-q-answerable .prep-q { border-top: 0; padding: 0; }
+.prep-q-earlier { margin: 0; font: 400 15px/1.4 var(--font-text); color: var(--text-body); }
+
+/* The interview-day sheet: hidden on screen, alone on the printed page. */
+.prep-sheet { display: none; }
+@media print {
+  body.is-printing-prep > *:not(#prep-print-root) { display: none !important; }
+  #prep-print-root .prep-sheet { display: block; width: 100%; padding: 0; color: var(--text-strong); font: 9.5pt/1.35 var(--font-text); }
+  .prep-sheet-head { margin-bottom: 10pt; padding-bottom: 6pt; border-bottom: 1px solid var(--border-strong); }
+  .prep-sheet-kicker { margin: 0; font-size: 9pt; letter-spacing: 0.02em; color: var(--text-muted); }
+  .prep-sheet-title { margin: 2pt 0; font: 700 16pt/1.2 var(--font-text); }
+  .prep-sheet-people { margin: 0; color: var(--text-body); }
+  .prep-sheet-block { break-inside: avoid; margin-bottom: 7pt; }
+  .prep-sheet-block h3 { margin: 0 0 3pt; font: 700 10.5pt/1.3 var(--font-text); }
+  .prep-sheet-block p, .prep-sheet-block ul { margin: 0 0 3pt; }
+  .prep-sheet-block ul { padding-left: 0; list-style: none; }
+  .prep-sheet-block li { margin-bottom: 2pt; }
+  .prep-sheet-story { margin-bottom: 3pt; }
+  .prep-sheet-story-title { font-weight: 700; }
+}
+
+/* The meter's legend: each tone named with its count. */
+.prep-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font: 400 15px/1.4 var(--font-text); color: var(--text-body); }
+.prep-legend li { display: flex; align-items: center; gap: 10px; }
+.prep-legend-dot { flex: none; width: 12px; height: 12px; border-radius: 50%; }
+.prep-legend-dot.is-story { background: var(--tone-strong); }
+.prep-legend-dot.is-gap { background: var(--fill-warm); }
+.prep-legend-dot.is-none { background: var(--track-todo); }
+
+/* The phone puts the must-haves first; a wide screen keeps them in the main column. */
+.prep-exposed-at-top { display: grid; }
+.prep-exposed-at-main { display: none; }
+@media (min-width: 900px) {
+  .prep-exposed-at-top { display: none; }
+  .prep-exposed-at-main { display: grid; }
+}
+/* The briefing's names: one line on a phone, the list on a wide screen. */
+.prep-people-toggle { justify-self: start; display: none; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; font: 600 15px/1.3 var(--font-text); color: var(--text-strong); text-align: left; cursor: pointer; }
+@media (max-width: 899px) {
+  .prep-people-toggle { display: block; }
+  .prep-people.is-folded { display: none; }
+}
+/* A gap card leads with what to say; the rest opens on a tap. */
+.prep-gap-more > summary { list-style: none; display: flex; align-items: center; min-height: 44px; font: 600 14px/1.3 var(--font-text); color: var(--accent); cursor: pointer; }
+.prep-gap-more > summary::-webkit-details-marker { display: none; }
+.prep-gap-more[open] > summary { margin-bottom: 4px; }
+
+.prep-people-toggle .icon { width: 16px; height: 16px; color: var(--text-muted); transform: rotate(90deg); transition: transform var(--dur-base) var(--ease-out); }
+.prep-people-toggle[aria-expanded="true"] .icon { transform: rotate(-90deg); }
+@media (max-width: 899px) { .prep-people-toggle { display: inline-flex; } }
+@media print { body.is-printing-prep, #prep-print-root { background: var(--surface-card); } }
+
+/* The sheet's home: the button with what it gives. */
+.prep-sheet-cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.prep-sheet-promise { margin: 0; flex: 1 1 16rem; font: 400 14px/1.45 var(--font-text); color: var(--text-muted); }
+/* The pitch: its question on one line; on a phone, six lines and a tap for the rest. */
+.prep-pitch-asks { margin: 0; font: 400 15px/1.45 var(--font-text); color: var(--text-body); }
+.prep-pitch-more { position: relative; display: block; justify-self: start; min-height: 24px; margin-top: -4px; padding: 0; border: 0; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
+.prep-pitch-text.is-clamped { display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
+@media (max-width: 600px) { .prep-pitch-text.is-clamped { -webkit-line-clamp: 6; } }
+/* The gap disclosure: a chevron row whose label says what the tap does now. */
+.prep-gap-more > summary { gap: 8px; }
+.prep-gap-more > summary .icon { width: 16px; height: 16px; transform: rotate(90deg); transition: transform var(--dur-base) var(--ease-out); }
+.prep-gap-more[open] > summary .icon { transform: rotate(-90deg); }
+.prep-gap { gap: var(--space-2); }
+/* His own answers, grouped; earlier ones said as earlier. */
+
+.prep-answer-removed { margin: 0; display: flex; align-items: center; gap: 8px; font: 400 14px/1.4 var(--font-text); color: var(--text-muted); }
+
+/* Wide screens read the guide first: the hard question and the pitch at the
+   top left, the briefing, meter and sheet in the rail on the right. */
+@media (min-width: 900px) {
+  .prep.has-content { grid-template-columns: minmax(0, 1fr) 340px; }
+  .prep.has-content > .prep-side { order: 2; }
+}
+.prep-rail .prep-sheet-cta { display: grid; gap: 6px; }
+.prep-rail .prep-sheet-cta .btn { justify-self: start; }
+.prep-rail .prep-sheet-promise { flex: none; }
+
+/* When an answer was saved: a quiet date under his words. */
+.prep-answer-when { margin: 4px 0 0; font: 400 14px/1.3 var(--font-text); color: var(--text-muted); }
+
+/* Dictation: a pill beside the field; listening is the accent, never a pulse. */
+.prep-dictate { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-pill); background: var(--surface-card); font: 600 14px/1 var(--font-text); color: var(--text-strong); cursor: pointer; }
+.prep-dictate .icon { width: 16px; height: 16px; }
+.prep-dictate.is-listening { border-color: var(--accent); color: var(--accent); }
+.prep-dictate-note { margin: 0; font: 400 14px/1.4 var(--font-text); color: var(--text-muted); }
+.prep-dictate-download { display: grid; gap: 8px; justify-items: start; }
+
+/* Rehearsal: the question, a big clock, then what the code read. */
+.prep-rehearse-open { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
+.prep-rehearse-open .icon { width: 16px; height: 16px; }
+@media (hover: hover) { .prep-rehearse-open:hover { text-decoration: underline; } }
+.prep-rehearse { display: grid; gap: var(--space-3); padding: 16px 20px; border-radius: 16px; background: var(--surface-card); }
+.prep-rehearse-q { margin: 0; font: 600 17px/1.4 var(--font-text); color: var(--text-strong); }
+.prep-rehearse-clock { margin: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; font: 600 44px/1 var(--font-text); font-variant-numeric: tabular-nums; color: var(--text-strong); }
+.prep-rehearse-goal { font: 400 14px/1.3 var(--font-text); color: var(--text-muted); }
+.prep-rehearse-said { margin: 0; font: 400 15px/1.5 var(--font-text); color: var(--text-body); }
+.prep-rehearse-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.prep-rehearse-list li { position: relative; padding-left: 18px; font: 400 15px/1.45 var(--font-text); color: var(--text-body); }
+.prep-rehearse-list li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 8px; height: 8px; border-radius: 50%; background: var(--fill-warm); }
+.prep-rehearse-list li.is-good::before { background: var(--tone-strong); }
+.prep-rehearse-list li.is-quiet { color: var(--text-muted); }
+.prep-rehearse-list li.is-quiet::before { background: var(--border-strong); }
+.prep-rehearse-length { display: grid; gap: 10px; }
+.prep-rehearse-time { margin: 0; font: 400 16px/1.4 var(--font-text); color: var(--text-body); }
+.prep-rehearse-time strong { margin-right: 6px; font: 600 28px/1 var(--font-text); font-variant-numeric: tabular-nums; color: var(--text-strong); }
+.prep-rehearse-bar { display: block; width: 100%; height: 16px; }
+.prep-rehearse-track { fill: var(--surface-base); }
+.prep-rehearse-band { fill: var(--tone-strong-bg); stroke: var(--tone-strong); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.prep-rehearse-mark { fill: var(--fill-warm); }
+.prep-rehearse-mark.is-good { fill: var(--tone-strong); }
+.prep-rehearse-heard > summary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; list-style: none; cursor: pointer; font: 600 14px/1 var(--font-text); color: var(--accent); }
+.prep-rehearse-heard > summary::-webkit-details-marker { display: none; }
+.prep-rehearse-heard > summary .icon { width: 16px; height: 16px; transform: rotate(90deg); transition: transform var(--dur-base) var(--ease-out); }
+.prep-rehearse-heard[open] > summary .icon { transform: rotate(-90deg); }
+.prep-rehearse-heard p { margin: 0; font: 400 15px/1.5 var(--font-text); color: var(--text-body); }
+.prep-dictate-row { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.prep-dictate-private { font: 400 14px/1.3 var(--font-text); color: var(--text-muted); }
+.prep-story-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.prep-story-tools .prep-rehearse { flex: 1 1 100%; }
+.prep-answer-actions { flex-wrap: wrap; align-items: center; }
+.prep-rehearse-type { display: grid; gap: 8px; justify-items: start; }
+.prep-rehearse-type .field { width: 100%; }
+
+.prep-rehearse-field { width: 100%; }
+
+/* The "see all" under the pitch: a 44px target without a 44px band. */
+.prep-pitch-more::after { content: ''; position: absolute; inset: -10px -6px; }
+/* On a phone the briefing is one line: names, then the rest on a tap. */
+.prep-brief-more { display: grid; gap: inherit; }
+@media (max-width: 899px) { .prep-brief-more.is-folded { display: none; } }
+/* A question with nothing yet: the question, and "Responder" on its line. */
+@media (min-width: 600px) {
+  .prep-q-answerable:has(> .prep-answer-open) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: var(--space-4); }
+  .prep-q-answerable:has(> .prep-answer-open) > .prep-answer-open { position: relative; min-height: 32px; }
+  .prep-q-answerable:has(> .prep-answer-open) > .prep-answer-open::after { content: ''; position: absolute; inset: -6px -8px; }
+}
+
+.prep-q-more { justify-self: start; min-height: 44px; padding: 0; border: 0; background: none; font: 600 14px/1 var(--font-text); color: var(--accent); cursor: pointer; }
+
+.prep-q-jump { position: relative; justify-self: start; font: 600 14px/1.3 var(--font-text); color: var(--accent); text-decoration: none; }
+.prep-q-jump::after { content: ''; position: absolute; inset: -12px -6px; }
+@media (hover: hover) { .prep-q-jump:hover { text-decoration: underline; } }
+
+.prep-langnote { grid-column: 1 / -1; margin: 0; font: 400 14px/1.4 var(--font-text); color: var(--text-muted); }
+
+/* The gap's disclosure: open from the summary, close from the end. */
+.prep-gap-more[open] > summary { display: none; }
+.prep-gap-less { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; border: 0; background: none; font: 600 14px/1.3 var(--font-text); color: var(--accent); cursor: pointer; }
+.prep-gap-less .icon { width: 16px; height: 16px; transform: rotate(-90deg); }
+/* The CV suggestion folded under his own answer. */
+.prep-cv-suggestion { display: grid; gap: var(--space-2); }
+.prep-cv-suggestion > summary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; list-style: none; cursor: pointer; font: 600 14px/1 var(--font-text); color: var(--text-muted); }
+.prep-cv-suggestion > summary::-webkit-details-marker { display: none; }
+.prep-cv-suggestion > summary .icon { width: 16px; height: 16px; transform: rotate(90deg); transition: transform var(--dur-base) var(--ease-out); }
+.prep-cv-suggestion[open] > summary .icon { transform: rotate(-90deg); }
+
+/* A CV card folds to its line: the quote is the row, the chevron says it opens. */
+.prep-cvsummary { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); padding: 16px 20px; list-style: none; cursor: pointer; }
+.prep-cvsummary::-webkit-details-marker { display: none; }
+.prep-cvsummary .prep-cvline { display: block; flex: 1 1 auto; margin: 0; }
+.prep-cvcard[open] .prep-story-chevron { transform: rotate(180deg); }
+.prep-cvcard[open] .prep-cvbody { padding-top: 0; }
+
+/* The names' line: 44px to the finger, one line to the eye. */
+@media (max-width: 899px) {
+  .prep-people-toggle { position: relative; min-height: 24px; }
+  .prep-people-toggle::after { content: ''; position: absolute; inset: -10px -4px; }
+}
+
+/* The section's first line: standing, then the one next step. */
+.prep-next { grid-column: 1 / -1; display: grid; gap: var(--space-3); padding: 20px; border-radius: 16px; background: var(--surface-base); }
+.prep-next-count { margin: 0; font: 400 15px/1.3 var(--font-text); color: var(--text-muted); }
+.prep-next-count strong { font: 700 20px/1.25 var(--font-text); color: var(--text-strong); }
+.prep-next-step { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-4); }
+.prep-next-text { flex: 1 1 18rem; margin: 0; font: 500 16px/1.45 var(--font-text); color: var(--text-strong); }
+.prep-next-go { flex: none; }
+
+/* On a phone the top card says where he stands; the meter lives in the wide rail. */
+@media (max-width: 899px) { .prep-ready { display: none; } }
+/* "Tenlo claro": field knowledge a tap away, not open by default. */
+.prep-q-know > summary { position: relative; display: inline-flex; align-items: center; min-height: 32px; list-style: none; cursor: pointer; font: 600 14px/1.3 var(--font-text); color: var(--accent); }
+.prep-q-know > summary::-webkit-details-marker { display: none; }
+.prep-q-know > summary::after { content: ''; position: absolute; inset: -6px; }
+.prep-q-know:not([open]) { padding: 0; background: none; }
+.prep-q-know[open] { display: grid; gap: 6px; }
+/* The language choice, labelled: it decides a paid run's language. */
+.prep-lang-label { float: left; margin-right: 10px; padding: 0; font: 500 14px/36px var(--font-text); color: var(--text-muted); }
+
+/* The questions a gap answers, under its name. */
+.prep-gap-asks { margin: 0; font: 400 15px/1.45 var(--font-text); color: var(--text-body); }
+/* "Lo que conviene saber" opens like every other disclosure. */
+.prep-q-know > summary { gap: 6px; }
+.prep-q-know > summary::before { content: ''; order: 2; width: 7px; height: 7px; margin-left: 2px; border-right: 1.75px solid currentColor; border-bottom: 1.75px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform var(--dur-base) var(--ease-out); }
+.prep-q-know[open] > summary::before { transform: rotate(-135deg) translateY(-2px); }
+/* "Responder" and "Escribir…": a 44px target without a 44px band under every row. */
+.prep-answer-open { position: relative; min-height: 32px; }
+.prep-answer-open::after { content: ''; position: absolute; inset: -6px -8px; }
+/* The CV card: one text edge for the line, the warning, the question and his answer. */
+.prep-cvsummary .prep-cvline { padding-left: 0; border-left: 0; }
+/* Phone: inner cards give the text the width (16px insets, no box in a box). */
+@media (max-width: 600px) {
+  .prep-qcard, .prep-story, .prep-gap, .prep-pitch, .prep-brief, .prep-next, .prep-rehearse { padding: 16px; }
+  .prep-cvsummary { padding: 14px 16px; }
+  .prep-cvbody { padding: 0 16px 16px; }
+  .prep-story-qs { padding: 0; background: none; }
+  .prep-beat { padding-left: 22px; }
+}
+
+/* One step per level: section 20, section heads 18, card titles 16, body 15. */
+.prep-h2 { font: 700 18px/26px var(--font-text); letter-spacing: -0.01em; }
+.prep-story-row .prep-story-title, .prep-qcard-title, .prep-gap-title, .prep-pitch-title { font: 600 16px/1.35 var(--font-text); }
+.prep .prep-say { font: 400 15px/1.55 var(--font-text); }
+.prep .prep-beat.is-result .prep-say { font: 600 15px/1.55 var(--font-text); }
+/* "Responde a": one look everywhere, a grey label and the question. */
+.prep-story-qs { padding: 0; background: none; border-radius: 0; }
+/* A story missing his part says so on its row, quietly. */
+.prep-story-open { color: var(--text-muted); }
+/* The hardest must-haves: a list to act on, not a second spotlight. */
+.prep-exposed { background: var(--surface-base); }
+/* Print sits in the rail on a wide screen, at the end on a phone. */
+.prep-sheet-cta.is-end { display: none; }
+@media (max-width: 899px) {
+  .prep-sheet-cta.is-rail { display: none; }
+  .prep-sheet-cta.is-end { display: flex; }
+}
+.prep-rehearse-typeopen { justify-self: start; position: relative; min-height: 32px; padding: 0; border: 0; background: none; font: 600 14px/1.3 var(--font-text); color: var(--accent); cursor: pointer; text-align: left; }
+.prep-rehearse-typeopen::after { content: ''; position: absolute; inset: -6px; }
+/* Phone: one 16px inner edge for every card, rows and lists included. */
+@media (max-width: 600px) {
+  .prep-exposed { padding: 4px 16px; }
+  .prep-story-row { padding: 14px 16px; }
+  .prep-story-body { padding: 0 16px 16px; }
+  .prep-qcard.is-none, .prep-qcard.is-gap { padding: 16px; }
+}
+
+/* The language pill's label sits inside it like a segment, not against its edge. */
+.prep-lang-label { padding: 0 6px 0 12px; }
+/* The debrief's answer in a card like every other. */
+.prep-debrief-card { padding: 16px 20px; border-radius: 16px; background: var(--surface-base); }
+@media (max-width: 600px) { .prep-debrief-card { padding: 16px; } }
+/* "Responde a" inline with its question, as on the pitch and gap cards. */
+.prep-story-qs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; }
+.prep-story-qs > .prep-beat-label { flex: none; margin: 0; }
+.prep-story-qs > .prep-qs { flex: 1 1 14rem; }
+.prep-story-qs .prep-q { padding-top: 0; }
+/* Inside the timeline his words need no second rule: the step's node says it. */
+.prep-beat .prep-answer.is-saved { padding-left: 0; border-left: 0; }
+/* One rule for the nodes: filled where the step has words, hollow where it waits for his. */
+.prep-dot { background: var(--text-muted); box-shadow: none; }
+.prep-beat.is-result .prep-dot { background: var(--accent); }
+.prep-beat.is-open .prep-dot { background: var(--surface-card); box-shadow: inset 0 0 0 2px var(--accent); }
+/* The gap card's revealed steps on the card's own rhythm. */
+.prep-gap-more > .prep-gap-steps > li:first-child { padding-top: 4px; }
+
+/* The count is the section's hero: the number large, the words its label. */
+.prep-next-count { font: 500 15px/1.3 var(--font-text); color: var(--text-muted); }
+.prep-next-count .prep-next-num { margin-right: 4px; font: 700 30px/1.1 var(--font-text); font-variant-numeric: tabular-nums; color: var(--text-strong); }
+/* His saved words at body size, full measure; orange keeps one meaning (the meter). */
+.prep-answer-text { font: 400 15px/1.55 var(--font-text); }
+.prep-answer.is-saved { border-left-color: var(--border-strong); }
+/* One gap between sub-sections, on both layouts. */
+.prep.has-content { row-gap: var(--space-section); }
+@media (max-width: 899px) { .prep-side { gap: var(--space-section); } }
+
+/* "Responde a" stays on the question's line on a phone too. */
+.prep-story-qs > .prep-qs { flex: 1 1 0; min-width: 0; }
+/* On a phone everything in the rail is shown elsewhere or not at all: no empty block, no extra gap. */
+@media (max-width: 899px) { .prep-rail { display: none; } }
+
+/* The briefing's note reads as body, not as a heading. */
+.prep .prep-note { font: 400 15px/1.55 var(--font-text); }
+/* "Responde a" runs in with its question everywhere. */
+.prep-story-qs { display: block; }
+.prep-story-qs > .prep-beat-label { display: inline; margin-right: 6px; }
+.prep-story-qs > .prep-qs, .prep-story-qs .prep-qs > .prep-q { display: inline; }
+.prep-story-qs .prep-q-req { display: block; margin-top: 2px; }
+/* One style for every expander: the accent. */
+.prep-cv-suggestion > summary { color: var(--accent); }
+/* Accent means "your part"; the result is emphasised by ink alone. */
+.prep-beat.is-result .prep-dot { background: var(--text-strong); }
+/* The version toggle and "Ensayar" on the inner rhythm when they stack. */
+.prep-story-tools { row-gap: 8px; }
+
+/* The result's label in ink: amber means "your part" only. */
+.prep-beat.is-result .prep-beat-label { color: var(--text-muted); }
+
+/* "Responde a": one block in every card. */
+.prep-asks { display: grid; gap: 2px; }
+.prep-asks-line { margin: 0; font: 400 15px/1.45 var(--font-text); color: var(--text-body); }
+.prep-asks .prep-q-req { margin: 0; }
+/* The stories as one group: rows divided by a rule, not six cards. */
+.prep-qcard.is-stories { gap: 0; }
+.prep-qcard.is-stories > .prep-qcard-title { margin-bottom: 4px; }
+.prep-story-list > .prep-story { padding: 0; border-radius: 0; background: none; box-shadow: none; border-top: 1px solid var(--border-subtle); }
+.prep-story-list > .prep-story:first-child { border-top: 0; }
+.prep-story-list .prep-story-row { padding: 12px 0; min-height: 56px; border-radius: 0; }
+.prep-story-list .prep-story-body { padding: 0 0 16px; }
+.prep-story-list .prep-story-chevron { background: var(--surface-card); }
+/* What a story is missing: a short tag on its row. */
+.prep-story-open { display: inline-block; margin-top: 4px; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--surface-card); font: 500 14px/1.5 var(--font-text); color: var(--text-body); }
+
+/* One label style in the "Responde a" block. */
+.prep-asks .prep-q-status { font-weight: 600; color: var(--text-muted); }
+.prep-asks .prep-q-req { color: var(--text-body); }
+/* The missing-step tag: a quiet outline, not a second white control. */
+.prep-story-open { background: none; box-shadow: inset 0 0 0 1px var(--border-strong); }
+/* Group heads a step above their rows. */
+.prep-qcard.is-stories > .prep-qcard-title, .prep-qcard-title { font: 700 16px/1.35 var(--font-text); }
+.prep-story-list .prep-story-row .prep-story-title { font: 600 15px/1.4 var(--font-text); }
+/* The pitch: five lines, four on a phone, then "Leer más". */
+.prep-pitch-text.is-clamped { -webkit-line-clamp: 5; }
+@media (max-width: 600px) { .prep-pitch-text.is-clamped { -webkit-line-clamp: 4; } }
+
+/* The key's one-tap paste, under the field. */
+.key-paste { justify-self: start; margin-top: 8px; }
+
+/* The prep's wait: the stage, a clock, and what he can do meanwhile. */
+.prep-wait { display: grid; gap: 4px; }
+.prep-wait-clock { font-variant-numeric: tabular-nums; color: var(--text-muted); }
+.prep-wait-note { margin: 0; font: 400 14px/1.45 var(--font-text); color: var(--text-muted); }
+
+/* Drive: actions on one line beside their row or banner text. */
+.drive-actions { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.drive-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
