@@ -152,6 +152,8 @@ if (process.argv[1]?.endsWith('web-site.ts')) {
   for (const og of ['og.jpg', 'og-en.jpg'])
     copyFileSync(path.join('web', 'landing', og), path.join(SITE, og))
   cpSync(path.join('web', 'landing', 'fonts'), path.join(SITE, 'fonts'), { recursive: true })
+  // The 24-second film on the Spanish landing (dist/marketing/autoplay/source).
+  cpSync(path.join('web', 'landing', 'video'), path.join(SITE, 'video'), { recursive: true })
   copyFileSync(
     path.join('web', 'landing', 'legacy', 'version.json'),
     path.join(SITE, 'version.json'),

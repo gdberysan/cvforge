@@ -2068,6 +2068,10 @@ span.outcome-chip { border-color: var(--chip-tone); color: var(--text-strong); }
 .locale-toggle { display: inline-grid; grid-auto-flow: column; gap: 2px; padding: 2px; border-radius: var(--radius-pill); background: var(--surface-sunken); border: 1px solid var(--border-subtle); }
 .locale-option { min-width: 34px; height: 28px; padding: 0 10px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--text-muted); font: var(--type-label); cursor: pointer; }
 .locale-option[aria-current="true"] { background: var(--surface-raised); color: var(--text-strong); box-shadow: var(--shadow-1); cursor: default; }
+/* The current language's shadow is more specific than the base ring: without
+   these, Tab onto it showed no focus at all. */
+.locale-option:focus-visible { box-shadow: var(--ring-focus); }
+.locale-option[aria-current="true"]:focus-visible { box-shadow: var(--shadow-1), var(--ring-focus); }
 @media (max-width: 699px), (pointer: coarse) { .locale-option { min-width: 44px; height: 40px; } }
 .shutdown { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: var(--surface-base); text-align: center; padding: var(--space-6); }
 .shutdown-title { font: var(--type-h2); margin-top: var(--space-3); }
@@ -9323,6 +9327,13 @@ a.btn-primary:not(:has(svg))::after {
   .topnav .brand-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .topnav .brand-link { min-width: 44px; justify-content: center; }
 }
+/* In Spanish "Prueba gratis" is wider: up to 400 px the switch still ran
+   9 px into the bar's margin at 390 (measured 2026-11-25; English fits from
+   384). */
+@media (max-width: 400px) {
+  html[lang^="es"] .topnav .brand-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  html[lang^="es"] .topnav .brand-link { min-width: 44px; justify-content: center; }
+}
 .brand-word.is-lower {
   text-transform: lowercase;
 }
@@ -9704,7 +9715,9 @@ a.btn-primary:not(:has(svg))::after {
 .ill-address { fill: var(--surface-card); }
 .ill-h { font: 700 15px/1 var(--font-text); fill: var(--text-strong); }
 .ill-btn { fill: var(--surface-sunken); stroke: var(--border-default); }
-.ill-btn.is-target { fill: var(--fill-warm); stroke: var(--fill-warm); transform-box: fill-box; transform-origin: center; animation: ill-press 3.6s var(--ease-out) infinite; }
+/* The button to press, ringed in amber: not filled, since it is Anthropic's
+   page (and Google's button) being pictured, not ours. */
+.ill-btn.is-target { fill: var(--surface-raised); stroke: var(--fill-warm); stroke-width: 2.5; transform-box: fill-box; transform-origin: center; animation: ill-press 3.6s var(--ease-out) infinite; }
 .ill-btn-text { font: 600 14px/1 var(--font-text); fill: var(--text-body); }
 .ill-btn-text.is-on { fill: var(--ink); }
 .ill-side { fill: var(--surface-sunken); }
