@@ -1476,7 +1476,7 @@ const en = {
     "Reads it to answer. Doesn't train on it; deletes it within 30 days.",
   'privacy.flow.us': 'CVForge',
   'privacy.flow.usBody':
-    'No accounts, no analytics, stores nothing. Only the free trial passes your calls through it, untouched.',
+    'No accounts, stores nothing, only counts anonymous visits to the welcome page. Only the free trial passes your calls through it, untouched.',
   'privacy.group.stays': 'What stays with you',
   'privacy.group.leaves': 'What leaves, and where it goes',
   'privacy.group.trust': "What isn't there, and what you trust",
@@ -1507,9 +1507,9 @@ const en = {
   'privacy.shots.body':
     "The whole images are sent to Anthropic to be read, not just the posting text. If they show names of your contacts or anything else you'd rather not share, crop them first.",
   'privacy.none.title': "What isn't here",
-  'privacy.none.short': 'No analytics, no trackers, no ads.',
+  'privacy.none.short': 'No analytics in the app, no trackers, no ads.',
   'privacy.none.body':
-    'No analytics, no trackers, no ads and no third-party code. The only cookie remembers your language.',
+    'Inside the app: no analytics, no trackers, no ads and no third-party code. The only cookie remembers your language. The welcome page, before you open the app, counts visits with Cloudflare Web Analytics: no cookies and nothing that identifies you, only the page, the site you came from, your country and the kind of device.',
   'privacy.host.title': 'What the website sees',
   'privacy.host.short': 'That the page was opened, like any website. Never your data.',
   'privacy.host.body':
@@ -3216,7 +3216,7 @@ const es: Record<MessageKey, string> = {
   'privacy.flow.anthropicBody': 'Lo lee para responder. No entrena con ello; lo borra en 30 días.',
   'privacy.flow.us': 'CVForge',
   'privacy.flow.usBody':
-    'Sin cuentas, sin analítica, no guarda nada. Solo la prueba gratis pasa tus llamadas por ahí, sin tocarlas.',
+    'Sin cuentas, no guarda nada, solo cuenta visitas anónimas a la página de bienvenida. Solo la prueba gratis pasa tus llamadas por ahí, sin tocarlas.',
   'privacy.group.stays': 'Lo que se queda contigo',
   'privacy.group.leaves': 'Lo que sale, y a dónde va',
   'privacy.group.trust': 'Lo que no hay, y en qué confías',
@@ -3247,9 +3247,9 @@ const es: Record<MessageKey, string> = {
   'privacy.shots.body':
     'Las imágenes completas se envían a Anthropic para leerlas, no solo el texto de la vacante. Si muestran nombres de tus contactos u otra cosa que no quieras compartir, recórtalas antes.',
   'privacy.none.title': 'Lo que no hay',
-  'privacy.none.short': 'Sin analítica, sin rastreadores, sin anuncios.',
+  'privacy.none.short': 'Sin analítica en la app, sin rastreadores, sin anuncios.',
   'privacy.none.body':
-    'Sin analítica, sin rastreadores, sin anuncios y sin código de terceros. La única cookie guarda tu idioma.',
+    'Dentro de la app: sin analítica, sin rastreadores, sin anuncios y sin código de terceros. La única cookie guarda tu idioma. La página de bienvenida, antes de abrir la app, cuenta visitas con Cloudflare Web Analytics: sin cookies y sin nada que te identifique, solo la página, el sitio del que vienes, tu país y el tipo de dispositivo.',
   'privacy.host.title': 'Lo que ve el sitio',
   'privacy.host.short': 'Que se abrió la página, como en cualquier sitio. Nunca tus datos.',
   'privacy.host.body':
