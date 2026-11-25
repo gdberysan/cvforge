@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { IconChevron } from '@/components/ui/icons'
 import type { MessageKey } from '@/lib/i18n'
 import type { InterviewView } from '@/lib/seguimiento-view'
 
@@ -44,6 +45,8 @@ export function PrepBriefing({
 }) {
   const t = useT()
   const [open, setOpen] = useState(false)
+  // On a phone the names fold to one line; a wide screen always shows them.
+  const [peopleOpen, setPeopleOpen] = useState(false)
   // A long note is the biggest text in the column; three lines say how to
   // pitch it, the rest waits a tap (audit 2026-11-24).
   const long = note.length > 220
@@ -52,7 +55,9 @@ export function PrepBriefing({
   const scheduled = interview?.state === 'scheduled' ? interview : null
   return (
     <section className="prep-brief" aria-label={t('prep.title')}>
-      <p className="prep-when">{t(when.key, when.n !== undefined ? { n: when.n } : undefined)}</p>
+      <p className={`prep-when${when.key === 'prep.when.unknown' ? ' is-unknown' : ''}`}>
+        {t(when.key, when.n !== undefined ? { n: when.n } : undefined)}
+      </p>
       {scheduled && (
         <div className="prep-date">
           {/* The same tile as the Seguimiento interview card. */}
@@ -67,8 +72,19 @@ export function PrepBriefing({
           </p>
         </div>
       )}
+      {people.length > 0 && (
+        <button
+          type="button"
+          className="prep-people-toggle"
+          aria-expanded={peopleOpen}
+          onClick={() => setPeopleOpen((v) => !v)}
+        >
+          {t('prep.people.summary', { names: people.map((p) => p.name.split(' ')[0]).join(', ') })}
+          <IconChevron />
+        </button>
+      )}
       {people.length > 0 ? (
-        <ul className="prep-people">
+        <ul className={`prep-people${peopleOpen ? '' : ' is-folded'}`}>
           {people.map((p) => (
             <li key={p.name}>
               <span className="prep-person">{p.name}</span>
@@ -85,34 +101,37 @@ export function PrepBriefing({
       ) : (
         <p className="prep-muted">{t('prep.noPeople')}</p>
       )}
-      {join && (
-        <a
-          className="btn btn-quiet prep-join"
-          href={join}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {/* Until there is a date, it is a link, not a meeting to join now. */}
-          {t(scheduled ? 'prep.join' : 'prep.joinLink')}
-        </a>
-      )}
-      {note && (
-        <p className={`prep-note${long && !open ? ' is-clamped' : ''}`} id="prep-note">
-          {note}
-        </p>
-      )}
-      {note && long && (
-        <button
-          type="button"
-          className="prep-note-toggle"
-          aria-expanded={open}
-          aria-controls="prep-note"
-          onClick={() => setOpen((v) => !v)}
-        >
-          {t(open ? 'prep.note.less' : 'prep.note.more')}
-        </button>
-      )}
-      {note && noteFlag && <p className="prep-flag">{t('prep.flag', { reason: noteFlag })}</p>}
+      {/* On a phone, the link and the note wait behind the names' line too. */}
+      <div className={`prep-brief-more${people.length > 0 && !peopleOpen ? ' is-folded' : ''}`}>
+        {join && (
+          <a
+            className="btn btn-quiet prep-join"
+            href={join}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {/* Until there is a date, it is a link, not a meeting to join now. */}
+            {t(scheduled ? 'prep.join' : 'prep.joinLink')}
+          </a>
+        )}
+        {note && (
+          <p className={`prep-note${long && !open ? ' is-clamped' : ''}`} id="prep-note">
+            {note}
+          </p>
+        )}
+        {note && long && (
+          <button
+            type="button"
+            className="prep-note-toggle"
+            aria-expanded={open}
+            aria-controls="prep-note"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {t(open ? 'prep.note.less' : 'prep.note.more')}
+          </button>
+        )}
+        {note && noteFlag && <p className="prep-flag">{t('prep.flag', { reason: noteFlag })}</p>}
+      </div>
     </section>
   )
 }

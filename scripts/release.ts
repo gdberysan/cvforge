@@ -539,9 +539,34 @@ async function bootGate(): Promise<void> {
   let child: ReturnType<typeof spawn> | null = null
   let serverLog = ''
   try {
-    execFileSync('unzip', ['-q', path.resolve(zip), '-d', tmp])
+    // No real CVForge.app is ever unpacked here: node deleting an app bundle
+    // it did not create trips macOS App Management ("node was prevented from
+    // modifying apps"), and the random temp path made each build a new
+    // client in Privacy & Security (2026-11-25). The server run needs no app;
+    // the app's files are checked from the zip itself and, for the
+    // personal-data scan, unpacked flat (no .app folder) below.
+    const appPrefix = `${name}/CVForge.app/`
+    execFileSync('unzip', ['-q', path.resolve(zip), '-x', `${appPrefix}*`, '-d', tmp])
+    const listing = execFileSync('zipinfo', [path.resolve(zip)], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    })
+      .split('\n')
+      .map((line) => line.trim().split(/\s+/))
+      .filter((cols) => cols.length >= 9 && /^[-dl]/.test(cols[0] ?? ''))
+      .map((cols) => ({ mode: cols[0] ?? '', entry: cols.slice(8).join(' ') }))
+    const appFiles = listing.filter((f) => f.entry.startsWith(appPrefix) && !f.entry.endsWith('/'))
+    const appFlat = path.join(tmp, 'app-files')
+    mkdirSync(appFlat)
+    execFileSync('unzip', ['-q', '-j', path.resolve(zip), `${appPrefix}*`, '-d', appFlat])
 
-    const top = readdirSync(extracted).sort()
+    const top = [
+      ...new Set(
+        listing
+          .map((f) => f.entry.slice(name.length + 1).split('/')[0] ?? '')
+          .filter((e) => e !== ''),
+      ),
+    ].sort()
     const expected = [...TOP_LEVEL].sort()
     if (JSON.stringify(top) !== JSON.stringify(expected)) {
       throw new Error(`unexpected top level: ${top.join(', ')} (wanted: ${expected.join(', ')})`)
@@ -596,18 +621,20 @@ async function bootGate(): Promise<void> {
     // The source gate scans `git archive`, but the zip is compiled from the
     // working tree — compiled demo and discover output never passed through
     // it. Same denylist, over every text file a buyer actually receives.
-    const denied = scanTreeForDenied(
-      extracted,
-      readFileSync(path.join('evals', 'private', 'denylist.txt'), 'utf8').split('\n'),
-      { skipDirs: ['node_modules'] },
-    )
+    const terms = readFileSync(path.join('evals', 'private', 'denylist.txt'), 'utf8').split('\n')
+    const denied = scanTreeForDenied(extracted, terms, { skipDirs: ['node_modules'] })
+    // The app's own files, checked from their flat copy (see above).
+    denied.hits.push(...scanTreeForDenied(appFlat, terms).hits)
     if (denied.hits.length > 0) {
       throw new Error(
         `zip carries personal context: ${denied.hits.map((h) => `${h.file} ← "${h.term}"`).join(', ')}`,
       )
     }
+    const launcher = appFiles.find((f) => f.entry === `${appPrefix}Contents/MacOS/CVForge`)
+    if (!launcher?.mode.includes('x')) {
+      throw new Error('CVForge.app/Contents/MacOS/CVForge lost its executable bit (or is missing)')
+    }
     for (const f of [
-      'CVForge.app/Contents/MacOS/CVForge',
       'programa/start.sh',
       'programa/node/mac-arm64/node',
       'programa/node/mac-x64/node',

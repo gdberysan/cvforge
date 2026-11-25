@@ -74,6 +74,7 @@ export function rawPrep(over: Partial<ModelPrep> = {}): ModelPrep {
     askThem: [
       { text: 'What would a great first quarter look like?', why: 'shows what they measure' },
     ],
+    pitch: { text: 'I build marketplace funnels that convert.', citedEvidenceIds: ['ev_funnel'] },
     ...over,
   }
 }

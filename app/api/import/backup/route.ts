@@ -5,7 +5,7 @@ import { validateBackup } from '@/lib/db/backup'
 import { restoreDatabase } from '@/lib/db/client'
 import { DatabaseInUseError } from '@/lib/db/restore'
 import { demoBlock, isDemo } from '@/lib/demo/mode'
-import { doorOf, tailnetConfig } from '@/lib/http/doors'
+import { doorOf } from '@/lib/http/doors'
 import { isSameOriginRequest } from '@/lib/http/same-origin'
 
 const MAX_BACKUP_BYTES = 50 * 1024 * 1024
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
   // Defence in depth behind the guard's path check: whatever spelling of
   // this path reached the handler, only the Mac itself may run it.
-  if (doorOf(request.headers, tailnetConfig()) !== 'local') {
+  if (doorOf(request.headers) !== 'local') {
     return NextResponse.json(
       { error: 'Only from the Mac itself.', code: 'mac-only' },
       { status: 403 },

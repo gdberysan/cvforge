@@ -2,6 +2,7 @@
   "@/app/(app)/application/[id]/cv-actions": "./actions/application__id__cv-actions.ts",
   "@/app/(app)/application/[id]/gaps/actions": "./actions/application__id__gaps.ts",
   "@/app/(app)/application/[id]/people-actions": "./actions/application__id__people-actions.ts",
+  "@/app/(app)/application/[id]/prep-actions": "./actions/application__id__prep-actions.ts",
   "@/app/(app)/application/actions": "./actions/application.ts",
   "@/app/(app)/cvs/actions": "./actions/cvs.ts",
   "@/app/(app)/evidence/actions": "./actions/evidence.ts",

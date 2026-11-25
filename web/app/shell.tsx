@@ -10,6 +10,7 @@ import { MomentHost } from '@/components/ui/MomentHost'
 import { Nav } from '@/components/ui/Nav'
 import { ToastHost } from '@/components/ui/ToastHost'
 import { useDatabase } from '@/web/lib/database'
+import { DriveBanner } from '@/web/lib/drive-ui'
 import { InAppBrowserBanner } from '@/web/lib/in-app-browser'
 import { onJobs } from '@/web/lib/jobs'
 import { TrialOutSheet } from '@/web/lib/trial-out'
@@ -109,6 +110,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           {t('web.job.keepOpen')}
         </p>
       )}
+      <DriveBanner />
       {state.interrupted > 0 && !seenInterrupted && (
         <div className="job-banner is-warning" role="alert">
           <span>{t('web.job.interrupted', { n: state.interrupted })}</span>

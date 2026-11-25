@@ -14,8 +14,8 @@ function loadWorker() {
     clients: { matchAll: vi.fn(() => Promise.resolve([])), openWindow: vi.fn(), claim: vi.fn() },
     skipWaiting: vi.fn(),
     location: {
-      origin: 'https://cvforge.tail1234.ts.net',
-      href: 'https://cvforge.tail1234.ts.net/sw.js?v=b1',
+      origin: 'https://cvforge.example',
+      href: 'https://cvforge.example/sw.js?v=b1',
     },
   }
   const source = readFileSync('public/sw.js', 'utf8')
@@ -26,7 +26,7 @@ function loadWorker() {
 describe('service worker', () => {
   it('caches only versioned static files, icons and the offline page', () => {
     const { shouldCache } = loadWorker()
-    const o = 'https://cvforge.tail1234.ts.net'
+    const o = 'https://cvforge.example'
     expect(shouldCache(`${o}/_next/static/chunks/app-abc123.js`)).toBe(true)
     expect(shouldCache(`${o}/icons/icon-192.png`)).toBe(true)
     expect(shouldCache(`${o}/offline.html`)).toBe(true)

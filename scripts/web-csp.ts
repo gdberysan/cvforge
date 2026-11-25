@@ -32,8 +32,10 @@ export function pagePolicy(hashes: string[]): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data:",
     "font-src 'self' data:",
-    // The page talks to its own Worker and files; the key never leaves from here.
-    "connect-src 'self'",
+    // The page talks to its own Worker and files; the key never leaves from
+    // here. Google Drive only when the person connects it (web/lib/drive.ts):
+    // the Drive API and the token-revoke endpoint, nothing else of Google's.
+    "connect-src 'self' https://www.googleapis.com https://oauth2.googleapis.com",
     "worker-src 'self'",
     "manifest-src 'self'",
     // CV preview and print are srcdoc frames of our own HTML.

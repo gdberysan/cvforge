@@ -3,6 +3,7 @@
 import { type ChangeEvent, useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import { SettingsRow } from '@/components/settings/SettingsGroup'
+import { BRAND } from '@/lib/brand'
 import { LOCALE_COOKIE } from '@/lib/i18n/locale'
 import { saveBlob } from '@/lib/ui/download'
 import { blockedInApp } from '@/lib/ui/in-app'
@@ -15,6 +16,21 @@ import { dataChanged, workerApi } from './actions-client'
  */
 import { BASE } from './base'
 
+/** The whole database as one file in Downloads (named for the brand and the day). */
+export async function saveDatabaseCopy(): Promise<void> {
+  const bytes = await (await workerApi()).exportDatabase()
+  const day = new Date().toISOString().slice(0, 10)
+  saveBlob(
+    new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/vnd.sqlite3' }),
+    `${BRAND.toLowerCase()}-${day}.db`,
+  )
+  try {
+    localStorage.setItem(BACKUP_AT, String(Date.now()))
+  } catch {}
+}
+/** When this browser last saved a copy (a per-browser convenience). */
+export const BACKUP_AT = 'backup.savedAt'
+
 export function DataCard() {
   const t = useT()
   const [file, setFile] = useState<File | null>(null)
@@ -26,12 +42,7 @@ export function DataCard() {
     setBusy(true)
     setMessage(null)
     try {
-      const bytes = await (await workerApi()).exportDatabase()
-      const day = new Date().toISOString().slice(0, 10)
-      saveBlob(
-        new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/vnd.sqlite3' }),
-        `cvforge-${day}.db`,
-      )
+      await saveDatabaseCopy()
       setMessage({ ok: true, text: t('web.data.exported') })
     } catch {
       setMessage({ ok: false, text: t('web.data.exportFailed') })

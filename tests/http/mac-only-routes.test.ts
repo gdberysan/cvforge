@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/lib/db/client', () => ({ restoreDatabase: vi.fn() }))
 vi.mock('@/lib/db/backup', () => ({ validateBackup: () => ({ ok: true }) }))
@@ -20,15 +20,8 @@ const phone = (path: string, body?: string) =>
     },
   })
 
-describe('Mac-only routes refuse the phone themselves, not only in the guard', () => {
-  afterEach(() => {
-    delete process.env.CVFORGE_TAILNET_HOST
-    delete process.env.CVFORGE_TAILNET_LOGIN
-  })
-
-  it('shutdown and restore answer 403 mac-only through the tailnet door', async () => {
-    process.env.CVFORGE_TAILNET_HOST = 'cvforge.tail1234.ts.net'
-    process.env.CVFORGE_TAILNET_LOGIN = 'owner@example.com'
+describe('Mac-only routes refuse another device themselves, not only in the guard', () => {
+  it('shutdown and restore answer 403 mac-only to a proxied request', async () => {
     const exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
     const s = await shutdown.POST(phone('/api/shutdown'))
     expect(s.status).toBe(403)

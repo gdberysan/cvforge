@@ -27,17 +27,23 @@ export function exposedGaps(content: PrepContent, requirements: ReqChip[]) {
 export function Exposed({
   content,
   requirements,
+  placement = 'main',
 }: {
   content: PrepContent
   requirements: ReqChip[]
+  /** 'top': the phone copy, first on the screen; 'main': the wide-screen one. */
+  placement?: 'top' | 'main'
 }) {
   const t = useT()
   const reqs = new Map(requirements.map((r) => [r.id, r]))
   const exposed = exposedGaps(content, requirements)
   if (exposed.length === 0) return null
   return (
-    <section className="prep-section" aria-labelledby="prep-exposed-h">
-      <h2 id="prep-exposed-h" className="prep-h2">
+    <section
+      className={`prep-section prep-exposed-at-${placement}`}
+      aria-labelledby={placement === 'main' ? 'prep-exposed-h' : 'prep-exposed-top-h'}
+    >
+      <h2 id={placement === 'main' ? 'prep-exposed-h' : 'prep-exposed-top-h'} className="prep-h2">
         {t('prep.exposed.title')}
       </h2>
       <p className="prep-muted">{t('prep.exposed.hint')}</p>
@@ -47,7 +53,6 @@ export function Exposed({
             <a className="prep-exposed-link" href={`#gap-${g.id}`}>
               <span className="prep-exposed-text">
                 <span className="prep-exposed-name">{reqs.get(g.requirementId)?.keyword}</span>
-                <span className="prep-exposed-admit">{g.admit}</span>
               </span>
               <span className="prep-exposed-see">{t('prep.exposed.see')}</span>
             </a>

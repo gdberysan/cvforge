@@ -11,7 +11,7 @@ import { db } from '@/lib/db/client'
 import { getProfile } from '@/lib/db/queries/profile'
 import { spendSummary } from '@/lib/db/queries/spend'
 import { isDemo } from '@/lib/demo/mode'
-import { doorOf, tailnetConfig } from '@/lib/http/doors'
+import { doorOf } from '@/lib/http/doors'
 import { makeTranslate } from '@/lib/i18n'
 import { getLocale } from '@/lib/i18n/server'
 import { updateAvailable } from '@/lib/update'
@@ -24,7 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // lead to empty screens. A first run should be one box and nothing else.
   const started = Boolean(getProfile(db))
   // Quitting stops the server for every device; only the Mac may (mac-only).
-  const canQuit = doorOf(await headers(), tailnetConfig()) === 'local'
+  const canQuit = doorOf(await headers()) === 'local'
 
   return (
     <LocaleProvider locale={locale}>

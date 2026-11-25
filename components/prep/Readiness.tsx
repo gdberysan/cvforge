@@ -1,18 +1,55 @@
 'use client'
 
 import { useT } from '@/components/i18n/LocaleProvider'
-import { BEATS, type PrepContent } from '@/lib/schemas/prep'
+import { standings } from '@/lib/prep/standing'
+import type { PrepContent } from '@/lib/schemas/prep'
+import type { SavedAnswer } from './AnswerBox'
+import { openBeats } from './StoryCard'
 
-/** One segment per question, by what answers it; then how many stories need his memory. */
-export function Readiness({ content }: { content: PrepContent }) {
+/**
+ * One segment per question, by what answers it; then how many stories need
+ * his memory. Read with the same rules as the question groups (`standings`),
+ * and counting what he wrote himself, so the meter moves when he answers.
+ */
+/** Where he stands, read once for the meter and the top line. */
+export function useReadiness(
+  content: PrepContent,
+  answers: SavedAnswer[],
+  requirements: { id: string; keyword: string }[],
+) {
   const t = useT()
-  const total = content.coverage.length
-  const story = content.coverage.filter((c) => c.by === 'story').length
-  const gap = content.coverage.filter((c) => c.by === 'gap').length
-  const none = total - story - gap
-  const open = content.stories.filter((s) => BEATS.some((b) => s[b].text === ''))
-  const memory = open.length
-  const order = [...content.coverage].sort(
+  const st = standings(content, answers, new Map(requirements.map((r) => [r.id, r.keyword])))
+  // A question only he can answer (salary, motive) and has not: nothing yet.
+  const open = content.stories.filter(
+    (s) => openBeats(s, answers, (b) => t(`prep.beat.${b}`)).length > 0,
+  )
+  const unfinished = new Set(open.map((s) => s.id))
+  // Ready means said: a question resting on a story still missing his part,
+  // or one only he can answer and hasn't, is still to complete.
+  const coverage = content.questions.map((q) => {
+    const by = st.get(q.id)?.by ?? 'none'
+    const toDo = by === 'personal' || (by === 'story' && unfinished.has(q.answeredBy))
+    return { questionId: q.id, by: toDo ? ('none' as const) : by }
+  })
+  const total = coverage.length
+  const story = coverage.filter((c) => c.by === 'story').length
+  const gap = coverage.filter((c) => c.by === 'gap').length
+  return { st, coverage, total, story, gap, none: total - story - gap, open }
+}
+
+export function Readiness({
+  content,
+  answers = [],
+  requirements = [],
+}: {
+  content: PrepContent
+  /** What he wrote since: a question he answered himself is answered. */
+  answers?: SavedAnswer[]
+  requirements?: { id: string; keyword: string }[]
+}) {
+  const t = useT()
+  const { coverage, total, story, gap, none } = useReadiness(content, answers, requirements)
+  const order = [...coverage].sort(
     (a, b) => ['story', 'gap', 'none'].indexOf(a.by) - ['story', 'gap', 'none'].indexOf(b.by),
   )
   return (
@@ -29,13 +66,21 @@ export function Readiness({ content }: { content: PrepContent }) {
           <span key={c.questionId} className={`prep-seg is-${c.by}`} />
         ))}
       </div>
-      <p className="prep-ready-text">{t('prep.ready.summary', { story, total, gap, none })}</p>
-      {memory > 0 && (
-        <p className="prep-memory">
-          {t(memory === 1 ? 'prep.ready.memory.one' : 'prep.ready.memory.other', { n: memory })}{' '}
-          <a href={`#story-${open[0]?.id}`}>{t('prep.ready.memoryLink')}</a>
-        </p>
-      )}
+      {/* The three tones named with their counts: the legend is the summary. */}
+      <ul className="prep-legend">
+        <li>
+          <span className="prep-legend-dot is-story" aria-hidden="true" />
+          {t('prep.ready.legend.story', { n: story })}
+        </li>
+        <li>
+          <span className="prep-legend-dot is-gap" aria-hidden="true" />
+          {t('prep.ready.legend.gap', { n: gap })}
+        </li>
+        <li>
+          <span className="prep-legend-dot is-none" aria-hidden="true" />
+          {t('prep.ready.legend.none', { n: none })}
+        </li>
+      </ul>
     </section>
   )
 }

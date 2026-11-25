@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useLocale, useT } from '@/components/i18n/LocaleProvider'
 import { HomeView } from '@/components/pages/HomeView'
+import { BackupNudge } from '@/web/lib/backup-nudge'
 import { TrialCard } from '@/web/lib/trial-card'
 import { useLoader } from '@/web/lib/use-loader'
 import { WaysInCard } from '@/web/lib/ways-in'
@@ -30,7 +31,12 @@ function Home() {
       shotsHref="/share"
       privacyHref="/privacidad"
       landingHref="/?inicio"
-      extras={<WaysInCard />}
+      extras={
+        <>
+          <BackupNudge appCount={data.kind === 'home' ? data.appCount : 0} />
+          <WaysInCard />
+        </>
+      }
       // A used-up trial is not offered again: the key screen as it always was.
       trial={settings?.trialEnded ? undefined : <TrialCard />}
     />

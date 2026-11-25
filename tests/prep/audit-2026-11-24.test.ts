@@ -212,3 +212,30 @@ describe('the second audit (v2)', () => {
     expect(out).toContain('inflation@stories.s1.action')
   })
 })
+
+describe('one employer per sentence', () => {
+  const twoRoles = (text: string) =>
+    kinds(ctx(), (r) => {
+      must(r.stories[0]).action = {
+        text,
+        citedEvidenceIds: ['ev_funnel', 'ev_media'],
+        ask: '',
+        ideas: [],
+      }
+    })
+  it('flags a sentence naming two employers', () => {
+    expect(twoRoles('At Shopco I ran the funnel and at Market I tracked the goals.')).toContain(
+      'employers@stories.s1.action',
+    )
+  })
+  it('flags "there" that reaches back to another sentence’s employer', () => {
+    expect(
+      twoRoles('At Shopco I ran the funnel. I also built a sales board there for the team.'),
+    ).toContain('employers@stories.s1.action')
+  })
+  it('leaves a sentence that names its own employer alone', () => {
+    expect(
+      twoRoles('At Shopco I ran the funnel. At Market I built a sales board there for the team.'),
+    ).not.toContain('employers@stories.s1.action')
+  })
+})

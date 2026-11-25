@@ -3,14 +3,15 @@
 import * as a0 from '@/app/(app)/application/[id]/cv-actions'
 import * as a1 from '@/app/(app)/application/[id]/gaps/actions'
 import * as a2 from '@/app/(app)/application/[id]/people-actions'
-import * as a3 from '@/app/(app)/application/actions'
-import * as a4 from '@/app/(app)/cvs/actions'
-import * as a5 from '@/app/(app)/evidence/actions'
-import * as a6 from '@/app/(app)/evidence/import/actions'
-import * as a7 from '@/app/(app)/evidence/interview/actions'
-import * as a8 from '@/app/(app)/pipeline/actions'
-import * as a9 from '@/app/(app)/share/actions'
-import * as a10 from '@/app/(app)/triage/actions'
+import * as a3 from '@/app/(app)/application/[id]/prep-actions'
+import * as a4 from '@/app/(app)/application/actions'
+import * as a5 from '@/app/(app)/cvs/actions'
+import * as a6 from '@/app/(app)/evidence/actions'
+import * as a7 from '@/app/(app)/evidence/import/actions'
+import * as a8 from '@/app/(app)/evidence/interview/actions'
+import * as a9 from '@/app/(app)/pipeline/actions'
+import * as a10 from '@/app/(app)/share/actions'
+import * as a11 from '@/app/(app)/triage/actions'
 import * as w0 from '@/web/worker/actions/settings'
 import * as r0 from '@/app/api/ai/companion/answer/route'
 import * as r1 from '@/app/api/ai/companion/route'
@@ -33,14 +34,15 @@ export const ACTIONS: Record<string, Record<string, Fn>> = {
   'application/id/cv-actions': a0 as unknown as Record<string, Fn>,
   'application/id/gaps': a1 as unknown as Record<string, Fn>,
   'application/id/people-actions': a2 as unknown as Record<string, Fn>,
-  'application': a3 as unknown as Record<string, Fn>,
-  'cvs': a4 as unknown as Record<string, Fn>,
-  'evidence': a5 as unknown as Record<string, Fn>,
-  'evidence/import': a6 as unknown as Record<string, Fn>,
-  'evidence/interview': a7 as unknown as Record<string, Fn>,
-  'pipeline': a8 as unknown as Record<string, Fn>,
-  'share': a9 as unknown as Record<string, Fn>,
-  'triage': a10 as unknown as Record<string, Fn>,
+  'application/id/prep-actions': a3 as unknown as Record<string, Fn>,
+  'application': a4 as unknown as Record<string, Fn>,
+  'cvs': a5 as unknown as Record<string, Fn>,
+  'evidence': a6 as unknown as Record<string, Fn>,
+  'evidence/import': a7 as unknown as Record<string, Fn>,
+  'evidence/interview': a8 as unknown as Record<string, Fn>,
+  'pipeline': a9 as unknown as Record<string, Fn>,
+  'share': a10 as unknown as Record<string, Fn>,
+  'triage': a11 as unknown as Record<string, Fn>,
   'settings': w0 as unknown as Record<string, Fn>,
 }
 

@@ -41,12 +41,6 @@ const config: NextConfig = {
   // Each build gets its own service-worker version, so a new install on the
   // Mac replaces the phone's cached static files on the next launch.
   env: { NEXT_PUBLIC_BUILD_ID: process.env.CVFORGE_BUILD_ID ?? String(Date.now()) },
-  // Server actions check Origin against the server's own host. Through
-  // `tailscale serve` the phone's Origin is the tailnet name; when serve
-  // forwards a loopback Host instead, Next would refuse every action. Only
-  // personal builds ever sit behind the tailnet. The guard (lib/http/doors.ts)
-  // is the real gate — this only stops Next refusing what the guard admitted.
-  ...(discover ? { experimental: { serverActions: { allowedOrigins: ['**.ts.net'] } } } : {}),
   // Discover (personal-only, spec 2026-08-26) is excluded from any build made
   // without the flag: '#discover' resolves to a stub with no scraper code.
   // The release builds without the flag and verifies the exclusion. This

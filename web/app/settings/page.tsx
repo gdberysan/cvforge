@@ -12,6 +12,7 @@ import { workerApi } from '@/web/lib/actions-client'
 import { BuildInfo } from '@/web/lib/build-info'
 import { DataCard } from '@/web/lib/data-card'
 import { useDatabase } from '@/web/lib/database'
+import { DriveCard } from '@/web/lib/drive-ui'
 import { PasswordCard } from '@/web/lib/password-card'
 import { useLoader } from '@/web/lib/use-loader'
 import { HAS_EXTENSION, WaysInSettings } from '@/web/lib/ways-in'
@@ -159,6 +160,7 @@ export default function Page() {
         )}
 
         <SettingsGroup title={t('settings.group.data')} id="tus-datos">
+          <DriveCard />
           <PasswordCard />
           <DataCard />
         </SettingsGroup>

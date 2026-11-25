@@ -65,6 +65,8 @@ export const ModelPrepSchema = z.object({
    * and curiosity, never a claim about him, so nothing to cite.
    */
   askThem: z.array(z.object({ text: z.string(), why: z.string() })),
+  /** His answer to "tell me about yourself" for this job, about a minute aloud, cited. */
+  pitch: CitedSchema,
 })
 export type ModelPrep = z.infer<typeof ModelPrepSchema>
 
@@ -85,6 +87,8 @@ export const PrepContentSchema = ModelPrepSchema.extend({
   ),
   /** Older preps were written before questions to ask existed. */
   askThem: z.array(z.object({ text: z.string(), why: z.string() })).optional(),
+  /** Older preps were written before the pitch existed. */
+  pitch: CitedSchema.optional(),
   coverage: z.array(
     z.object({
       questionId: z.string(),

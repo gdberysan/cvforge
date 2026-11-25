@@ -13,7 +13,7 @@ import { LocaleSwitch } from '@/components/ui/LocaleSwitch'
 import { latestAutoBackup } from '@/lib/db/auto-backup'
 import { backupsDir, db } from '@/lib/db/client'
 import { isDemo } from '@/lib/demo/mode'
-import { doorOf, tailnetConfig } from '@/lib/http/doors'
+import { doorOf } from '@/lib/http/doors'
 import { getTranslate } from '@/lib/i18n/server'
 import { listSubscriptions } from '@/lib/push/store'
 import { isPdfEngineAvailable } from '@/lib/render/pdf'
@@ -34,7 +34,7 @@ export default async function SettingsPage() {
   const envManaged = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN)
   // The key is saved from the Mac only: from the phone the form would offer
   // what the server refuses.
-  const local = doorOf(await headers(), tailnetConfig()) === 'local'
+  const local = doorOf(await headers()) === 'local'
   // Self-hiding friction: the install offer exists only for the machine with
   // no Chrome, no Edge and no downloaded Chromium. (The demo serves
   // pre-rendered PDFs, so it never needs the offer.)

@@ -43,6 +43,8 @@ const view = (over: Partial<PrepView> = {}): PrepView => ({
   cv: cv('Growth Lead'),
   cvIsSnapshot: true,
   flaggedBulletIds: [],
+  answers: [],
+  company: 'Acme',
   requirements: ctx.requirements.map((r) => ({
     id: r.id,
     keyword: r.keyword,
@@ -76,18 +78,18 @@ describe('PrepStep', () => {
 
   it('shows readiness by question: story, honest gap, nothing', () => {
     render(<PrepStep view={view()} />)
-    expect(
-      screen.getByText(
-        "Of 3 questions: 1 with a story of yours, 1 with an honest answer about what's missing, 1 with nothing yet.",
-      ),
-    ).toBeTruthy()
-    expect(
-      screen.getByText(
-        (_, el) =>
-          el?.tagName === 'P' &&
-          (el.textContent ?? '').startsWith('1 story has a part only you can tell.'),
-      ),
-    ).toBeTruthy()
+    // The sample story still misses his part: its question is not ready yet.
+    expect(screen.getByText('0 with your experience or your words')).toBeTruthy()
+    expect(screen.getByText('1 with an honest answer')).toBeTruthy()
+    expect(screen.getByText('2 to complete')).toBeTruthy()
+    // The top line: standing, and one next step that points at a real place.
+    expect(document.querySelector('.prep-next-count')?.textContent).toBe(
+      '1 of 3 questions have a prepared answer',
+    )
+    const go = document.querySelector('.prep-next-go')
+    expect(go?.getAttribute('href')).toMatch(/^#(gap|story)-/)
+    const target = go?.getAttribute('href')?.slice(1) ?? ''
+    expect(document.getElementById(target)).not.toBeNull()
   })
 
   it('draws a missing beat as a note with memory prompts, and no text box', () => {
@@ -96,7 +98,7 @@ describe('PrepStep', () => {
     fireEvent.click(
       screen.getByRole('button', { name: 'Parts only you can tell: see the whole story' }),
     )
-    expect(screen.getByText('Task · tell it from memory')).toBeTruthy()
+    expect(screen.getByText('Task · your part')).toBeTruthy()
     expect(screen.getByText('¿Qué pedía tu jefe cuando empezaste?')).toBeTruthy()
     expect(screen.queryAllByRole('textbox')).toHaveLength(0)
   })
@@ -167,7 +169,7 @@ describe('PrepStep', () => {
     vi.stubGlobal('fetch', fetchMock)
     render(<PrepStep view={view({ preps: {} })} />)
     fireEvent.click(screen.getByRole('radio', { name: 'Spanish' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Prepare me · ≈ US$0.55–1.20' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare me' }))
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/ai/prep',
       expect.objectContaining({
@@ -274,7 +276,7 @@ describe('PrepStep', () => {
       />,
     )
     expect(screen.getByText('In 1P the retailer buys wholesale.')).toBeTruthy()
-    expect(screen.getAllByText('Know this')).toHaveLength(1)
+    expect(screen.getAllByText('Worth knowing')).toHaveLength(1)
     cleanup()
     const older = {
       ...content,
@@ -289,13 +291,83 @@ describe('PrepStep', () => {
         })}
       />,
     )
-    expect(screen.queryByText('Know this')).toBeNull()
+    expect(screen.queryByText('Worth knowing')).toBeNull()
   })
 
   it('points a gap he may have covered to Evidence', () => {
     render(<PrepStep view={view()} />)
-    expect(screen.getByRole('link', { name: 'Go to My experience' }).getAttribute('href')).toBe(
-      '/evidence',
+    // Both places that send him to add a record link to it.
+    const links = screen.getAllByRole('link', { name: 'Go to My experience' })
+    expect(links.length).toBeGreaterThan(0)
+    for (const l of links) expect(l.getAttribute('href')).toBe('/evidence')
+  })
+
+  it('shows saved answers of every kind as words, never as code', () => {
+    const at = '2026-11-24T12:00:00Z'
+    const saved = [
+      {
+        id: 'a1',
+        part: 'D' as const,
+        question: 'How it went',
+        answer: 'They asked about budgets.',
+        createdAt: at,
+      },
+      {
+        id: 'a2',
+        part: 'Q' as const,
+        question: 'A question no longer asked?',
+        answer: 'My own answer.',
+        createdAt: at,
+      },
+      {
+        id: 'a3',
+        part: 'P' as const,
+        question: 'SQL',
+        answer: 'A course in week one.',
+        createdAt: at,
+      },
+    ]
+    const { container } = render(<PrepStep view={view({ answers: saved })} />)
+    const text = container.textContent ?? ''
+    expect(text).toContain('They asked about budgets.')
+    expect(text).toContain('My own answer.')
+    // A JSX conditional left outside its braces renders as text (1.2.75).
+    expect(text).not.toMatch(/&&|=>|\berror\b/)
+  })
+
+  it('counts a question he answered himself in the meter', () => {
+    const none = content.coverage.find((c) => c.by === 'none')
+    const q = content.questions.find((x) => x.id === none?.questionId)
+    if (!q) throw new Error('fixture has a question with nothing yet')
+    const label = () => screen.getAllByRole('img')[0]?.getAttribute('aria-label') ?? ''
+    render(<PrepStep view={view()} />)
+    const before = label()
+    cleanup()
+    render(
+      <PrepStep
+        view={view({
+          answers: [
+            {
+              id: 'q9',
+              part: 'Q',
+              question: q.text,
+              answer: 'Mine.',
+              createdAt: '2026-11-24T00:00:00Z',
+            },
+          ],
+        })}
+      />,
     )
+    expect(label()).not.toBe(before)
+  })
+
+  it('shows a clock and says it can be left while a prep is written', async () => {
+    // A prep that is still being written: the stream never ends.
+    const pending = new ReadableStream({ start() {} })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(pending, { status: 200 })))
+    render(<PrepStep view={view({ preps: {} })} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare me' }))
+    expect(await screen.findByText(/It usually takes 3 to 5 minutes/)).toBeTruthy()
+    expect(document.querySelector('.prep-wait-clock')?.textContent).toBe('0:00')
   })
 })
