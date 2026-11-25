@@ -64,3 +64,20 @@ describe('the host rules for rumbo.korven.dev', () => {
     expect(withStore(html, 'https://x', 'Add to Chrome')).toContain('>Add to Chrome</a>')
   })
 })
+
+describe('the landing pages as a shared link', () => {
+  it('give LinkedIn a large preview image that exists, in each language', async () => {
+    const { existsSync, readFileSync } = await import('node:fs')
+    for (const [page, img] of [
+      ['web/landing/index.html', 'og.jpg'],
+      ['web/landing/en/index.html', 'og-en.jpg'],
+    ]) {
+      const html = readFileSync(page, 'utf8')
+      expect(html).toContain(`<meta property="og:image" content="https://rumbo.korven.dev/${img}">`)
+      expect(html).toContain('<meta name="twitter:card" content="summary_large_image">')
+      expect(existsSync(`web/landing/${img}`)).toBe(true)
+      // Users pay the AI they use: only the trial is free.
+      expect(html).not.toMatch(/content="[^"]*\b(Gratis|Free)\.(\s|")/)
+    }
+  })
+})

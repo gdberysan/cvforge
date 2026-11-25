@@ -148,6 +148,9 @@ if (process.argv[1]?.endsWith('web-site.ts')) {
   )
   copyFileSync(path.join('web', 'landing', 'landing.css'), path.join(SITE, 'landing.css'))
   copyFileSync(path.join('web', 'app', 'icon.svg'), path.join(SITE, 'favicon.svg'))
+  // The link preview LinkedIn and others show (og:image on each landing).
+  for (const og of ['og.jpg', 'og-en.jpg'])
+    copyFileSync(path.join('web', 'landing', og), path.join(SITE, og))
   cpSync(path.join('web', 'landing', 'fonts'), path.join(SITE, 'fonts'), { recursive: true })
   copyFileSync(
     path.join('web', 'landing', 'legacy', 'version.json'),
