@@ -33,7 +33,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright install --with-deps chromium
       - run: npm run web:build
       - run: CVFORGE_SITE=https://rumbo.korven.dev/app/ npm run web:extension
       - run: rm -rf web/extension/dist-store && cp -R web/extension/dist web/extension/dist-store
