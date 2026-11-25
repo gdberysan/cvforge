@@ -38,13 +38,13 @@ describe('checkPrepInCode', () => {
     expect(paths(checkPrepInCode(out, ctx()))).toContain('uncited@stories.s1.situation')
   })
 
-  it('flags 70% when the record says 60%, and accepts "60 %"', () => {
+  it('flags 70% when the record says 45%, and accepts "45 %"', () => {
     const bad = content((r) => {
       must(r.stories[0]).result.text = 'Conversion held at 70%.'
     })
     expect(paths(checkPrepInCode(bad, ctx()))).toContain('number@stories.s1.result')
     const spaced = content((r) => {
-      must(r.stories[0]).result.text = 'Conversion held at 60 %.'
+      must(r.stories[0]).result.text = 'Conversion held at 45 %.'
     })
     expect(checkPrepInCode(spaced, ctx())).toEqual([])
   })
@@ -172,9 +172,9 @@ describe('findPrepTells', () => {
   it('checks numbers in admit, plan, the memory note and the interviewer note against all his records (#2, #8)', () => {
     const out = content((r) => {
       const g = must(r.gapAnswers[0], 'gap')
-      g.plan = 'Like when I raised ROAS to 8x, I would learn it fast.'
-      g.admit = 'I have not used SQL, though the CR was 60%.'
-      r.interviewerNote = 'Lead with your 45% growth.'
+      g.plan = 'Like when I raised ROAS to 6x, I would learn it fast.'
+      g.admit = 'I have not used SQL, though conversion was 45%.'
+      r.interviewerNote = 'Lead with your 70% growth.'
     })
     const flags = paths(checkPrepInCode(out, ctx()))
     expect(flags).toContain('number@gapAnswers.g1.plan')

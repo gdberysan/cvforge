@@ -12,12 +12,14 @@ import type { PrepContent } from '@/lib/schemas/prep'
 import type { InterviewView } from '@/lib/seguimiento-view'
 import { readEventStream } from '@/lib/sse-client'
 import { haptic } from '@/lib/ui/haptics'
+import { AskThem } from './AskThem'
 import { DefendCv } from './DefendCv'
+import { Exposed, exposedGaps } from './Exposed'
 import { GapPath } from './GapPath'
 import { type BriefPerson, PrepBriefing } from './PrepBriefing'
+import { PrepIndex } from './PrepIndex'
 import { QuestionMap, type ReqChip } from './QuestionMap'
 import { Readiness } from './Readiness'
-import { StoryCard } from './StoryCard'
 import { marksOf, type ShownPrep } from './types'
 
 export type PrepView = {
@@ -38,7 +40,7 @@ export type PrepView = {
 
 type Stage = 'writing' | 'checking' | 'refining'
 
-/** Prepárate (spec 2026-10-18): a guide to read before the call. Nothing to fill in. */
+/** Prepárate (spec 2026-10-18): a guide to read before the call. */
 export function PrepStep({ view }: { view: PrepView }) {
   const t = useT()
   const router = useRouter()
@@ -149,9 +151,10 @@ export function PrepStep({ view }: { view: PrepView }) {
 
   const { content } = prep
   const marks = marksOf(prep.report)
-  const answers = (id: string) => content.questions.filter((q) => q.answeredBy === id).length
   return (
     <div className="prep has-content">
+      {/* Who and when first (the time-critical part), then where he
+          stands and the way around a long guide, which stay on screen. */}
       <aside className="prep-side">
         <PrepBriefing
           interview={view.interview}
@@ -160,25 +163,24 @@ export function PrepStep({ view }: { view: PrepView }) {
           note={content.interviewerNote}
           noteFlag={marks.flags.get('interviewerNote')}
         />
-        <Readiness content={content} />
+        {/* Pinned while the guide scrolls; the briefing above scrolls away. */}
+        <div className="prep-rail">
+          <Readiness content={content} />
+          <PrepIndex
+            content={content}
+            exposed={exposedGaps(content, view.requirements).length > 0}
+          />
+        </div>
       </aside>
       <div className="prep-main">
         {prep.stale && <p className="prep-stale">{t('prep.stale')}</p>}
-        <QuestionMap content={content} requirements={view.requirements} />
-        <section className="prep-section" aria-labelledby="prep-stories-h">
-          <h2 id="prep-stories-h" className="prep-h2">
-            {t('prep.stories.title')}
-          </h2>
-          {content.stories.map((s) => (
-            <StoryCard
-              key={s.id}
-              story={s}
-              answers={answers(s.id)}
-              labels={view.labels}
-              marks={marks}
-            />
-          ))}
-        </section>
+        <Exposed content={content} requirements={view.requirements} />
+        <QuestionMap
+          content={content}
+          requirements={view.requirements}
+          labels={view.labels}
+          marks={marks}
+        />
         <DefendCv
           content={content}
           cv={view.cv}
@@ -193,6 +195,7 @@ export function PrepStep({ view }: { view: PrepView }) {
           labels={view.labels}
           marks={marks}
         />
+        <AskThem content={content} />
         {controls}
       </div>
     </div>

@@ -21,6 +21,8 @@ export type PrepInput = {
     id: string
     company: string
     jobTitle: string
+    /** The posting as pasted: what it stresses is read here, not only in the requirements. */
+    postingRaw?: string
     documentLanguage: DocumentLanguage
     market?: Market
     requirements: Requirement[]
@@ -41,6 +43,10 @@ export type PrepContext = {
   applicationId: string
   company: string
   jobTitle: string
+  /** The posting's own text (untrusted data), capped. */
+  posting: string
+  /** Role id → whole months it lasted (or has lasted), counted in code. */
+  months: Map<string, number>
   requirements: (Requirement & { mapping: EvidenceMapping | null })[]
   evidence: EvidenceItem[]
   profile: MasterProfile
@@ -61,6 +67,22 @@ export type PrepContext = {
    * once mapped to nothing while a BigQuery SQL record sat on file, unshown.
    */
   mentionedIn: Map<string, string[]>
+}
+
+/** The posting's text shown to the model: long enough for any real posting, bounded for cost. */
+const POSTING_CAP = 12_000
+
+/**
+ * Whole months a role lasted, counted in code: the model once told an
+ * 8-month role as "the year". An open role runs to `now`; a date the CV
+ * gave only as a year counts from January, as stored.
+ */
+export function roleMonths(period: { start: string; end?: string | null }, now: Date): number {
+  const [sy, sm] = period.start.split('-').map(Number)
+  const endIso = period.end && period.end !== 'present' ? period.end : now.toISOString().slice(0, 7)
+  const [ey, em] = endIso.split('-').map(Number)
+  if (!sy || !ey) return 0
+  return Math.max(1, (ey - sy) * 12 + ((em || 1) - (sm || 1)) + 1)
 }
 
 /** Beyond what the mappings cite: his strongest records, newest first. */
@@ -163,6 +185,10 @@ export function buildPrepContext(input: PrepInput, now: number = Date.now()): Pr
     applicationId: app.id,
     company: app.company,
     jobTitle: app.jobTitle,
+    posting: (app.postingRaw ?? '').trim().slice(0, POSTING_CAP),
+    months: new Map(
+      input.profile.experience.map((r) => [r.id, roleMonths(r.period, new Date(now))] as const),
+    ),
     requirements: app.requirements.map((r) => ({ ...r, mapping: mappingOf.get(r.id) ?? null })),
     evidence,
     profile: input.profile,
@@ -183,7 +209,13 @@ const esc = (s: string) => s.replace(/[<>]/g, ' ')
 /** Free text inside an attribute: a quote mark would end it early. */
 const attr = (s: string) => esc(s).replaceAll('"', '&quot;')
 
-function evidenceLine(e: EvidenceItem, profile: MasterProfile): string {
+const monthsLabel = (n: number) => (n === 1 ? '1 month' : `${n} months`)
+
+function evidenceLine(
+  e: EvidenceItem,
+  profile: MasterProfile,
+  months: Map<string, number>,
+): string {
   const metrics = e.metrics.map((m) => m.raw).join(' ; ')
   const role =
     e.sourceRef.type === 'project'
@@ -194,7 +226,9 @@ function evidenceLine(e: EvidenceItem, profile: MasterProfile): string {
       : e.sourceRef.type === 'experience'
         ? (() => {
             const r = profile.experience.find((x) => x.id === e.sourceRef.id)
-            return r ? `[role] ${r.title} at ${r.company} | ${formatSpan(r.period, 'present')}` : ''
+            return r
+              ? `[role] ${r.title} at ${r.company} | ${formatSpan(r.period, 'present')} | ${monthsLabel(months.get(r.id) ?? 0)}`
+              : ''
           })()
         : ''
   return `<record id="${e.id}" kind="${e.kind}">${esc(e.text)}${metrics ? ` (metrics: ${esc(metrics)})` : ''}${role ? `\n  ${esc(role)}` : ''}</record>`
@@ -208,7 +242,15 @@ export function renderPrepPayload(ctx: PrepContext): string {
         `<requirement id="${r.id}" kind="${r.kind}" mandatory="${r.mandatory}" weight="${r.weight}" coverage="${r.mapping?.strength ?? 'none'}" evidence="${(r.mapping?.evidenceIds ?? []).join(',')}"${ctx.mentionedIn.has(r.id) ? ` also_named_in="${(ctx.mentionedIn.get(r.id) ?? []).join(',')}"` : ''}>${esc(r.text)}</requirement>`,
     )
     .join('\n')
-  const evidence = ctx.evidence.map((e) => evidenceLine(e, ctx.profile)).join('\n')
+  const evidence = ctx.evidence.map((e) => evidenceLine(e, ctx.profile, ctx.months)).join('\n')
+  // Every role with its length, so tenure and "why did it end" are read,
+  // never added up by the model.
+  const career = ctx.profile.experience
+    .map(
+      (r) =>
+        `<role id="${r.id}" ended="${Boolean(r.period.end && r.period.end !== 'present')}">${esc(`${r.title} at ${r.company} | ${formatSpan(r.period, 'present')} | ${monthsLabel(ctx.months.get(r.id) ?? 0)}`)}</role>`,
+    )
+    .join('\n')
   const flagged = new Set(ctx.flaggedBulletIds)
   const cv = ctx.cv
     ? [
@@ -252,6 +294,8 @@ export function renderPrepPayload(ctx: PrepContext): string {
       : ''
   return [
     `<job company="${attr(ctx.company)}" title="${attr(ctx.jobTitle)}" output_language="${ctx.language}" />`,
+    ctx.posting ? `<posting>\n${esc(ctx.posting)}\n</posting>` : '<posting>not on file</posting>',
+    `<career>\n${career}\n</career>`,
     `<requirements>\n${reqs}\n</requirements>`,
     `<evidence>\n${evidence}\n</evidence>`,
     cv,

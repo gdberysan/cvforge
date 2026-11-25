@@ -4,8 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { ImportReview } from '@/components/evidence/ImportReview'
 import { useT } from '@/components/i18n/LocaleProvider'
-import { ApiKeyForm } from '@/components/settings/ApiKeyForm'
-import { KeyGuide } from '@/components/settings/KeyGuide'
+import { KeyJourney } from '@/components/settings/KeyJourney'
 import { VerdictCard } from '@/components/triage/VerdictCard'
 import { IconArrow } from '@/components/ui/icons'
 import { SAMPLE_VERDICTS } from '@/lib/onboarding/sample-verdicts'
@@ -57,7 +56,7 @@ export function FirstRun({
   if (step === 'look') return <FirstLook onStart={() => setStep('key')} privacy={privacy} />
 
   return (
-    <main id="main" tabIndex={-1} className="page welcome welcome-key">
+    <main id="main" tabIndex={-1} className={`page welcome welcome-key${trial ? ' is-trial' : ''}`}>
       {/* On a wide screen, the field on the left and how to get a key beside
           it; on a phone, one under the other. */}
       <div className="welcome-main">
@@ -71,7 +70,6 @@ export function FirstRun({
             </h1>
             <p className="welcome-lede">{t('start.trialLede')}</p>
             {trial}
-            <h2 className="welcome-subtitle">{t('start.trialKeyHeading')}</h2>
           </>
         ) : (
           <>
@@ -79,13 +77,10 @@ export function FirstRun({
             <p className="welcome-lede">{t('start.keyLede')}</p>
           </>
         )}
-        {/* The field: what this screen is for. How to get a key sits beside
-            it, open, for someone who has none yet. */}
-        <div className="welcome-card settings-rows">
-          <ApiKeyForm hasSavedKey={false} envManaged={false} local={local} />
-        </div>
       </div>
-      <KeyGuide open />
+      {/* Getting a key, step by step, ending in the field itself: beside the
+          trial on a wide screen; under it, folded, on a phone. */}
+      <KeyJourney local={local} open={!trial} quiet={Boolean(trial)} />
       <div className="welcome-links">
         {landingHref ? (
           // The landing page is outside the app (its own page at the site root).

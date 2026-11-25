@@ -17,7 +17,16 @@ import type { PrepContext } from './context'
 export type PrepFlag = {
   /** Where: `stories.s2.result`, `cvDefense.b8`, `gapAnswers.g1.bridge`… */
   path: string
-  kind: 'uncited' | 'number' | 'gap' | 'distortion' | 'placement' | 'overlooked'
+  kind:
+    | 'uncited'
+    | 'number'
+    | 'gap'
+    | 'distortion'
+    | 'placement'
+    | 'overlooked'
+    | 'duration'
+    | 'inflation'
+    | 'link'
   reason: string
 }
 
@@ -64,6 +73,100 @@ export function factLines(content: PrepContent): FactLine[] {
       citedEvidenceIds,
       gapCheck,
     }))
+}
+
+/**
+ * A whole year said of time that was not one: "in 2025 I spent the year as a
+ * consultant" for a role of eight months (audit 2026-11-24).
+ */
+const YEAR_CLAIM =
+  /\b(?:spent|for|throughout|over|during)\s+(?:the|that|a|all of the|the whole|the entire|a full|a whole)\s+(?:whole\s+|entire\s+|full\s+)?year\b|\ball\s+(?:of\s+)?(?:20\d\d|that year)\b|\b(?:pasé|estuve|trabajé|viví)\s+(?:todo\s+)?(?:el|un|ese)\s+año\b|\btodo\s+(?:el\s+)?(?:año|20\d\d)\b/iu
+
+/**
+ * Ownership said in his voice that none of the line's records states:
+ * "owned the budget" over a record of executing it. Each
+ * family: the words that claim it in the line, and the wider set of words
+ * that, in a record, earn it.
+ */
+const ESCALATIONS: { word: string; said: RegExp; earned: RegExp }[] = [
+  {
+    word: 'owned',
+    said: /\b(?:owned|owning|ownership|owns)\b|\bdueñ[oa]s?\b/iu,
+    earned: /\bown(?:ed|ing|ership|s)?\b|\bdueñ|\bpropi[oa]s?\b|\bresponsab/iu,
+  },
+  {
+    word: 'led',
+    said: /\bled\b|\bI lead\b|\blider(?:é|aba|o|ando|ar)\b|\bencabec/iu,
+    earned:
+      /\bl[ie]d(?:er|ere|eraba|eré|ar|ando)?\b|\blead|\blider|\bencabec|\ba cargo\b|\bequipo\b|\bteam\b/iu,
+  },
+  {
+    word: 'managed',
+    said: /\bmanaged\b|\bI manage\b|\bgestion(?:é|aba)\b|\badministr(?:é|aba)\b/iu,
+    earned: /\bmanag|\bgestion|\badministr|\bmanej|\ba cargo\b|\bresponsab/iu,
+  },
+  {
+    word: 'ran',
+    said: /\b(?:ran|running|run)\s+(?:the|a|my|its|that)\s+(?:\S+\s+){0,2}budget\b/iu,
+    earned: /\bran\b|\brun\b|\bmanej|\bgestion|\badministr|\bpropi[oa]\b|\bown/iu,
+  },
+  {
+    word: 'headed',
+    said: /\bheaded\b|\bdirected\b|\bdirig(?:í|ía)\b|\bestuve a cargo\b/iu,
+    earned: /\bhead|\bdirect|\bdirig|\ba cargo\b|\bresponsab/iu,
+  },
+]
+
+/**
+ * Two records joined by a link neither states: "Sacaba reportes del CRM. Con
+ * eso armé un tablero" (audit 2026-11-24, four times across two preps). True
+ * facts, invented relation.
+ */
+const LINK =
+  /\b(?:con eso|con ellos|con ellas|con esos datos|de ahí (?:salió|nació|vino|surgió)|a partir de (?:eso|ahí|ellos)|gracias a (?:eso|ello)|sobre eso|lo que (?:permitió|llevó)|eso (?:permitió|llevó)|para (?:los|esos) datos|esos datos (?:alimentaban|alimentaron|servían)|que alimentaban?)\b|\b(?:on top of (?:that|this|it|those|them)|built (?:it )?on (?:that|those|them)|from (?:that|those) (?:data|reports)|which (?:let|allowed|led)|that(?:'s| is) how|thanks to (?:that|this|those)|as a result)\b/iu
+
+/** Problems a line's wording makes beyond its figures: a year that wasn't, a raised verb, an invented link. */
+function wordingFlags(
+  line: FactLine,
+  cited: EvidenceItem[],
+  months: Map<string, number>,
+): PrepFlag[] {
+  const flags: PrepFlag[] = []
+  const year = line.text.match(YEAR_CLAIM)?.[0]
+  if (year) {
+    const roles = cited
+      .filter((r) => r.sourceRef.type === 'experience')
+      .map((r) => months.get(r.sourceRef.id) ?? 0)
+    const shortest = roles.length > 0 ? Math.min(...roles) : 0
+    if (shortest < 12)
+      flags.push({
+        path: line.path,
+        kind: 'duration',
+        reason: `"${year}" is longer than the role: ${shortest > 0 ? `${shortest} months on record` : 'no period on record'}; say the months`,
+      })
+  }
+  const recordText = cited.map((r) => r.text).join('\n')
+  for (const e of ESCALATIONS) {
+    const said = line.text.match(e.said)?.[0]
+    if (said && !e.earned.test(recordText))
+      flags.push({
+        path: line.path,
+        kind: 'inflation',
+        reason: `"${said}" says more than its records; use the verb they use`,
+      })
+  }
+  const link = line.text.match(LINK)?.[0]
+  if (
+    link &&
+    line.citedEvidenceIds.length >= 2 &&
+    !recordText.toLowerCase().includes(link.toLowerCase())
+  )
+    flags.push({
+      path: line.path,
+      kind: 'link',
+      reason: `"${link}" joins records that never say one led to the other; tell them side by side`,
+    })
+  return flags
 }
 
 /** His answers as records the checks can cite: his own words, nothing more. */
@@ -149,6 +252,7 @@ export function checkPrepInCode(content: PrepContent, ctx: PrepContext): PrepFla
           reason: `claims "${claimed[0]}", which nothing on file shows`,
         })
     }
+    flags.push(...wordingFlags(line, cited, ctx.months))
     const onlyProjects = cited.every((r) => r.sourceRef.type === 'project')
     const employer = onlyProjects ? employers.find((c) => wholeWord(c).test(line.text)) : undefined
     if (employer)
@@ -234,6 +338,13 @@ function spokenLines(content: PrepContent): { path: string; text: string }[] {
   ]
 }
 
+/**
+ * The app's words in his mouth: nobody says "my record" about their own life,
+ * and "no tengo registro de…" sounds like quoting a file (audit 2026-11-24).
+ */
+const RECORD_VOICE =
+  /\b(?:no tengo registro|no tengo documentad[oa]s?|(?:en |según )?mi registro|lo que (?:sostiene|dice) mi registro|no lo tengo documentado|my record(?:s)?(?: shows?| says| does not show| doesn't show)?|on record|not documented|i have it documented)\b/giu
+
 export function findPrepTells(
   content: PrepContent,
   language: DocumentLanguage,
@@ -241,7 +352,8 @@ export function findPrepTells(
 ): PrepTell[] {
   const exempt = ctx ? buildEntityIndex(ctx.profile, ctx.evidence) : new Set<string>()
   return spokenLines(content).flatMap((l) => {
-    const phrases = findTells(l.text, language, exempt)
+    const voice = [...l.text.matchAll(RECORD_VOICE)].map((m) => m[0].toLowerCase())
+    const phrases = [...findTells(l.text, language, exempt), ...voice]
     return phrases.length > 0 ? [{ path: l.path, phrases }] : []
   })
 }

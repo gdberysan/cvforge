@@ -59,7 +59,7 @@ const ev = (id: string, over: Partial<EvidenceItem> = {}): EvidenceItem => ({
 
 export const funnel = ev('ev_funnel', {
   text: 'Automaticé el embudo de registro y la conversión quedó estable en 45%',
-  metrics: [{ raw: '60%', value: 60, unit: '%' }],
+  metrics: [{ raw: '45%', value: 45, unit: '%' }],
   strength: 'core',
 })
 export const bidTool = ev('ev_bid', {

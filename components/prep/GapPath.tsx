@@ -30,6 +30,7 @@ export function GapPath({
       {content.gapAnswers.map((g) => (
         <article
           key={g.id}
+          id={`gap-${g.id}`}
           className="prep-gap"
           aria-label={reqs.get(g.requirementId)?.keyword ?? g.id}
         >

@@ -46,14 +46,14 @@ describe('roleSummary', () => {
   })
 
   it('skips a line with a heading glued on, whole — never trimmed, never garbled', () => {
-    const marea = `Acerca del empleo
+    const brisa = `Acerca del empleo
 About Brisa AgencyBrisa Agency is a growth studio for direct-to-consumer brands, working on paid traffic and repeat purchases.
 Most of our clients stay with us for years, and most of them came to us through referrals.
 The RoleAs a Search Specialist at Brisa Agency, you will plan, run and improve the paid search accounts of our clients.
 You will build and run search, shopping, and Performance Max campaigns and test what moves their sales.`
     // The company section (glued "About …") is skipped; the glued role line is
     // dropped rather than cut; the next whole role sentence is the summary.
-    expect(roleSummary(marea)).toBe(
+    expect(roleSummary(brisa)).toBe(
       'You will build and run search, shopping, and Performance Max campaigns and test what moves their sales.',
     )
   })

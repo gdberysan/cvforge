@@ -60,6 +60,11 @@ export const ModelPrepSchema = z.object({
     }),
   ),
   interviewerNote: z.string(),
+  /**
+   * Questions he can ask this interviewer, fitted to their role. Opinions
+   * and curiosity, never a claim about him, so nothing to cite.
+   */
+  askThem: z.array(z.object({ text: z.string(), why: z.string() })),
 })
 export type ModelPrep = z.infer<typeof ModelPrepSchema>
 
@@ -74,8 +79,12 @@ export const PrepContentSchema = ModelPrepSchema.extend({
       likelyQuestion: z.string(),
       facts: CitedSchema,
       line: z.string().optional(),
+      /** Figures in the CV line that none of its records holds, found in code. */
+      unsupported: z.array(z.string()).optional(),
     }),
   ),
+  /** Older preps were written before questions to ask existed. */
+  askThem: z.array(z.object({ text: z.string(), why: z.string() })).optional(),
   coverage: z.array(
     z.object({
       questionId: z.string(),

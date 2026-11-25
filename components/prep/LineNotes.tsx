@@ -16,14 +16,14 @@ export function LineNotes({
   marks: LineMarks
 }) {
   const t = useT()
+  // One line, however many records: "De tu experiencia: Acme · Globex",
+  // not a stack of four (review 2026-11-24).
+  const roles = [
+    ...new Set(cited.filter((id) => !id.startsWith('answer:')).map((id) => labels[id] ?? id)),
+  ]
   const sources = [
-    ...new Set(
-      cited.map((id) =>
-        id.startsWith('answer:')
-          ? t('prep.sourceAnswer')
-          : t('prep.source', { label: labels[id] ?? id }),
-      ),
-    ),
+    ...(roles.length > 0 ? [t('prep.source', { label: roles.join(' · ') })] : []),
+    ...(cited.some((id) => id.startsWith('answer:')) ? [t('prep.sourceAnswer')] : []),
   ]
   const flag = marks.flags.get(path)
   return (

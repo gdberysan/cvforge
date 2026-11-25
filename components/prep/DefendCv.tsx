@@ -50,6 +50,11 @@ export function DefendCv({
               )}
               <div className="prep-cvbody">
                 {weak.has(d.bulletId) && <p className="prep-weak">{t('prep.cv.weakest')}</p>}
+                {d.unsupported && d.unsupported.length > 0 && (
+                  <p className="prep-cvwarn" role="note">
+                    {t('prep.cv.unsupported', { figures: d.unsupported.join(', ') })}
+                  </p>
+                )}
                 <p className="prep-likely">“{d.likelyQuestion}”</p>
                 <p className="prep-beat-label">{t('prep.cv.facts')}</p>
                 <p className="prep-say">{d.facts.text}</p>

@@ -22,6 +22,7 @@ export function loadPrepInput(
       id: app.id,
       company: app.company,
       jobTitle: app.jobTitle,
+      postingRaw: app.postingRaw ?? '',
       documentLanguage: app.documentLanguage,
       requirements: app.requirements,
       mappings: app.mappings,

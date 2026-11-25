@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { clearApiKeyAction, saveApiKeyAction } from '@/app/(app)/settings/actions'
 import { useT } from '@/components/i18n/LocaleProvider'
+import { IconExternal } from '@/components/ui/icons'
 import { errorText } from '@/lib/i18n'
+import { haptic } from '@/lib/ui/haptics'
 import { SettingsRow } from './SettingsGroup'
 
 /**
@@ -16,11 +18,22 @@ export function ApiKeyForm({
   hasSavedKey,
   envManaged,
   local,
+  onSaved,
+  recover,
+  idleNote,
 }: {
   hasSavedKey: boolean
   envManaged: boolean
   /** True on the Mac itself; false through the phone's tailnet door. */
   local: boolean
+  /** After the server accepted the key (the journey shows its own moment). */
+  onSaved?: (key: string) => void
+  /** Where to get a new key: after a refusal, until the field changes, this
+      (not a retry of the same refused key) is the main action. */
+  recover?: { href: string; label: string }
+  /** What the field's message line says while nothing is happening; checking
+      and errors take the same line, so nothing below it moves. */
+  idleNote?: string
 }) {
   const t = useT()
   const router = useRouter()
@@ -29,19 +42,40 @@ export function ApiKeyForm({
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [changing, setChanging] = useState(false)
+  const [shown, setShown] = useState(false)
+  // The text that was just refused: sending it again cannot succeed.
+  const [refused, setRefused] = useState<string | null>(null)
+  // A value already known to be malformed: no button to send it, until it changes.
+  const [malformed, setMalformed] = useState<string | null>(null)
 
-  function save() {
+  function save(value = key) {
     setError(null)
     setStatus(null)
+    // A wrong start is known here: say so before asking Anthropic.
+    if (value.trim() && !value.trim().startsWith('sk-ant-')) {
+      setError(t('error.key-format'))
+      setMalformed(value)
+      return
+    }
     startTransition(async () => {
-      const result = await saveApiKeyAction(key)
+      const result = await saveApiKeyAction(value)
       if (!result.ok) {
-        setError(errorText(t, result.code, result.error))
+        // A key with the right start was read whole: say what is left
+        // (incomplete or revoked), not "check the start".
+        setError(
+          result.code === 'key-invalid' && value.trim().startsWith('sk-ant-')
+            ? t('error.key-invalid-whole')
+            : errorText(t, result.code, result.error),
+        )
+        if (result.code === 'key-invalid') setRefused(value)
         return
       }
       setKey('')
       setChanging(false)
       setStatus(`${t('settings.connected')} · ${t('settings.saved')}`)
+      // The server accepted it: the one moment this form confirms.
+      haptic('confirm')
+      onSaved?.(value.trim())
       router.refresh()
     })
   }
@@ -78,10 +112,13 @@ export function ApiKeyForm({
     </SettingsRow>
   )
 
-  const feedback = (status || error) && (
+  // A refusal is said under the field (in the form); this line only
+  // confirms, or reports an error where there is no form.
+  const formShown = local && (!hasSavedKey || changing)
+  const feedback = (status || (error && !formShown)) && (
     <p aria-live="polite" className="settings-feedback">
       {status && <span className="is-ok">{status}</span>}
-      {error && (
+      {error && !formShown && (
         <span role="alert" className="is-error">
           {error}
         </span>
@@ -113,24 +150,78 @@ export function ApiKeyForm({
           <label className="settings-row-label" htmlFor="api-key">
             {t('settings.keyLabel')}
           </label>
-          <input
-            id="api-key"
-            className="field field-mono"
-            type="password"
-            autoComplete="off"
-            spellCheck={false}
-            placeholder={t('settings.keyPlaceholder')}
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-          />
-          <div className="settings-row-control">
+          <span className={`key-field${isPending ? ' is-checking' : ''}`}>
+            <input
+              id="api-key"
+              className="field field-mono"
+              type={shown ? 'text' : 'password'}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? 'api-key-error' : undefined}
+              autoComplete="off"
+              spellCheck={false}
+              placeholder={t('settings.keyPlaceholder')}
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              // Paste and done: what looks like a whole key is checked and
+              // saved at once (a typed one waits for the button).
+              onPaste={(e) => {
+                const pasted = e.clipboardData.getData('text').trim()
+                if (/^sk-ant-[\w-]{20,}$/.test(pasted)) {
+                  e.preventDefault()
+                  setKey(pasted)
+                  save(pasted)
+                }
+              }}
+            />
+            {isPending && <span className="key-field-spinner" aria-hidden="true" />}
             <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isPending || key.trim().length === 0}
+              type="button"
+              className="key-field-toggle"
+              aria-pressed={shown}
+              aria-controls="api-key"
+              onClick={() => setShown((v) => !v)}
             >
-              {isPending ? t('settings.saving') : t('settings.save')}
+              {shown ? t('settings.key.hide') : t('settings.key.show')}
             </button>
+          </span>
+          {/* What happens to the key is said under the field itself:
+              checking, or why it was refused. */}
+          {(isPending || error || idleNote) && (
+            <p className="settings-feedback key-field-note" aria-live="polite">
+              {isPending ? (
+                <span className="is-pending">{t('settings.saving')}</span>
+              ) : error ? (
+                <span role="alert" id="api-key-error" className="is-error">
+                  {error}
+                </span>
+              ) : (
+                idleNote
+              )}
+            </p>
+          )}
+          <div className="settings-row-control">
+            {malformed !== null && malformed === key ? null : recover &&
+              refused !== null &&
+              refused === key &&
+              !isPending ? (
+              <a
+                className="btn btn-primary icon-label"
+                href={recover.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {recover.label}
+                <IconExternal />
+              </a>
+            ) : (
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isPending || key.trim().length === 0}
+              >
+                {isPending ? t('settings.saving') : t('settings.save')}
+              </button>
+            )}
             {changing && (
               <button type="button" className="btn btn-quiet" onClick={() => setChanging(false)}>
                 {t('addRole.cancel')}

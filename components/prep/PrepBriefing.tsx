@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useT } from '@/components/i18n/LocaleProvider'
 import type { MessageKey } from '@/lib/i18n'
 import type { InterviewView } from '@/lib/seguimiento-view'
@@ -42,6 +43,10 @@ export function PrepBriefing({
   noteFlag?: string
 }) {
   const t = useT()
+  const [open, setOpen] = useState(false)
+  // A long note is the biggest text in the column; three lines say how to
+  // pitch it, the rest waits a tap (audit 2026-11-24).
+  const long = note.length > 220
   const when = whenKey(interview)
   const join = safeMeetingUrl(meetingUrl)
   const scheduled = interview?.state === 'scheduled' ? interview : null
@@ -87,10 +92,26 @@ export function PrepBriefing({
           target="_blank"
           rel="noopener noreferrer"
         >
-          {t('prep.join')}
+          {/* Until there is a date, it is a link, not a meeting to join now. */}
+          {t(scheduled ? 'prep.join' : 'prep.joinLink')}
         </a>
       )}
-      {note && <p className="prep-note">{note}</p>}
+      {note && (
+        <p className={`prep-note${long && !open ? ' is-clamped' : ''}`} id="prep-note">
+          {note}
+        </p>
+      )}
+      {note && long && (
+        <button
+          type="button"
+          className="prep-note-toggle"
+          aria-expanded={open}
+          aria-controls="prep-note"
+          onClick={() => setOpen((v) => !v)}
+        >
+          {t(open ? 'prep.note.less' : 'prep.note.more')}
+        </button>
+      )}
       {note && noteFlag && <p className="prep-flag">{t('prep.flag', { reason: noteFlag })}</p>}
     </section>
   )
