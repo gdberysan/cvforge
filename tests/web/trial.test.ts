@@ -558,4 +558,32 @@ describe('the free trial', () => {
     // No owner key configured: the view does not exist.
     expect((await handleTrial(opsReq('owner-key-not-real'), '1.1.1.1', config())).status).toBe(404)
   })
+
+  it('counts the steps a trial reaches, once each, and only the steps it knows', async () => {
+    const c = config({ ownerKey: 'owner-key-not-real' })
+    const call = (token: string, stage?: string) => {
+      const req = post('/trial/v1/messages', { body: body({ max_tokens: 2_000 }), key: token })
+      if (stage) req.headers.set('x-rumbo-stage', stage)
+      return handleTrial(req, '1.1.1.1', c)
+    }
+    const a = await startTrial(c)
+    const b = await startTrial(c, '2.2.2.2')
+    await call(a, 'parse-cv-profile')
+    await call(a, 'extract-requirements')
+    await call(a, 'extract-requirements') // a second posting: the same step
+    await call(a, 'compose-cv')
+    await call(b, 'parse-cv-profile')
+    await call(b, 'not-a-step')
+    await call(b) // no step named
+    const res = await handleTrial(
+      new Request('https://rumbo.test/api/trial?op=ops', {
+        method: 'POST',
+        headers: { 'x-owner-key': 'owner-key-not-real' },
+      }),
+      '1.1.1.1',
+      c,
+    )
+    const out = (await res.json()) as { days: { steps: Record<string, number> }[] }
+    expect(out.days[0]?.steps).toEqual({ cv_read: 2, analysed: 1, cv_written: 1, prepped: 0 })
+  })
 })

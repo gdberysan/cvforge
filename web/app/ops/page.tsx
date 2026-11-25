@@ -24,8 +24,13 @@ type Ops = {
     errors: number
     starts: number
     full: number
+    /** Absent from a trial server older than the funnel. */
+    steps?: Record<Step, number>
   }[]
 }
+
+const STEPS = ['cv_read', 'analysed', 'cv_written', 'prepped'] as const
+type Step = (typeof STEPS)[number]
 
 const KEY = 'rumbo-owner-key'
 
@@ -73,6 +78,12 @@ export default function Page() {
   }
 
   const today = ops?.days[0]
+  // The week's funnel: each step counted once per trial that reached it.
+  const week = ops?.days ?? []
+  const started = week.reduce((n, d) => n + d.starts, 0)
+  const reachedStep = (s: Step) => week.reduce((n, d) => n + (d.steps?.[s] ?? 0), 0)
+  const counted = week.some((d) => d.steps && STEPS.some((s) => (d.steps?.[s] ?? 0) > 0))
+  const pct = (n: number) => (started > 0 ? Math.round((n / started) * 100) : 0)
   return (
     <main id="main" tabIndex={-1} className="page">
       <div className="settings-page">
@@ -134,6 +145,20 @@ export default function Page() {
                   label={t('web.ops.attention')}
                   hint={t('web.ops.attentionHint', { errors: today.errors, full: today.full })}
                 />
+              )}
+            </SettingsGroup>
+            <SettingsGroup title={t('web.ops.funnel')}>
+              <SettingsRow label={t('web.ops.step.starts')} hint={String(started)} />
+              {counted ? (
+                STEPS.map((s) => (
+                  <SettingsRow
+                    key={s}
+                    label={t(`web.ops.step.${s}`)}
+                    hint={t('web.ops.funnel.hint', { n: reachedStep(s), pct: pct(reachedStep(s)) })}
+                  />
+                ))
+              ) : (
+                <p className="settings-feedback">{t('web.ops.funnel.none')}</p>
               )}
             </SettingsGroup>
             <SettingsGroup title={t('web.ops.week')}>

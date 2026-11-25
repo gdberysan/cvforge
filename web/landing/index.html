@@ -58,7 +58,7 @@
         <a class="btn" href="/app/">Probarlo con mi CV
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
-      <ul class="promises rise d3" aria-label="Lo que te prometemos"><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>No inventa nada.</b> Cada línea sale de algo que de verdad hiciste.</span></li><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span><b>Tu CV se queda contigo.</b> Vive en tu navegador; no hay cuenta que crear.</span></li><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.2 0-2.1-.4-2.6-1.2M12 6.5V8m0 8v1.5"/></svg></span><span><b>Rumbo es gratis.</b> Tu primera prueba, también: esa vez la IA la pagamos nosotros.</span></li></ul>
+      <ul class="promises rise d3" aria-label="Lo que te prometemos"><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>No inventa nada.</b> Cada línea sale de algo que de verdad hiciste.</span></li><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span><b>Tu CV se queda contigo.</b> Vive en tu navegador; no hay cuenta que crear.</span></li><li><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.2 0-2.1-.4-2.6-1.2M12 6.5V8m0 8v1.5"/></svg></span><span><b>Rumbo no te cobra.</b> Solo pagas la IA que usas, y tu primera prueba la pagamos nosotros.</span></li></ul>
     </div>
 
     <section class="demo rise d3" aria-label="Una respuesta de ejemplo">
@@ -72,6 +72,16 @@
       <p class="caption">Así se ve con Lucas, un ejemplo inventado que busca trabajo de marketing en CDMX. Abre la tercera: a veces la respuesta es no.</p>
     </section>
   </div>
+
+  <section class="film" aria-label="Rumbo en 34 segundos">
+    <div class="film-frame">
+      <video id="film" muted loop playsinline preload="none" width="1280" height="720" poster="/video/rumbo-film-poster.jpg" aria-label="Video sin sonido, 34 segundos: Rumbo te dice si vale la pena postularte y cuándo no, te arma el CV para esa vacante sin inventar nada (cada cifra sale de algo que hiciste) y te prepara para la entrevista." src="/video/rumbo-film-720p.mp4"></video>
+      <button type="button" class="film-toggle" id="film-toggle" aria-label="Pausar el video" aria-pressed="false" hidden>
+        <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>
+        <svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L9.5 4.74A1 1 0 0 0 8 5.6z"/></svg>
+      </button>
+    </div>
+  </section>
 
   <section class="how" aria-labelledby="h-how">
     <p class="kicker">Cómo funciona</p>
@@ -167,7 +177,7 @@
         <p>Así que la hice al revés. Rumbo parte de lo que de verdad hiciste y no escribe una sola línea que no puedas respaldar. Y antes de que escribas nada, te dice si una vacante vale la pena. A mí me dijo que no más veces de las que me gustaba. Casi siempre tenía razón.</p>
       </div>
       <div class="note-col">
-        <p>Es gratis porque buscar trabajo ya cuesta bastante. Solo pagas la IA que usas, unos centavos, directo a quien la hace. Yo no cobro nada, no veo tus datos y no los vendo.</p>
+        <p>No te cobro porque buscar trabajo ya cuesta bastante. Solo pagas la IA que usas, unos centavos, directo a quien la hace. Yo no cobro nada, no veo tus datos y no los vendo.</p>
         <p>Ojalá te sirva tanto como a mí. :)</p>
         <div class="sign">
           <span class="name">Gerardo</span>
@@ -409,6 +419,34 @@ if (zero && !calm && 'IntersectionObserver' in window) {
     requestAnimationFrame(step);
   }, { threshold: 0.6 });
   seen.observe(zero.parentElement);
+}
+
+// The film plays only while on screen (a phone downloads it only when it
+// gets there), and never on its own for someone who asked for less motion.
+{
+  const film = document.getElementById('film');
+  const toggle = document.getElementById('film-toggle');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let paused = still;
+  const show = () => {
+    toggle.setAttribute('aria-pressed', String(paused));
+    toggle.setAttribute('aria-label', paused ? 'Reproducir el video' : 'Pausar el video');
+    toggle.classList.toggle('is-paused', paused);
+  };
+  let inView = false;
+  // A browser may refuse to start it (power or data saving, some in-app
+  // browsers): then it offers play, so one tap starts it.
+  const sync = () => {
+    if (!paused && inView) film.play().catch(() => { paused = true; show(); });
+    else film.pause();
+  };
+  toggle.hidden = false;
+  show();
+  toggle.addEventListener('click', () => { paused = !paused; show(); sync(); });
+  new IntersectionObserver((entries) => {
+    inView = entries.some((e) => e.isIntersecting);
+    sync();
+  }, { threshold: 0.35 }).observe(film);
 }
 
 // The app opens in this page's language: it reads the cookie first, then storage.

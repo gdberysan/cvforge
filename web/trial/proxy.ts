@@ -267,6 +267,7 @@ async function forward(request: Request, address: string, c: TrialConfig): Promi
   )
   const total = await settle(cost)
   await tally(c, 'calls', now)
+  await reached(c, id, request.headers.get('x-rumbo-stage'), now)
   return new Response(JSON.stringify(message), {
     status: 200,
     headers: {
@@ -418,6 +419,31 @@ export function checkBody(text: string): string | null {
 
 const OPS = ['calls', 'errors', 'starts', 'full'] as const
 
+/**
+ * The funnel: which steps trials reach. The app names the step of each call
+ * (a stage name, never content); only these names count, each once per trial
+ * (a flag under the trial's opaque id, gone with the trial), as a day's count.
+ */
+export const STEPS: Record<string, string> = {
+  'parse-cv-profile': 'cv_read',
+  'extract-requirements': 'analysed',
+  'compose-cv': 'cv_written',
+  'interview-prep': 'prepped',
+}
+const STEP_NAMES = ['cv_read', 'analysed', 'cv_written', 'prepped'] as const
+
+async function reached(
+  c: TrialConfig & { store: TrialStore },
+  id: string,
+  stage: string | null,
+  now: number,
+): Promise<void> {
+  const step = stage ? STEPS[stage] : undefined
+  if (!step) return
+  const first = await c.store.add(`reached:${step}:${id}`, 1, TRIAL_DAYS * 86_400 * 2)
+  if (first === 1) await c.store.add(`ops:step:${step}:${day(now)}`, 1, 40 * 86_400)
+}
+
 /** One more of something that happened today: a count, never what it was. */
 async function tally(
   c: TrialConfig & { store: TrialStore },
@@ -444,7 +470,12 @@ async function ops(request: Request, c: TrialConfig): Promise<Response> {
       const counts = Object.fromEntries(
         await Promise.all(OPS.map(async (n) => [n, await store.get(`ops:${n}:${d}`)] as const)),
       )
-      return { day: d, spentUsd: await store.get(`day:${d}`), ...counts }
+      const steps = Object.fromEntries(
+        await Promise.all(
+          STEP_NAMES.map(async (n) => [n, await store.get(`ops:step:${n}:${d}`)] as const),
+        ),
+      )
+      return { day: d, spentUsd: await store.get(`day:${d}`), ...counts, steps }
     }),
   )
   return json(200, {

@@ -281,7 +281,7 @@ const en = {
   'settings.trial.lede':
     'This time CVForge pays. When it runs out, add your key here and pick up where you left off.',
   'settings.trial.left': 'About {pct}% of your trial is left.',
-  'settings.trial.leftAll': "You've barely used your trial yet.",
+  'settings.trial.leftAll': 'Almost all of your trial is left.',
   'settings.trial.endedLede':
     'Your free trial is over. Add your key and pick up where you left off: your CV and applications are still here.',
   'settings.group.data': 'Your data',
@@ -1503,7 +1503,7 @@ const en = {
   'privacy.trial.short':
     'Passes through our server with our key. Keeps none of your data, only counts.',
   'privacy.trial.body':
-    'Without a key of your own, the trial uses ours: each call goes from your browser to our server, which checks it is one the app makes and forwards it to Anthropic. It keeps only counts (how much your trial has spent, and how often your network asks, under a one-way code that cannot be turned back into its address), never your CV, the posting or the answers. Once you add your key, nothing goes through us again.',
+    'Without a key of your own, the trial uses ours: each call goes from your browser to our server, which checks it is one the app makes and forwards it to Anthropic. It keeps only counts (how much your trial has spent; which steps it reached, as in read a CV, analysed a posting, wrote a CV or prepared an interview; and how often your network asks, under a one-way code that cannot be turned back into its address), never your CV, the posting or the answers. Once you add your key, nothing goes through us again.',
   'privacy.shots.title': 'Screenshots',
   'privacy.shots.short': 'The whole image goes to Anthropic: crop anything private first.',
   'privacy.shots.body':
@@ -1654,6 +1654,14 @@ const en = {
   'web.ops.attention': 'Today needs a look',
   'web.ops.attentionHint': '{errors} calls failed and {full} were refused as full.',
   'web.ops.week': 'Last seven days',
+  'web.ops.funnel': 'How far trials got (seven days)',
+  'web.ops.funnel.none': 'No steps counted yet: they are counted from 2026-11-25 on.',
+  'web.ops.funnel.hint': '{n} · {pct}% of trials started',
+  'web.ops.step.starts': 'Trials started',
+  'web.ops.step.cv_read': 'Read a CV',
+  'web.ops.step.analysed': 'Analysed a posting',
+  'web.ops.step.cv_written': 'Wrote a CV',
+  'web.ops.step.prepped': 'Prepared an interview',
   'web.ops.col.day': 'Day',
   'web.ops.col.spent': 'Spent',
   'web.ops.col.calls': 'Calls',
@@ -2029,7 +2037,7 @@ const es: Record<MessageKey, string> = {
   'settings.trial.lede':
     'Esta vez paga CVForge. Cuando se acabe, agrega aquí tu clave y sigues donde ibas.',
   'settings.trial.left': 'Te queda cerca del {pct}% de tu prueba.',
-  'settings.trial.leftAll': 'Aún casi no has usado tu prueba.',
+  'settings.trial.leftAll': 'Te queda casi toda tu prueba.',
   'settings.trial.endedLede':
     'Tu prueba gratis terminó. Agrega tu clave y sigues donde ibas: tu CV y tus postulaciones siguen aquí.',
   'settings.group.data': 'Tus datos',
@@ -3250,7 +3258,7 @@ const es: Record<MessageKey, string> = {
   'privacy.trial.short':
     'Pasa por nuestro servidor, con nuestra clave. No guarda nada tuyo, solo cuentas.',
   'privacy.trial.body':
-    'Sin una clave tuya, la prueba usa la nuestra: cada llamada va de tu navegador a nuestro servidor, que comprueba que es una de las que hace la app y la reenvía a Anthropic. Solo guarda cuentas (cuánto lleva gastado tu prueba, y cuántas veces pregunta tu red, bajo un código de un solo sentido que no se puede convertir de vuelta en su dirección), nunca tu CV, la vacante ni las respuestas. En cuanto agregas tu clave, nada vuelve a pasar por nosotros.',
+    'Sin una clave tuya, la prueba usa la nuestra: cada llamada va de tu navegador a nuestro servidor, que comprueba que es una de las que hace la app y la reenvía a Anthropic. Solo guarda cuentas (cuánto lleva gastado tu prueba; a qué pasos llegó, como leer un CV, analizar una vacante, escribir un CV o preparar una entrevista; y cuántas veces pregunta tu red, bajo un código de un solo sentido que no se puede convertir de vuelta en su dirección), nunca tu CV, la vacante ni las respuestas. En cuanto agregas tu clave, nada vuelve a pasar por nosotros.',
   'privacy.shots.title': 'Capturas de pantalla',
   'privacy.shots.short': 'La imagen completa va a Anthropic: recorta antes lo privado.',
   'privacy.shots.body':
@@ -3406,6 +3414,14 @@ const es: Record<MessageKey, string> = {
   'web.ops.attention': 'Hoy hay algo que revisar',
   'web.ops.attentionHint': '{errors} llamadas fallaron y {full} se rechazaron por estar llena.',
   'web.ops.week': 'Últimos siete días',
+  'web.ops.funnel': 'Hasta dónde llegaron las pruebas (siete días)',
+  'web.ops.funnel.none': 'Aún no hay pasos contados: se cuentan desde el 25 de noviembre de 2026.',
+  'web.ops.funnel.hint': '{n} · {pct}% de las pruebas iniciadas',
+  'web.ops.step.starts': 'Pruebas iniciadas',
+  'web.ops.step.cv_read': 'Leyeron un CV',
+  'web.ops.step.analysed': 'Analizaron una vacante',
+  'web.ops.step.cv_written': 'Escribieron un CV',
+  'web.ops.step.prepped': 'Prepararon una entrevista',
   'web.ops.col.day': 'Día',
   'web.ops.col.spent': 'Gastado',
   'web.ops.col.calls': 'Llamadas',

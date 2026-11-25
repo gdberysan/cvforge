@@ -633,3 +633,35 @@ footer a { color: var(--ink-faint); display: inline-flex; align-items: center; m
   content: ''; position: absolute; left: .25em; top: .66em;
   width: 5px; height: 5px; border-radius: 50%; background: var(--page-ink);
 }
+
+/* The 24-second film, right under the hero: muted, looping, its own pause. */
+.film { padding-block: 0 clamp(48px, 7vh, 72px); }
+.film-frame {
+  position: relative; overflow: hidden; border-radius: 20px;
+  border: 1px solid var(--rule); background: var(--paper); aspect-ratio: 16 / 9;
+}
+.film video { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Bottom left: the one corner no scene of the film uses. */
+.film-toggle {
+  position: absolute; left: 10px; bottom: 10px;
+  display: grid; place-items: center; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 999px; cursor: pointer; background: none;
+  /* Over the film, which is the same in both themes: always a light icon. */
+  color: #fff;
+}
+.film-toggle::before {
+  content: ''; position: absolute; inset: 4px; border-radius: inherit;
+  background: color-mix(in srgb, var(--tile) 72%, transparent);
+  /* A thin light ring: the disc still shows over the film's dark scenes. */
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / .28);
+}
+.film-toggle svg { position: relative; width: 18px; height: 18px; }
+.film-toggle .i-play, .film-toggle.is-paused .i-pause { display: none; }
+.film-toggle.is-paused .i-play { display: block; }
+/* A phone: the same 44 px to tap, a smaller disc to see. */
+@media (max-width: 640px) {
+  .film-frame { border-radius: 14px; }
+  .film-toggle { left: 2px; bottom: 2px; }
+  .film-toggle::before { inset: 10px; }
+  .film-toggle svg { width: 12px; height: 12px; }
+}

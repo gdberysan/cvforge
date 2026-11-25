@@ -15,6 +15,40 @@ export const MAX_TOKENS = 16_000
  */
 export const MAX_TOKENS_CEILING = 21_000
 
+/**
+ * What a stage asks for first when it runs on Rumbo's free trial. The trial
+ * server holds a call's worst case (input + max_tokens at the output price)
+ * against the person's budget before forwarding it, so the default 16,000
+ * held $0.40 per Opus call for steps that write a tenth of that: a CV step
+ * held ~$0.45 to spend ~$0.22, and a trial of $1.50 refused the CV once
+ * ~$1.05 was spent (2026-11-25, a real visitor, 12 calls in).
+ *
+ * Each value is the largest output (thinking included) the step has ever
+ * produced in api_calls (2026-11-25, 1,000+ calls), with at least a third
+ * more on top; the CV import steps, whose output grows with the CV and
+ * have only 3 samples, get several times theirs. A step cut off by its
+ * allowance is asked once more at the full one (callStructured), so a
+ * value that proves small costs a retry, never a broken step. Only the
+ * trial uses these: with the person's own key nothing is held, and the
+ * full allowance stays.
+ */
+const TRIAL_OPENING_TOKENS: Record<string, number> = {
+  'compose-cv': 14_000, // max seen 10,215
+  'compose-cover-letter': 5_000, // 2,630
+  'translate-cv': 6_000, // 3,167
+  'verify-distortion': 6_000, // 3,539
+  'map-evidence': 6_000, // 3,716
+  'extract-requirements': 5_000, // 2,861
+  'parse-cv-evidence': 8_000, // 942 (3 samples; grows with the CV)
+  'parse-cv-profile': 4_000, // 530 (3 samples)
+}
+
+/** The allowance a call opens with: smaller on the trial for a known stage. */
+export function openingTokens(stage: string | undefined, full: number, onTrial: boolean): number {
+  const opening = onTrial && stage ? TRIAL_OPENING_TOKENS[stage] : undefined
+  return opening ? Math.min(opening, full) : full
+}
+
 export type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 
 /**

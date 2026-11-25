@@ -2,7 +2,14 @@ import Anthropic from '@anthropic-ai/sdk'
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import type { z } from 'zod'
 import { readSettings, writeSettings } from '@/lib/settings'
-import { type Effort, MAX_TOKENS, MAX_TOKENS_CEILING, modelFor, reasoningFor } from './config'
+import {
+  type Effort,
+  MAX_TOKENS,
+  MAX_TOKENS_CEILING,
+  modelFor,
+  openingTokens,
+  reasoningFor,
+} from './config'
 import { AiError, type AiErrorKind, classify, messageOf } from './errors'
 import { trackPaidCall } from './in-flight'
 import { reportSpend } from './spend-hook'
@@ -42,7 +49,11 @@ export type UserBlock =
  * whatever the SDK resolves on its own (an OAuth profile). When the env has
  * a key we pass nothing and let the SDK read it, so its own precedence holds.
  */
-const globalForAi = globalThis as unknown as { __anthropic?: Anthropic }
+const globalForAi = globalThis as unknown as {
+  __anthropic?: Anthropic
+  /** The client above talks to the free trial, which holds each call's worst case. */
+  __anthropicOnTrial?: boolean
+}
 
 /** A browser page or Worker: the web edition, where there is no process.env. */
 export const inBrowser = (): boolean =>
@@ -62,6 +73,7 @@ function getClient(): Anthropic {
       inBrowser() && !fileKey && settings.trialToken && !settings.trialEnded
         ? settings.trialToken
         : undefined
+    globalForAi.__anthropicOnTrial = Boolean(trial)
     try {
       // maxRetries: 0 because the retry policy lives HERE — the SDK default
       // silently retries 429s and 529s twice, which turns "never retry a rate
@@ -91,6 +103,12 @@ const trialFetch: typeof fetch = (input, init) => {
   const url = new URL(input instanceof Request ? input.url : String(input))
   if (!url.pathname.endsWith('/')) url.pathname += '/'
   return fetch(url, init)
+}
+
+/** Whether calls go to the free trial (building the client if need be). */
+function onTrial(): boolean {
+  getClient()
+  return globalForAi.__anthropicOnTrial === true
 }
 
 /** The trial's budget ran out: from now on the app asks for a key. */
@@ -187,9 +205,10 @@ async function callStructuredUntracked<T extends z.ZodTypeAny>(
 ): Promise<z.infer<T>> {
   const model = modelFor(opts.stage)
   const reasoning = reasoningFor(model, opts.effort)
+  const fullTokens = Math.min(opts.maxTokens ?? MAX_TOKENS, MAX_TOKENS_CEILING)
   const request = {
     model,
-    max_tokens: Math.min(opts.maxTokens ?? MAX_TOKENS, MAX_TOKENS_CEILING),
+    max_tokens: fullTokens,
     thinking: reasoning.thinking,
     output_config: {
       ...(reasoning.effort ? { effort: reasoning.effort } : {}),
@@ -225,28 +244,49 @@ async function callStructuredUntracked<T extends z.ZodTypeAny>(
   // billed response has arrived, discarding its usage. Anthropic bills a
   // truncated or malformed answer the same as a good one, so the response
   // is taken as-is, its spend recorded, and the parsing done here.
-  let response: Reply | undefined
-  for (let attempt = 0; response === undefined; attempt++) {
-    try {
-      response = (await getClient().messages.create(request as never)) as Reply
-    } catch (error) {
-      if (error instanceof AiError) throw error
-      recordUsage(usageFromError(error))
-      const kind = classify(error)
-      if (kind === 'trial-ended') endTrial()
-      const delay = RETRY_DELAYS_MS[kind]?.[attempt]
-      if (delay === undefined) {
-        throw new AiError(
-          kind,
-          attempt === 0 ? `AI request failed (${kind})` : `Retry after ${kind} failed`,
-          error,
-        )
+  const trialStep =
+    onTrial() && opts.stage ? { headers: { 'x-rumbo-stage': opts.stage } } : undefined
+  const send = async (maxTokens: number): Promise<Reply> => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const reply = (await getClient().messages.create(
+          { ...request, max_tokens: maxTokens } as never,
+          // The trial counts which steps a trial reaches: the step's name
+          // only, never content, and never sent with the person's own key.
+          trialStep,
+        )) as Reply
+        recordUsage(reply.usage)
+        return reply
+      } catch (error) {
+        if (error instanceof AiError) throw error
+        recordUsage(usageFromError(error))
+        const kind = classify(error)
+        if (kind === 'trial-ended') endTrial()
+        const delay = RETRY_DELAYS_MS[kind]?.[attempt]
+        if (delay === undefined) {
+          throw new AiError(
+            kind,
+            attempt === 0 ? `AI request failed (${kind})` : `Retry after ${kind} failed`,
+            error,
+          )
+        }
+        await new Promise((resolve) => setTimeout(resolve, delay))
       }
-      await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }
 
-  recordUsage(response.usage)
+  // On the trial a known stage opens with a smaller allowance (see
+  // openingTokens), so its hold leaves room for the next step. Cut off by
+  // it, the stage is asked once more with the full allowance; the cut-off
+  // call was billed and its spend is already recorded.
+  const opening = openingTokens(opts.stage, fullTokens, onTrial())
+  let response = await send(opening)
+  if (response.stop_reason === 'max_tokens' && opening < fullTokens) {
+    console.error(
+      `[cvforge] ${opts.stage ?? 'unknown'} reached its opening ${opening} tokens; asking with ${fullTokens}`,
+    )
+    response = await send(fullTokens)
+  }
 
   // The first text block is the structured answer; thinking blocks precede
   // it. stop_reason tells truncation and refusal apart in the log — both used
