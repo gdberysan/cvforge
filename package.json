@@ -39,7 +39,7 @@
     "@anthropic-ai/sdk": "^0.131.0",
     "@noble/hashes": "^2.4.0",
     "@sqlite.org/sqlite-wasm": "^3.54.1-build1",
-    "better-sqlite3": "^13.0.3",
+    "better-sqlite3": "^13.2.0",
     "docx": "^9.16.0",
     "drizzle-orm": "^0.45.2",
     "next": "^16.4.6",
