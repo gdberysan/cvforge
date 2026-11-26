@@ -41,7 +41,7 @@
     "@sqlite.org/sqlite-wasm": "^3.54.1-build1",
     "better-sqlite3": "^13.0.3",
     "docx": "^9.16.0",
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "^0.45.4",
     "next": "^16.4.6",
     "pdfjs-dist": "^6.3.289",
     "playwright": "1.62.1",
